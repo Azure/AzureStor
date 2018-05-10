@@ -73,7 +73,7 @@ public=list(
         parms <- list(keyToSign=key, canonicalizedResource=path,
                       signedExpiry=expiry, signedIp=ip, signedPermission=permissions, signedProtocol=protocol,
                       signedResource=service, signedStart=start)
-        print(parms)
+
         private$res_op("listServiceSas", body=parms, encode="json", http_verb="POST")$serviceSasToken
     }
 ))
