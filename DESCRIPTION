@@ -1,0 +1,16 @@
+Package: AzureStor
+Title: Azure Storage management
+Version: 0.0.1
+Authors@R: c(
+    person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
+    person("Microsoft", role="cph")
+    )
+Description: A package for managing virtual machines in Azure.
+License: file LICENSE
+Encoding: UTF-8
+Depends: 
+    R (>= 3.3),
+Imports: 
+    R6,
+    AzureRMR
+RoxygenNote: 6.0.1
