@@ -75,5 +75,15 @@ public=list(
                       signedResource=service, signedStart=start)
 
         private$res_op("listServiceSas", body=parms, encode="json", http_verb="POST")$serviceSasToken
+    },
+
+    get_blob_client=function(...)
+    {
+        az_blob_client$new(...)
+    },
+
+    get_file_client=function(...)
+    {
+        az_file_client$new(...)
     }
 ))
