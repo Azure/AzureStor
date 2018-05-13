@@ -18,7 +18,8 @@ do_storage_call <- function(endpoint, path, options=list(), headers=list(), body
     {
         url <- httr::parse_url(endpoint)
         url$path <- path
-        url$query <- options[order(names(options))]
+        if(!is_empty(options))
+            url$query <- options[order(names(options))]
 
         headers <- if(!is.null(key))
             sign_request(key, verb, url, headers, api_version)
@@ -34,9 +35,13 @@ do_storage_call <- function(endpoint, path, options=list(), headers=list(), body
     {
         handler <- get(paste0(handler, "_for_status"), getNamespace("httr"))
         handler(response)
+
+        # if file was written to disk, content(*) will read it back into memory!
+        if(inherits(response$content, "path"))
+            return(NULL)
+
         # silence message about missing encoding
         cont <- suppressMessages(httr::content(response))
-
         if(is_empty(cont))
             NULL
         else xml2::as_list(cont)

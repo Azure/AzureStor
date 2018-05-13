@@ -107,8 +107,12 @@ public=list(
         unname(lst)
     },
 
+    download_blob=function(blob, dest, overwrite=FALSE)
+    {
+        private$container_op(blob, config=httr::write_disk(dest, overwrite))
+    },
+
     upload_blob=function(...) { },
-    download_blob=function(...) { },
     delete_blob=function(...) { }
 ),
 
@@ -125,18 +129,24 @@ private=list(
 
 
 #' @export
-download_azure_blob <- function(src, dest, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
+download_azure_blob <- function(src, dest, overwrite=FALSE,
+                                key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
 {
     if(is.null(key) && is.null(sas))
         return(curl::curl_download(src, dest))
 
-    az_blob_container$new(src, key=key, sas=sas, api_version=api_version)$download_blob(basename(src), dest)
+    az_blob_container$
+        new(dirname(src), key=key, sas=sas, api_version=api_version)$
+        download_blob(basename(src), dest, overwrite)
 }
 
 
 #' @export
-upload_azure_blob <- function(src, dest, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
+upload_azure_blob <- function(src, dest, overwrite=FALSE,
+                              key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
 {
-    az_blob_container$new(dest, key=key, sas=sas, api_version=api_version)$upload_blob(src, basename(dest))
+    az_blob_container$
+        new(dirname(dest), key=key, sas=sas, api_version=api_version)$
+        upload_blob(src, basename(dest), overwrite)
 }
 
