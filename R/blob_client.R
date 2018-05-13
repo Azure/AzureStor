@@ -22,29 +22,20 @@ public=list(
 
         lst <- lapply(lst$Containers, function(cont)
         {
-            az_blob_container$new(self$endpoint, cont$Name[[1]], self$key, self$sas, self$api_version)
+            az_blob_container$new(cont$Name[[1]], self$endpoint, self$key, self$sas, self$api_version)
         })
         named_list(lst)
     },
 
     get_container=function(container)
     {
-        container <- sub("/$", "", container)
-        az_blob_container$new(self$endpoint, container, self$key, self$sas, self$api_version)
+        az_blob_container$new(container, self$endpoint, self$key, self$sas, self$api_version)
     },
 
     create_container=function(container, public_access=NULL)
     {
-        if(substr(container, nchar(container), nchar(container)) != "/")
-            container <- paste0(container, "/")
-
-        headers <- if(!is_empty(public_access))
-            list("x-ms-blob-public-access"=public_access)
-        else list()
-        res <- do_storage_call(self$endpoint, container, options=list(restype="container"), headers=headers,
-                               key=self$key, sas=self$sas, api_version=self$api_version,
-                               http_verb="PUT")
-        az_blob_container$new(self$endpoint, container, self$key, self$sas, self$api_version)
+        az_blob_container$new(container, self$endpoint, self$key, self$sas, self$api_version,
+                              public_access=public_access, create=TRUE)
     },
 
     delete_container=function(container, confirm=TRUE)
@@ -63,16 +54,16 @@ public=list(
     sas=NULL,
     api_version=NULL,
 
-    initialize=function(endpoint, name, key, sas, api_version)
+    initialize=function(name, endpoint, key, sas, api_version, public_access=NULL, create=FALSE)
     {
         # allow passing full URL to constructor
-        if(missing(name))
+        if(missing(endpoint))
         {
-            url <- parse_url(endpoint)
+            url <- parse_url(name)
             if(url$path == "")
                 stop("Must supply container name", call.=FALSE)
-            self$endpoint <- get_hostroot(endpoint)
-            self$name <- url$path
+            self$endpoint <- get_hostroot(name)
+            self$name <- sub("/$", "", url$path) # strip trailing /
         }
         else
         {
@@ -83,19 +74,57 @@ public=list(
         self$key <- key
         self$sas <- sas
         self$api_version <- api_version
+
+        if(create)
+        {
+            headers <- if(!is_empty(public_access))
+                list("x-ms-blob-public-access"=public_access)
+            else list()
+
+            private$container_op(options=list(restype="container"), headers=headers, http_verb="PUT")
+        }
         NULL
     },
 
-    delete=function(...) { },
+    delete=function(confirm=TRUE)
+    {
+        if(confirm && interactive())
+        {
+            path <- paste0(self$endpoint, self$name, "/")
+            yn <- readline(paste0("Are you sure you really want to delete blob container '", path, "'? (y/N) "))
+            if(tolower(substr(yn, 1, 1)) != "y")
+                return(invisible(NULL))
+        }
 
-    list_blobs=function(...) { },
+        private$container_op(options=list(restype="container"), http_verb="DELETE")
+        invisible(NULL)
+    },
+
+    list_blobs=function()
+    {
+        lst <- private$container_op(options=list(comp="list", restype="container"))
+        lst <- sapply(lst$Blobs, function(b) b$Name[[1]])
+        unname(lst)
+    },
 
     upload_blob=function(...) { },
     download_blob=function(...) { },
     delete_blob=function(...) { }
+),
+
+private=list(
+
+    container_op=function(blob="", options=list(), headers=list(), http_verb="GET", ...)
+    {
+        path <- paste0(self$name, "/", blob)
+        do_storage_call(self$endpoint, path, options=options, headers=headers,
+                        key=self$key, sas=self$sas, api_version=self$api_version,
+                        http_verb=http_verb, ...)
+    }
 ))
 
 
+#' @export
 download_azure_blob <- function(src, dest, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
 {
     if(is.null(key) && is.null(sas))
@@ -105,7 +134,8 @@ download_azure_blob <- function(src, dest, key=NULL, sas=NULL, api_version=getOp
 }
 
 
-upload_azure_blob <- function(src, dest, key=NULL, sas=NULL)
+#' @export
+upload_azure_blob <- function(src, dest, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
 {
     az_blob_container$new(dest, key=key, sas=sas, api_version=api_version)$upload_blob(src, basename(dest))
 }

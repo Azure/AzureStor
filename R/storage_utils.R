@@ -18,7 +18,7 @@ do_storage_call <- function(endpoint, path, options=list(), headers=list(), body
     {
         url <- httr::parse_url(endpoint)
         url$path <- path
-        url$query <- options
+        url$query <- options[order(names(options))]
 
         headers <- if(!is.null(key))
             sign_request(key, verb, url, headers, api_version)
@@ -37,8 +37,8 @@ do_storage_call <- function(endpoint, path, options=list(), headers=list(), body
         # silence message about missing encoding
         cont <- suppressMessages(httr::content(response))
 
-        if(is.null(cont))
-            cont
+        if(is_empty(cont))
+            NULL
         else xml2::as_list(cont)
     }
     else response
