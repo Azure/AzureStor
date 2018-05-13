@@ -58,7 +58,7 @@ az_delete_file_share <- function(share, confirm=TRUE)
 {
     if(confirm && interactive())
     {
-        con <- container$con
+        con <- share$con
         path <- paste0(con$endpoint, con$name, "/")
         yn <- readline(paste0("Are you sure you really want to delete the share '", path, "'? (y/N) "))
         if(tolower(substr(yn, 1, 1)) != "y")
