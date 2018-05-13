@@ -102,8 +102,8 @@ make_signature <- function(key, verb, acct_name, resource, options, headers)
 get_hostroot <- function(url)
 {
     if(!inherits(url, "url"))
-        url <- parse_url(url)
+        url <- httr::parse_url(url)
     url$port <- url$path <- url$params <- url$fragment <- url$query <- url$username <- url$password <- NULL
-    build_url(url)
+    httr::build_url(url)
 }
 

@@ -18,13 +18,10 @@ public=list(
     list_containers=function()
     {
         lst <- do_storage_call(self$endpoint, "/", options=list(comp="list"),
-                        key=self$key, sas=self$sas, api_version=self$api_version)
+                               key=self$key, sas=self$sas, api_version=self$api_version)
 
-        lst <- lapply(lst$Containers, function(cont)
-        {
-            az_blob_container$new(cont$Name[[1]], self$endpoint, self$key, self$sas, self$api_version)
-        })
-        named_list(lst)
+        named_list(lapply(lst$Containers, function(cont)
+            az_blob_container$new(cont$Name[[1]], self$endpoint, self$key, self$sas, self$api_version)))
     },
 
     get_container=function(container)
@@ -54,7 +51,8 @@ public=list(
     sas=NULL,
     api_version=NULL,
 
-    initialize=function(name, endpoint, key, sas, api_version, public_access=NULL, create=FALSE)
+    initialize=function(name, endpoint, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"),
+        public_access=NULL, create=FALSE)
     {
         # allow passing full URL to constructor
         if(missing(endpoint))
@@ -62,7 +60,7 @@ public=list(
             url <- parse_url(name)
             if(url$path == "")
                 stop("Must supply container name", call.=FALSE)
-            self$endpoint <- get_hostroot(name)
+            self$endpoint <- get_hostroot(url)
             self$name <- sub("/$", "", url$path) # strip trailing /
         }
         else
@@ -103,8 +101,7 @@ public=list(
     list_blobs=function()
     {
         lst <- private$container_op(options=list(comp="list", restype="container"))
-        lst <- sapply(lst$Blobs, function(b) b$Name[[1]])
-        unname(lst)
+        unname(vapply(lst$Blobs, function(b) b$Name[[1]], FUN.VALUE=character(1)))
     },
 
     download_blob=function(blob, dest, overwrite=FALSE)

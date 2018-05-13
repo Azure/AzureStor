@@ -40,14 +40,19 @@ public=list(
         self$do_operation("POST", "listServiceSas", body=parms, encode="json")$serviceSasToken
     },
 
-    get_blob_client=function()
+    get_blob_client=function(key=self$list_keys()[1])
     {
-        az_blob_client$new(self$properties$primaryEndpoints$blob, key=self$list_keys()[1])
+        az_blob_client$new(self$properties$primaryEndpoints$blob, key=key)
     },
 
-    get_file_client=function()
+    get_file_client=function(key=self$list_keys()[1])
     {
-        az_file_client$new(self$properties$primaryEndpoints$file, key=self$list_keys()[1])
+        az_file_client$new(self$properties$primaryEndpoints$file, key=key)
+    },
+
+    get_blob_connection=function(key=self$list_keys()[1])
+    {
+        blob_connection(self$properties$primaryEndpoints$blob, key=key)
     }
 ),
 
