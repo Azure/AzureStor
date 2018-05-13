@@ -73,6 +73,6 @@ private=list(
         if(inherits(expiry, c("POSIXt", "Date")))
             expiry <- strftime(expiry, "%Y-%m-%dT%H:%M:%SZ", tz="UTC")
 
-        list(start, expiry)
+        list(start=start, expiry=expiry)
     }
 ))

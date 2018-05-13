@@ -66,10 +66,12 @@ public=list(
     initialize=function(endpoint, name, key, sas, api_version)
     {
         # allow passing full URL to constructor
-        if(missing(endpoint))
+        if(missing(name))
         {
-            url <- parse_url(container)
-            self$endpoint <- get_hostroot(container)
+            url <- parse_url(endpoint)
+            if(url$path == "")
+                stop("Must supply container name", call.=FALSE)
+            self$endpoint <- get_hostroot(endpoint)
             self$name <- url$path
         }
         else
@@ -94,23 +96,17 @@ public=list(
 ))
 
 
-download_azure_blob <- function(src, dest, key=NULL, sas=NULL)
+download_azure_blob <- function(src, dest, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
 {
     if(is.null(key) && is.null(sas))
         return(curl::curl_download(src, dest))
 
-    src <- httr::parse_url(src)
-    az_blob_client$new(get_hostroot(src), key=key, sas=sas)$
-        get_container(dirname(src$path))$
-        download_blob(basename(src$path), dest)
+    az_blob_container$new(src, key=key, sas=sas, api_version=api_version)$download_blob(basename(src), dest)
 }
 
 
 upload_azure_blob <- function(src, dest, key=NULL, sas=NULL)
 {
-    dest <- httr::parse_url(dest)
-    az_blob_client$new(get_hostroot(dest), key=key, sas=sas)$
-        get_container(dirname(dest$path))$
-        upload_blob(src, basename(dest$path))
+    az_blob_container$new(dest, key=key, sas=sas, api_version=api_version)$upload_blob(src, basename(dest))
 }
 
