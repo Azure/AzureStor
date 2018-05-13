@@ -1,3 +1,55 @@
+#' @export
+azure_download <- function(src, dest, ..., overwrite=FALSE)
+{
+    az_path <- parse_storage_url(src)
+
+    if(grepl(".blob.", az_path[1]))
+    {
+        endpoint <- az_blob_endpoint(az_path[1], ...)
+        cont <- az_blob_container(endpoint, az_path[2])
+        az_download_blob(cont, az_path[3], dest)
+    }
+    else if(grepl(".file.", az_path[1]))
+    {
+        endpoint <- az_file_endpoint(az_path[1], ...)
+        share <- az_file_share(endpoint, az_path[2])
+        az_download_file(share, az_path[3], dest)
+    }
+    else stop("Unknown storage endpoint", call.=FALSE)
+}
+
+
+#' @export
+azure_upload <- function(src, dest, ..., overwrite=FALSE)
+{
+    az_path <- parse_storage_url(dest)
+
+    if(grepl(".blob.", az_path[1]))
+    {
+        endpoint <- az_blob_endpoint(az_path[1], ...)
+        cont <- az_blob_container(endpoint, az_path[2])
+        az_upload_blob(cont, az_path[3], dest)
+    }
+    else if(grepl(".file.", az_path[1]))
+    {
+        endpoint <- az_file_endpoint(az_path[1], ...)
+        share <- az_file_share(endpoint, az_path[2])
+        az_upload_file(share, az_path[3], dest)
+    }
+    else stop("Unknown storage endpoint", call.=FALSE)
+}
+
+
+do_container_op <- function(container, path="", options=list(), headers=list(), http_verb="GET", ...)
+{
+    con <- container$con
+    path <- sub("//", "/", paste0(container$name, "/", path))
+    invisible(do_storage_call(con$endpoint, path, options=options, headers=headers,
+                              key=con$key, sas=con$sas, api_version=con$api_version,
+                              http_verb=http_verb, ...))
+}
+
+
 do_storage_call <- function(endpoint, path, options=list(), headers=list(), body=NULL, ...,
                             key=NULL, sas=NULL,
                             api_version=getOption("azure_storage_api_version"),
@@ -109,3 +161,12 @@ get_hostroot <- function(url)
     httr::build_url(url)
 }
 
+
+parse_storage_url <- function(url)
+{
+    url <- httr::parse_url(url)
+    endpoint <- get_hostroot(url)
+    store <- sub("/.*$", "", url$path)
+    path <- sub("^[^/]+/", "", url$path)
+    c(endpoint, store, path)
+}

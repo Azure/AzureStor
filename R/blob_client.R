@@ -79,7 +79,7 @@ public=list(
                 list("x-ms-blob-public-access"=public_access)
             else list()
 
-            private$container_op(options=list(restype="container"), headers=headers, http_verb="PUT")
+            private$do_container_op(options=list(restype="container"), headers=headers, http_verb="PUT")
         }
         NULL
     },
@@ -94,19 +94,19 @@ public=list(
                 return(invisible(NULL))
         }
 
-        private$container_op(options=list(restype="container"), http_verb="DELETE")
+        private$do_container_op(options=list(restype="container"), http_verb="DELETE")
         invisible(NULL)
     },
 
     list_blobs=function()
     {
-        lst <- private$container_op(options=list(comp="list", restype="container"))
+        lst <- private$do_container_op(options=list(comp="list", restype="container"))
         unname(vapply(lst$Blobs, function(b) b$Name[[1]], FUN.VALUE=character(1)))
     },
 
     download_blob=function(blob, dest, overwrite=FALSE)
     {
-        private$container_op(blob, config=httr::write_disk(dest, overwrite))
+        private$do_container_op(blob, config=httr::write_disk(dest, overwrite))
     },
 
     upload_blob=function(...) { },
@@ -115,7 +115,7 @@ public=list(
 
 private=list(
 
-    container_op=function(blob="", options=list(), headers=list(), http_verb="GET", ...)
+    do_container_op=function(blob="", options=list(), headers=list(), http_verb="GET", ...)
     {
         path <- paste0(self$name, "/", blob)
         do_storage_call(self$endpoint, path, options=options, headers=headers,

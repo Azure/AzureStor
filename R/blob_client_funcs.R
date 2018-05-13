@@ -55,7 +55,7 @@ az_create_blob_container <- function(blob_con, name, key=NULL, sas=NULL,
     else list()
 
     obj <- az_blob_container(blob_con, name)
-    container_op(obj, options=list(restype="container"), headers=headers, http_verb="PUT")
+    do_container_op(obj, options=list(restype="container"), headers=headers, http_verb="PUT")
     obj
 }
 
@@ -72,14 +72,14 @@ az_delete_blob_container <- function(container, confirm=TRUE)
             return(invisible(NULL))
     }
 
-    container_op(container, options=list(restype="container"), http_verb="DELETE")
+    do_container_op(container, options=list(restype="container"), http_verb="DELETE")
 }
 
 
 #' @export
 az_list_blobs <- function(container)
 {
-    lst <- container_op(container, options=list(comp="list", restype="container"))
+    lst <- do_container_op(container, options=list(comp="list", restype="container"))
     if(is_empty(lst$Blobs))
         list()
     else unname(sapply(lst$Blobs, function(b) b$Name[[1]]))
@@ -97,7 +97,7 @@ az_upload_blob <- function(container, src, dest, type="BlockBlob")
                     "content-type"="application/octet-stream",
                     "x-ms-blob-type"=type)
 
-    container_op(container, dest, headers=headers, body=body,
+    do_container_op(container, dest, headers=headers, body=body,
                  http_verb="PUT")
 }
 
@@ -105,7 +105,7 @@ az_upload_blob <- function(container, src, dest, type="BlockBlob")
 #' @export
 az_download_blob <- function(container, src, dest, overwrite=FALSE)
 {
-    container_op(container, src, config=httr::write_disk(dest, overwrite))
+    do_container_op(container, src, config=httr::write_disk(dest, overwrite))
 }
 
 
@@ -121,25 +121,6 @@ az_delete_blob <- function(container, blob, confirm=TRUE)
             return(invisible(NULL))
     }
 
-    container_op(container, blob, http_verb="DELETE")
+    do_container_op(container, blob, http_verb="DELETE")
 }
 
-
-container_op <- function(container, path="", options=list(), headers=list(), http_verb="GET", ...)
-{
-    con <- container$con
-    path <- sub("//", "/", paste0(container$name, "/", path))
-    invisible(do_storage_call(con$endpoint, path, options=options, headers=headers,
-                              key=con$key, sas=con$sas, api_version=con$api_version,
-                              http_verb=http_verb, ...))
-}
-
-
-parse_storage_url <- function(url)
-{
-    url <- httr::parse_url(url)
-    endpoint <- get_hostroot(url)
-    store <- sub("/.*$", "", url$path)
-    path <- sub("^[^/]+/", "", url$path)
-    c(endpoint, store, path)
-}

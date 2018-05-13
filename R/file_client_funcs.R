@@ -48,7 +48,7 @@ az_create_file_share <- function(fs_con, name, key=NULL, sas=NULL, api_version=g
     }
 
     obj <- az_file_share(fs_con, name)
-    container_op(obj, options=list(restype="share"), http_verb="PUT")
+    do_container_op(obj, options=list(restype="share"), http_verb="PUT")
     obj
 }
 
@@ -65,14 +65,14 @@ az_delete_file_share <- function(share, confirm=TRUE)
             return(invisible(NULL))
     }
 
-    container_op(share, options=list(restype="share"), http_verb="DELETE")
+    do_container_op(share, options=list(restype="share"), http_verb="DELETE")
 }
 
 
 #' @export
 az_list_files <- function(share, dir)
 {
-    lst <- container_op(share, dir, options=list(comp="list", restype="directory"))
+    lst <- do_container_op(share, dir, options=list(comp="list", restype="directory"))
     if(is_empty(lst$Entries))
         list()
     else unname(sapply(lst$Entries, function(b) b$Name[[1]]))
@@ -87,7 +87,7 @@ az_upload_file <- function(share, src, dest)
     # first, create the file
     headers <- list("x-ms-type"="file",
                     "x-ms-content-length"=length(body))
-    container_op(share, dest, headers=headers, http_verb="PUT")
+    do_container_op(share, dest, headers=headers, http_verb="PUT")
 
     # then write the bytes into it
     hash <- openssl::base64_encode(openssl::md5(body))
@@ -98,14 +98,14 @@ az_upload_file <- function(share, src, dest)
                     "content-type"="application/octet-stream",
                     "x-ms-write"="Update")
 
-    container_op(share, dest, options=options, headers=headers, body=body, http_verb="PUT")
+    do_container_op(share, dest, options=options, headers=headers, body=body, http_verb="PUT")
 }
 
 
 #' @export
 az_download_file <- function(share, src, dest, overwrite=FALSE)
 {
-    container_op(share, src, config=httr::write_disk(dest, overwrite))
+    do_container_op(share, src, config=httr::write_disk(dest, overwrite))
 }
 
 
@@ -121,6 +121,6 @@ az_delete_file <- function(share, file, confirm=TRUE)
             return(invisible(NULL))
     }
 
-    container_op(share, file, http_verb="DELETE")
+    do_container_op(share, file, http_verb="DELETE")
 }
 
