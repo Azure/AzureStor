@@ -12,5 +12,9 @@ Depends:
     R (>= 3.3),
 Imports: 
     R6,
+    httr,
+    curl,
+    openssl,
+    xml2,
     AzureRMR
 RoxygenNote: 6.0.1

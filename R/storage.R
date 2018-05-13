@@ -14,76 +14,65 @@ public=list(
 
     list_keys=function()
     {
-        named_list(private$res_op("listKeys", http_verb="POST")$keys, "keyName")
+        keys <- named_list(private$res_op("listKeys", http_verb="POST")$keys, "keyName")
+        sapply(keys, `[[`, "value")
     },
 
     get_account_sas=function(start=NULL, expiry=NULL, services="bqtf", permissions="r",
                              resource_types="sco", ip=NULL, protocol=NULL, key=NULL)
     {
-        if(is.null(start))
-            start <- as.POSIXct(Sys.Date())
-        else if(is.numeric(start))
-            start <- as.POSIXct(start)
-
-        if(inherits(start, c("POSIXt", "Date")))
-            start <- strftime(start, "%Y-%m-%dT%H:%M:%SZ")
-
-        if(is.null(expiry))
-        {
-            expiry <- as.POSIXlt(start)
-            expiry$year <- expiry$year + 1
-            expiry <- as.POSIXct(expiry)
-        }
-        else if(is.numeric(expiry))
-            expiry <- as.POSIXct(expiry, origin="1970-01-01")
-
-        if(inherits(expiry, c("POSIXt", "Date")))
-            expiry <- strftime(expiry, "%Y-%m-%dT%H:%M:%SZ")
-
+        dates <- private$set_sas_dates(start, expiry)
         parms <- list(keyToSign=key,
-                      signedExpiry=expiry, signedIp=ip, signedPermission=permissions, signedProtocol=protocol,
-                      signedResourceTypes=resource_types, signedServices=services, signedStart=start)
+                      signedExpiry=dates$expiry, signedIp=ip, signedPermission=permissions, signedProtocol=protocol,
+                      signedResourceTypes=resource_types, signedServices=services, signedStart=dates$start)
 
-        private$res_op("listAccountSas", body=parms, encode="json", http_verb="POST")$accountSasToken
+        self$do_operation("POST", "listAccountSas", body=parms, encode="json")$accountSasToken
     },
 
     get_service_sas=function(start=NULL, expiry=NULL, path=NULL, service=NULL, permissions="r",
                              ip=NULL, protocol=NULL, key=NULL)
     {
+        dates <- private$set_sas_dates(start, expiry)
+        parms <- list(keyToSign=key, canonicalizedResource=path,
+                      signedExpiry=dates$expiry, signedIp=ip, signedPermission=permissions, signedProtocol=protocol,
+                      signedResource=service, signedStart=dates$start)
+
+        self$do_operation("POST", "listServiceSas", body=parms, encode="json")$serviceSasToken
+    },
+
+    get_blob_client=function()
+    {
+        az_blob_client$new(self$properties$primaryEndpoints$blob, key=self$list_keys()[1])
+    },
+
+    get_file_client=function()
+    {
+        az_file_client$new(self$properties$primaryEndpoints$file, key=self$list_keys()[1])
+    }
+),
+
+private=list(
+
+    set_sas_dates=function(start, expiry)
+    {
         if(is.null(start))
             start <- as.POSIXct(Sys.Date())
         else if(is.numeric(start))
-            start <- as.POSIXct(start)
-
+            start <- as.POSIXct(start, origin="1970-01-01")
         if(inherits(start, c("POSIXt", "Date")))
-            start <- strftime(start, "%Y-%m-%dT%H:%M:%SZ")
+            start <- strftime(start, "%Y-%m-%dT%H:%M:%SZ", tz="UTC")
 
-        if(is.null(expiry))
+        if(is.null(expiry)) # by default, 1 year after start
         {
-            expiry <- as.POSIXlt(start)
+            expiry <- as.POSIXlt(start, tz="UTC")
             expiry$year <- expiry$year + 1
-            expiry <- as.POSIXct(expiry)
+            expiry <- as.POSIXct(expiry, tz="UTC")
         }
         else if(is.numeric(expiry))
             expiry <- as.POSIXct(expiry, origin="1970-01-01")
-
         if(inherits(expiry, c("POSIXt", "Date")))
-            expiry <- strftime(expiry, "%Y-%m-%dT%H:%M:%SZ")
+            expiry <- strftime(expiry, "%Y-%m-%dT%H:%M:%SZ", tz="UTC")
 
-        parms <- list(keyToSign=key, canonicalizedResource=path,
-                      signedExpiry=expiry, signedIp=ip, signedPermission=permissions, signedProtocol=protocol,
-                      signedResource=service, signedStart=start)
-
-        private$res_op("listServiceSas", body=parms, encode="json", http_verb="POST")$serviceSasToken
-    },
-
-    get_blob_client=function(...)
-    {
-        az_blob_client$new(...)
-    },
-
-    get_file_client=function(...)
-    {
-        az_file_client$new(...)
+        list(start, expiry)
     }
 ))
