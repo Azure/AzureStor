@@ -132,8 +132,12 @@ private=list(
 download_azure_blob <- function(src, dest, overwrite=FALSE,
                                 key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
 {
-    if(is.null(key) && is.null(sas))
+    if(is.null(key) && is.null(sas)) # use curl if downloading public file
+    {
+        if(!overwrite && file.exists(dest))
+            stop("Path exists and overwrite is FALSE", call.=FALSE)
         return(curl::curl_download(src, dest))
+    }
 
     az_blob_container$
         new(dirname(src), key=key, sas=sas, api_version=api_version)$
