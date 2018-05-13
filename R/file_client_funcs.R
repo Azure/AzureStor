@@ -3,51 +3,51 @@ az_file_endpoint <- function(endpoint, key=NULL, sas=NULL, api_version=getOption
 {
     if(!grepl(".file.", endpoint, fixed=TRUE))
         stop("Not a file storage endpoint", call.=FALSE)
-    obj <- list(endpoint=endpoint, key=key, sas=sas, api_version=api_version)
+    obj <- list(url=endpoint, key=key, sas=sas, api_version=api_version)
     class(obj) <- "file_endpoint"
     obj
 }
 
 
 #' @export
-az_list_file_shares <- function(fs_con)
+az_list_file_shares <- function(endpoint)
 {
-    stopifnot(inherits(fs_con, "file_endpoint"))
-    lst <- do_storage_call(fs_con$endpoint, "/", options=list(comp="list"),
-                           key=fs_con$key, sas=fs_con$sas, api_version=fs_con$api_version)
+    stopifnot(inherits(endpoint, "file_endpoint"))
+    lst <- do_storage_call(endpoint$url, "/", options=list(comp="list"),
+                           key=endpoint$key, sas=endpoint$sas, api_version=endpoint$api_version)
 
-    lst <- lapply(lst$Shares, function(cont) az_file_share(fs_con, cont$Name[[1]]))
+    lst <- lapply(lst$Shares, function(cont) az_file_share(endpoint, cont$Name[[1]]))
     named_list(lst)
 }
 
 
 #' @export
-az_file_share <- function(fs_con, name, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
+az_file_share <- function(endpoint, name, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
 {
-    if(missing(name) && is_url(fs_con))
+    if(missing(name) && is_url(endpoint))
     {
-        stor_path <- parse_storage_url(fs_con)
+        stor_path <- parse_storage_url(endpoint)
         name <- stor_path[2]
-        fs_con <- az_file_endpoint(stor_path[1], key, sas, api_version)
+        endpoint <- az_file_endpoint(stor_path[1], key, sas, api_version)
     }
 
-    obj <- list(name=name, con=fs_con)
+    obj <- list(name=name, endpoint=endpoint)
     class(obj) <- "file_share"
     obj
 }
 
 
 #' @export
-az_create_file_share <- function(fs_con, name, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
+az_create_file_share <- function(endpoint, name, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
 {
-    if(missing(name) && is_url(fs_con))
+    if(missing(name) && is_url(endpoint))
     {
-        stor_path <- parse_storage_url(fs_con)
+        stor_path <- parse_storage_url(endpoint)
         name <- stor_path[2]
-        fs_con <- az_file_endpoint(stor_path[1], key, sas, api_version)
+        endpoint <- az_file_endpoint(stor_path[1], key, sas, api_version)
     }
 
-    obj <- az_file_share(fs_con, name)
+    obj <- az_file_share(endpoint, name)
     do_container_op(obj, options=list(restype="share"), http_verb="PUT")
     obj
 }
@@ -58,8 +58,8 @@ az_delete_file_share <- function(share, confirm=TRUE)
 {
     if(confirm && interactive())
     {
-        con <- share$con
-        path <- paste0(con$endpoint, con$name, "/")
+        endp <- share$endpoint
+        path <- paste0(endp$url, endp$name, "/")
         yn <- readline(paste0("Are you sure you really want to delete the share '", path, "'? (y/N) "))
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))
@@ -114,8 +114,8 @@ az_delete_file <- function(share, file, confirm=TRUE)
 {
     if(confirm && interactive())
     {
-        con <- share$con
-        path <- paste0(con$endpoint, con$name, file, "/")
+        endp <- share$endpoint
+        path <- paste0(endp$url, endp$name, file, "/")
         yn <- readline(paste0("Are you sure you really want to delete '", path, "'? (y/N) "))
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))

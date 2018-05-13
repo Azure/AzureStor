@@ -42,10 +42,10 @@ azure_upload <- function(src, dest, ..., overwrite=FALSE)
 
 do_container_op <- function(container, path="", options=list(), headers=list(), http_verb="GET", ...)
 {
-    con <- container$con
+    endp <- container$endpoint
     path <- sub("//", "/", paste0(container$name, "/", path))
-    invisible(do_storage_call(con$endpoint, path, options=options, headers=headers,
-                              key=con$key, sas=con$sas, api_version=con$api_version,
+    invisible(do_storage_call(endp$url, path, options=options, headers=headers,
+                              key=endp$key, sas=endp$sas, api_version=endp$api_version,
                               http_verb=http_verb, ...))
 }
 

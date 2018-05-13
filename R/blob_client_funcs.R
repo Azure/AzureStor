@@ -3,50 +3,50 @@ az_blob_endpoint <- function(endpoint, key=NULL, sas=NULL, api_version=getOption
 {
     if(!grepl(".blob.", endpoint, fixed=TRUE))
         stop("Not a blob storage endpoint", call.=FALSE)
-    obj <- list(endpoint=endpoint, key=key, sas=sas, api_version=api_version)
+    obj <- list(url=endpoint, key=key, sas=sas, api_version=api_version)
     class(obj) <- "blob_endpoint"
     obj
 }
 
 
 #' @export
-az_list_blob_containers <- function(blob_con)
+az_list_blob_containers <- function(endpoint)
 {
-    stopifnot(inherits(blob_con, "blob_endpoint"))
-    lst <- do_storage_call(blob_con$endpoint, "/", options=list(comp="list"),
-                           key=blob_con$key, sas=blob_con$sas, api_version=blob_con$api_version)
+    stopifnot(inherits(endpoint, "blob_endpoint"))
+    lst <- do_storage_call(endpoint$url, "/", options=list(comp="list"),
+                           key=endpoint$key, sas=endpoint$sas, api_version=endpoint$api_version)
 
-    lst <- lapply(lst$Containers, function(cont) az_blob_container(blob_con, cont$Name[[1]]))
+    lst <- lapply(lst$Containers, function(cont) az_blob_container(endpoint, cont$Name[[1]]))
     named_list(lst)
 }
 
 
 #' @export
-az_blob_container <- function(blob_con, name, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
+az_blob_container <- function(endpoint, name, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
 {
-    if(missing(name) && is_url(blob_con))
+    if(missing(name) && is_url(endpoint))
     {
-        stor_path <- parse_storage_url(blob_con)
+        stor_path <- parse_storage_url(endpoint)
         name <- stor_path[2]
-        blob_con <- az_blob_endpoint(stor_path[1], key, sas, api_version)
+        endpoint <- az_blob_endpoint(stor_path[1], key, sas, api_version)
     }
 
-    obj <- list(name=name, con=blob_con)
+    obj <- list(name=name, endpoint=endpoint)
     class(obj) <- "blob_container"
     obj
 }
 
 
 #' @export
-az_create_blob_container <- function(blob_con, name, key=NULL, sas=NULL,
+az_create_blob_container <- function(endpoint, name, key=NULL, sas=NULL,
                                      api_version=getOption("azure_storage_api_version"),
                                      public_access=c("none", "blob", "container"))
 {
-    if(missing(name) && is_url(blob_con))
+    if(missing(name) && is_url(endpoint))
     {
-        stor_path <- parse_storage_url(blob_con)
+        stor_path <- parse_storage_url(endpoint)
         name <- stor_path[2]
-        blob_con <- az_blob_endpoint(stor_path[1], key, sas, api_version)
+        endpoint <- az_blob_endpoint(stor_path[1], key, sas, api_version)
     }
 
     public_access <- match.arg(public_access)
@@ -54,7 +54,7 @@ az_create_blob_container <- function(blob_con, name, key=NULL, sas=NULL,
         list("x-ms-blob-public-access"=public_access)
     else list()
 
-    obj <- az_blob_container(blob_con, name)
+    obj <- az_blob_container(endpoint, name)
     do_container_op(obj, options=list(restype="container"), headers=headers, http_verb="PUT")
     obj
 }
@@ -65,8 +65,8 @@ az_delete_blob_container <- function(container, confirm=TRUE)
 {
     if(confirm && interactive())
     {
-        con <- container$con
-        path <- paste0(con$endpoint, con$name, "/")
+        endp <- container$endpoint
+        path <- paste0(endp$url, endp$name, "/")
         yn <- readline(paste0("Are you sure you really want to delete the container '", path, "'? (y/N) "))
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))
@@ -114,8 +114,8 @@ az_delete_blob <- function(container, blob, confirm=TRUE)
 {
     if(confirm && interactive())
     {
-        con <- container$con
-        path <- paste0(con$endpoint, con$name, blob, "/")
+        endp <- container$endpoint
+        path <- paste0(endp$url, endp$name, blob, "/")
         yn <- readline(paste0("Are you sure you really want to delete '", path, "'? (y/N) "))
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))
