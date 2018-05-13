@@ -3,13 +3,13 @@ azure_download <- function(src, dest, ..., overwrite=FALSE)
 {
     az_path <- parse_storage_url(src)
 
-    if(grepl(".blob.", az_path[1]))
+    if(grepl(".blob.", az_path[1], fixed=TRUE))
     {
         endpoint <- az_blob_endpoint(az_path[1], ...)
         cont <- az_blob_container(endpoint, az_path[2])
         az_download_blob(cont, az_path[3], dest)
     }
-    else if(grepl(".file.", az_path[1]))
+    else if(grepl(".file.", az_path[1], fixed=TRUE))
     {
         endpoint <- az_file_endpoint(az_path[1], ...)
         share <- az_file_share(endpoint, az_path[2])
@@ -24,13 +24,13 @@ azure_upload <- function(src, dest, ..., overwrite=FALSE)
 {
     az_path <- parse_storage_url(dest)
 
-    if(grepl(".blob.", az_path[1]))
+    if(grepl(".blob.", az_path[1], fixed=TRUE))
     {
         endpoint <- az_blob_endpoint(az_path[1], ...)
         cont <- az_blob_container(endpoint, az_path[2])
         az_upload_blob(cont, az_path[3], dest)
     }
-    else if(grepl(".file.", az_path[1]))
+    else if(grepl(".file.", az_path[1], fixed=TRUE))
     {
         endpoint <- az_file_endpoint(az_path[1], ...)
         share <- az_file_share(endpoint, az_path[2])
