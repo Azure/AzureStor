@@ -27,7 +27,6 @@ do_storage_call <- function(endpoint, path, options=list(), headers=list(), body
     }
 
     verb <- get(verb, getNamespace("httr"))
-
     response <- verb(url, headers, body=body, ...)
 
     handler <- match.arg(http_status_handler)
@@ -44,7 +43,9 @@ do_storage_call <- function(endpoint, path, options=list(), headers=list(), body
         cont <- suppressMessages(httr::content(response))
         if(is_empty(cont))
             NULL
-        else xml2::as_list(cont)
+        else if(inherits(cont, "xml_node"))
+            xml2::as_list(cont)
+        else cont
     }
     else response
 }
@@ -73,6 +74,7 @@ make_signature <- function(key, verb, acct_name, resource, options, headers)
     names(headers) <- tolower(names(headers))
 
     ms_headers <- headers[grepl("^x-ms", names(headers))]
+    ms_headers <- ms_headers[order(names(ms_headers))]
     ms_headers <- paste(names(ms_headers), ms_headers, sep=":", collapse="\n")
     options <- paste(names(options), options, sep=":", collapse="\n")
 

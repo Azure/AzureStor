@@ -50,9 +50,14 @@ public=list(
         az_file_client$new(self$properties$primaryEndpoints$file, key=key)
     },
 
-    get_blob_connection=function(key=self$list_keys()[1])
+    get_blob_endpoint=function(key=self$list_keys()[1])
     {
-        blob_connection(self$properties$primaryEndpoints$blob, key=key)
+        az_blob_endpoint(self$properties$primaryEndpoints$blob, key=key)
+    },
+
+    get_file_endpoint=function(key=self$list_keys()[1])
+    {
+        az_file_endpoint(self$properties$primaryEndpoints$file, key=key)
     }
 ),
 
