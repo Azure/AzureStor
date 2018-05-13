@@ -87,7 +87,7 @@ do_storage_call <- function(endpoint, path, options=list(), headers=list(), body
         handler <- get(paste0(handler, "_for_status"), getNamespace("httr"))
         handler(response)
 
-        # if file was written to disk, content(*) will read it back into memory!
+        # if file was written to disk, printing content(*) will read it back into memory!
         if(inherits(response$content, "path"))
             return(NULL)
 
