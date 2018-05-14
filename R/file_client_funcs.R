@@ -63,9 +63,7 @@ delete_file_share <- function(share, confirm=TRUE)
 list_azure_files <- function(share, dir)
 {
     lst <- do_container_op(share, dir, options=list(comp="list", restype="directory"))
-    if(is_empty(lst$Entries))
-        list()
-    else unname(sapply(lst$Entries, function(b) b$Name[[1]]))
+    unname(vapply(lst$Entries, function(b) b$Name[[1]], FUN.VALUE=character(1)))
 }
 
 
@@ -135,11 +133,4 @@ delete_azure_dir <- function(share, dir, confirm=TRUE)
     }
     do_container_op(share, file, options=list(restype="directory"), http_verb="DELETE")
 }
-
-
-azure_file_info <- function(share, file)
-{
-
-}
-
 

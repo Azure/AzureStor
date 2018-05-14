@@ -72,9 +72,7 @@ delete_blob_container <- function(container, confirm=TRUE, lease=NULL)
 list_blobs <- function(container)
 {
     lst <- do_container_op(container, options=list(comp="list", restype="container"))
-    if(is_empty(lst$Blobs))
-        list()
-    else unname(sapply(lst$Blobs, function(b) b$Name[[1]]))
+    unname(vapply(lst$Blobs, function(b) b$Name[[1]], FUN.VALUE=character(1)))
 }
 
 
