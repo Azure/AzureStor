@@ -43,7 +43,8 @@ do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), 
     if(handler != "pass")
     {
         handler <- get(paste0(handler, "_for_status"), getNamespace("httr"))
-        handler(response)
+        handler(response, paste0("complete Storage Services operation. Message:\n",
+                                 sub("\\.$", "", storage_error_message(response))))
 
         # if file was written to disk, printing content(*) will read it back into memory!
         if(inherits(response$content, "path"))
@@ -58,6 +59,18 @@ do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), 
         else cont
     }
     else response
+}
+
+
+storage_error_message <- function(response)
+{
+    cont <- suppressMessages(httr::content(response))
+    if(inherits(cont, "xml_node"))
+    {
+        cont <- xml2::as_list(cont)
+        paste0(unlist(cont), collapse="\n")
+    }
+    else NULL
 }
 
 
