@@ -13,7 +13,7 @@ get_storage_properties.storage_endpoint <- function(object)
 
 
 #' @export
-get_storage_properties.blob_share <- function(object)
+get_storage_properties.blob_container <- function(object)
 {
     do_container_op(object, options=list(restype="container"))
 }
