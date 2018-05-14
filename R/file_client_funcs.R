@@ -1,34 +1,23 @@
 #' @export
-az_file_endpoint <- function(endpoint, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
-{
-    if(!grepl(".file.", endpoint, fixed=TRUE))
-        stop("Not a file storage endpoint", call.=FALSE)
-    obj <- list(url=endpoint, key=key, sas=sas, api_version=api_version)
-    class(obj) <- "file_endpoint"
-    obj
-}
-
-
-#' @export
-az_list_file_shares <- function(endpoint)
+list_file_shares <- function(endpoint)
 {
     stopifnot(inherits(endpoint, "file_endpoint"))
     lst <- do_storage_call(endpoint$url, "/", options=list(comp="list"),
                            key=endpoint$key, sas=endpoint$sas, api_version=endpoint$api_version)
 
-    lst <- lapply(lst$Shares, function(cont) az_file_share(endpoint, cont$Name[[1]]))
+    lst <- lapply(lst$Shares, function(cont) file_share(endpoint, cont$Name[[1]]))
     named_list(lst)
 }
 
 
 #' @export
-az_file_share <- function(endpoint, name, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
+file_share <- function(endpoint, name, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
 {
     if(missing(name) && is_url(endpoint))
     {
         stor_path <- parse_storage_url(endpoint)
+        endpoint <- storage_endpoint(stor_path[1], key, sas, api_version)
         name <- stor_path[2]
-        endpoint <- az_file_endpoint(stor_path[1], key, sas, api_version)
     }
 
     obj <- list(name=name, endpoint=endpoint)
@@ -38,23 +27,25 @@ az_file_share <- function(endpoint, name, key=NULL, sas=NULL, api_version=getOpt
 
 
 #' @export
-az_create_file_share <- function(endpoint, name, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
+create_file_share <- function(endpoint, name, key=NULL, sas=NULL,
+                                 api_version=getOption("azure_storage_api_version"),
+                                 ...)
 {
     if(missing(name) && is_url(endpoint))
     {
         stor_path <- parse_storage_url(endpoint)
         name <- stor_path[2]
-        endpoint <- az_file_endpoint(stor_path[1], key, sas, api_version)
+        endpoint <- storage_endpoint(stor_path[1], key, sas, api_version)
     }
 
-    obj <- az_file_share(endpoint, name)
-    do_container_op(obj, options=list(restype="share"), http_verb="PUT")
+    obj <- file_share(endpoint, name)
+    do_container_op(obj, options=list(restype="share"), headers=list(...), http_verb="PUT")
     obj
 }
 
 
 #' @export
-az_delete_file_share <- function(share, confirm=TRUE)
+delete_file_share <- function(share, confirm=TRUE)
 {
     if(confirm && interactive())
     {
@@ -64,13 +55,12 @@ az_delete_file_share <- function(share, confirm=TRUE)
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))
     }
-
     do_container_op(share, options=list(restype="share"), http_verb="DELETE")
 }
 
 
 #' @export
-az_list_files <- function(share, dir)
+list_azure_files <- function(share, dir)
 {
     lst <- do_container_op(share, dir, options=list(comp="list", restype="directory"))
     if(is_empty(lst$Entries))
@@ -80,8 +70,9 @@ az_list_files <- function(share, dir)
 
 
 #' @export
-az_upload_file <- function(share, src, dest)
+upload_azure_file <- function(share, src, dest)
 {
+    # TODO: upload in chunks 
     body <- readBin(src, "raw", file.info(src)$size)
 
     # first, create the file
@@ -103,14 +94,14 @@ az_upload_file <- function(share, src, dest)
 
 
 #' @export
-az_download_file <- function(share, src, dest, overwrite=FALSE)
+download_azure_file <- function(share, src, dest, overwrite=FALSE)
 {
     do_container_op(share, src, config=httr::write_disk(dest, overwrite))
 }
 
 
 #' @export
-az_delete_file <- function(share, file, confirm=TRUE)
+delete_azure_file <- function(share, file, confirm=TRUE)
 {
     if(confirm && interactive())
     {
@@ -120,7 +111,35 @@ az_delete_file <- function(share, file, confirm=TRUE)
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))
     }
-
     do_container_op(share, file, http_verb="DELETE")
 }
+
+
+#' @export
+create_azure_dir <- function(share, dir)
+{
+    do_container_op(share, dir, options=list(restype="directory"), http_verb="PUT")
+}
+
+
+#' @export
+delete_azure_dir <- function(share, dir, confirm=TRUE)
+{
+    if(confirm && interactive())
+    {
+        endp <- share$endpoint
+        path <- paste0(endp$url, endp$name, dir, "/")
+        yn <- readline(paste0("Are you sure you really want to delete directory '", path, "'? (y/N) "))
+        if(tolower(substr(yn, 1, 1)) != "y")
+            return(invisible(NULL))
+    }
+    do_container_op(share, file, options=list(restype="directory"), http_verb="DELETE")
+}
+
+
+azure_file_info <- function(share, file)
+{
+
+}
+
 

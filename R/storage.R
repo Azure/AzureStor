@@ -52,12 +52,12 @@ public=list(
 
     get_blob_endpoint=function(key=self$list_keys()[1])
     {
-        az_blob_endpoint(self$properties$primaryEndpoints$blob, key=key)
+        storage_endpoint(self$properties$primaryEndpoints$blob, key=key)
     },
 
     get_file_endpoint=function(key=self$list_keys()[1])
     {
-        az_file_endpoint(self$properties$primaryEndpoints$file, key=key)
+        storage_endpoint(self$properties$primaryEndpoints$file, key=key)
     }
 ),
 

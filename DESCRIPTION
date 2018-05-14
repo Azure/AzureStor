@@ -13,7 +13,6 @@ Depends:
 Imports: 
     R6,
     httr,
-    curl,
     openssl,
     xml2,
     AzureRMR

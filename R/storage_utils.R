@@ -1,45 +1,3 @@
-#' @export
-azure_download <- function(src, dest, ..., overwrite=FALSE)
-{
-    az_path <- parse_storage_url(src)
-
-    if(grepl(".blob.", az_path[1], fixed=TRUE))
-    {
-        endpoint <- az_blob_endpoint(az_path[1], ...)
-        cont <- az_blob_container(endpoint, az_path[2])
-        az_download_blob(cont, az_path[3], dest)
-    }
-    else if(grepl(".file.", az_path[1], fixed=TRUE))
-    {
-        endpoint <- az_file_endpoint(az_path[1], ...)
-        share <- az_file_share(endpoint, az_path[2])
-        az_download_file(share, az_path[3], dest)
-    }
-    else stop("Unknown storage endpoint", call.=FALSE)
-}
-
-
-#' @export
-azure_upload <- function(src, dest, ..., overwrite=FALSE)
-{
-    az_path <- parse_storage_url(dest)
-
-    if(grepl(".blob.", az_path[1], fixed=TRUE))
-    {
-        endpoint <- az_blob_endpoint(az_path[1], ...)
-        cont <- az_blob_container(endpoint, az_path[2])
-        az_upload_blob(cont, az_path[3], dest)
-    }
-    else if(grepl(".file.", az_path[1], fixed=TRUE))
-    {
-        endpoint <- az_file_endpoint(az_path[1], ...)
-        share <- az_file_share(endpoint, az_path[2])
-        az_upload_file(share, az_path[3], dest)
-    }
-    else stop("Unknown storage endpoint", call.=FALSE)
-}
-
-
 do_container_op <- function(container, path="", options=list(), headers=list(), http_verb="GET", ...)
 {
     endp <- container$endpoint
@@ -50,7 +8,7 @@ do_container_op <- function(container, path="", options=list(), headers=list(), 
 }
 
 
-do_storage_call <- function(endpoint, path, options=list(), headers=list(), body=NULL, ...,
+do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), body=NULL, ...,
                             key=NULL, sas=NULL,
                             api_version=getOption("azure_storage_api_version"),
                             http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD", "PATCH"),
@@ -61,14 +19,14 @@ do_storage_call <- function(endpoint, path, options=list(), headers=list(), body
     # use shared access signature if provided, otherwise key if provided, otherwise anonymous access
     if(!is.null(sas))
     {
-        url <- paste0(endpoint, path, sep="/") # don't use file.path because it strips trailing / on Windows
+        url <- paste0(endpoint_url, path, "/") # don't use file.path because it strips trailing / on Windows
         url <- paste0(url, "?", sas)
         url <- httr::parse_url(url)
         headers <- httr::add_headers(.headers=unlist(headers))
     }
     else
     {
-        url <- httr::parse_url(endpoint)
+        url <- httr::parse_url(endpoint_url)
         url$path <- path
         if(!is_empty(options))
             url$query <- options[order(names(options))]
@@ -155,18 +113,24 @@ make_signature <- function(key, verb, acct_name, resource, options, headers)
 # keep only the scheme and host parts of a URL
 get_hostroot <- function(url)
 {
-    if(!inherits(url, "url"))
-        url <- httr::parse_url(url)
-    url$port <- url$path <- url$params <- url$fragment <- url$query <- url$username <- url$password <- NULL
-    httr::build_url(url)
+    parse_storage_url(url)[1]
 }
 
 
 parse_storage_url <- function(url)
 {
     url <- httr::parse_url(url)
-    endpoint <- get_hostroot(url)
+    endpoint <- paste0(url$scheme, "://", url$host, "/")
     store <- sub("/.*$", "", url$path)
     path <- sub("^[^/]+/", "", url$path)
     c(endpoint, store, path)
 }
+
+
+is_endpoint_url <- function(url, type)
+{
+    type <- sprintf("://[a-z0-9]+\\.%s\\.", type)
+    grepl(type, url)
+}
+
+
