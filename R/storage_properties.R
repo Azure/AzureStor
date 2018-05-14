@@ -17,7 +17,7 @@ get_storage_properties.storage_endpoint <- function(object)
 get_storage_properties.blob_container <- function(object)
 {
     res <- do_container_op(object, options=list(restype="container"), http_status_handler="pass")
-    httr::stop_for_status(res, )
+    httr::stop_for_status(res, storage_error_message(res))
     httr::headers(res)
 }
 
@@ -26,7 +26,7 @@ get_storage_properties.blob_container <- function(object)
 get_storage_properties.file_share <- function(object)
 {
     res <- do_container_op(object, options=list(restype="share"), http_status_handler="pass")
-    httr::stop_for_status(res)
+    httr::stop_for_status(res, storage_error_message(res))
     httr::headers(res)
 }
 
@@ -35,7 +35,7 @@ get_storage_properties.file_share <- function(object)
 get_azure_blob_properties <- function(container, blob)
 {
     res <- do_container_op(container, blob, http_verb="HEAD", http_status_handler="pass")
-    httr::stop_for_status(res)
+    httr::stop_for_status(res, storage_error_message(res))
     httr::headers(res)
 }
 
@@ -44,7 +44,7 @@ get_azure_blob_properties <- function(container, blob)
 get_azure_file_properties <- function(share, file)
 {
     res <- do_container_op(share, file, http_verb="HEAD", http_status_handler="pass")
-    httr::stop_for_status(res)
+    httr::stop_for_status(res, storage_error_message(res))
     httr::headers(res)
 }
 
@@ -53,7 +53,7 @@ get_azure_file_properties <- function(share, file)
 get_azure_dir_properties <- function(share, dir)
 {
     res <- do_container_op(share, dir, options=list(restype="directory"), http_verb="HEAD", http_status_handler="pass")
-    httr::stop_for_status(res)
+    httr::stop_for_status(res, storage_error_message(res))
     httr::headers(res)
 }
 
