@@ -69,7 +69,7 @@ delete_blob_container <- function(container, confirm=TRUE, lease=NULL)
 
 
 #' @export
-list_blobs <- function(container)
+list_azure_blobs <- function(container)
 {
     lst <- do_container_op(container, options=list(comp="list", restype="container"))
     unname(vapply(lst$Blobs, function(b) b$Name[[1]], FUN.VALUE=character(1)))
