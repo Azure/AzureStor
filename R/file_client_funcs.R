@@ -64,14 +64,16 @@ list_azure_files <- function(share, dir, all_info=TRUE)
 {
     lst <- do_container_op(share, dir, options=list(comp="list", restype="directory"))
 
-    name <- sapply(lst$Entries, function(ent) ent$Name[[1]])
+    name <- vapply(lst$Entries, function(ent) ent$Name[[1]], FUN.VALUE=character(1))
     if(!all_info)
         return(name)
  
-    size <- sapply(lst$Entries,
-                   function(ent) if(is_empty(ent$Properties)) NA else ent$Properties$`Content-Length`[[1]])
+    type <- if(is_empty(name)) character(0) else names(name)
+    size <- vapply(lst$Entries,
+                   function(ent) if(is_empty(ent$Properties)) NA_character_ else ent$Properties$`Content-Length`[[1]],
+                   FUN.VALUE=character(1))
 
-    data.frame(name=name, type=names(lst$Entries), size=as.numeric(size), stringsAsFactors=FALSE)
+    data.frame(name=name, type=type, size=as.numeric(size), stringsAsFactors=FALSE)
 }
 
 
