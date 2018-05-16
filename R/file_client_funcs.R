@@ -60,10 +60,18 @@ delete_file_share <- function(share, confirm=TRUE)
 
 
 #' @export
-list_azure_files <- function(share, dir)
+list_azure_files <- function(share, dir, all_info=TRUE)
 {
     lst <- do_container_op(share, dir, options=list(comp="list", restype="directory"))
-    unname(vapply(lst$Entries, function(b) b$Name[[1]], FUN.VALUE=character(1)))
+
+    name <- sapply(lst$Entries, function(ent) ent$Name[[1]])
+    if(!all_info)
+        return(name)
+ 
+    size <- sapply(lst$Entries,
+                   function(ent) if(is_empty(ent$Properties)) NA else ent$Properties$`Content-Length`[[1]])
+
+    data.frame(name=name, type=names(lst$Entries), size=as.numeric(size), stringsAsFactors=FALSE)
 }
 
 
