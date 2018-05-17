@@ -4,6 +4,7 @@
 \alias{blob_container}
 \alias{blob_container.character}
 \alias{blob_container.blob_endpoint}
+\alias{print.blob_container}
 \alias{list_blob_containers}
 \alias{list_blob_containers.character}
 \alias{list_blob_containers.blob_endpoint}
@@ -21,6 +22,8 @@ blob_container(endpoint, ...)
   api_version = getOption("azure_storage_api_version"))
 
 \method{blob_container}{blob_endpoint}(endpoint, name)
+
+\method{print}{blob_container}(object, ...)
 
 list_blob_containers(endpoint, ...)
 

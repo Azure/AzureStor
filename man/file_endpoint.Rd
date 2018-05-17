@@ -4,15 +4,16 @@
 \alias{file_share}
 \alias{file_share.character}
 \alias{file_share.file_endpoint}
+\alias{print.file_share}
 \alias{list_file_shares}
 \alias{list_file_shares.character}
-\alias{list_file_shares.file_share}
+\alias{list_file_shares.file_endpoint}
 \alias{create_file_share}
 \alias{create_file_share.character}
-\alias{create_file_share}
+\alias{create_file_share.file_endpoint}
 \alias{delete_file_share}
 \alias{delete_file_share.character}
-\alias{delete_file_share}
+\alias{delete_file_share.file_endpoint}
 \title{Operations on a file endpoint}
 \usage{
 file_share(endpoint, ...)
@@ -22,26 +23,28 @@ file_share(endpoint, ...)
 
 \method{file_share}{file_endpoint}(endpoint, name)
 
+\method{print}{file_share}(object, ...)
+
 list_file_shares(endpoint, ...)
 
 \method{list_file_shares}{character}(endpoint, key = NULL, sas = NULL,
   api_version = getOption("azure_storage_api_version"))
 
-\method{list_file_shares}{file_share}(endpoint, ...)
+\method{list_file_shares}{file_endpoint}(endpoint, ...)
 
-create_file_share(endpoint, name, ...)
+create_file_share(endpoint, ...)
 
-create_file_share.character(endpoint, key = NULL, sas = NULL,
+\method{create_file_share}{character}(endpoint, key = NULL, sas = NULL,
   api_version = getOption("azure_storage_api_version"), ...)
 
-create_file_share(endpoint, name, ...)
+\method{create_file_share}{file_endpoint}(endpoint, name, ...)
 
-delete_file_share(endpoint, name, confirm = TRUE)
+delete_file_share(endpoint, ...)
 
-delete_file_share.character(endpoint, key = NULL, sas = NULL,
+\method{delete_file_share}{character}(endpoint, key = NULL, sas = NULL,
   api_version = getOption("azure_storage_api_version"), ...)
 
-delete_file_share(endpoint, name, confirm = TRUE)
+\method{delete_file_share}{file_endpoint}(endpoint, name, confirm = TRUE)
 }
 \arguments{
 \item{endpoint}{Either a file endpoint object as created by \link{storage_endpoint}, or a character string giving the URL of the endpoint.}

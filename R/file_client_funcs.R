@@ -44,6 +44,22 @@ file_share.file_endpoint <- function(endpoint, name)
     obj
 }
 
+#' @rdname file_endpoint
+#' @export
+print.file_share <- function(object, ...)
+{
+    cat("Azure file share\n")
+    cat("Endpoint URL: %s\n", object$endpoint$url)
+    if(!is_empty(object$endpoint$key))
+        cat("Access key: <secret>\n")
+    else cat("Access key: <none supplied>\n")
+    if(!is_empty(object$endpoint$sas))
+        cat("Account shared access signature: <hidden>\n")
+    else cat("Account shared access signature: <none supplied>\n")
+    cat(sprintf("Storage API version: %s\n", object$endpoint$api_version))
+    invisible(object)
+}
+
 
 
 #' @rdname file_endpoint
@@ -63,7 +79,7 @@ list_file_shares.character <- function(endpoint, key=NULL, sas=NULL,
 
 #' @rdname file_endpoint
 #' @export
-list_file_shares.file_share <- function(endpoint, ...)
+list_file_shares.file_endpoint <- function(endpoint, ...)
 {
     lst <- do_storage_call(endpoint$url, "/", options=list(comp="list"),
                            key=endpoint$key, sas=endpoint$sas, api_version=endpoint$api_version)
@@ -93,7 +109,7 @@ create_file_share.character <- function(endpoint, key=NULL, sas=NULL,
 
 #' @rdname file_endpoint
 #' @export
-create_file_share <- function(endpoint, name, ...)
+create_file_share.file_endpoint <- function(endpoint, name, ...)
 {
     obj <- file_share(endpoint, name)
     do_container_op(obj, options=list(restype="share"), headers=list(...), http_verb="PUT")
@@ -121,7 +137,7 @@ delete_file_share.character <- function(endpoint, key=NULL, sas=NULL,
 
 #' @rdname file_endpoint
 #' @export
-delete_file_share <- function(endpoint, name, confirm=TRUE)
+delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE)
 {
     if(confirm && interactive())
     {

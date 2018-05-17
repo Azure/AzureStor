@@ -46,6 +46,21 @@ blob_container.blob_endpoint <- function(endpoint, name)
     obj
 }
 
+#' @rdname blob_endpoint
+#' @export
+print.blob_container <- function(object, ...)
+{
+    cat("Azure blob container\n")
+    cat(sprintf("Endpoint URL: %s\n", object$endpoint$url))
+    if(!is_empty(object$endpoint$key))
+        cat("Access key: <secret>\n")
+    else cat("Access key: <none supplied>\n")
+    if(!is_empty(object$endpoint$sas))
+        cat("Account shared access signature: <hidden>\n")
+    else cat("Account shared access signature: <none supplied>\n")
+    cat(sprintf("Storage API version: %s\n", object$endpoint$api_version))
+    invisible(object)
+}
 
 
 #' @rdname blob_endpoint

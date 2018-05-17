@@ -32,6 +32,23 @@ storage_endpoint <- function(endpoint, key=NULL, sas=NULL, api_version=getOption
     obj
 }
 
+#' @rdname storage_endpoint
+#' @export
+print.storage_endpoint <- function(object)
+{
+    type <- sub("_endpoint$", "", class(object)[1])
+    cat(sprintf("Azure %s storage endpoint\n", type))
+    cat(sprintf("URL: %s\n", object$url))
+    if(!is_empty(object$key))
+        cat("Access key: <secret>\n")
+    else cat("Access key: <none supplied>\n")
+    if(!is_empty(object$sas))
+        cat("Account shared access signature: <secret>\n")
+    else cat("Account shared access signature: <none supplied>\n")
+    cat(sprintf("Storage API version: %s", object$api_version))
+    invisible(object)
+}
+
 
 #' Generic upload and download
 #'
