@@ -63,7 +63,7 @@ do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), 
 
 storage_error_message <- function(response, for_httr=TRUE)
 {
-    cont <- httr::content(response)
+    cont <- suppressMessages(httr::content(response))
     msg <- if(inherits(cont, "xml_node"))
     {
         cont <- xml2::as_list(cont)

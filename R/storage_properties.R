@@ -8,6 +8,13 @@
 #' @details
 #' The `get_storage_properties` generic returns a list of properties for the given storage object. There are methods defined for objects of class `storage_endpoint`, `blob_container` and `file_share`. Similar functions are defined for individual blobs, files and directories.
 #'
+#' @seealso
+#' [storage_endpoint], [blob_container], [file_share],
+#' [Blob service properties reference[(https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-service-properties).
+#' [File service properties reference](https://docs.microsoft.com/en-us/rest/api/storageservices/get-file-service-properties),
+#' [Blob container properties reference](https://docs.microsoft.com/en-us/rest/api/storageservices/get-container-properties),
+#' [File share properties reference](https://docs.microsoft.com/en-us/rest/api/storageservices/get-share-properties)
+#'
 #' @rdname properties
 #' @export
 get_storage_properties <- function(object, ...)

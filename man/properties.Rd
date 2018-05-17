@@ -39,3 +39,15 @@ Get storage properties for an endpoint or container
 \details{
 The \code{get_storage_properties} generic returns a list of properties for the given storage object. There are methods defined for objects of class \code{storage_endpoint}, \code{blob_container} and \code{file_share}. Similar functions are defined for individual blobs, files and directories.
 }
+\seealso{
+\link{storage_endpoint}, \link{blob_container}, \link{file_share},
+[Blob service properties reference[(https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-service-properties).
+\href{https://docs.microsoft.com/en-us/rest/api/storageservices/get-file-service-properties}{File service properties reference},
+\href{https://docs.microsoft.com/en-us/rest/api/storageservices/get-container-properties}{Blob container properties reference},
+\href{https://docs.microsoft.com/en-us/rest/api/storageservices/get-share-properties}{File share properties reference}
+
+[Blob service properties reference[(https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-service-properties).
+[File service properties reference]: R:Blob%20service%20properties%20reference[(https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-service-properties).%0A[File%20service%20properties%20reference
+[Blob container properties reference]: R:Blob%20container%20properties%20reference
+[File share properties reference]: R:File%20share%20properties%20reference
+}
