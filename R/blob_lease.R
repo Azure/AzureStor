@@ -1,3 +1,26 @@
+#' Operations on blob leases
+#'
+#' Manage leases for blobs and blob containers.
+#'
+#' @param container A blob container object.
+#' @param blob The name of an individual blob. If not supplied, the lease applies to the entire container.
+#' @param duration For `acquire_lease`, The duration of the requested lease. For an indefinite duration, set this to -1.
+#' @param lease For `acquire_lease` an optional proposed name of the lease; for `release_lease`, `renew_lease` and `change_lease`, the name of the existing lease.
+#' @param period For `break_lease`, the period for which to break the lease.
+#' @param new_lease For `change_lease`, the proposed name of the lease.
+#'
+#' @details
+#' Leasing is a way to prevent a blob or container from being accidentally deleted. The duration of a lease can range from 15 to 60 seconds, or be indefinite.
+#'
+#' @return
+#' For `acquire_lease` and `change_lease`, a string containing the lease ID.
+#'
+#' @seealso
+#' [blob_container],
+#' [Leasing a blob](https://docs.microsoft.com/en-us/rest/api/storageservices/lease-blob),
+#' [Leasing a container](https://docs.microsoft.com/en-us/rest/api/storageservices/lease-container)
+#'
+#' @rdname lease
 #' @export
 acquire_lease <- function(container, blob="", duration=60, lease=NULL)
 {
@@ -11,6 +34,7 @@ acquire_lease <- function(container, blob="", duration=60, lease=NULL)
 }
 
 
+#' @rdname lease
 #' @export
 break_lease <- function(container, blob="", period=NULL)
 {
@@ -22,6 +46,7 @@ break_lease <- function(container, blob="", period=NULL)
 }
 
 
+#' @rdname lease
 #' @export
 release_lease <- function(container, blob="", lease)
 {
@@ -31,6 +56,7 @@ release_lease <- function(container, blob="", lease)
 }
 
 
+#' @rdname lease
 #' @export
 renew_lease <- function(container, blob="", lease)
 {
@@ -40,6 +66,7 @@ renew_lease <- function(container, blob="", lease)
 }
 
 
+#' @rdname lease
 #' @export
 change_lease <- function(container, blob="", lease, new_lease)
 {

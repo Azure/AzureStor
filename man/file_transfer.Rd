@@ -10,7 +10,7 @@ download_from_url(src, dest, ..., overwrite = FALSE)
 upload_to_url(src, dest, ...)
 }
 \arguments{
-\item{src, }{dest The source and destination files/URLs. Paths are allowed.}
+\item{src, dest}{The source and destination files/URLs. Paths are allowed.}
 
 \item{...}{Further arguments to pass to lower-level functions. In particular, use \code{key} and/or \code{sas} to supply an access key or SAS. Without a key or SAS, only unauthenticated (anonymous) access is possible.}
 

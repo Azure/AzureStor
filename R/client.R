@@ -52,7 +52,7 @@ print.storage_endpoint <- function(object)
 
 #' Generic upload and download
 #'
-#' @param src, dest The source and destination files/URLs. Paths are allowed.
+#' @param src,dest The source and destination files/URLs. Paths are allowed.
 #' @param ... Further arguments to pass to lower-level functions. In particular, use `key` and/or `sas` to supply an access key or SAS. Without a key or SAS, only unauthenticated (anonymous) access is possible.
 #' @param overwrite For downloading, whether to overwrite any destination files that exist.
 #'

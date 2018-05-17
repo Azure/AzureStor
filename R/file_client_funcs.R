@@ -3,7 +3,7 @@
 #' Get, list, create, or delete file shares.
 #'
 #' @param endpoint Either a file endpoint object as created by [storage_endpoint], or a character string giving the URL of the endpoint.
-#' @param key, sas If an endpoint object is not supplied, authentication details. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.
+#' @param key,sas If an endpoint object is not supplied, authentication details. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.
 #' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2017-07-29"`.
 #' @param name The name of the file share to get, create, or delete.
 #' @param confirm For deleting a share, whether to ask for confirmation.
@@ -157,9 +157,9 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE)
 #' Upload, download, or delete a file; list files in a directory; create or delete directories.
 #'
 #' @param share A file share object.
-#' @param dir, file A string naming a directory or file respectively.
+#' @param dir,file A string naming a directory or file respectively.
 #' @param all_info Whether to return names only, or all information in a directory listing.
-#' @param src, dest The source and destination filenames for uploading and downloading. Paths are allowed.
+#' @param src,dest The source and destination filenames for uploading and downloading. Paths are allowed.
 #' @param confirm Whether to ask for confirmation on deleting a file or directory.
 #'
 #' @return

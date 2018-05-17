@@ -18,7 +18,7 @@ delete_blob(container, blob, confirm = TRUE)
 \arguments{
 \item{container}{A blob container object.}
 
-\item{src, }{dest The source and destination filenames for uploading and downloading. Paths are allowed.}
+\item{src, dest}{The source and destination filenames for uploading and downloading. Paths are allowed.}
 
 \item{blob}{A string naming a blob.}
 

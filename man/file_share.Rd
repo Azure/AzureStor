@@ -24,11 +24,11 @@ delete_azure_dir(share, dir, confirm = TRUE)
 \arguments{
 \item{share}{A file share object.}
 
-\item{dir, }{file A string naming a directory or file respectively.}
+\item{dir, file}{A string naming a directory or file respectively.}
 
 \item{all_info}{Whether to return names only, or all information in a directory listing.}
 
-\item{src, }{dest The source and destination filenames for uploading and downloading. Paths are allowed.}
+\item{src, dest}{The source and destination filenames for uploading and downloading. Paths are allowed.}
 
 \item{confirm}{Whether to ask for confirmation on deleting a file or directory.}
 }

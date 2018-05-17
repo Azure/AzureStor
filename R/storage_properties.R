@@ -1,3 +1,14 @@
+#' Get storage properties for an endpoint or container
+#'
+#' @param object An object.
+#' @param container A blob container.
+#' @param share A file share.
+#' @param blob,file,dir The name of an individual blob, file or directory.
+#'
+#' @details
+#' The `get_storage_properties` generic returns a list of properties for the given storage object. There are methods defined for objects of class `storage_endpoint`, `blob_container` and `file_share`. Similar functions are defined for individual blobs, files and directories.
+#'
+#' @rdname properties
 #' @export
 get_storage_properties <- function(object, ...)
 {
@@ -5,6 +16,7 @@ get_storage_properties <- function(object, ...)
 }
 
 
+#' @rdname properties
 #' @export
 get_storage_properties.storage_endpoint <- function(object)
 {
@@ -13,6 +25,7 @@ get_storage_properties.storage_endpoint <- function(object)
 }
 
 
+#' @rdname properties
 #' @export
 get_storage_properties.blob_container <- function(object)
 {
@@ -22,6 +35,7 @@ get_storage_properties.blob_container <- function(object)
 }
 
 
+#' @rdname properties
 #' @export
 get_storage_properties.file_share <- function(object)
 {
@@ -31,8 +45,9 @@ get_storage_properties.file_share <- function(object)
 }
 
 
+#' @rdname properties
 #' @export
-get_azure_blob_properties <- function(container, blob)
+get_blob_properties <- function(container, blob)
 {
     res <- do_container_op(container, blob, http_verb="HEAD", http_status_handler="pass")
     httr::stop_for_status(res, storage_error_message(res))
@@ -40,6 +55,7 @@ get_azure_blob_properties <- function(container, blob)
 }
 
 
+#' @rdname properties
 #' @export
 get_azure_file_properties <- function(share, file)
 {
@@ -49,6 +65,7 @@ get_azure_file_properties <- function(share, file)
 }
 
 
+#' @rdname properties
 #' @export
 get_azure_dir_properties <- function(share, dir)
 {
