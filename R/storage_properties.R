@@ -1,7 +1,7 @@
 #' Get storage properties for an endpoint or container
 #'
 #' @param object An storage object.
-#' @param container,blob A blob container or file share.
+#' @param container,share A blob container or file share.
 #' @param blob,file,dir The name of an individual blob, file or directory.
 #'
 #' @details

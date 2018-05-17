@@ -27,7 +27,7 @@ get_azure_dir_properties(share, dir)
 \arguments{
 \item{object}{An storage object.}
 
-\item{container, blob}{A blob container or file share.}
+\item{container, share}{A blob container or file share.}
 
 \item{blob, file, dir}{The name of an individual blob, file or directory.}
 }
