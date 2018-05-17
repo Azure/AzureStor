@@ -52,7 +52,8 @@ public=list(
         kind="Storage", sku=list(name="Standard_LRS", tier="Standard"), ...)
     {
         if(missing(location) && missing(kind) && missing(sku))
-            super$initialize(token, subscription, resource_group, type="Microsoft.Storage/storageAccounts", name=name)
+            super$initialize(token, subscription, resource_group, type="Microsoft.Storage/storageAccounts", name=name,
+                             ...)
         else super$initialize(token, subscription, resource_group, type="Microsoft.Storage/storageAccounts", name=name,
                               location=location, kind=kind, sku=sku, ...)
     },
@@ -102,12 +103,15 @@ public=list(
 
         endp <- self$properties$primaryEndpoints
         endp <- paste0("    ", names(endp), ": ", endp, collapse="\n")
+        sku <- unlist(self$sku)
+
         cat("  Account type:", self$kind, "\n")
+        cat("  SKU:", paste0(names(sku), "=", sku, collapse=", "), "\n")
         cat("  Endpoints:\n")
         cat(endp, "\n")
         cat("---\n")
 
-        cat(format_public_fields(self, exclude=c("subscription", "resource_group", "type", "name", "kind")))
+        cat(format_public_fields(self, exclude=c("subscription", "resource_group", "type", "name", "kind", "sku")))
         cat(format_public_methods(self))
         invisible(NULL)
     }

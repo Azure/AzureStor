@@ -135,16 +135,16 @@ AzureRMR::az_subscription$set("public", "list_storage_accounts", function(name)
 
     op <- file.path("providers", provider, path)
 
-    cont <- call_azure_rm(self$token, self$subscription, op, api_version=api_version)
+    cont <- call_azure_rm(self$token, self$id, op, api_version=api_version)
     lst <- lapply(cont$value,
-        function(parms) az_storage$new(self$token, self$subscription, deployed_properties=parms))
+        function(parms) az_storage$new(self$token, self$id, deployed_properties=parms))
 
     # keep going until paging is complete
     while(!is_empty(cont$nextLink))
     {
         cont <- call_azure_url(self$token, cont$nextLink)
         lst <- lapply(cont$value,
-            function(parms) az_storage$new(self$token, self$subscription, deployed_properties=parms))
+            function(parms) az_storage$new(self$token, self$id, deployed_properties=parms))
     }
     named_list(lst)
 })
