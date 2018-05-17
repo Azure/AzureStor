@@ -84,67 +84,78 @@ NULL
 NULL
 
 
-AzureRMR::az_resource_group$set("public", "create_storage_account", function(name, location, ...)
+# all methods extending classes in external package must go in .onLoad
+.onLoad <- function(libname, pkgname)
 {
-    az_storage$new(self$token, self$subscription, self$name, name, location=location, ...)
-})
+    api="2017-07-29"
+    options(azure_storage_api_version=api)
+    invisible(NULL)
 
+    ## extending AzureRMR classes
 
-AzureRMR::az_resource_group$set("public", "get_storage_account", function(name)
-{
-    az_storage$new(self$token, self$subscription, self$name, name)
-})
-
-
-AzureRMR::az_resource_group$set("public", "delete_storage_account", function(name, confirm=TRUE, wait=FALSE)
-{
-    self$get_storage_account(name)$delete(confirm=confirm, wait=wait)
-})
-
-
-AzureRMR::az_resource_group$set("public", "list_storage_accounts", function(name)
-{
-    provider <- "Microsoft.Storage"
-    path <- "storageAccounts"
-    api_version <- az_subscription$
-        new(self$token, self$subscription)$
-        get_provider_api_version(provider, path)
-
-    op <- file.path("resourceGroups", self$name, "providers", provider, path)
-
-    cont <- call_azure_rm(self$token, self$subscription, op, api_version=api_version)
-    lst <- lapply(cont$value,
-        function(parms) az_storage$new(self$token, self$subscription, deployed_properties=parms))
-
-    # keep going until paging is complete
-    while(!is_empty(cont$nextLink))
+    AzureRMR::az_resource_group$set("public", "create_storage_account", function(name, location, ...)
     {
-        cont <- call_azure_url(self$token, cont$nextLink)
+        az_storage$new(self$token, self$subscription, self$name, name, location=location, ...)
+    })
+
+
+    AzureRMR::az_resource_group$set("public", "get_storage_account", function(name)
+    {
+        az_storage$new(self$token, self$subscription, self$name, name)
+    })
+
+
+    AzureRMR::az_resource_group$set("public", "delete_storage_account", function(name, confirm=TRUE, wait=FALSE)
+    {
+        self$get_storage_account(name)$delete(confirm=confirm, wait=wait)
+    })
+
+
+    AzureRMR::az_resource_group$set("public", "list_storage_accounts", function(name)
+    {
+        provider <- "Microsoft.Storage"
+        path <- "storageAccounts"
+        api_version <- az_subscription$
+            new(self$token, self$subscription)$
+            get_provider_api_version(provider, path)
+
+        op <- file.path("resourceGroups", self$name, "providers", provider, path)
+
+        cont <- call_azure_rm(self$token, self$subscription, op, api_version=api_version)
         lst <- lapply(cont$value,
             function(parms) az_storage$new(self$token, self$subscription, deployed_properties=parms))
-    }
-    named_list(lst)
-})
+
+        # keep going until paging is complete
+        while(!is_empty(cont$nextLink))
+        {
+            cont <- call_azure_url(self$token, cont$nextLink)
+            lst <- lapply(cont$value,
+                function(parms) az_storage$new(self$token, self$subscription, deployed_properties=parms))
+        }
+        named_list(lst)
+    })
 
 
-AzureRMR::az_subscription$set("public", "list_storage_accounts", function(name)
-{
-    provider <- "Microsoft.Storage"
-    path <- "storageAccounts"
-    api_version <- self$get_provider_api_version(provider, path)
-
-    op <- file.path("providers", provider, path)
-
-    cont <- call_azure_rm(self$token, self$id, op, api_version=api_version)
-    lst <- lapply(cont$value,
-        function(parms) az_storage$new(self$token, self$id, deployed_properties=parms))
-
-    # keep going until paging is complete
-    while(!is_empty(cont$nextLink))
+    AzureRMR::az_subscription$set("public", "list_storage_accounts", function(name)
     {
-        cont <- call_azure_url(self$token, cont$nextLink)
+        provider <- "Microsoft.Storage"
+        path <- "storageAccounts"
+        api_version <- self$get_provider_api_version(provider, path)
+
+        op <- file.path("providers", provider, path)
+
+        cont <- call_azure_rm(self$token, self$id, op, api_version=api_version)
         lst <- lapply(cont$value,
             function(parms) az_storage$new(self$token, self$id, deployed_properties=parms))
-    }
-    named_list(lst)
-})
+
+        # keep going until paging is complete
+        while(!is_empty(cont$nextLink))
+        {
+            cont <- call_azure_url(self$token, cont$nextLink)
+            lst <- lapply(cont$value,
+                function(parms) az_storage$new(self$token, self$id, deployed_properties=parms))
+        }
+        named_list(lst)
+    })
+
+}
