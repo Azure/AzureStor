@@ -69,8 +69,6 @@ delete_blob_container(endpoint, ...)
 For \code{blob_container} and \code{create_blob_container}, an S3 object representing an existing or created container respectively.
 
 For \code{list_blob_containers}, a list of such objects.
-
-For \code{delete_blob_container}, NULL on successful deletion.
 }
 \description{
 Get, list, create, or delete blob containers.

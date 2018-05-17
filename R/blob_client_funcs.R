@@ -19,8 +19,6 @@
 #'
 #' For `list_blob_containers`, a list of such objects.
 #'
-#' For `delete_blob_container`, NULL on successful deletion.
-#'
 #' @seealso [storage_endpoint], [az_storage]
 #'
 #' @rdname blob_endpoint

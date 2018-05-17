@@ -94,6 +94,22 @@ public=list(
     get_file_endpoint=function(key=self$list_keys()[1])
     {
         storage_endpoint(self$properties$primaryEndpoints$file, key=key)
+    },
+
+    print=function(...)
+    {
+        cat("<Azure resource ", self$type, "/", self$name, ">\n", sep="")
+
+        endp <- self$properties$primaryEndpoints
+        endp <- paste0("    ", names(endp), ": ", endp, collapse="\n")
+        cat("  Account type:", self$kind, "\n")
+        cat("  Endpoints:\n")
+        cat(endp, "\n")
+        cat("---\n")
+
+        cat(format_public_fields(self, exclude=c("subscription", "resource_group", "type", "name", "kind")))
+        cat(format_public_methods(self))
+        invisible(NULL)
     }
 ),
 

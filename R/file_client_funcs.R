@@ -17,8 +17,6 @@
 #'
 #' For `list_file_shares`, a list of such objects.
 #'
-#' For `delete_file_share`, NULL on successful deletion.
-#'
 #' @seealso [storage_endpoint], [az_storage]
 #'
 #' @rdname file_endpoint

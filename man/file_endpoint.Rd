@@ -63,8 +63,6 @@ delete_file_share(endpoint, ...)
 For \code{file_share} and \code{create_file_share}, an S3 object representing an existing or created share respectively.
 
 For \code{list_file_shares}, a list of such objects.
-
-For \code{delete_file_share}, NULL on successful deletion.
 }
 \description{
 Get, list, create, or delete file shares.
