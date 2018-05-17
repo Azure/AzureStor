@@ -1,27 +1,54 @@
+#' Create a storage endpoint object
+#'
+#' @param endpoint The URL (hostname) for the endpoint. This must be of the form `http[s]://{account-name}.{type}.{core-host-name}`, where `type` is one of `"blob"`, `"file"`, `"queue"` or `"table"`. On the public Azure cloud, endpoints will be of the form `https://{account-name}.{type}.core.windows.net`.
+#' @param key The access key for the storage account.
+#' @param sas A shared access signature for the account. If neither `key` nor `sas` are provided, only public (anonymous) access to the endpoint is possible.
+#' @param api_version The storage API version to use when interacting with the host. Currently defaults to `"2017-07-29"`.
+#'
+#' @details
+#' This is the starting point for the client-side storage interface in AzureRMR.
+#'
+#' @return
+#' An object of S3 class `"blob_endpoint"`, `"file_endpoint"`, `"queue_endpoint"` or `"table_endpoint"` depending on the type of endpoint. All of these also inherit from class `"storage_endpoint"`.
+#'
+#' @seealso
+#' [az_storage], [file_share], [create_file_share], [blob_container], [create_blob_container]
+#'
+#' @aliases endpoint blob_endpoint file_endpoint queue_endpoint table_endpoint
 #' @export
-storage_endpoint <- function(endpoint,
-                             key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"),
-                             type=c("blob", "file", "queue", "table"))
+storage_endpoint <- function(endpoint, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
 {
-    if(missing(type)) # determine type of endpoint from url
-    {
-        type <- sapply(type, function(x) is_endpoint_url(endpoint, x))
-        if(!any(type))
-            stop("Unknown endpoint type", call.=FALSE)
-        type <- names(type)[type]
-    }
-    else
-    {
-        type <- match.arg(type)
-        if(!is_endpoint_url(endpoint, type))
-            stop("Unknown endpoint type", call.=FALSE)
-    }
+    if(is_empty(endpoint))
+        stop("Invalid endpoint type", call.=FALSE)
+
+    type <- sapply(c("blob", "file", "queue", "table"),
+                   function(x) is_endpoint_url(endpoint, x))
+    if(!any(type))
+        stop("Unknown endpoint type", call.=FALSE)
+    type <- names(type)[type]
+
     obj <- list(url=endpoint, key=key, sas=sas, api_version=api_version)
     class(obj) <- c(paste0(type, "_endpoint"), "storage_endpoint")
     obj
 }
 
 
+#' Generic upload and download
+#'
+#' @param src, dest The source and destination files/URLs. Paths are allowed.
+#' @param ... Further arguments to pass to lower-level functions. In particular, use `key` and/or `sas` to supply an access key or SAS. Without a key or SAS, only unauthenticated (anonymous) access is possible.
+#' @param overwrite For downloading, whether to overwrite any destination files that exist.
+#'
+#' @details
+#' These functions allow you to transfer files to and from a storage account, given the URL of the destination (for uploading) or source (for downloading). They dispatch to [upload_azure_file]/[download_azure_file] for a file storage URL and [upload_blob]/[download_blob] for a blob storage URL respectively.
+#'
+#' @return
+#' NULL on successful completion.
+#'
+#' @seealso
+#' [download_azure_file], [download_blob]. [az_storage]
+#'
+#' @rdname file_transfer
 #' @export
 download_from_url <- function(src, dest, ..., overwrite=FALSE)
 {
@@ -42,6 +69,7 @@ download_from_url <- function(src, dest, ..., overwrite=FALSE)
 }
 
 
+#' @rdname file_transfer
 #' @export
 upload_to_url <- function(src, dest, ...)
 {

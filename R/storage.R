@@ -1,3 +1,48 @@
+#' Storage account resource class
+#'
+#' Class representing a storage account, exposing methods for working with it.
+#'
+#' @docType class
+#' @section Methods:
+#' The following methods are available, in addition to those provided by the [AzureRMR::az_resource] class:
+#' - `new(...)`: Initialize a new storage object. See 'Initialization'.
+#' - `list_keys`: Return the access keys for this account.
+#' - `get_account_sas(...)`: Return an account shared access signature (SAS). See 'Shared access signatures' for more details.
+#' - `get_blob_endpoint(key, sas)`: Return the account's blob storage endpoint, along with an access key and/or a SAS. See 'Endpoints' for more details
+#' - `get_file_endpoint(key, sas)`: Return the account's file storage endpoint.
+#' - `get_queue_endpoint(key, sas)`: Return the account's queue storage endpoint.
+#' - `get_table_endpoint(key, sas)`: Return the account's table storage endpoint.
+#'
+#' @section Initialization:
+#' Initializing a new object of this class can either retrieve an existing storage account, or create a account on the host. Generally, the best way to initialize an object is via the `get_storage_account`, `create_storage_account` or `list_storage_accounts` methods of the [az_resource_group] class, which handle the details automatically.
+#'
+#' @section Shared access signatures:
+#' The simplest way for a user to access files and data in a storage account is to give them the account's access key. This gives them full control of the account, and so may be a security risk. An alternative is to provide the user with a _shared access signature_ (SAS), which limits access to specific resources and only for a set length of time.
+#'
+#' To create an account SAS, call the `get_account_sas()` method with the following arguments:
+#' - `start`: The starting access date/time, as a `Date` or `POSIXct` value. Defaults to the current time.
+#' - `expiry`: The ending access date/time, as a `Date` or `POSIXct` value.  Defaults to 8 hours after the start time.
+#' - `services`: Which services to allow access to. A string containing a combination of the letters `b`, `f`, `q`, `t` for blob, file, queue and table access. Defaults to `bfqt`.
+#' - `permissions`: Which permissions to grant. A string containing a combination of the letters `r` (read), `w` (write), `d` (delete), `l` (list), `a` (add), `c` (create), `u` (update) , `p` (process). Defaults to `r`.
+#' - `resource_types`: Which levels of the resource type hierarchy to allow access to. A string containing a combination of the letters `s` (service), `c` (container), `o` (object). Defaults to `sco`.
+#' - ip: An IP address or range to grant access to.
+#' - `protocol`: Which protocol to allow, either `"http"`, `"http,https"` or `"https"`. Defaults to NULL, which is the same as `"http,https"`.
+#' - `key`: the access key used to sign (authorise) the SAS.
+#'
+#' @section Endpoints:
+#' The client-side interaction with a storage account is via an _endpoint_. A storage account can have several endpoints, one for each type of storage supported: blob, file, queue and table.
+#'
+#' The client-side interface in AzureStor is implemented using S3 classes. This is for consistency with other data access packages in R, which mostly use S3. It also emphasises the distinction between Resource Manager (which is for interacting with the storage account itself) and the client (which is for accessing files and data stored in the account).
+#'
+#' To create a storage endpoint independently of Resource Manager (for example if you are a user without admin or owner access to the account), use the [storage_endpoint] function. This is called under the hood by the `get_xxxx_endpoint` methods.
+#'
+#' If a storage endpoint is created without an access key and SAS, only public (anonymous) access is possible.
+#'
+#' @seealso
+#' [storage_endpoint],
+#' [create_storage_account], [get_storage_account], [delete_storage_account],
+#' [Azure Storage Provider API reference](https://docs.microsoft.com/en-us/rest/api/storagerp/),
+#' [Azure Storage Services API reference](https://docs.microsoft.com/en-us/rest/api/storageservices/)
 #' @export
 az_storage <- R6::R6Class("az_storage", inherit=AzureRMR::az_resource,
 
@@ -29,16 +74,17 @@ public=list(
         self$do_operation("POST", "listAccountSas", body=parms, encode="json")$accountSasToken
     },
 
-    get_service_sas=function(start=NULL, expiry=NULL, path=NULL, service=NULL, permissions="r",
-                             ip=NULL, protocol=NULL, key=NULL)
-    {
-        dates <- private$set_sas_dates(start, expiry)
-        parms <- list(keyToSign=key, canonicalizedResource=path,
-                      signedExpiry=dates$expiry, signedIp=ip, signedPermission=permissions, signedProtocol=protocol,
-                      signedResource=service, signedStart=dates$start)
+    # hide for now
+    #get_service_sas=function(start=NULL, expiry=NULL, path=NULL, service=NULL, permissions="r",
+                             #ip=NULL, protocol=NULL, key=NULL)
+    #{
+        #dates <- private$set_sas_dates(start, expiry)
+        #parms <- list(keyToSign=key, canonicalizedResource=path,
+                      #signedExpiry=dates$expiry, signedIp=ip, signedPermission=permissions, signedProtocol=protocol,
+                      #signedResource=service, signedStart=dates$start)
 
-        self$do_operation("POST", "listServiceSas", body=parms, encode="json")$serviceSasToken
-    },
+        #self$do_operation("POST", "listServiceSas", body=parms, encode="json")$serviceSasToken
+    #},
 
     get_blob_endpoint=function(key=self$list_keys()[1])
     {
@@ -62,11 +108,11 @@ private=list(
         if(inherits(start, c("POSIXt", "Date")))
             start <- strftime(start, "%Y-%m-%dT%H:%M:%SZ", tz="UTC")
 
-        if(is.null(expiry)) # by default, 1 year after start
+        if(is.null(expiry)) # by default, 8 hours after start
         {
-            expiry <- as.POSIXlt(start, tz="UTC")
-            expiry$year <- expiry$year + 1
-            expiry <- as.POSIXct(expiry, tz="UTC")
+            expiry <- as.POSIXlt(start)
+            expiry$hour <- expiry$hour + 8
+            expiry <- as.POSIXct(expiry)
         }
         else if(is.numeric(expiry))
             expiry <- as.POSIXct(expiry, origin="1970-01-01")

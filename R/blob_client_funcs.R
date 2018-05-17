@@ -1,7 +1,72 @@
+#' Operations on a blob endpoint
+#'
+#' Get, list, create, or delete blob containers.
+#'
+#' @param endpoint Either a blob endpoint object as created by [storage_endpoint], or a character string giving the URL of the endpoint.
+#' @param key, sas If an endpoint object is not supplied, authentication details. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.
+#' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2017-07-29"`.
+#' @param name The name of the blob container to get, create, or delete.
+#' @param confirm For deleting a container, whether to ask for confirmation.
+#' @param lease For deleting a leased container, the lease ID.
+#' @param public_access For creating a container, the level of public access to allow.
+#' @param ... Further arguments passed to lower-level functions.
+#'
+#' @details
+#' You can call these functions in a couple of ways: by passing the full URL of the share, or by passing the endpoint object and the name of the container as a string.
+#'
+#' @return
+#' For `blob_container` and `create_blob_container`, an S3 object representing an existing or created container respectively.
+#'
+#' For `list_blob_containers`, a list of such objects.
+#'
+#' For `delete_blob_container`, NULL on successful deletion.
+#'
+#' @seealso [storage_endpoint], [az_storage]
+#'
+#' @rdname blob_endpoint
 #' @export
-list_blob_containers <- function(endpoint)
+blob_container <- function(endpoint, ...)
 {
-    stopifnot(inherits(endpoint, "blob_endpoint"))
+    UseMethod("blob_container")
+}
+
+#' @rdname blob_endpoint
+#' @export
+blob_container.character <- function(endpoint, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
+{
+    do.call(blob_container, generate_endpoint_container(endpoint, key, sas, api_version))
+}
+
+#' @rdname blob_endpoint
+#' @export
+blob_container.blob_endpoint <- function(endpoint, name)
+{
+    obj <- list(name=name, endpoint=endpoint)
+    class(obj) <- "blob_container"
+    obj
+}
+
+
+
+#' @rdname blob_endpoint
+#' @export
+list_blob_containers <- function(endpoint, ...)
+{
+    UseMethod("list_blob_containers")
+}
+
+#' @rdname blob_endpoint
+#' @export
+list_blob_containers.character <- function(endpoint, key=NULL, sas=NULL,
+                                           api_version=getOption("azure_storage_api_version"))
+{
+    do.call(list_blob_containers, generate_endpoint_container(endpoint, key, sas, api_version))
+}
+
+#' @rdname blob_endpoint
+#' @export
+list_blob_containers.blob_endpoint <- function(endpoint, ...)
+{
     lst <- do_storage_call(endpoint$url, "/", options=list(comp="list"),
                            key=endpoint$key, sas=endpoint$sas, api_version=endpoint$api_version)
 
@@ -10,35 +75,28 @@ list_blob_containers <- function(endpoint)
 }
 
 
-#' @export
-blob_container <- function(endpoint, name, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
-{
-    if(missing(name) && is_url(endpoint))
-    {
-        stor_path <- parse_storage_url(endpoint)
-        endpoint <- storage_endpoint(stor_path[1], key, sas, api_version)
-        name <- stor_path[2]
-    }
 
-    obj <- list(name=name, endpoint=endpoint)
-    class(obj) <- "blob_container"
-    obj
+#' @rdname blob_endpoint
+#' @export
+create_blob_container <- function(endpoint, ...)
+{
+    UseMethod("create_blob_container")
 }
 
-
+#' @rdname blob_endpoint
 #' @export
-create_blob_container <- function(endpoint, name, key=NULL, sas=NULL,
-                                     api_version=getOption("azure_storage_api_version"),
-                                     public_access=c("none", "blob", "container"),
-                                     ...)
+create_blob_container.character <- function(endpoint, key=NULL, sas=NULL,
+                                            api_version=getOption("azure_storage_api_version"),
+                                            ...)
 {
-    if(missing(name) && is_url(endpoint))
-    {
-        stor_path <- parse_storage_url(endpoint)
-        name <- stor_path[2]
-        endpoint <- storage_endpoint(stor_path[1], key, sas, api_version)
-    }
+    endp <- generate_endpoint_container(endpoint, key, sas, api_version)
+    create_blob_container(endp$endpoint, endp$name, ...)
+}
 
+#' @rdname blob_endpoint
+#' @export
+create_blob_container.blob_endpoint <- function(endpoint, public_access=c("none", "blob", "container"), ...)
+{
     public_access <- match.arg(public_access)
     headers <- if(public_access != "none")
         modifyList(list(...), list("x-ms-blob-public-access"=public_access))
@@ -50,13 +108,31 @@ create_blob_container <- function(endpoint, name, key=NULL, sas=NULL,
 }
 
 
+
+#' @rdname blob_endpoint
 #' @export
-delete_blob_container <- function(container, confirm=TRUE, lease=NULL)
+delete_blob_container <- function(endpoint, ...)
+{
+    UseMethod("delete_blob_container")
+}
+
+#' @rdname blob_endpoint
+#' @export
+delete_blob_container.character <- function(endpoint, key=NULL, sas=NULL,
+                                            api_version=getOption("azure_storage_api_version"),
+                                            ...)
+{
+    endp <- generate_endpoint_container(endpoint, key, sas, api_version)
+    delete_blob_container(endp$endpoint, endp$name, ...)
+}
+
+#' @rdname blob_endpoint
+#' @export
+delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, lease=NULL)
 {
     if(confirm && interactive())
     {
-        endp <- container$endpoint
-        path <- paste0(endp$url, endp$name, "/")
+        path <- paste0(endpoint$url, name, "/")
         yn <- readline(paste0("Are you sure you really want to delete the container '", path, "'? (y/N) "))
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))
@@ -64,10 +140,28 @@ delete_blob_container <- function(container, confirm=TRUE, lease=NULL)
     headers <- if(!is_empty(lease))
         list("x-ms-lease-id"=lease)
     else list()
-    do_container_op(container, options=list(restype="container"), headers=headers, http_verb="DELETE")
+
+    obj <- blob_container(endpoint, name)
+    do_container_op(obj, options=list(restype="container"), headers=headers, http_verb="DELETE")
 }
 
 
+#' Operations on a blob container
+#'
+#' Upload, download, or delete a blob; list blobs in a container.
+#'
+#' @param container A blob container object.
+#' @param blob A string naming a blob.
+#' @param src, dest The source and destination filenames for uploading and downloading. Paths are allowed.
+#' @param confirm Whether to ask for confirmation on deleting a blob.
+#'
+#' @return
+#' For `list_blobs`, a vector of blob names in the container. For the other functions, NULL on successful completion.
+#'
+#' @seealso
+#' [blob_container], [az_storage]
+#'
+#' @rdname blob_container
 #' @export
 list_blobs <- function(container)
 {
@@ -75,7 +169,7 @@ list_blobs <- function(container)
     unname(vapply(lst$Blobs, function(b) b$Name[[1]], FUN.VALUE=character(1)))
 }
 
-
+#' @rdname blob_container
 #' @export
 upload_blob <- function(container, src, dest, type="BlockBlob")
 {
@@ -92,14 +186,14 @@ upload_blob <- function(container, src, dest, type="BlockBlob")
                  http_verb="PUT")
 }
 
-
+#' @rdname blob_container
 #' @export
 download_blob <- function(container, src, dest, overwrite=FALSE)
 {
     do_container_op(container, src, config=httr::write_disk(dest, overwrite))
 }
 
-
+#' @rdname blob_container
 #' @export
 delete_blob <- function(container, blob, confirm=TRUE)
 {

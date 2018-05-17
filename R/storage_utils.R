@@ -144,8 +144,17 @@ parse_storage_url <- function(url)
 
 is_endpoint_url <- function(url, type)
 {
-    type <- sprintf("://[a-z0-9]+\\.%s\\.", type)
+    # endpoint URL must be of the form {scheme}://{acctname}.{type}.{etc}
+    type <- sprintf("^https?://[a-z0-9]+\\.%s\\.", type)
     grepl(type, url)
 }
 
+
+generate_endpoint_container <- function(url, key, sas, api_version)
+{
+    stor_path <- parse_storage_url(url)
+    endpoint <- storage_endpoint(stor_path[1], key, sas, api_version)
+    name <- stor_path[2]
+    list(endpoint=endpoint, name=name)
+}
 
