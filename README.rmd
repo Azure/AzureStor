@@ -4,7 +4,7 @@ This package provides both an admin- and user-side interface to [Azure Storage S
 
 Sample admin workflow:
 
-```{r, eval=FALSE}
+```r
 library(AzureRMR)
 library(AzureStor)
 
@@ -67,7 +67,7 @@ The user-side interface in AzureStor is implemented using S3 classes. This is fo
 
 Accessing blob storage:
 
-```{r, eval=FALSE}
+```r
 # get the endpoint from a storage ARM object
 bl <- rdevstor1$get_blob_endpoint()
 
@@ -112,7 +112,7 @@ download_from_url("https://rdevstor1.blob.core.windows.net/privcontainer/test.gz
 
 Accessing file storage works much the same way:
 
-```{r, eval=FALSE}
+```r
 # get the file endpoint, either from ARM or standalone
 fs <- rdevstor1$get_file_endpoint()
 fs <- storage_endpoint("https://rdevstor1.file.core.windows.net", key="/Uq3rxh0lbYErt...")
