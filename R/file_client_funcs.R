@@ -47,7 +47,7 @@ file_share.file_endpoint <- function(endpoint, name)
 print.file_share <- function(object, ...)
 {
     cat("Azure file share\n")
-    cat("Endpoint URL: %s\n", object$endpoint$url)
+    cat(sprintf("Endpoint URL: %s\n", object$endpoint$url))
     if(!is_empty(object$endpoint$key))
         cat("Access key: <hidden>\n")
     else cat("Access key: <none supplied>\n")
