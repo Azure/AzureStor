@@ -40,7 +40,7 @@
 #'
 #' @seealso
 #' [storage_endpoint],
-#' [create_storage_account], [get_storage_account], [delete_storage_account],
+#' [create_storage_account], [get_storage_account], [delete_storage_account], [Date], [POSIXt],
 #' [Azure Storage Provider API reference](https://docs.microsoft.com/en-us/rest/api/storagerp/),
 #' [Azure Storage Services API reference](https://docs.microsoft.com/en-us/rest/api/storageservices/)
 #' @export
@@ -122,20 +122,17 @@ private=list(
     set_sas_dates=function(start, expiry)
     {
         if(is.null(start))
-            start <- as.POSIXct(Sys.Date())
-        else if(is.numeric(start))
+            start <- Sys.time()
+        else if(!inherits(start, "POSIXt"))
             start <- as.POSIXct(start, origin="1970-01-01")
-        if(inherits(start, c("POSIXt", "Date")))
-            start <- strftime(start, "%Y-%m-%dT%H:%M:%SZ", tz="UTC")
 
         if(is.null(expiry)) # by default, 8 hours after start
-        {
-            expiry <- as.POSIXlt(start)
-            expiry$hour <- expiry$hour + 8
-            expiry <- as.POSIXct(expiry)
-        }
-        else if(is.numeric(expiry))
+            expiry <- start + 8 * 60 * 60
+        else if(!inherits(expiry, "POSIXt"))
             expiry <- as.POSIXct(expiry, origin="1970-01-01")
+
+        if(inherits(start, c("POSIXt", "Date")))
+            start <- strftime(start, "%Y-%m-%dT%H:%M:%SZ", tz="UTC")
         if(inherits(expiry, c("POSIXt", "Date")))
             expiry <- strftime(expiry, "%Y-%m-%dT%H:%M:%SZ", tz="UTC")
 

@@ -60,7 +60,7 @@ If a storage endpoint is created without an access key and SAS, only public (ano
 
 \seealso{
 \link{storage_endpoint},
-\link{create_storage_account}, \link{get_storage_account}, \link{delete_storage_account},
+\link{create_storage_account}, \link{get_storage_account}, \link{delete_storage_account}, \link{Date}, \link{POSIXt},
 \href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference},
 \href{https://docs.microsoft.com/en-us/rest/api/storageservices/}{Azure Storage Services API reference}
 }
