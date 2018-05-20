@@ -59,9 +59,6 @@ print.storage_endpoint <- function(object)
 #' @details
 #' These functions allow you to transfer files to and from a storage account, given the URL of the destination (for uploading) or source (for downloading). They dispatch to [upload_azure_file]/[download_azure_file] for a file storage URL and [upload_blob]/[download_blob] for a blob storage URL respectively.
 #'
-#' @return
-#' NULL on successful completion.
-#'
 #' @seealso
 #' [download_azure_file], [download_blob]. [az_storage]
 #'
@@ -75,7 +72,7 @@ download_from_url <- function(src, dest, ..., overwrite=FALSE)
     if(inherits(endpoint, "blob_endpoint"))
     {
         cont <- blob_container(endpoint, az_path[2])
-        download_azure_blob(cont, az_path[3], dest, overwrite=overwrite)
+        download_blob(cont, az_path[3], dest, overwrite=overwrite)
     }
     else if(inherits(endpoint, "file_endpoint"))
     {
@@ -96,7 +93,7 @@ upload_to_url <- function(src, dest, ...)
     if(inherits(endpoint, "blob_endpoint"))
     {
         cont <- blob_container(endpoint, az_path[2])
-        upload_azure_blob(cont, src, az_path[3])
+        upload_blob(cont, src, az_path[3])
     }
     else if(inherits(endpoint, "file_endpoint"))
     {
