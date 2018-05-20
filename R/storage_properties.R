@@ -100,7 +100,7 @@ tidy_list <- function(x)
         x <- unlist(x)
         if(x %in% c("true", "false"))
             x <- as.logical(x)
-        else if(!is.na(as.numeric(x)))
+        else if(!is.numeric(x) && !is.na(suppressWarnings(as.numeric(x))))
             x <- as.numeric(x)
         x
     }

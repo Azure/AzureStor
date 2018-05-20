@@ -7,7 +7,7 @@
 \alias{delete_blob}
 \title{Operations on a blob container}
 \usage{
-list_blobs(container)
+list_blobs(container, info = c("partial", "name", "all"))
 
 upload_blob(container, src, dest, type = "BlockBlob")
 
@@ -18,6 +18,8 @@ delete_blob(container, blob, confirm = TRUE)
 \arguments{
 \item{container}{A blob container object.}
 
+\item{info}{For \code{list_blobs}, level of detail about each blob to return: a vector of names only; the name, size and last-modified date (default); or all information.}
+
 \item{src, dest}{The source and destination filenames for uploading and downloading. Paths are allowed.}
 
 \item{blob}{A string naming a blob.}
@@ -25,7 +27,7 @@ delete_blob(container, blob, confirm = TRUE)
 \item{confirm}{Whether to ask for confirmation on deleting a blob.}
 }
 \value{
-For \code{list_blobs}, a vector of blob names in the container. For the other functions, NULL on successful completion.
+For \code{list_blobs}, details on the blobs in the container.
 }
 \description{
 Upload, download, or delete a blob; list blobs in a container.

@@ -166,20 +166,39 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param container A blob container object.
 #' @param blob A string naming a blob.
 #' @param src,dest The source and destination filenames for uploading and downloading. Paths are allowed.
+#' @param info For `list_blobs`, level of detail about each blob to return: a vector of names only; the name, size and last-modified date (default); or all information.
 #' @param confirm Whether to ask for confirmation on deleting a blob.
 #'
 #' @return
-#' For `list_blobs`, a vector of blob names in the container. For the other functions, NULL on successful completion.
+#' For `list_blobs`, details on the blobs in the container.
 #'
 #' @seealso
 #' [blob_container], [az_storage]
 #'
 #' @rdname blob_container
 #' @export
-list_blobs <- function(container)
+list_blobs <- function(container, info=c("partial", "name", "all"))
 {
+    info <- match.arg(info)
     lst <- do_container_op(container, options=list(comp="list", restype="container"))
-    unname(vapply(lst$Blobs, function(b) b$Name[[1]], FUN.VALUE=character(1)))
+    if(info != "name")
+    {
+        rows <- lapply(lst$Blobs, function(blob)
+        {
+            props <- c(Name=blob$Name, blob$Properties)
+            props <- data.frame(lapply(props, function(p) if(!is_empty(p)) unlist(p) else NA),
+                                stringsAsFactors=FALSE, check.names=FALSE)
+        })
+
+        df <- do.call(rbind, rows)
+        df$`Last-Modified` <- as.POSIXct(df$`Last-Modified`, format="%a, %d %b %Y %H:%M:%S", tz="GMT")
+        row.names(df) <- NULL
+
+        if(info == "partial")
+            df[c("Name", "Last-Modified", "Content-Length")]
+        else df
+    }
+    else unname(vapply(lst$Blobs, function(b) b$Name[[1]], FUN.VALUE=character(1)))
 }
 
 #' @rdname blob_container
