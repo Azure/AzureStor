@@ -53,21 +53,26 @@ print.storage_endpoint <- function(object)
 #' Generic upload and download
 #'
 #' @param src,dest The source and destination files/URLs. Paths are allowed.
-#' @param ... Further arguments to pass to lower-level functions. In particular, use `key` and/or `sas` to supply an access key or SAS. Without a key or SAS, only public (anonymous) access is possible.
+#' @param key,sas Authentication arguments: an access key or a shared access signature (SAS). If a key is is provided, the SAS is not used. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.
+#' @param ... Further arguments to pass to lower-level functions.
 #' @param overwrite For downloading, whether to overwrite any destination files that exist.
 #'
 #' @details
 #' These functions allow you to transfer files to and from a storage account, given the URL of the destination (for uploading) or source (for downloading). They dispatch to [upload_azure_file]/[download_azure_file] for a file storage URL and [upload_blob]/[download_blob] for a blob storage URL respectively.
 #'
+#' You can provide a SAS either as part of the URL itself, or in the `sas` argument.
+#'
 #' @seealso
-#' [download_azure_file], [download_blob]. [az_storage]
+#' [download_azure_file], [download_blob], [az_storage]
 #'
 #' @rdname file_transfer
 #' @export
-download_from_url <- function(src, dest, ..., overwrite=FALSE)
+download_from_url <- function(src, dest, key=NULL, sas=NULL, ..., overwrite=FALSE)
 {
     az_path <- parse_storage_url(src)
-    endpoint <- storage_endpoint(az_path[1], ...)
+    if(is.null(sas))
+        sas <- find_sas(src)
+    endpoint <- storage_endpoint(az_path[1], key=key, sas=sas, ...)
 
     if(inherits(endpoint, "blob_endpoint"))
     {
@@ -85,10 +90,12 @@ download_from_url <- function(src, dest, ..., overwrite=FALSE)
 
 #' @rdname file_transfer
 #' @export
-upload_to_url <- function(src, dest, ...)
+upload_to_url <- function(src, dest, key=NULL, sas=NULL, ...)
 {
     az_path <- parse_storage_url(dest)
-    endpoint <- storage_endpoint(az_path[1], ...)
+    if(is.null(sas))
+        sas <- find_sas(dest)
+    endpoint <- storage_endpoint(az_path[1], key=key, sas=sas, ...)
 
     if(inherits(endpoint, "blob_endpoint"))
     {
@@ -103,4 +110,12 @@ upload_to_url <- function(src, dest, ...)
     else stop("Unknown storage endpoint", call.=FALSE)
 }
 
+
+find_sas <- function(url)
+{
+    querymark <- regexpr("\\?.+$", url)
+    if(querymark == -1)
+        NULL
+    else substr(url, querymark + 1, nchar(url))
+}
 

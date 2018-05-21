@@ -5,14 +5,17 @@
 \alias{upload_to_url}
 \title{Generic upload and download}
 \usage{
-download_from_url(src, dest, ..., overwrite = FALSE)
+download_from_url(src, dest, key = NULL, sas = NULL, ...,
+  overwrite = FALSE)
 
-upload_to_url(src, dest, ...)
+upload_to_url(src, dest, key = NULL, sas = NULL, ...)
 }
 \arguments{
 \item{src, dest}{The source and destination files/URLs. Paths are allowed.}
 
-\item{...}{Further arguments to pass to lower-level functions. In particular, use \code{key} and/or \code{sas} to supply an access key or SAS. Without a key or SAS, only public (anonymous) access is possible.}
+\item{key, sas}{Authentication arguments: an access key or a shared access signature (SAS). If a key is is provided, the SAS is not used. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.}
+
+\item{...}{Further arguments to pass to lower-level functions.}
 
 \item{overwrite}{For downloading, whether to overwrite any destination files that exist.}
 }
@@ -21,7 +24,9 @@ Generic upload and download
 }
 \details{
 These functions allow you to transfer files to and from a storage account, given the URL of the destination (for uploading) or source (for downloading). They dispatch to \link{upload_azure_file}/\link{download_azure_file} for a file storage URL and \link{upload_blob}/\link{download_blob} for a blob storage URL respectively.
+
+You can provide a SAS either as part of the URL itself, or in the \code{sas} argument.
 }
 \seealso{
-\link{download_azure_file}, \link{download_blob}. \link{az_storage}
+\link{download_azure_file}, \link{download_blob}, \link{az_storage}
 }
