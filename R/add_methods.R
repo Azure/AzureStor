@@ -93,25 +93,29 @@ NULL
 
     ## extending AzureRMR classes
 
-    AzureRMR::az_resource_group$set("public", "create_storage_account", function(name, location, ...)
+    AzureRMR::az_resource_group$set("public", "create_storage_account", overwrite=TRUE,
+                                    function(name, location, ...)
     {
         az_storage$new(self$token, self$subscription, self$name, name, location=location, ...)
     })
 
 
-    AzureRMR::az_resource_group$set("public", "get_storage_account", function(name)
+    AzureRMR::az_resource_group$set("public", "get_storage_account", overwrite=TRUE,
+                                    function(name)
     {
         az_storage$new(self$token, self$subscription, self$name, name)
     })
 
 
-    AzureRMR::az_resource_group$set("public", "delete_storage_account", function(name, confirm=TRUE, wait=FALSE)
+    AzureRMR::az_resource_group$set("public", "delete_storage_account", overwrite=TRUE,
+                                    function(name, confirm=TRUE, wait=FALSE)
     {
         self$get_storage_account(name)$delete(confirm=confirm, wait=wait)
     })
 
 
-    AzureRMR::az_resource_group$set("public", "list_storage_accounts", function(name)
+    AzureRMR::az_resource_group$set("public", "list_storage_accounts", overwrite=TRUE,
+                                    function(name)
     {
         provider <- "Microsoft.Storage"
         path <- "storageAccounts"
@@ -136,7 +140,8 @@ NULL
     })
 
 
-    AzureRMR::az_subscription$set("public", "list_storage_accounts", function(name)
+    AzureRMR::az_subscription$set("public", "list_storage_accounts", overwrite=TRUE,
+                                  function(name)
     {
         provider <- "Microsoft.Storage"
         path <- "storageAccounts"
@@ -157,5 +162,4 @@ NULL
         }
         named_list(lst)
     })
-
 }
