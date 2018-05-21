@@ -3,7 +3,7 @@
 #' Get, list, create, or delete blob containers.
 #'
 #' @param endpoint Either a blob endpoint object as created by [storage_endpoint], or a character string giving the URL of the endpoint.
-#' @param key,sas If an endpoint object is not supplied, authentication details. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.
+#' @param key,sas If an endpoint object is not supplied, authentication details. If a key is provided, the SAS is not used. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.
 #' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2017-07-29"`.
 #' @param name The name of the blob container to get, create, or delete.
 #' @param confirm For deleting a container, whether to ask for confirmation.

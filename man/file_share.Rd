@@ -34,8 +34,6 @@ delete_azure_dir(share, dir, confirm = TRUE)
 }
 \value{
 For \code{list_azure_files}, if \code{all_info=FALSE}, a vector of file/directory names. If \code{all_info=TRUE}, a data frame giving the file size and whether each object is a file or directory.
-
-For the other functions, NULL on successful completion.
 }
 \description{
 Upload, download, or delete a file; list files in a directory; create or delete directories.

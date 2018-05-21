@@ -51,7 +51,7 @@ delete_file_share(endpoint, ...)
 
 \item{...}{Further arguments passed to lower-level functions.}
 
-\item{key, sas}{If an endpoint object is not supplied, authentication details. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.}
+\item{key, sas}{If an endpoint object is not supplied, authentication details. If a key is provided, the SAS is not used. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.}
 
 \item{api_version}{If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to \code{"2017-07-29"}.}
 

@@ -15,28 +15,21 @@ do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), 
                             http_status_handler=c("stop", "warn", "message", "pass"))
 {
     verb <- match.arg(http_verb)
+    url <- httr::parse_url(endpoint_url)
+    url$path <- URLencode(path)
+    if(!is_empty(options))
+        url$query <- options[order(names(options))] # must be sorted for access key signing
 
-    # use shared access signature if provided, otherwise key if provided, otherwise anonymous access
-    if(!is.null(sas))
-    {
-        url <- paste0(endpoint_url, path, "/") # don't use file.path because it strips trailing / on Windows
-        url <- paste0(url, "?", sas)
-        url <- httr::parse_url(url)
-        headers <- httr::add_headers(.headers=unlist(headers))
-    }
-    else
-    {
-        url <- httr::parse_url(endpoint_url)
-        url$path <- path
-        if(!is_empty(options))
-            url$query <- options[order(names(options))]
+    # use key if provided, otherwise sas if provided, otherwise anonymous access
+    if(!is.null(key))
+        headers <- sign_request(key, verb, url, headers, api_version)
+    else if(!is.null(sas))
+        url <- add_sas(sas, url)
 
-        headers <- if(!is.null(key))
-            sign_request(key, verb, url, headers, api_version)
-        else httr::add_headers(.headers=unlist(headers))
-    }
-
+    headers <- httr::add_headers(.headers=unlist(headers))
     verb <- get(verb, getNamespace("httr"))
+
+    # do actual http[s] call
     response <- verb(url, headers, body=body, ...)
 
     handler <- match.arg(http_status_handler)
@@ -61,18 +54,10 @@ do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), 
 }
 
 
-storage_error_message <- function(response, for_httr=TRUE)
+add_sas <- function(sas, url)
 {
-    cont <- suppressMessages(httr::content(response))
-    msg <- if(inherits(cont, "xml_node"))
-    {
-        cont <- xml2::as_list(cont)
-        paste0(unlist(cont), collapse="\n")
-    }
-    else NULL
-    if(for_httr)
-        paste0("complete Storage Services operation. Message:\n", sub("\\.$", "", msg))
-    else msg
+    full_url <- httr::build_url(url)
+    paste0(full_url, if(is.null(url$query)) "?" else "&", sas)
 }
 
 
@@ -90,7 +75,7 @@ sign_request <- function(key, verb, url, headers, api)
 
     sig <- make_signature(key, verb, acct_name, resource, url$query, headers)
 
-    httr::add_headers(Host=url$host, Authorization=sig, .headers=unlist(headers))
+    c(Host=url$host, Authorization=sig, headers)
 }
 
 
@@ -122,6 +107,21 @@ make_signature <- function(key, verb, acct_name, resource, options, headers)
 
     hash <- openssl::sha256(charToRaw(sig), openssl::base64_decode(key))
     paste0("SharedKey ", acct_name, ":", openssl::base64_encode(hash))
+}
+
+
+storage_error_message <- function(response, for_httr=TRUE)
+{
+    cont <- suppressMessages(httr::content(response))
+    msg <- if(inherits(cont, "xml_node"))
+    {
+        cont <- xml2::as_list(cont)
+        paste0(unlist(cont), collapse="\n")
+    }
+    else NULL
+    if(for_httr)
+        paste0("complete Storage Services operation. Message:\n", sub("\\.$", "", msg))
+    else msg
 }
 
 

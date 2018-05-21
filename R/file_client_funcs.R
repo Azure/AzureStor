@@ -3,7 +3,7 @@
 #' Get, list, create, or delete file shares.
 #'
 #' @param endpoint Either a file endpoint object as created by [storage_endpoint], or a character string giving the URL of the endpoint.
-#' @param key,sas If an endpoint object is not supplied, authentication details. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.
+#' @param key,sas If an endpoint object is not supplied, authentication details. If a key is provided, the SAS is not used. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.
 #' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2017-07-29"`.
 #' @param name The name of the file share to get, create, or delete.
 #' @param confirm For deleting a share, whether to ask for confirmation.
@@ -162,8 +162,6 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE)
 #'
 #' @return
 #' For `list_azure_files`, if `all_info=FALSE`, a vector of file/directory names. If `all_info=TRUE`, a data frame giving the file size and whether each object is a file or directory.
-#'
-#' For the other functions, NULL on successful completion.
 #'
 #' @seealso
 #' [file_share], [az_storage]

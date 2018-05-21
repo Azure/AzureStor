@@ -2,7 +2,7 @@
 #'
 #' @param endpoint The URL (hostname) for the endpoint. This must be of the form `http[s]://{account-name}.{type}.{core-host-name}`, where `type` is one of `"blob"`, `"file"`, `"queue"` or `"table"`. On the public Azure cloud, endpoints will be of the form `https://{account-name}.{type}.core.windows.net`.
 #' @param key The access key for the storage account.
-#' @param sas A shared access signature for the account. If neither `key` nor `sas` are provided, only public (anonymous) access to the endpoint is possible.
+#' @param sas A shared access signature (SAS) for the account. If `key` is also provided, the SAS is not used. If neither `key` nor `sas` are provided, only public (anonymous) access to the endpoint is possible.
 #' @param api_version The storage API version to use when interacting with the host. Currently defaults to `"2017-07-29"`.
 #'
 #' @details
@@ -53,7 +53,7 @@ print.storage_endpoint <- function(object)
 #' Generic upload and download
 #'
 #' @param src,dest The source and destination files/URLs. Paths are allowed.
-#' @param ... Further arguments to pass to lower-level functions. In particular, use `key` and/or `sas` to supply an access key or SAS. Without a key or SAS, only unauthenticated (anonymous) access is possible.
+#' @param ... Further arguments to pass to lower-level functions. In particular, use `key` and/or `sas` to supply an access key or SAS. Without a key or SAS, only public (anonymous) access is possible.
 #' @param overwrite For downloading, whether to overwrite any destination files that exist.
 #'
 #' @details

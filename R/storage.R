@@ -87,14 +87,14 @@ public=list(
         #self$do_operation("POST", "listServiceSas", body=parms, encode="json")$serviceSasToken
     #},
 
-    get_blob_endpoint=function(key=self$list_keys()[1])
+    get_blob_endpoint=function(key=self$list_keys()[1], sas=NULL)
     {
-        storage_endpoint(self$properties$primaryEndpoints$blob, key=key)
+        storage_endpoint(self$properties$primaryEndpoints$blob, key=key, sas=sas)
     },
 
-    get_file_endpoint=function(key=self$list_keys()[1])
+    get_file_endpoint=function(key=self$list_keys()[1], sas=NULL)
     {
-        storage_endpoint(self$properties$primaryEndpoints$file, key=key)
+        storage_endpoint(self$properties$primaryEndpoints$file, key=key, sas=sas)
     },
 
     print=function(...)
@@ -111,8 +111,9 @@ public=list(
         cat(endp, "\n")
         cat("---\n")
 
-        cat(format_public_fields(self, exclude=c("subscription", "resource_group", "type", "name", "kind", "sku")))
-        cat(format_public_methods(self))
+        cat(AzureRMR::format_public_fields(self, exclude=c("subscription", "resource_group",
+                                           "type", "name", "kind", "sku")))
+        cat(AzureRMR::format_public_methods(self))
         invisible(NULL)
     }
 ),

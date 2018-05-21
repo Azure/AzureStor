@@ -44,7 +44,7 @@ rdevstor1
 # retrieve admin keys
 rdevstor1$list_keys()
 
-# create a shared access signature
+# create a shared access signature (SAS)
 rdevstor1$get_account_sas()
 
 # obtain an endpoint object for accessing storage
@@ -74,7 +74,7 @@ bl <- rdevstor1$get_blob_endpoint()
 # for users without ARM credentials, use the storage_endpoint() function and provide a key
 bl <- storage_endpoint("https://rdevstor1.blob.core.windows.net", key="/Uq3rxh0lbYErt...")
 
-# can also provide a SAS: will be used in preference to an access key
+# can also provide a shared access signature
 # providing neither a key nor SAS allows only public access
 bl <- storage_endpoint("https://rdevstor1.blob.core.windows.net", sas="sv=2015-04-05&ss=...")
 
