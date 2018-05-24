@@ -46,8 +46,8 @@ file_share.file_endpoint <- function(endpoint, name)
 #' @export
 print.file_share <- function(object, ...)
 {
-    cat("Azure file share\n")
-    cat(sprintf("Endpoint URL: %s\n", object$endpoint$url))
+    cat("Azure file share '", object$name, "'\n", sep="")
+    cat(sprintf("URL: %s\n", file.path(object$endpoint$url, object$name)))
     if(!is_empty(object$endpoint$key))
         cat("Access key: <hidden>\n")
     else cat("Access key: <none supplied>\n")
@@ -139,7 +139,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE)
 {
     if(confirm && interactive())
     {
-        path <- paste0(endpoint$url, name, "/")
+        path <- paste0(endpoint$url, name)
         yn <- readline(paste0("Are you sure you really want to delete the share '", path, "'? (y/N) "))
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))
@@ -222,7 +222,7 @@ delete_azure_file <- function(share, file, confirm=TRUE)
     if(confirm && interactive())
     {
         endp <- share$endpoint
-        path <- paste0(endp$url, endp$name, file, "/")
+        path <- paste0(endp$url, share$name, "/", file)
         yn <- readline(paste0("Are you sure you really want to delete '", path, "'? (y/N) "))
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))
@@ -244,7 +244,7 @@ delete_azure_dir <- function(share, dir, confirm=TRUE)
     if(confirm && interactive())
     {
         endp <- share$endpoint
-        path <- paste0(endp$url, endp$name, dir, "/")
+        path <- paste0(endp$url, share$name, "/", dir)
         yn <- readline(paste0("Are you sure you really want to delete directory '", path, "'? (y/N) "))
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))

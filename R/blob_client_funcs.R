@@ -48,8 +48,8 @@ blob_container.blob_endpoint <- function(endpoint, name)
 #' @export
 print.blob_container <- function(object, ...)
 {
-    cat("Azure blob container\n")
-    cat(sprintf("Endpoint URL: %s\n", object$endpoint$url))
+    cat("Azure blob container '", object$name, "'\n", sep="")
+    cat(sprintf("URL: %s\n", file.path(object$endpoint$url, object$name)))
     if(!is_empty(object$endpoint$key))
         cat("Access key: <hidden>\n")
     else cat("Access key: <none supplied>\n")
@@ -145,7 +145,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 {
     if(confirm && interactive())
     {
-        path <- paste0(endpoint$url, name, "/")
+        path <- paste0(endpoint$url, name)
         yn <- readline(paste0("Are you sure you really want to delete the container '", path, "'? (y/N) "))
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))
@@ -232,7 +232,7 @@ delete_blob <- function(container, blob, confirm=TRUE)
     if(confirm && interactive())
     {
         endp <- container$endpoint
-        path <- paste0(endp$url, endp$name, blob, "/")
+        path <- paste0(endp$url, container$name, "/", blob)
         yn <- readline(paste0("Are you sure you really want to delete '", path, "'? (y/N) "))
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))
