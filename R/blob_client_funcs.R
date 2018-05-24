@@ -49,7 +49,7 @@ blob_container.blob_endpoint <- function(endpoint, name)
 print.blob_container <- function(object, ...)
 {
     cat("Azure blob container '", object$name, "'\n", sep="")
-    cat(sprintf("URL: %s\n", file.path(object$endpoint$url, object$name)))
+    cat(sprintf("URL: %s\n", paste0(object$endpoint$url, object$name)))
     if(!is_empty(object$endpoint$key))
         cat("Access key: <hidden>\n")
     else cat("Access key: <none supplied>\n")
