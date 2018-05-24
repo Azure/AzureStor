@@ -37,7 +37,7 @@ create_blob_container(endpoint, ...)
 \method{create_blob_container}{character}(endpoint, key = NULL, sas = NULL,
   api_version = getOption("azure_storage_api_version"), ...)
 
-\method{create_blob_container}{blob_endpoint}(endpoint,
+\method{create_blob_container}{blob_endpoint}(endpoint, name,
   public_access = c("none", "blob", "container"), ...)
 
 delete_blob_container(endpoint, ...)

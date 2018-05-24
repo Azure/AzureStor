@@ -108,7 +108,7 @@ create_blob_container.character <- function(endpoint, key=NULL, sas=NULL,
 
 #' @rdname blob_endpoint
 #' @export
-create_blob_container.blob_endpoint <- function(endpoint, public_access=c("none", "blob", "container"), ...)
+create_blob_container.blob_endpoint <- function(endpoint, name, public_access=c("none", "blob", "container"), ...)
 {
     public_access <- match.arg(public_access)
     headers <- if(public_access != "none")
