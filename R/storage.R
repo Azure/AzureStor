@@ -72,7 +72,7 @@ public=list(
                       signedExpiry=dates$expiry, signedIp=ip, signedPermission=permissions, signedProtocol=protocol,
                       signedResourceTypes=resource_types, signedServices=services, signedStart=dates$start)
 
-        self$do_operation("POST", "listAccountSas", body=parms, encode="json")$accountSasToken
+        self$do_operation("listAccountSas", body=parms, encode="json", http_verb="POST")$accountSasToken
     },
 
     # hide for now
@@ -84,7 +84,7 @@ public=list(
                       #signedExpiry=dates$expiry, signedIp=ip, signedPermission=permissions, signedProtocol=protocol,
                       #signedResource=service, signedStart=dates$start)
 
-        #self$do_operation("POST", "listServiceSas", body=parms, encode="json")$serviceSasToken
+        #self$do_operation("listServiceSas", body=parms, encode="json", http_verb="POST")$serviceSasToken
     #},
 
     get_blob_endpoint=function(key=self$list_keys()[1], sas=NULL)
