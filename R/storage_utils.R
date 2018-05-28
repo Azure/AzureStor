@@ -146,7 +146,7 @@ is_endpoint_url <- function(url, type)
 {
     # endpoint URL must be of the form {scheme}://{acctname}.{type}.{etc}
     type <- sprintf("^https?://[a-z0-9]+\\.%s\\.", type)
-    grepl(type, url)
+    is_url(url) && grepl(type, url)
 }
 
 

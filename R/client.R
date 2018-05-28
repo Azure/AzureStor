@@ -6,10 +6,10 @@
 #' @param api_version The storage API version to use when interacting with the host. Currently defaults to `"2017-07-29"`.
 #'
 #' @details
-#' This is the starting point for the client-side storage interface in AzureRMR.
+#' This is the starting point for the client-side storage interface in AzureRMR. `storage_endpoint` is a generic function to create an endpoint for any type of Azure storage while `blob_endpoint` and `file_endpoint` create endpoints for those types.
 #'
 #' @return
-#' An object of S3 class `"blob_endpoint"`, `"file_endpoint"`, `"queue_endpoint"` or `"table_endpoint"` depending on the type of endpoint. All of these also inherit from class `"storage_endpoint"`.
+#' `storage_endpoint` returns an object of S3 class `"blob_endpoint"`, `"file_endpoint"`, `"queue_endpoint"` or `"table_endpoint"` depending on the type of endpoint. All of these also inherit from class `"storage_endpoint"`. `blob_endpoint` and `file_endpoint` return an object of the respective type.
 #'
 #' @seealso
 #' [az_storage], [file_share], [create_file_share], [blob_container], [create_blob_container]
@@ -18,9 +18,6 @@
 #' @export
 storage_endpoint <- function(endpoint, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
 {
-    if(is_empty(endpoint))
-        stop("Invalid endpoint type", call.=FALSE)
-
     type <- sapply(c("blob", "file", "queue", "table"),
                    function(x) is_endpoint_url(endpoint, x))
     if(!any(type))
@@ -31,6 +28,31 @@ storage_endpoint <- function(endpoint, key=NULL, sas=NULL, api_version=getOption
     class(obj) <- c(paste0(type, "_endpoint"), "storage_endpoint")
     obj
 }
+
+#' @rdname storage_endpoint
+#' @export
+blob_endpoint <- function(endpoint, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
+{
+    if(!is_endpoint_url(endpoint, "blob"))
+        stop("Not a blob endpoint", call.=FALSE)
+
+    obj <- list(url=endpoint, key=key, sas=sas, api_version=api_version)
+    class(obj) <- c("blob_endpoint", "storage_endpoint")
+    obj
+}
+
+#' @rdname storage_endpoint
+#' @export
+file_endpoint <- function(endpoint, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
+{
+    if(!is_endpoint_url(endpoint, "file"))
+        stop("Not a file endpoint", call.=FALSE)
+
+    obj <- list(url=endpoint, key=key, sas=sas, api_version=api_version)
+    class(obj) <- c("file_endpoint", "storage_endpoint")
+    obj
+}
+
 
 #' @rdname storage_endpoint
 #' @export

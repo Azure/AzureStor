@@ -34,12 +34,12 @@
 #'
 #' The client-side interface in AzureStor is implemented using S3 classes. This is for consistency with other data access packages in R, which mostly use S3. It also emphasises the distinction between Resource Manager (which is for interacting with the storage account itself) and the client (which is for accessing files and data stored in the account).
 #'
-#' To create a storage endpoint independently of Resource Manager (for example if you are a user without admin or owner access to the account), use the [storage_endpoint] function. This is called under the hood by the `get_xxxx_endpoint` methods.
+#' To create a storage endpoint independently of Resource Manager (for example if you are a user without admin or owner access to the account), use the [blob_endpoint] or [file_endpoint] functions.
 #'
 #' If a storage endpoint is created without an access key and SAS, only public (anonymous) access is possible.
 #'
 #' @seealso
-#' [storage_endpoint],
+#' [blob_endpoint], [file_endpoint],
 #' [create_storage_account], [get_storage_account], [delete_storage_account], [Date], [POSIXt],
 #' [Azure Storage Provider API reference](https://docs.microsoft.com/en-us/rest/api/storagerp/),
 #' [Azure Storage Services API reference](https://docs.microsoft.com/en-us/rest/api/storageservices/)
@@ -89,12 +89,12 @@ public=list(
 
     get_blob_endpoint=function(key=self$list_keys()[1], sas=NULL)
     {
-        storage_endpoint(self$properties$primaryEndpoints$blob, key=key, sas=sas)
+        blob_endpoint(self$properties$primaryEndpoints$blob, key=key, sas=sas)
     },
 
     get_file_endpoint=function(key=self$list_keys()[1], sas=NULL)
     {
-        storage_endpoint(self$properties$primaryEndpoints$file, key=key, sas=sas)
+        file_endpoint(self$properties$primaryEndpoints$file, key=key, sas=sas)
     },
 
     print=function(...)

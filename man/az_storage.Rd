@@ -53,13 +53,13 @@ The client-side interaction with a storage account is via an \emph{endpoint}. A 
 
 The client-side interface in AzureStor is implemented using S3 classes. This is for consistency with other data access packages in R, which mostly use S3. It also emphasises the distinction between Resource Manager (which is for interacting with the storage account itself) and the client (which is for accessing files and data stored in the account).
 
-To create a storage endpoint independently of Resource Manager (for example if you are a user without admin or owner access to the account), use the \link{storage_endpoint} function. This is called under the hood by the \code{get_xxxx_endpoint} methods.
+To create a storage endpoint independently of Resource Manager (for example if you are a user without admin or owner access to the account), use the \link{blob_endpoint} or \link{file_endpoint} functions.
 
 If a storage endpoint is created without an access key and SAS, only public (anonymous) access is possible.
 }
 
 \seealso{
-\link{storage_endpoint},
+\link{blob_endpoint}, \link{file_endpoint},
 \link{create_storage_account}, \link{get_storage_account}, \link{delete_storage_account}, \link{Date}, \link{POSIXt},
 \href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference},
 \href{https://docs.microsoft.com/en-us/rest/api/storageservices/}{Azure Storage Services API reference}
