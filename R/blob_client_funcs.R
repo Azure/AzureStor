@@ -180,10 +180,17 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 list_blobs <- function(container, info=c("partial", "name", "all"))
 {
     info <- match.arg(info)
-    lst <- do_container_op(container, options=list(comp="list", restype="container"))
+    res <- do_container_op(container, options=list(comp="list", restype="container"))
+    lst <- res$Blobs
+    while(length(res$NextMarker) > 0)
+    {
+        res <- do_container_op(container, options=list(comp="list", restype="container", marker=res$NextMarker[[1]]))
+        lst <- c(lst, res$Blobs)
+    }
+
     if(info != "name")
     {
-        rows <- lapply(lst$Blobs, function(blob)
+        rows <- lapply(lst, function(blob)
         {
             props <- c(Name=blob$Name, blob$Properties)
             props <- data.frame(lapply(props, function(p) if(!is_empty(p)) unlist(p) else NA),
@@ -192,6 +199,7 @@ list_blobs <- function(container, info=c("partial", "name", "all"))
 
         df <- do.call(rbind, rows)
         df$`Last-Modified` <- as.POSIXct(df$`Last-Modified`, format="%a, %d %b %Y %H:%M:%S", tz="GMT")
+        df$`Content-Length` <- as.numeric(df$`Content-Length`)
         row.names(df) <- NULL
 
         if(info == "partial")
