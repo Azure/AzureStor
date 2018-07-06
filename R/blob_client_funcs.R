@@ -206,7 +206,7 @@ list_blobs <- function(container, info=c("partial", "name", "all"))
             df[c("Name", "Last-Modified", "Content-Length")]
         else df
     }
-    else unname(vapply(lst$Blobs, function(b) b$Name[[1]], FUN.VALUE=character(1)))
+    else unname(vapply(lst, function(b) b$Name[[1]], FUN.VALUE=character(1)))
 }
 
 #' @rdname blob_container
