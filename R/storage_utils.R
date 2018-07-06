@@ -47,7 +47,7 @@ do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), 
         if(is_empty(cont))
             NULL
         else if(inherits(cont, "xml_node"))
-            xml2::as_list(cont)
+            xml_to_list(cont)
         else cont
     }
     else response
@@ -115,7 +115,7 @@ storage_error_message <- function(response, for_httr=TRUE)
     cont <- suppressMessages(httr::content(response))
     msg <- if(inherits(cont, "xml_node"))
     {
-        cont <- xml2::as_list(cont)
+        cont <- xml_to_list(cont)
         paste0(unlist(cont), collapse="\n")
     }
     else NULL
@@ -158,3 +158,11 @@ generate_endpoint_container <- function(url, key, sas, api_version)
     list(endpoint=endpoint, name=name)
 }
 
+
+xml_to_list <- function(x)
+{
+    # work around breaking change in xml2 1.2
+    if(packageVersion("xml2") < package_version("1.2"))
+        xml2::as_list(x)
+    else (xml2::as_list(x))[[1]]
+}

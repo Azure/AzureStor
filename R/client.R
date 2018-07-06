@@ -67,7 +67,7 @@ print.storage_endpoint <- function(object)
     if(!is_empty(object$sas))
         cat("Account shared access signature: <hidden>\n")
     else cat("Account shared access signature: <none supplied>\n")
-    cat(sprintf("Storage API version: %s", object$api_version))
+    cat(sprintf("Storage API version: %s\n", object$api_version))
     invisible(object)
 }
 
