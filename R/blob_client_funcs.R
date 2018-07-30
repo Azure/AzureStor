@@ -198,39 +198,66 @@ list_blobs <- function(container, info=c("partial", "name", "all"))
         })
 
         df <- do.call(rbind, rows)
-        df$`Last-Modified` <- as.POSIXct(df$`Last-Modified`, format="%a, %d %b %Y %H:%M:%S", tz="GMT")
-        df$`Content-Length` <- as.numeric(df$`Content-Length`)
-        row.names(df) <- NULL
-
-        if(info == "partial")
-            df[c("Name", "Last-Modified", "Content-Length")]
-        else df
+        if(length(df) > 0)
+        {
+            df$`Last-Modified` <- as.POSIXct(df$`Last-Modified`, format="%a, %d %b %Y %H:%M:%S", tz="GMT")
+            df$`Content-Length` <- as.numeric(df$`Content-Length`)
+            row.names(df) <- NULL
+            if(info == "partial")
+                df[c("Name", "Last-Modified", "Content-Length")]
+            else df
+        }
+        else list()
     }
     else unname(vapply(lst, function(b) b$Name[[1]], FUN.VALUE=character(1)))
 }
 
 #' @rdname blob_container
 #' @export
-upload_blob <- function(container, src, dest, type="BlockBlob")
+upload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL)
 {
-    # TODO: upload in chunks
-    body <- readBin(src, "raw", file.info(src)$size)
-    hash <- openssl::base64_encode(openssl::md5(body))
-
-    headers <- list("content-length"=length(body),
-                    "content-md5"=hash,
-                    "content-type"="application/octet-stream",
+    headers <- list("content-type"="application/octet-stream",
                     "x-ms-blob-type"=type)
+    if(!is.null(lease))
+        headers[["x-ms-lease-id"]] <- as.character(lease)
 
-    do_container_op(container, dest, headers=headers, body=body,
-                 http_verb="PUT")
+    # upload each block
+    remaining <- file.info(src)$size
+    blocklist <- list()
+    con <- file(src, open="rb")
+    on.exit(close(con))
+    i <- 1
+    while(remaining > 0)
+    {
+        body <- readBin(con, "raw", blocksize)
+        thisblock <- length(body)
+        headers[["content-length"]] <- thisblock
+        id <- openssl::base64_encode(sprintf("%010d", i))
+        opts <- list(comp="block", blockid=id)
+
+        do_container_op(container, dest, headers=headers, body=body, options=opts, http_verb="PUT")
+
+        blocklist <- c(blocklist, list(Latest=list(id)))
+        remaining <- remaining - thisblock
+        i <- i + 1
+    }
+
+    # update block list
+    body <- as.character(xml2::as_xml_document(list(BlockList=blocklist)))
+    headers <- list("content-length"=nchar(body),
+                    "content-type"="application/octet-stream")
+    do_container_op(container, dest, headers=headers, body=body, options=list(comp="blocklist"),
+                    http_verb="PUT")
 }
 
 #' @rdname blob_container
 #' @export
-download_blob <- function(container, src, dest, overwrite=FALSE)
+download_blob <- function(container, src, dest, overwrite=FALSE, lease=NULL)
 {
-    do_container_op(container, src, config=httr::write_disk(dest, overwrite))
+    headers <- list()
+    if(!is.null(lease))
+        headers[["x-ms-lease-id"]] <- as.character(lease)
+    do_container_op(container, src, headers=headers, config=httr::write_disk(dest, overwrite))
 }
 
 #' @rdname blob_container
