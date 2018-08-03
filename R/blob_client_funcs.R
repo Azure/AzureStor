@@ -228,24 +228,28 @@ upload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, 
     if(!is.null(lease))
         headers[["x-ms-lease-id"]] <- as.character(lease)
 
-    # upload each block
-    remaining <- file.info(src)$size
-    blocklist <- list()
-    con <- file(src, open="rb")
+    con <- if(inherits(src, "textConnection"))
+        rawConnection(charToRaw(paste0(readLines(src), collapse="\n")))
+    else file(src, open="rb")
     on.exit(close(con))
+
+    # upload each block
+    blocklist <- list()
     i <- 1
-    while(remaining > 0)
+    while(1)
     {
         body <- readBin(con, "raw", blocksize)
         thisblock <- length(body)
+        if(thisblock == 0)
+            break
+
         headers[["content-length"]] <- thisblock
-        id <- openssl::base64_encode(sprintf("%010d", i))
+        id <- openssl::base64_encode(sprintf("%s-%010d", dest, i))
         opts <- list(comp="block", blockid=id)
 
         do_container_op(container, dest, headers=headers, body=body, options=opts, http_verb="PUT")
 
         blocklist <- c(blocklist, list(Latest=list(id)))
-        remaining <- remaining - thisblock
         i <- i + 1
     }
 
