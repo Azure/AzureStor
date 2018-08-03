@@ -141,6 +141,13 @@ delete_blob_container.character <- function(endpoint, key=NULL, sas=NULL,
 
 #' @rdname blob_endpoint
 #' @export
+delete_blob_container.blob_container <- function(endpoint, ...)
+{
+    delete_blob_container(endpoint$endpoint, endpoint$name, ...)
+}
+
+#' @rdname blob_endpoint
+#' @export
 delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, lease=NULL)
 {
     if(confirm && interactive())
