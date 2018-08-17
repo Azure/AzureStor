@@ -135,6 +135,13 @@ delete_file_share.character <- function(endpoint, key=NULL, sas=NULL,
 
 #' @rdname file_endpoint
 #' @export
+delete_file_share.file_share <- function(endpoint, ...)
+{
+    delete_file_share(endpoint$endpoint, endpoint$name, ...)
+}
+
+#' @rdname file_endpoint
+#' @export
 delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE)
 {
     if(confirm && interactive())
@@ -159,6 +166,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE)
 #' @param all_info Whether to return names only, or all information in a directory listing.
 #' @param src,dest The source and destination filenames for uploading and downloading. Paths are allowed.
 #' @param confirm Whether to ask for confirmation on deleting a file or directory.
+#' @param blocksize The number of bytes to upload per HTTP(S) request.
 #'
 #' @return
 #' For `list_azure_files`, if `all_info=FALSE`, a vector of file/directory names. If `all_info=TRUE`, a data frame giving the file size and whether each object is a file or directory.
@@ -186,26 +194,49 @@ list_azure_files <- function(share, dir, all_info=TRUE)
 
 #' @rdname file_share
 #' @export
-upload_azure_file <- function(share, src, dest)
+upload_azure_file <- function(share, src, dest, blocksize=2^24)
 {
-    # TODO: upload in chunks 
-    body <- readBin(src, "raw", file.info(src)$size)
+    if(inherits(src, "textConnection"))
+    {
+        src <- charToRaw(paste0(readLines(src), collapse="\n"))
+        nbytes <- length(src)
+        con <- rawConnection(src)
+    }
+    else
+    {
+        con <- file(src, open="rb")
+        nbytes <- file.info(src)$size
+    }
+    on.exit(close(con))
 
     # first, create the file
     headers <- list("x-ms-type"="file",
-                    "x-ms-content-length"=length(body))
+                    "x-ms-content-length"=nbytes)
     do_container_op(share, dest, headers=headers, http_verb="PUT")
 
-    # then write the bytes into it
-    hash <- openssl::base64_encode(openssl::md5(body))
+    # then write the bytes into it, one block at a time
     options <- list(comp="range")
-    headers <- list("content-length"=length(body),
-                    "range"=paste0("bytes=0-", length(body) - 1),
-                    "content-md5"=hash,
-                    "content-type"="application/octet-stream",
+    headers <- list("content-type"="application/octet-stream",
                     "x-ms-write"="Update")
 
-    do_container_op(share, dest, options=options, headers=headers, body=body, http_verb="PUT")
+    # upload each block
+    blocklist <- list()
+    range_begin <- 0
+    while(range_begin < nbytes)
+    {
+        body <- readBin(con, "raw", blocksize)
+        thisblock <- length(body)
+        if(thisblock == 0)  # sanity check
+            break
+
+        headers[["content-length"]] <- thisblock
+        headers[["range"]] <- sprintf("bytes=%s-%s", range_begin, range_begin + thisblock - 1)
+
+        do_container_op(share, dest, headers=headers, body=body, options=options, http_verb="PUT")
+
+        range_begin <- range_begin + thisblock
+    }
+    invisible(NULL)
 }
 
 #' @rdname file_share
