@@ -11,7 +11,7 @@
 \usage{
 list_azure_files(share, dir, all_info = TRUE)
 
-upload_azure_file(share, src, dest)
+upload_azure_file(share, src, dest, blocksize = 2^24)
 
 download_azure_file(share, src, dest, overwrite = FALSE)
 
@@ -29,6 +29,8 @@ delete_azure_dir(share, dir, confirm = TRUE)
 \item{all_info}{Whether to return names only, or all information in a directory listing.}
 
 \item{src, dest}{The source and destination filenames for uploading and downloading. Paths are allowed.}
+
+\item{blocksize}{The number of bytes to upload per HTTP(S) request.}
 
 \item{confirm}{Whether to ask for confirmation on deleting a file or directory.}
 }

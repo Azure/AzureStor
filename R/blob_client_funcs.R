@@ -175,6 +175,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param src,dest The source and destination filenames for uploading and downloading. Paths are allowed.
 #' @param info For `list_blobs`, level of detail about each blob to return: a vector of names only; the name, size and last-modified date (default); or all information.
 #' @param confirm Whether to ask for confirmation on deleting a blob.
+#' @param blocksize The number of bytes to upload per HTTP(S) request.
 #'
 #' @return
 #' For `list_blobs`, details on the blobs in the container.

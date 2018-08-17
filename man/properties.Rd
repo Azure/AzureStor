@@ -46,9 +46,4 @@ The \code{get_storage_properties} generic returns a list of properties for the g
 \href{https://docs.microsoft.com/en-us/rest/api/storageservices/get-file-service-properties}{File service properties reference},
 \href{https://docs.microsoft.com/en-us/rest/api/storageservices/get-container-properties}{Blob container properties reference},
 \href{https://docs.microsoft.com/en-us/rest/api/storageservices/get-share-properties}{File share properties reference}
-
-[Blob service properties reference[(https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-service-properties).
-[File service properties reference]: R:Blob%20service%20properties%20reference[(https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-service-properties).%0A[File%20service%20properties%20reference
-[Blob container properties reference]: R:Blob%20container%20properties%20reference
-[File share properties reference]: R:File%20share%20properties%20reference
 }

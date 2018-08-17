@@ -7,8 +7,6 @@
 \alias{file_endpoint}
 \alias{queue_endpoint}
 \alias{table_endpoint}
-\alias{blob_endpoint}
-\alias{file_endpoint}
 \alias{print.storage_endpoint}
 \title{Create a storage endpoint object}
 \usage{

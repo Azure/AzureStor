@@ -9,9 +9,10 @@
 \usage{
 list_blobs(container, info = c("partial", "name", "all"))
 
-upload_blob(container, src, dest, type = "BlockBlob")
+upload_blob(container, src, dest, type = "BlockBlob", blocksize = 2^24,
+  lease = NULL)
 
-download_blob(container, src, dest, overwrite = FALSE)
+download_blob(container, src, dest, overwrite = FALSE, lease = NULL)
 
 delete_blob(container, blob, confirm = TRUE)
 }
@@ -21,6 +22,8 @@ delete_blob(container, blob, confirm = TRUE)
 \item{info}{For \code{list_blobs}, level of detail about each blob to return: a vector of names only; the name, size and last-modified date (default); or all information.}
 
 \item{src, dest}{The source and destination filenames for uploading and downloading. Paths are allowed.}
+
+\item{blocksize}{The number of bytes to upload per HTTP(S) request.}
 
 \item{blob}{A string naming a blob.}
 

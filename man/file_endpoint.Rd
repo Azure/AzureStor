@@ -13,6 +13,7 @@
 \alias{create_file_share.file_endpoint}
 \alias{delete_file_share}
 \alias{delete_file_share.character}
+\alias{delete_file_share.file_share}
 \alias{delete_file_share.file_endpoint}
 \title{Operations on a file endpoint}
 \usage{
@@ -43,6 +44,8 @@ delete_file_share(endpoint, ...)
 
 \method{delete_file_share}{character}(endpoint, key = NULL, sas = NULL,
   api_version = getOption("azure_storage_api_version"), ...)
+
+\method{delete_file_share}{file_share}(endpoint, ...)
 
 \method{delete_file_share}{file_endpoint}(endpoint, name, confirm = TRUE)
 }
