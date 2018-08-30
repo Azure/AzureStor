@@ -87,7 +87,7 @@ NULL
 # all methods extending classes in external package must go in .onLoad
 .onLoad <- function(libname, pkgname)
 {
-    api="2017-07-29"
+    api <- "2018-03-28"
     options(azure_storage_api_version=api)
     invisible(NULL)
 
