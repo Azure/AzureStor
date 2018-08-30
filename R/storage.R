@@ -48,16 +48,6 @@ az_storage <- R6::R6Class("az_storage", inherit=AzureRMR::az_resource,
 
 public=list(
 
-    initialize=function(token, subscription, resource_group, name, location,
-        kind="Storage", sku=list(name="Standard_LRS", tier="Standard"), ...)
-    {
-        if(missing(location) && missing(kind) && missing(sku))
-            super$initialize(token, subscription, resource_group, type="Microsoft.Storage/storageAccounts", name=name,
-                             ...)
-        else super$initialize(token, subscription, resource_group, type="Microsoft.Storage/storageAccounts", name=name,
-                              location=location, kind=kind, sku=sku, ...)
-    },
-
     list_keys=function()
     {
         keys <- named_list(private$res_op("listKeys", http_verb="POST")$keys, "keyName")

@@ -22,7 +22,7 @@
 #' - table storage
 #' - queue storage
 #'
-#' Accounts created with `kind = "BlobStorage"` can only host blob and table storage, while those with `kind = "Storage"` can host all four.
+#' Accounts created with `kind = "BlobStorage"` can only host blob and table storage, while those with `kind = "Storage"` can host all four. Currently, AzureStor provides an R interface only to blob and file storage.
 #'
 #' @return
 #' An object of class `az_storage` representing the created storage account.
@@ -94,16 +94,21 @@ NULL
     ## extending AzureRMR classes
 
     AzureRMR::az_resource_group$set("public", "create_storage_account", overwrite=TRUE,
-                                    function(name, location, ...)
+                                    function(name, location,
+                                             kind="Storage", sku=list(name="Standard_LRS", tier="Standard"),
+                                             ...)
     {
-        az_storage$new(self$token, self$subscription, self$name, name, location=location, ...)
+        az_storage$new(self$token, self$subscription, self$name,
+                       type="Microsoft.Storage/storageAccounts", name=name, location=location,
+                       kind=kind, sku=sku, ...)
     })
 
 
     AzureRMR::az_resource_group$set("public", "get_storage_account", overwrite=TRUE,
                                     function(name)
     {
-        az_storage$new(self$token, self$subscription, self$name, name)
+        az_storage$new(self$token, self$subscription, self$name,
+                       type="Microsoft.Storage/storageAccounts", name=name)
     })
 
 

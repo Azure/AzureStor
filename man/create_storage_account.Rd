@@ -32,7 +32,7 @@ This method deploys a new storage account resource, with parameters given by the
 \item queue storage
 }
 
-Accounts created with \code{kind = "BlobStorage"} can only host blob and table storage, while those with \code{kind = "Storage"} can host all four.
+Accounts created with \code{kind = "BlobStorage"} can only host blob and table storage, while those with \code{kind = "Storage"} can host all four. Currently, AzureStor provides an R interface only to blob and file storage.
 }
 \seealso{
 \link{get_storage_account}, \link{delete_storage_account}, \link{az_storage},
