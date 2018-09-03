@@ -94,7 +94,7 @@ NULL
     ## extending AzureRMR classes
 
     AzureRMR::az_resource_group$set("public", "create_storage_account", overwrite=TRUE,
-                                    function(name, location,
+                                    function(name, location=self$location,
                                              kind="Storage", sku=list(name="Standard_LRS", tier="Standard"),
                                              ...)
     {
