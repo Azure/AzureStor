@@ -224,8 +224,10 @@ list_blobs <- function(container, info=c("partial", "name", "all"))
 #' @export
 upload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL)
 {
-    headers <- list("content-type"="application/octet-stream",
-                    "x-ms-blob-type"=type)
+    if(type != "BlockBlob")
+        stop("Only block blobs currently supported")
+    content_type <- mime::guess_type(src)
+    headers <- list("x-ms-blob-type"=type)
     if(!is.null(lease))
         headers[["x-ms-lease-id"]] <- as.character(lease)
 
@@ -256,9 +258,13 @@ upload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, 
 
     # update block list
     body <- as.character(xml2::as_xml_document(list(BlockList=blocklist)))
-    headers <- list("content-length"=nchar(body),
-                    "content-type"="application/octet-stream")
+    headers <- list("content-length"=nchar(body))
     do_container_op(container, dest, headers=headers, body=body, options=list(comp="blocklist"),
+                    http_verb="PUT")
+
+    # set content type
+    do_container_op(container, dest, headers=list("x-ms-blob-content-type"=content_type),
+                    options=list(comp="properties"),
                     http_verb="PUT")
 }
 

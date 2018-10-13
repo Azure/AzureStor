@@ -1,0 +1,6 @@
+^misc$
+^\.vs$
+\.sln$
+\.Rproj$
+\.Rxproj$
+^\.Rproj\.user$
