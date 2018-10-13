@@ -216,8 +216,7 @@ upload_azure_file <- function(share, src, dest, blocksize=2^24)
 
     # then write the bytes into it, one block at a time
     options <- list(comp="range")
-    headers <- list("content-type"="application/octet-stream",
-                    "x-ms-write"="Update")
+    headers <- list("x-ms-write"="Update")
 
     # upload each block
     blocklist <- list()
@@ -236,6 +235,11 @@ upload_azure_file <- function(share, src, dest, blocksize=2^24)
 
         range_begin <- range_begin + thisblock
     }
+
+    # set content type
+    do_container_op(share, dest, headers=list("x-ms-content-type"=mime::guess_type(src)),
+                    options=list(comp="properties"),
+                    http_verb="PUT")
     invisible(NULL)
 }
 
