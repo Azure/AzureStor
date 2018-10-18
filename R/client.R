@@ -4,6 +4,8 @@
 #' @param key The access key for the storage account.
 #' @param sas A shared access signature (SAS) for the account. If `key` is also provided, the SAS is not used. If neither `key` nor `sas` are provided, only public (anonymous) access to the endpoint is possible.
 #' @param api_version The storage API version to use when interacting with the host. Currently defaults to `"2017-07-29"`.
+#' @param x For the print method, a storage endpoint object.
+#' @param ... For the print method, further arguments passed to lower-level functions.
 #'
 #' @details
 #' This is the starting point for the client-side storage interface in AzureRMR. `storage_endpoint` is a generic function to create an endpoint for any type of Azure storage while `blob_endpoint` and `file_endpoint` create endpoints for those types.
@@ -56,19 +58,19 @@ file_endpoint <- function(endpoint, key=NULL, sas=NULL, api_version=getOption("a
 
 #' @rdname storage_endpoint
 #' @export
-print.storage_endpoint <- function(object)
+print.storage_endpoint <- function(x, ...)
 {
-    type <- sub("_endpoint$", "", class(object)[1])
+    type <- sub("_endpoint$", "", class(x)[1])
     cat(sprintf("Azure %s storage endpoint\n", type))
-    cat(sprintf("URL: %s\n", object$url))
-    if(!is_empty(object$key))
+    cat(sprintf("URL: %s\n", x$url))
+    if(!is_empty(x$key))
         cat("Access key: <hidden>\n")
     else cat("Access key: <none supplied>\n")
-    if(!is_empty(object$sas))
+    if(!is_empty(x$sas))
         cat("Account shared access signature: <hidden>\n")
     else cat("Account shared access signature: <none supplied>\n")
-    cat(sprintf("Storage API version: %s\n", object$api_version))
-    invisible(object)
+    cat(sprintf("Storage API version: %s\n", x$api_version))
+    invisible(x)
 }
 
 

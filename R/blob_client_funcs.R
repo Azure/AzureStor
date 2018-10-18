@@ -9,6 +9,7 @@
 #' @param confirm For deleting a container, whether to ask for confirmation.
 #' @param lease For deleting a leased container, the lease ID.
 #' @param public_access For creating a container, the level of public access to allow.
+#' @param x For the print method, a blob container object.
 #' @param ... Further arguments passed to lower-level functions.
 #'
 #' @details
@@ -21,62 +22,65 @@
 #'
 #' @seealso [storage_endpoint], [az_storage]
 #'
-#' @rdname blob_endpoint
+#' @rdname blob_container
 #' @export
 blob_container <- function(endpoint, ...)
 {
     UseMethod("blob_container")
 }
 
-#' @rdname blob_endpoint
+#' @rdname blob_container
 #' @export
-blob_container.character <- function(endpoint, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
+blob_container.character <- function(endpoint, key=NULL, sas=NULL,
+                                     api_version=getOption("azure_storage_api_version"),
+                                     ...)
 {
     do.call(blob_container, generate_endpoint_container(endpoint, key, sas, api_version))
 }
 
-#' @rdname blob_endpoint
+#' @rdname blob_container
 #' @export
-blob_container.blob_endpoint <- function(endpoint, name)
+blob_container.blob_endpoint <- function(endpoint, name, ...)
 {
     obj <- list(name=name, endpoint=endpoint)
     class(obj) <- "blob_container"
     obj
 }
 
-#' @rdname blob_endpoint
+#' @rdname blob_container
 #' @export
-print.blob_container <- function(object, ...)
+print.blob_container <- function(x, ...)
 {
-    cat("Azure blob container '", object$name, "'\n", sep="")
-    cat(sprintf("URL: %s\n", paste0(object$endpoint$url, object$name)))
-    if(!is_empty(object$endpoint$key))
+    cat("Azure blob container '", x$name, "'\n", sep="")
+    cat(sprintf("URL: %s\n", paste0(x$endpoint$url, x$name)))
+    if(!is_empty(x$endpoint$key))
         cat("Access key: <hidden>\n")
     else cat("Access key: <none supplied>\n")
-    if(!is_empty(object$endpoint$sas))
+    if(!is_empty(x$endpoint$sas))
         cat("Account shared access signature: <hidden>\n")
     else cat("Account shared access signature: <none supplied>\n")
-    cat(sprintf("Storage API version: %s\n", object$endpoint$api_version))
-    invisible(object)
+    cat(sprintf("Storage API version: %s\n", x$endpoint$api_version))
+    invisible(x)
 }
 
 
-#' @rdname blob_endpoint
+#' @rdname blob_container
 #' @export
 list_blob_containers <- function(endpoint, ...)
 {
     UseMethod("list_blob_containers")
 }
 
-#' @rdname blob_endpoint
+#' @rdname blob_container
 #' @export
 list_blob_containers.character <- function(endpoint, key=NULL, sas=NULL,
-                                           api_version=getOption("azure_storage_api_version"))
+                                           api_version=getOption("azure_storage_api_version"),
+                                           ...)
 {
     do.call(list_blob_containers, generate_endpoint_container(endpoint, key, sas, api_version))
 }
 
-#' @rdname blob_endpoint
+#' @rdname blob_container
 #' @export
 list_blob_containers.blob_endpoint <- function(endpoint, ...)
 {
@@ -89,14 +93,14 @@ list_blob_containers.blob_endpoint <- function(endpoint, ...)
 
 
 
-#' @rdname blob_endpoint
+#' @rdname blob_container
 #' @export
 create_blob_container <- function(endpoint, ...)
 {
     UseMethod("create_blob_container")
 }
 
-#' @rdname blob_endpoint
+#' @rdname blob_container
 #' @export
 create_blob_container.character <- function(endpoint, key=NULL, sas=NULL,
                                             api_version=getOption("azure_storage_api_version"),
@@ -106,7 +110,7 @@ create_blob_container.character <- function(endpoint, key=NULL, sas=NULL,
     create_blob_container(endp$endpoint, endp$name, ...)
 }
 
-#' @rdname blob_endpoint
+#' @rdname blob_container
 #' @export
 create_blob_container.blob_endpoint <- function(endpoint, name, public_access=c("none", "blob", "container"), ...)
 {
@@ -122,14 +126,14 @@ create_blob_container.blob_endpoint <- function(endpoint, name, public_access=c(
 
 
 
-#' @rdname blob_endpoint
+#' @rdname blob_container
 #' @export
 delete_blob_container <- function(endpoint, ...)
 {
     UseMethod("delete_blob_container")
 }
 
-#' @rdname blob_endpoint
+#' @rdname blob_container
 #' @export
 delete_blob_container.character <- function(endpoint, key=NULL, sas=NULL,
                                             api_version=getOption("azure_storage_api_version"),
@@ -139,16 +143,16 @@ delete_blob_container.character <- function(endpoint, key=NULL, sas=NULL,
     delete_blob_container(endp$endpoint, endp$name, ...)
 }
 
-#' @rdname blob_endpoint
+#' @rdname blob_container
 #' @export
 delete_blob_container.blob_container <- function(endpoint, ...)
 {
     delete_blob_container(endpoint$endpoint, endpoint$name, ...)
 }
 
-#' @rdname blob_endpoint
+#' @rdname blob_container
 #' @export
-delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, lease=NULL)
+delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, lease=NULL, ...)
 {
     if(confirm && interactive())
     {
@@ -176,6 +180,9 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param info For `list_blobs`, level of detail about each blob to return: a vector of names only; the name, size and last-modified date (default); or all information.
 #' @param confirm Whether to ask for confirmation on deleting a blob.
 #' @param blocksize The number of bytes to upload per HTTP(S) request.
+#' @param lease The lease for a blob, if present.
+#' @param type When uploading, the type of blob to create. Currently only block blobs are supported.
+#' @param overwrite When downloading, whether to overwrite an existing destination file.
 #'
 #' @return
 #' For `list_blobs`, details on the blobs in the container.
@@ -183,7 +190,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @seealso
 #' [blob_container], [az_storage]
 #'
-#' @rdname blob_container
+#' @rdname blob
 #' @export
 list_blobs <- function(container, info=c("partial", "name", "all"))
 {
@@ -220,7 +227,7 @@ list_blobs <- function(container, info=c("partial", "name", "all"))
     else unname(vapply(lst, function(b) b$Name[[1]], FUN.VALUE=character(1)))
 }
 
-#' @rdname blob_container
+#' @rdname blob
 #' @export
 upload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL)
 {
@@ -268,7 +275,7 @@ upload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, 
                     http_verb="PUT")
 }
 
-#' @rdname blob_container
+#' @rdname blob
 #' @export
 download_blob <- function(container, src, dest, overwrite=FALSE, lease=NULL)
 {
@@ -278,7 +285,7 @@ download_blob <- function(container, src, dest, overwrite=FALSE, lease=NULL)
     do_container_op(container, src, headers=headers, config=httr::write_disk(dest, overwrite))
 }
 
-#' @rdname blob_container
+#' @rdname blob
 #' @export
 delete_blob <- function(container, blob, confirm=TRUE)
 {

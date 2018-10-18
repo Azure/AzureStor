@@ -1,0 +1,15 @@
+citHeader("To cite package 'AzureStor' in publications use:")
+     
+ year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date, perl = TRUE)
+ vers <- paste("R package version", meta$Version)
+ 
+ citEntry(entry="Manual",
+          title = "AzureVM: An R interface to Azure storage accounts",
+          author = personList(as.person("Hong Ooi")),
+          year = year,
+          note = vers,
+          textVersion =
+          paste("Hong Ooi (",
+                year,
+                "). AzureRMR: An R interface to Azure storage accounts. ",
+                vers, ".", sep=""))

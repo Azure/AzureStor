@@ -10,7 +10,7 @@
 \alias{get_azure_dir_properties}
 \title{Get storage properties for an endpoint or container}
 \usage{
-get_storage_properties(object, ...)
+get_storage_properties(object)
 
 \method{get_storage_properties}{storage_endpoint}(object)
 

@@ -19,7 +19,7 @@
 #'
 #' @rdname properties
 #' @export
-get_storage_properties <- function(object, ...)
+get_storage_properties <- function(object)
 {
     UseMethod("get_storage_properties")
 }

@@ -7,6 +7,7 @@
 #' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2017-07-29"`.
 #' @param name The name of the file share to get, create, or delete.
 #' @param confirm For deleting a share, whether to ask for confirmation.
+#' @param x For the print method, a file share object.
 #' @param ... Further arguments passed to lower-level functions.
 #'
 #' @details
@@ -19,63 +20,66 @@
 #'
 #' @seealso [storage_endpoint], [az_storage]
 #'
-#' @rdname file_endpoint
+#' @rdname file_share
 #' @export
 file_share <- function(endpoint, ...)
 {
     UseMethod("file_share")
 }
 
-#' @rdname file_endpoint
+#' @rdname file_share
 #' @export
-file_share.character <- function(endpoint, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
+file_share.character <- function(endpoint, key=NULL, sas=NULL,
+                                 api_version=getOption("azure_storage_api_version"),
+                                 ...)
 {
     do.call(file_share, generate_endpoint_container(endpoint, key, sas, api_version))
 }
 
-#' @rdname file_endpoint
+#' @rdname file_share
 #' @export
-file_share.file_endpoint <- function(endpoint, name)
+file_share.file_endpoint <- function(endpoint, name, ...)
 {
     obj <- list(name=name, endpoint=endpoint)
     class(obj) <- "file_share"
     obj
 }
 
-#' @rdname file_endpoint
+#' @rdname file_share
 #' @export
-print.file_share <- function(object, ...)
+print.file_share <- function(x, ...)
 {
-    cat("Azure file share '", object$name, "'\n", sep="")
-    cat(sprintf("URL: %s\n", paste0(object$endpoint$url, object$name)))
-    if(!is_empty(object$endpoint$key))
+    cat("Azure file share '", x$name, "'\n", sep="")
+    cat(sprintf("URL: %s\n", paste0(x$endpoint$url, x$name)))
+    if(!is_empty(x$endpoint$key))
         cat("Access key: <hidden>\n")
     else cat("Access key: <none supplied>\n")
-    if(!is_empty(object$endpoint$sas))
+    if(!is_empty(x$endpoint$sas))
         cat("Account shared access signature: <hidden>\n")
     else cat("Account shared access signature: <none supplied>\n")
-    cat(sprintf("Storage API version: %s\n", object$endpoint$api_version))
-    invisible(object)
+    cat(sprintf("Storage API version: %s\n", x$endpoint$api_version))
+    invisible(x)
 }
 
 
 
-#' @rdname file_endpoint
+#' @rdname file_share
 #' @export
 list_file_shares <- function(endpoint, ...)
 {
     UseMethod("list_file_shares")
 }
 
-#' @rdname file_endpoint
+#' @rdname file_share
 #' @export
 list_file_shares.character <- function(endpoint, key=NULL, sas=NULL,
-                                       api_version=getOption("azure_storage_api_version"))
+                                       api_version=getOption("azure_storage_api_version"),
+                                       ...)
 {
     do.call(list_file_shares, generate_endpoint_container(endpoint, key, sas, api_version))
 }
 
-#' @rdname file_endpoint
+#' @rdname file_share
 #' @export
 list_file_shares.file_endpoint <- function(endpoint, ...)
 {
@@ -88,14 +92,14 @@ list_file_shares.file_endpoint <- function(endpoint, ...)
 
 
 
-#' @rdname file_endpoint
+#' @rdname file_share
 #' @export
 create_file_share <- function(endpoint, ...)
 {
     UseMethod("create_file_share")
 }
 
-#' @rdname file_endpoint
+#' @rdname file_share
 #' @export
 create_file_share.character <- function(endpoint, key=NULL, sas=NULL,
                                         api_version=getOption("azure_storage_api_version"),
@@ -105,7 +109,7 @@ create_file_share.character <- function(endpoint, key=NULL, sas=NULL,
     create_file_share(endp$endpoint, endp$name, ...)
 }
 
-#' @rdname file_endpoint
+#' @rdname file_share
 #' @export
 create_file_share.file_endpoint <- function(endpoint, name, ...)
 {
@@ -116,14 +120,14 @@ create_file_share.file_endpoint <- function(endpoint, name, ...)
 
 
 
-#' @rdname file_endpoint
+#' @rdname file_share
 #' @export
 delete_file_share <- function(endpoint, ...)
 {
     UseMethod("delete_file_share")
 }
 
-#' @rdname file_endpoint
+#' @rdname file_share
 #' @export
 delete_file_share.character <- function(endpoint, key=NULL, sas=NULL,
                                         api_version=getOption("azure_storage_api_version"),
@@ -133,16 +137,16 @@ delete_file_share.character <- function(endpoint, key=NULL, sas=NULL,
     delete_file_share(endp$endpoint, endp$name, ...)
 }
 
-#' @rdname file_endpoint
+#' @rdname file_share
 #' @export
 delete_file_share.file_share <- function(endpoint, ...)
 {
     delete_file_share(endpoint$endpoint, endpoint$name, ...)
 }
 
-#' @rdname file_endpoint
+#' @rdname file_share
 #' @export
-delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE)
+delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 {
     if(confirm && interactive())
     {
@@ -167,6 +171,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE)
 #' @param src,dest The source and destination filenames for uploading and downloading. Paths are allowed.
 #' @param confirm Whether to ask for confirmation on deleting a file or directory.
 #' @param blocksize The number of bytes to upload per HTTP(S) request.
+#' @param overwrite When downloading, whether to overwrite an existing destination file.
 #'
 #' @return
 #' For `list_azure_files`, if `all_info=FALSE`, a vector of file/directory names. If `all_info=TRUE`, a data frame giving the file size and whether each object is a file or directory.
@@ -174,7 +179,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE)
 #' @seealso
 #' [file_share], [az_storage]
 #'
-#' @rdname file_share
+#' @rdname file
 #' @export
 list_azure_files <- function(share, dir, all_info=TRUE)
 {
@@ -192,7 +197,7 @@ list_azure_files <- function(share, dir, all_info=TRUE)
     data.frame(name=name, type=type, size=as.numeric(size), stringsAsFactors=FALSE)
 }
 
-#' @rdname file_share
+#' @rdname file
 #' @export
 upload_azure_file <- function(share, src, dest, blocksize=2^24)
 {
@@ -243,14 +248,14 @@ upload_azure_file <- function(share, src, dest, blocksize=2^24)
     invisible(NULL)
 }
 
-#' @rdname file_share
+#' @rdname file
 #' @export
 download_azure_file <- function(share, src, dest, overwrite=FALSE)
 {
     do_container_op(share, src, config=httr::write_disk(dest, overwrite))
 }
 
-#' @rdname file_share
+#' @rdname file
 #' @export
 delete_azure_file <- function(share, file, confirm=TRUE)
 {
@@ -265,14 +270,14 @@ delete_azure_file <- function(share, file, confirm=TRUE)
     do_container_op(share, file, http_verb="DELETE")
 }
 
-#' @rdname file_share
+#' @rdname file
 #' @export
 create_azure_dir <- function(share, dir)
 {
     do_container_op(share, dir, options=list(restype="directory"), http_verb="PUT")
 }
 
-#' @rdname file_share
+#' @rdname file
 #' @export
 delete_azure_dir <- function(share, dir, confirm=TRUE)
 {

@@ -1,6 +1,6 @@
 Package: AzureStor
 Title: Azure Storage management
-Version: 0.1
+Version: 0.9
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
     person("Microsoft", role="cph")
@@ -11,6 +11,7 @@ Encoding: UTF-8
 Depends: 
     R (>= 3.3),
 Imports: 
+    utils,
     R6,
     httr,
     mime,

@@ -19,7 +19,7 @@ blob_endpoint(endpoint, key = NULL, sas = NULL,
 file_endpoint(endpoint, key = NULL, sas = NULL,
   api_version = getOption("azure_storage_api_version"))
 
-\method{print}{storage_endpoint}(object)
+\method{print}{storage_endpoint}(x, ...)
 }
 \arguments{
 \item{endpoint}{The URL (hostname) for the endpoint. This must be of the form \code{http[s]://{account-name}.{type}.{core-host-name}}, where \code{type} is one of \code{"blob"}, \code{"file"}, \code{"queue"} or \code{"table"}. On the public Azure cloud, endpoints will be of the form \code{https://{account-name}.{type}.core.windows.net}.}
@@ -29,6 +29,10 @@ file_endpoint(endpoint, key = NULL, sas = NULL,
 \item{sas}{A shared access signature (SAS) for the account. If \code{key} is also provided, the SAS is not used. If neither \code{key} nor \code{sas} are provided, only public (anonymous) access to the endpoint is possible.}
 
 \item{api_version}{The storage API version to use when interacting with the host. Currently defaults to \code{"2017-07-29"}.}
+
+\item{x}{For the print method, a storage endpoint object.}
+
+\item{...}{For the print method, further arguments passed to lower-level functions.}
 }
 \value{
 \code{storage_endpoint} returns an object of S3 class \code{"blob_endpoint"}, \code{"file_endpoint"}, \code{"queue_endpoint"} or \code{"table_endpoint"} depending on the type of endpoint. All of these also inherit from class \code{"storage_endpoint"}. \code{blob_endpoint} and \code{file_endpoint} return an object of the respective type.
