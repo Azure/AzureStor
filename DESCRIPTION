@@ -7,7 +7,6 @@ Authors@R: c(
     )
 Description: A package for managing virtual machines in Azure.
 License: file LICENSE
-Encoding: UTF-8
 Depends: 
     R (>= 3.3),
 Imports: 

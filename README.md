@@ -152,3 +152,5 @@ download_from_url("https://rdevstor1.file.core.windows.net/share1/irisrf_dput.tx
                   key="/Uq3rxh0lbYErt...")
 ```
 
+---
+[![cloudyr project logo](https://i.imgur.com/JHS98Y7.png)](https://github.com/cloudyr)
