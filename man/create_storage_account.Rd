@@ -3,27 +3,27 @@
 \name{create_storage_account}
 \alias{create_storage_account}
 \title{Create Azure storage account}
-\usage{
-create_storage_account(name, location, kind="Storage", sku=list(name="Standard_LRS", tier="Standard"), ...)
-}
-\arguments{
-\item{name}{The name of the storage account.}
-
-\item{location}{The location/region in which to create the account.}
-
-\item{kind}{The type of account, either \code{"Storage"} or \code{"BlobStorage"}.}
-
-\item{sku}{The SKU. This is a named list specifying various configuration options for the account.}
-
-\item{...}{Other named arguments to pass to the \link{az_storage} initialization function.}
-}
-\value{
-An object of class \code{az_storage} representing the created storage account.
-}
 \description{
 Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} class.
 }
-\details{
+\section{Usage}{
+\preformatted{create_storage_account(name, location, kind="Storage", sku=list(name="Standard_LRS", tier="Standard"), ...)
+}
+}
+
+\section{Arguments}{
+
+\itemize{
+\item \code{name}: The name of the storage account.
+\item \code{location}: The location/region in which to create the account.
+\item \code{kind}: The type of account, either \code{"Storage"} or \code{"BlobStorage"}.
+\item \code{sku}: The SKU. This is a named list specifying various configuration options for the account.
+\item ... Other named arguments to pass to the \link{az_storage} initialization function.
+}
+}
+
+\section{Details}{
+
 This method deploys a new storage account resource, with parameters given by the arguments. A storage account can host multiple types of storage:
 \itemize{
 \item blob storage
@@ -34,6 +34,12 @@ This method deploys a new storage account resource, with parameters given by the
 
 Accounts created with \code{kind = "BlobStorage"} can only host blob and table storage, while those with \code{kind = "Storage"} can host all four. Currently, AzureStor provides an R interface only to blob and file storage.
 }
+
+\section{Value}{
+
+An object of class \code{az_storage} representing the created storage account.
+}
+
 \seealso{
 \link{get_storage_account}, \link{delete_storage_account}, \link{az_storage},
 \href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference}

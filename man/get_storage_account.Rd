@@ -4,24 +4,34 @@
 \alias{get_storage_account}
 \alias{list_storage_accounts}
 \title{Get existing Azure storage account(s)}
-\usage{
-get_storage_account(name)
+\description{
+Methods for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} and \link[AzureRMR:az_subscription]{AzureRMR::az_subscription} classes.
+}
+\section{Usage}{
+\preformatted{get_storage_account(name)
 list_storage_accounts()
 }
-\arguments{
-\item{name}{For \code{get_storage_account()}, the name of the storage account.}
 }
-\value{
+
+\section{Arguments}{
+
+\itemize{
+\item \code{name}: For \code{get_storage_account()}, the name of the storage account.
+}
+}
+
+\section{Details}{
+
+The \code{AzureRMR::az_resource_group} class has both \code{get_storage_account()} and \code{list_storage_accounts()} methods, while the \code{AzureRMR::az_subscription} class only has the latter.
+}
+
+\section{Value}{
+
 For \code{get_storage_account()}, an object of class \code{az_storage} representing the storage account.
 
 For \code{list_storage_accounts()}, a list of such objects.
 }
-\description{
-Methods for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} and \link[AzureRMR:az_subscription]{AzureRMR::az_subscription} classes.
-}
-\details{
-The \code{AzureRMR::az_resource_group} class has both \code{get_storage_account()} and \code{list_storage_accounts()} methods, while the \code{AzureRMR::az_subscription} class only has the latter.
-}
+
 \seealso{
 \link{create_storage_account}, \link{delete_storage_account}, \link{az_storage},
 \href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference}

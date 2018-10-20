@@ -18,4 +18,6 @@ Imports:
     xml2,
     AzureRMR
 Roxygen: list(markdown=TRUE)
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.0.9000
+Remotes:
+    cloudyr/AzureRMR

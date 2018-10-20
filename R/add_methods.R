@@ -6,16 +6,19 @@
 #'
 #' @rdname create_storage_account
 #' @name create_storage_account
-#' @usage
+#' @aliases create_storage_account
+#' @section Usage:
+#' ```
 #' create_storage_account(name, location, kind="Storage", sku=list(name="Standard_LRS", tier="Standard"), ...)
+#' ```
+#' @section Arguments:
+#' - `name`: The name of the storage account.
+#' - `location`: The location/region in which to create the account.
+#' - `kind`: The type of account, either `"Storage"` or `"BlobStorage"`.
+#' - `sku`: The SKU. This is a named list specifying various configuration options for the account.
+#' - ... Other named arguments to pass to the [az_storage] initialization function.
 #'
-#' @param name The name of the storage account.
-#' @param location The location/region in which to create the account.
-#' @param kind The type of account, either `"Storage"` or `"BlobStorage"`.
-#' @param sku The SKU. This is a named list specifying various configuration options for the account.
-#' @param ... Other named arguments to pass to the [az_storage] initialization function.
-#'
-#' @details
+#' @section Details:
 #' This method deploys a new storage account resource, with parameters given by the arguments. A storage account can host multiple types of storage:
 #' - blob storage
 #' - file storage 
@@ -24,7 +27,7 @@
 #'
 #' Accounts created with `kind = "BlobStorage"` can only host blob and table storage, while those with `kind = "Storage"` can host all four. Currently, AzureStor provides an R interface only to blob and file storage.
 #'
-#' @return
+#' @section Value:
 #' An object of class `az_storage` representing the created storage account.
 #'
 #' @seealso
@@ -39,18 +42,20 @@ NULL
 #'
 #' @rdname get_storage_account
 #' @name get_storage_account
-#' @aliases list_storage_accounts
+#' @aliases get_storage_account list_storage_accounts
 #'
-#' @usage
+#' @section Usage:
+#' ```
 #' get_storage_account(name)
 #' list_storage_accounts()
+#' ```
+#' @section Arguments:
+#' - `name`: For `get_storage_account()`, the name of the storage account.
 #'
-#' @param name For `get_storage_account()`, the name of the storage account.
-#'
-#' @details
+#' @section Details:
 #' The `AzureRMR::az_resource_group` class has both `get_storage_account()` and `list_storage_accounts()` methods, while the `AzureRMR::az_subscription` class only has the latter.
 #'
-#' @return
+#' @section Value:
 #' For `get_storage_account()`, an object of class `az_storage` representing the storage account.
 #'
 #' For `list_storage_accounts()`, a list of such objects.
@@ -67,15 +72,18 @@ NULL
 #'
 #' @rdname delete_storage_account
 #' @name delete_storage_account
+#' @aliases delete_storage_account
 #'
-#' @usage
+#' @section Usage:
+#' ```
 #' delete_storage_account(name, confirm=TRUE, wait=FALSE)
+#' ```
+#' @section Arguments:
+#' - `name`: The name of the storage account.
+#' - `confirm`: Whether to ask for confirmation before deleting.
+#' - `wait`: Whether to wait until the deletion is complete.
 #'
-#' @param name The name of the storage account.
-#' @param confirm Whether to ask for confirmation before deleting.
-#' @param wait Whether to wait until the deletion is complete.
-#'
-#' @return
+#' @section Value:
 #' NULL on successful deletion.
 #'
 #' @seealso
