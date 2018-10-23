@@ -1,6 +1,6 @@
 Package: AzureStor
 Title: Azure Storage management
-Version: 0.9
+Version: 0.9.0
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
     person("Microsoft", role="cph")
