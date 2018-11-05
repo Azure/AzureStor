@@ -5,3 +5,5 @@
 \.Rxproj$
 ^\.Rproj\.user$
 CONTRIBUTING.md
+drat.sh
+.travis.yml
