@@ -1,0 +1,274 @@
+---
+title: "Introduction to AzureStor"
+author: Hong Ooi
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to AzureStor}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{utf8}
+---
+
+This is a short introduction on how to use AzureStor.
+
+
+## The Resource Manager interface: creating and deleting storage accounts
+
+AzureStor implements an interface to Azure Resource Manager, which you can use manage storage accounts: creating them, retrieving them, deleting them, and so forth. This is done via the appropriate methods of the `az_resource_group` class. For example, the following code shows how you might create a new storage account from scratch.
+
+```{r, eval=FALSE}
+# create a new resource group for the storage account
+rg <- AzureRMR::az_rm$
+    new(tenant="{tenant_id}", app="{app_id}", password="{password}")$
+    get_subscription("{subscription_id}")$
+    create_resource_group("myresourcegroup", location="australiaeast")
+
+# create the storage account
+stor <- rg$create_storage_account("mynewstorage")
+stor
+# <Azure resource Microsoft.Storage/storageAccounts/mynewstorage>
+#   Account type: Storage 
+#   SKU: name=Standard_LRS, tier=Standard 
+#   Endpoints:
+#     blob: https://mynewstorage.blob.core.windows.net/
+#     queue: https://mynewstorage.queue.core.windows.net/
+#     table: https://mynewstorage.table.core.windows.net/
+#     file: https://mynewstorage.file.core.windows.net/ 
+# ---
+#   id: /subscriptions/35975484-5360-4e67-bf76-14fcb0ab5b9d/resourceGroups/myresourcegroup/providers/Micro ...
+#   identity: NULL
+#   location: australiaeast
+#   managed_by: NULL
+#   plan: NULL
+#   properties: list(networkAcls, supportsHttpsTrafficOnly, encryption, provisioningState, creationTime,
+#     primaryEndpoints, primaryLocation, statusOfPrimary)
+#   tags: list()
+# ---
+#   Methods:
+#     check, delete, do_operation, get_account_sas, get_blob_endpoint, get_file_endpoint, get_tags, list_keys,
+#     set_api_version, set_tags, sync_fields, update
+```
+
+Without any options, this will create a storage account with the following parameters:
+- General purpose account (all storage types supported)
+- Locally redundant storage (LRS) replication
+- Hot access tier (for blob storage)
+
+You can change these by setting the `kind`, `sku` and `properties` arguments. For example, to create a blob storage account:
+
+```{r, eval=FALSE}
+blobstor <- rg$create_storage_account("mynewblobstorage",
+    kind="blobStorage")
+```
+
+And to create a storage account with geo-redundant storage and HTTPS transfers only:
+
+```{r, eval=FALSE}
+stor2 <- rg$create_storage_account("myotherstorage",
+    sku=list(name="Standard_GRS"),
+    properties=list(supportsHttpsTrafficOnly=TRUE))
+```
+
+You can verify that these accounts have been created by going to the Azure Portal (https://portal.azure.com/).
+
+One factor to remember is that all storage accounts in Azure share a common namespace. For example, there can only be one storage account named "mynewstorage" at a time, across all Azure users.
+
+To retrieve an existing storage account, use the `get_storage_account()` method. Only the storage account name is required.
+
+```{r, eval=FALSE}
+# retrieve one of the accounts created above
+stor2 <- rg$get_storage_account("myotherstorage")
+```
+
+Finally, to delete a storage account, you simply call its `delete()` method. Alternatively, you can call the `delete_storage_account()` method of the `az_resource_group` class, which will do the same thing. In both cases, AzureStor will prompt you for confirmation that you really want to delete the storage account.
+
+```{r, eval=FALSE}
+# delete the storage accounts created above
+stor$delete()
+stor2$delete()
+blobstor$delete()
+
+# if you don't have a storage account object, use the resource group method:
+rg$delete_storage_account("mynewstorage")
+rg$delete_storage_account("mynewblobstorage")
+rg$delete_storage_account("myotherstorage")
+```
+
+## The client interface: working with storage
+
+### Storage endpoints
+
+Perhaps the more relevant part of AzureStor for most users is its client interface to storage. With this, you can upload and download files and blobs, create containers and shares, list files, and so on. Unlike the ARM interface, the client interface uses S3 classes. This is for a couple of reasons: it is more familiar to most R users, and it is consistent with most other data manipulation packages in R, in particular the [tidyverse](https://tidyverse.org/).
+
+The starting point for client access is the `storage_endpoint` object, which stores information about the endpoint of a storage account: the URL that you use to access storage, along with any authentication information needed. The easiest way to obtain an endpoint object is via the storage account resource object's `get_blob_endpoint()` and `get_file_endpoint()` methods:
+
+```{r, eval=FALSE}
+# create the storage account
+rg <- AzureRMR::az_rm$
+    new(tenant="{tenant_id}", app="{app_id}", password="{password}")$
+    get_subscription("{subscription_id}")$
+    get_resource_group("myresourcegroup")
+stor <- rg$create_storage_account("mynewstorage")
+
+stor$get_blob_endpoint()
+# Azure blob storage endpoint
+# URL: https://mynewstorage.blob.core.windows.net/
+# Access key: <hidden>
+# Account shared access signature: <none supplied>
+# Storage API version: 2018-03-28
+
+stor$get_file_endpoint()
+# Azure file storage endpoint
+# URL: https://mynewstorage.file.core.windows.net/
+# Access key: <hidden>
+# Account shared access signature: <none supplied>
+# Storage API version: 2018-03-28
+```
+
+This shows that the base URL to access blob storage is https://mynewstorage.blob.core.windows.net/, while that for file storage is https://mynewstorage.file.core.windows.net/. While it's not displayed, the endpoint objects also include the access key necessary for authenticated access to storage; this is obtained directly from the storage account resource.
+
+More practically, you will usually want to work with a storage endpoint without having to go through the process of authenticating with Azure Resource Manager. Often, you may not have any ARM credentials to start with (a tenant ID and service principal details). In this case, you can create the endpoint object directly with `blob_endpoint()` and `file_endpoint()`:
+
+```{r, eval=FALSE}
+blob_endp <- blob_endpoint("https://mynewstorage.blob.core.windows.net/",
+    key="mystorageaccesskey")
+blob_endp
+# Azure blob storage endpoint
+# URL: https://mynewstorage.blob.core.windows.net/
+# Access key: <hidden>
+# Account shared access signature: <none supplied>
+# Storage API version: 2018-03-28
+
+file_endp <- file_endpoint("https://mynewstorage.file.core.windows.net/",
+    key="mystorageaccesskey")
+file_endp
+# Azure file storage endpoint
+# URL: https://mynewstorage.file.core.windows.net/
+# Access key: <hidden>
+# Account shared access signature: <none supplied>
+# Storage API version: 2018-03-28
+```
+
+Notice that when create the endpoint this way, you have to provide the access key explicitly (assuming you know what it is).
+
+Instead of an access key, you can provide a [shared access signature (SAS)](https://docs.microsoft.com/en-us/azure/storage/common/storage-dotnet-shared-access-signature-part-1) to gain authenticated access. The main difference between using a key and a SAS is that the former unlocks access to the _entire_ storage account. A user who has a key can access all containers and files, and can transfer, modify and delete data without restriction. On the other hand, a user with a SAS can be limited to have access only to specific containers, or be limited to read access, or only for a given span of time, and so on. This is usually much better in terms of security.
+
+Usually, the SAS will be provided to you by your system administrator. However, if you have the storage acccount resource object, you can generate and use a SAS as follows. Note that generating a SAS requires the storage account's access key.
+
+```{r, eval=FALSE}
+# shared access signature: read/write access, container+object access, valid for 8 hours
+sas <- stor$get_account_sas(permissions="rw",
+    resource_types="co",
+    start=Sys.time(),
+    end=Sys.time() + 8 * 60 * 60,
+    key=stor$list_keys()[1])
+
+# create an endpoint object with a SAS, but without an access key
+blob_endp <- stor$get_blob_endpoint(key=NULL, sas=sas)
+```
+
+If you don't have a key or a SAS, you will only have access to unauthenticated (public) containers and file shares.
+
+### Container and object access: blob containers, file shares, blobs, files
+
+Given an endpoint object, AzureStor provides the following methods for working with containers:
+
+- `blob_container`: get an existing blob container
+- `create_blob_container`: create a new blob container
+- `delete_blob_container`: delete a blob container
+- `list_blob_containers`: return a list of blob container objects
+- `file_share`: get an existing file share
+- `create_file_share`: create a new file share
+- `delete_file_share`: delete a file share
+- `list_file_shares`: return a list of file share objects
+
+Here is some example blob container code showing their use. The file share code is similar.
+
+```{r, eval=FALSE}
+# an existing container
+cont <- blob_container(blob_endp, "mycontainer")
+cont
+# Azure blob container 'mycontainer'
+# URL: https://mynewstorage.blob.core.windows.net/mycontainer
+# Access key: <hidden>
+# Account shared access signature: <none supplied>
+# Storage API version: 2018-03-28
+
+# create a new container
+newcont <- create_blob_container(blob_endp, "mynewcontainer")
+newcont
+# Azure blob container 'mynewcontainer'
+# URL: https://mynewstorage.blob.core.windows.net/mynewcontainer
+# Access key: <hidden>
+# Account shared access signature: <none supplied>
+# Storage API version: 2018-03-28
+
+# delete the container
+delete_blob_container(newcont)
+
+# piping also works
+library(magrittr)
+blob_endp %>% 
+    blob_container("mycontainer")
+# Azure blob container 'mycontainer'
+# URL: https://mynewstorage.blob.core.windows.net/mycontainer
+# Access key: <hidden>
+# Account shared access signature: <none supplied>
+# Storage API version: 2018-03-28
+```
+
+As a convenience, instead of providing an endpoint object and a container name, you can also provide the full URL to the container. If you do this, you'll also have to supply any authentication details such as the access key or SAS.
+
+```{r, eval=FALSE}
+cont <- blob_container("https://mynewstorage.blob.core.windows.net/mynewcontainer",
+    key="mystorageaccountkey")
+```
+
+Given a blob container or file share object, use the `list_blobs()` and `list_azure_files()` functions to list the storage objects they contain. Note the "azure" in `list_azure_files` to avoid any confusion with R's regular `list.files` function.
+
+```{r, eval=FALSE}
+list_blobs(cont)
+#      Name       Last-Modified Content-Length
+# 1  fs.txt 2018-10-13 11:34:30            132
+# 2 fs2.txt 2018-10-13 11:04:36         731930
+
+# if you want only the filenames
+list_blobs(cont, info="name")
+# [1] "fs.txt"  "fs2.txt"
+```
+
+To transfer files and blobs, use the following functions:
+
+- `upload_blob`: upload a file to a blob container. Currently, only block blobs are supported.
+- `download_blob`: download a file from a blob container.
+- `upload_azure_file`: upload a file to a file share.
+- `download_azure_file`: download a file from a file share.
+- `upload_to_url`: upload a file to a destination given by a URL, which is used to determine whether the destination is in blob or file storage.
+- `download_from_url`: download a file from a source given by a URL, the opposite of `upload_from_url`.
+
+```{r, eval=FALSE}
+# upload a file to a blob container
+blob_endp <- blob_endpoint("https://mynewstorage.blob.core.windows.net/",
+    key="mystorageaccesskey")
+cont <- blob_container(blob_endp, "mycontainer")
+upload_blob(cont, src="myfile", dest="myblob")
+
+# again, piping works
+blob_endpoint("https://mynewstorage.blob.core.windows.net/", key="mystorageaccesskey") %>%
+    blob_container("mycontainer") %>% 
+    upload_blob("myfile", "myblob")
+
+# download a blob, overwriting any existing destination file
+download_blob(cont, "myblob", "myfile", overwrite=TRUE)
+
+# as a convenience, you can transfer files directly to and from an Azure URL
+# this is analogous to base R's download.file(), but with authentication built in
+download_from_url("https://mynewstorage.blob.core.windows.net/mycontainer/myblob",
+    myfile,
+    overwrite=TRUE)
+```
+
+### Limitations
+
+Currently, the client interface for AzureStor only supports blob and file storage. Support for other storage types, in particular Data Lake Storage Gen2, is planned.
+
+
