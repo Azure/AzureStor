@@ -29,7 +29,7 @@
 #' - table storage
 #' - queue storage
 #'
-#' Accounts created with `kind = "BlobStorage"` can only host blob storage, while those with `kind = "FileStorage` can only host file storage. Accounts with `kind = "StorageV2"` can host all types of storage. Currently, AzureStor provides an R interface only to blob and file storage.
+#' Accounts created with `kind = "BlobStorage"` can only host blob storage, while those with `kind = "FileStorage"` can only host file storage. Accounts with `kind = "StorageV2"` can host all types of storage. Currently, AzureStor provides an R interface only to blob and file storage.
 #'
 #' @section Value:
 #' An object of class `az_storage` representing the created storage account.
