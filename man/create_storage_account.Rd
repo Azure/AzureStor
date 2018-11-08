@@ -16,8 +16,12 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \itemize{
 \item \code{name}: The name of the storage account.
 \item \code{location}: The location/region in which to create the account.
-\item \code{kind}: The type of account, either \code{"Storage"} or \code{"BlobStorage"}.
-\item \code{sku}: The SKU. This is a named list specifying various configuration options for the account.
+\item \code{kind}: The type of account, either \code{"StorageV2"} (the default), \code{"FileStorage"} or \code{"BlobStorage"}.
+\item \code{replication}: The replication strategy for the account. The default is locally-redundant storage (LRS).
+\item \code{access_tier}: The access tier, either \code{"hot"} or \code{"cool"}, for blobs.
+\item \code{https_only}: Whether a HTTPS connection is required to access the storage.
+\item \code{hierarchical_namespace_enabled}: Whether to enable hierarchical namespaces, which are a feature of Azure Data Lake Storage Gen 2. If TRUE, this allows you to create ADLS Gen2 containers in the account. Note that ADLS Gen2 is currently (as of November 2018) in limited-access public preview.
+\item \code{properties}: A list of other properties for the storage account.
 \item ... Other named arguments to pass to the \link{az_storage} initialization function.
 }
 }
@@ -32,7 +36,7 @@ This method deploys a new storage account resource, with parameters given by the
 \item queue storage
 }
 
-Accounts created with \code{kind = "BlobStorage"} can only host blob and table storage, while those with \code{kind = "Storage"} can host all four. Currently, AzureStor provides an R interface only to blob and file storage.
+Accounts created with \code{kind = "BlobStorage"} can only host blob storage, while those with \code{kind = "FileStorage} can only host file storage. Accounts with \code{kind = "StorageV2"} can host all types of storage. Currently, AzureStor provides an R interface only to blob and file storage.
 }
 
 \section{Value}{

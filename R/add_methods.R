@@ -14,8 +14,12 @@
 #' @section Arguments:
 #' - `name`: The name of the storage account.
 #' - `location`: The location/region in which to create the account.
-#' - `kind`: The type of account, either `"Storage"` or `"BlobStorage"`.
-#' - `sku`: The SKU. This is a named list specifying various configuration options for the account.
+#' - `kind`: The type of account, either `"StorageV2"` (the default), `"FileStorage"` or `"BlobStorage"`.
+#' - `replication`: The replication strategy for the account. The default is locally-redundant storage (LRS).
+#' - `access_tier`: The access tier, either `"hot"` or `"cool"`, for blobs.
+#' - `https_only`: Whether a HTTPS connection is required to access the storage.
+#' - `hierarchical_namespace_enabled`: Whether to enable hierarchical namespaces, which are a feature of Azure Data Lake Storage Gen 2. If TRUE, this allows you to create ADLS Gen2 containers in the account. Note that ADLS Gen2 is currently (as of November 2018) in limited-access public preview.
+#' - `properties`: A list of other properties for the storage account.
 #' - ... Other named arguments to pass to the [az_storage] initialization function.
 #'
 #' @section Details:
@@ -25,7 +29,7 @@
 #' - table storage
 #' - queue storage
 #'
-#' Accounts created with `kind = "BlobStorage"` can only host blob and table storage, while those with `kind = "Storage"` can host all four. Currently, AzureStor provides an R interface only to blob and file storage.
+#' Accounts created with `kind = "BlobStorage"` can only host blob storage, while those with `kind = "FileStorage` can only host file storage. Accounts with `kind = "StorageV2"` can host all types of storage. Currently, AzureStor provides an R interface only to blob and file storage.
 #'
 #' @section Value:
 #' An object of class `az_storage` representing the created storage account.
@@ -97,23 +101,29 @@ NULL
 {
     api <- "2018-03-28"
     options(azure_storage_api_version=api)
-    invisible(NULL)
 
     ## extending AzureRMR classes
 
     AzureRMR::az_resource_group$set("public", "create_storage_account", overwrite=TRUE,
-                                    function(name, location=self$location,
-                                             kind="Storage", sku=list(name="Standard_LRS", tier="Standard"),
-                                             ...)
+    function(name, location=self$location,
+             kind="StorageV2", replication="Standard_LRS",
+             access_tier="hot", https_only=TRUE, hierarchical_namespace_enabled=FALSE,
+             properties=list(), ...)
     {
+        properties <- modifyList(properties,
+            list(accessTier=access_tier, supportsHttpsTrafficOnly=https_only))
+        if(isTRUE(hierarchical_namespace_enabled))
+            properties <- modifyList(properties, list(isHnsEnabled=TRUE))
+
         az_storage$new(self$token, self$subscription, self$name,
                        type="Microsoft.Storage/storageAccounts", name=name, location=location,
-                       kind=kind, sku=sku, ...)
+                       kind=kind, sku=list(name=replication, tier=sub("_.+$", "", replication)),
+                       properties=properties, ...)
     })
 
 
     AzureRMR::az_resource_group$set("public", "get_storage_account", overwrite=TRUE,
-                                    function(name)
+    function(name)
     {
         az_storage$new(self$token, self$subscription, self$name,
                        type="Microsoft.Storage/storageAccounts", name=name)
@@ -121,14 +131,14 @@ NULL
 
 
     AzureRMR::az_resource_group$set("public", "delete_storage_account", overwrite=TRUE,
-                                    function(name, confirm=TRUE, wait=FALSE)
+    function(name, confirm=TRUE, wait=FALSE)
     {
         self$get_storage_account(name)$delete(confirm=confirm, wait=wait)
     })
 
 
     AzureRMR::az_resource_group$set("public", "list_storage_accounts", overwrite=TRUE,
-                                    function(name)
+    function(name)
     {
         provider <- "Microsoft.Storage"
         path <- "storageAccounts"
@@ -154,7 +164,7 @@ NULL
 
 
     AzureRMR::az_subscription$set("public", "list_storage_accounts", overwrite=TRUE,
-                                  function(name)
+    function(name)
     {
         provider <- "Microsoft.Storage"
         path <- "storageAccounts"
