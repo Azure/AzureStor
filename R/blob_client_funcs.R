@@ -253,7 +253,8 @@ upload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, 
         if(thisblock == 0)
             break
 
-        headers[["content-length"]] <- thisblock
+        # ensure content-length is never exponential notation
+        headers[["content-length"]] <- sprintf("%.0f", thisblock)
         id <- openssl::base64_encode(sprintf("%s-%010d", dest, i))
         opts <- list(comp="block", blockid=id)
 

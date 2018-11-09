@@ -215,8 +215,9 @@ upload_azure_file <- function(share, src, dest, blocksize=2^24)
     on.exit(close(con))
 
     # first, create the file
+    # ensure content-length is never exponential notation
     headers <- list("x-ms-type"="file",
-                    "x-ms-content-length"=nbytes)
+                    "x-ms-content-length"=sprintf("%.0f", nbytes))
     do_container_op(share, dest, headers=headers, http_verb="PUT")
 
     # then write the bytes into it, one block at a time
@@ -233,7 +234,8 @@ upload_azure_file <- function(share, src, dest, blocksize=2^24)
         if(thisblock == 0)  # sanity check
             break
 
-        headers[["content-length"]] <- thisblock
+        # ensure content-length is never exponential notation
+        headers[["content-length"]] <- sprintf("%.0f", thisblock)
         headers[["range"]] <- sprintf("bytes=%s-%s", range_begin, range_begin + thisblock - 1)
 
         do_container_op(share, dest, headers=headers, body=body, options=options, http_verb="PUT")
