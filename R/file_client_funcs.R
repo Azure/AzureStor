@@ -291,6 +291,6 @@ delete_azure_dir <- function(share, dir, confirm=TRUE)
         if(tolower(substr(yn, 1, 1)) != "y")
             return(invisible(NULL))
     }
-    do_container_op(share, file, options=list(restype="directory"), http_verb="DELETE")
+    do_container_op(share, dir, options=list(restype="directory"), http_verb="DELETE")
 }
 
