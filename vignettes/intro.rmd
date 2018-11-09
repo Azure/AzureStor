@@ -225,11 +225,15 @@ As a convenience, instead of providing an endpoint object and a container name, 
 ```{r, eval=FALSE}
 cont <- blob_container("https://mynewstorage.blob.core.windows.net/mycontainer",
     key="mystorageaccountkey")
+
+share <- file_share("https://mynewstorage.file.core.windows.net/myshare",
+    key="mystorageaccountkey")
 ```
 
 Given a blob container or file share object, use the `list_blobs()` and `list_azure_files()` functions to list the storage objects they contain. Note the "azure" in `list_azure_files` to avoid any confusion with R's regular `list.files` function.
 
 ```{r, eval=FALSE}
+# list blobs inside a blob container
 list_blobs(cont)
 #      Name       Last-Modified Content-Length
 # 1  fs.txt 2018-10-13 11:34:30            132
@@ -238,11 +242,18 @@ list_blobs(cont)
 # if you want only the filenames
 list_blobs(cont, info="name")
 # [1] "fs.txt"  "fs2.txt"
+
+
+# and for files inside a file share
+list_azure_files(share, "/")
+#       name type   size
+# 1 100k.txt File 100000
+# 2   fs.txt File    132
 ```
 
 To transfer files and blobs, use the following functions:
 
-- `upload_blob`: upload a file to a blob container. Currently, only block blobs are supported.
+- `upload_blob`: upload a file to a blob container.
 - `download_blob`: download a file from a blob container.
 - `upload_azure_file`: upload a file to a file share.
 - `download_azure_file`: download a file from a file share.
@@ -266,12 +277,34 @@ download_blob(cont, "myblob", "myfile", overwrite=TRUE)
 
 # as a convenience, you can transfer files directly to and from an Azure URL
 download_from_url("https://mynewstorage.blob.core.windows.net/mycontainer/myblob",
-    myfile,
+    "myfile",
+    key="mystorageaccesskey",
     overwrite=TRUE)
+```
+
+File shares have the additional feature of supporting directories. To create and delete directories, use `create_azure_dir()` and `delete_azure_dir()`:
+
+```{r, eval=FALSE}
+list_azure_files(share, "/")
+#       name type   size
+# 1 100k.txt File 100000
+# 2   fs.txt File    132
+
+# create a directory under the root of the file share
+create_azure_dir(share, "newdir")
+
+# confirm that the directory has been created
+list_azure_files(share, "/")
+#       name      type   size
+# 1 100k.txt      File 100000
+# 2   fs.txt      File    132
+# 3   newdir Directory     NA
+
+# delete the directory
+delete_azure_dir(share, "newdir")
 ```
 
 ### Limitations
 
-Currently, the client interface for AzureStor only supports blob and file storage. Support for other storage types, in particular Data Lake Storage Gen2, is planned.
-
+Currently, the client interface for AzureStor only supports blob and file storage; for blobs, only block-blob uploading is supported. Support for other storage types, in particular Data Lake Storage Gen2, is planned.
 
