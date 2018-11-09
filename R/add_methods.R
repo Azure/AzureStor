@@ -117,7 +117,7 @@ NULL
 
         az_storage$new(self$token, self$subscription, self$name,
                        type="Microsoft.Storage/storageAccounts", name=name, location=location,
-                       kind=kind, sku=list(name=replication, tier=sub("_.+$", "", replication)),
+                       kind=kind, sku=list(name=replication),
                        properties=properties, ...)
     })
 

@@ -26,9 +26,11 @@ rg <- AzureRMR::az_rm$
 stor <- rg$create_storage_account("mynewstorage")
 stor
 # <Azure resource Microsoft.Storage/storageAccounts/mynewstorage>
-#   Account type: Storage 
+#   Account type: StorageV2
 #   SKU: name=Standard_LRS, tier=Standard 
 #   Endpoints:
+#     dfs: https://mynewstorage.dfs.core.windows.net/
+#     web: https://mynewstorage.z26.web.core.windows.net/
 #     blob: https://mynewstorage.blob.core.windows.net/
 #     queue: https://mynewstorage.queue.core.windows.net/
 #     table: https://mynewstorage.table.core.windows.net/
@@ -52,20 +54,22 @@ Without any options, this will create a storage account with the following param
 - General purpose account (all storage types supported)
 - Locally redundant storage (LRS) replication
 - Hot access tier (for blob storage)
+- HTTPS connection required for access
 
-You can change these by setting the `kind`, `sku` and `properties` arguments. For example, to create a blob storage account:
-
-```{r, eval=FALSE}
-blobstor <- rg$create_storage_account("mynewblobstorage",
-    kind="blobStorage")
-```
-
-And to create a storage account with geo-redundant storage and HTTPS transfers only:
+You can change these by setting the arguments to `create_storage_account()`. For example, to create an account with geo-redundant storage replication and the default blob access tier set to "cool":
 
 ```{r, eval=FALSE}
 stor2 <- rg$create_storage_account("myotherstorage",
-    sku=list(name="Standard_GRS"),
-    properties=list(supportsHttpsTrafficOnly=TRUE))
+    replication="Standard_GRS",
+    access_tier="cool")
+```
+
+And to create a blob storage account and allow non-encrypted (HTTP) connections:
+
+```{r, eval=FALSE}
+blobstor <- rg$create_storage_account("mynewblobstorage",
+    kind="blobStorage",
+    https_only=FALSE)
 ```
 
 You can verify that these accounts have been created by going to the Azure Portal (https://portal.azure.com/).
@@ -89,8 +93,8 @@ blobstor$delete()
 
 # if you don't have a storage account object, use the resource group method:
 rg$delete_storage_account("mynewstorage")
-rg$delete_storage_account("mynewblobstorage")
 rg$delete_storage_account("myotherstorage")
+rg$delete_storage_account("mynewblobstorage")
 ```
 
 ## The client interface: working with storage
@@ -193,8 +197,8 @@ cont
 # Account shared access signature: <none supplied>
 # Storage API version: 2018-03-28
 
-# create a new container
-newcont <- create_blob_container(blob_endp, "mynewcontainer")
+# create a new container and allow unauthenticated (public) access to blobs
+newcont <- create_blob_container(blob_endp, "mynewcontainer", public_access="blob")
 newcont
 # Azure blob container 'mynewcontainer'
 # URL: https://mynewstorage.blob.core.windows.net/mynewcontainer
@@ -216,10 +220,10 @@ blob_endp %>%
 # Storage API version: 2018-03-28
 ```
 
-As a convenience, instead of providing an endpoint object and a container name, you can also provide the full URL to the container. If you do this, you'll also have to supply any authentication details such as the access key or SAS.
+As a convenience, instead of providing an endpoint object and a container name, you can also provide the full URL to the container. If you do this, you'll also have to supply any necessary authentication details such as the access key or SAS.
 
 ```{r, eval=FALSE}
-cont <- blob_container("https://mynewstorage.blob.core.windows.net/mynewcontainer",
+cont <- blob_container("https://mynewstorage.blob.core.windows.net/mycontainer",
     key="mystorageaccountkey")
 ```
 
@@ -242,8 +246,8 @@ To transfer files and blobs, use the following functions:
 - `download_blob`: download a file from a blob container.
 - `upload_azure_file`: upload a file to a file share.
 - `download_azure_file`: download a file from a file share.
-- `upload_to_url`: upload a file to a destination given by a URL, which is used to determine whether the destination is in blob or file storage.
-- `download_from_url`: download a file from a source given by a URL, the opposite of `upload_from_url`.
+- `upload_to_url`: upload a file to a destination given by a URL. This dispatches to either `upload_blob` or `upload_azure_file` as appropriate.
+- `download_from_url`: download a file from a source given by a URL, the opposite of `upload_from_url`. This is analogous to base R's `download.file` but with authentication built in.
 
 ```{r, eval=FALSE}
 # upload a file to a blob container
@@ -261,7 +265,6 @@ blob_endpoint("https://mynewstorage.blob.core.windows.net/", key="mystorageacces
 download_blob(cont, "myblob", "myfile", overwrite=TRUE)
 
 # as a convenience, you can transfer files directly to and from an Azure URL
-# this is analogous to base R's download.file(), but with authentication built in
 download_from_url("https://mynewstorage.blob.core.windows.net/mycontainer/myblob",
     myfile,
     overwrite=TRUE)
