@@ -1,12 +1,14 @@
 Package: AzureStor
-Title: Azure Storage management
+Title: Storage Management in 'Azure'
 Version: 0.9.0
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
     person("Microsoft", role="cph")
     )
-Description: A package for managing virtual machines in Azure.
-License: file LICENSE
+Description: A package for managing storage in Microsoft's 'Azure' cloud. On the admin side, 'AzureStor' includes features to create, modify and delete storage accounts. On the client side, it includes an interface to the storage itself: upload and download files and blobs; list containers and files/blobs; create blob containers and file shares; and so on. Authenticated access to storage is supported, via either a shared access key or a shared access signature (SAS).
+License: MIT + file LICENSE
+URL: https://github.com/cloudyr/AzureStor
+BugReports: https://github.com/cloudyr/AzureStor/issues
 VignetteBuilder: knitr
 Depends: 
     R (>= 3.3),
