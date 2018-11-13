@@ -167,26 +167,27 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #'
 #' @param share A file share object.
 #' @param dir,file A string naming a directory or file respectively.
-#' @param all_info Whether to return names only, or all information in a directory listing.
+#' @param info Whether to return names only, or all information in a directory listing.
 #' @param src,dest The source and destination filenames for uploading and downloading. Paths are allowed.
 #' @param confirm Whether to ask for confirmation on deleting a file or directory.
 #' @param blocksize The number of bytes to upload per HTTP(S) request.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
 #'
 #' @return
-#' For `list_azure_files`, if `all_info=FALSE`, a vector of file/directory names. If `all_info=TRUE`, a data frame giving the file size and whether each object is a file or directory.
+#' For `list_azure_files`, if `info="name"`, a vector of file/directory names. If `info="all"`, a data frame giving the file size and whether each object is a file or directory.
 #'
 #' @seealso
 #' [file_share], [az_storage]
 #'
 #' @rdname file
 #' @export
-list_azure_files <- function(share, dir, all_info=TRUE)
+list_azure_files <- function(share, dir, info=c("all", "name"))
 {
+    info <- match.arg(info)
     lst <- do_container_op(share, dir, options=list(comp="list", restype="directory"))
 
     name <- vapply(lst$Entries, function(ent) ent$Name[[1]], FUN.VALUE=character(1))
-    if(!all_info)
+    if(info == "name")
         return(name)
  
     type <- if(is_empty(name)) character(0) else names(name)

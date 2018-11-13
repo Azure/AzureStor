@@ -9,7 +9,7 @@
 \alias{delete_azure_dir}
 \title{Operations on a file share}
 \usage{
-list_azure_files(share, dir, all_info = TRUE)
+list_azure_files(share, dir, info = c("all", "name"))
 
 upload_azure_file(share, src, dest, blocksize = 2^24)
 
@@ -26,7 +26,7 @@ delete_azure_dir(share, dir, confirm = TRUE)
 
 \item{dir, file}{A string naming a directory or file respectively.}
 
-\item{all_info}{Whether to return names only, or all information in a directory listing.}
+\item{info}{Whether to return names only, or all information in a directory listing.}
 
 \item{src, dest}{The source and destination filenames for uploading and downloading. Paths are allowed.}
 
@@ -37,7 +37,7 @@ delete_azure_dir(share, dir, confirm = TRUE)
 \item{confirm}{Whether to ask for confirmation on deleting a file or directory.}
 }
 \value{
-For \code{list_azure_files}, if \code{all_info=FALSE}, a vector of file/directory names. If \code{all_info=TRUE}, a data frame giving the file size and whether each object is a file or directory.
+For \code{list_azure_files}, if \code{info="name"}, a vector of file/directory names. If \code{info="all"}, a data frame giving the file size and whether each object is a file or directory.
 }
 \description{
 Upload, download, or delete a file; list files in a directory; create or delete directories.
