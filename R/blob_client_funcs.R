@@ -183,6 +183,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param lease The lease for a blob, if present.
 #' @param type When uploading, the type of blob to create. Currently only block blobs are supported.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
+#' @param prefix For `list_blobs`, filters the result to return only blobs whose name begins with this prefix.
 #'
 #' @return
 #' For `list_blobs`, details on the blobs in the container.
@@ -192,10 +193,16 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #'
 #' @rdname blob
 #' @export
-list_blobs <- function(container, info=c("partial", "name", "all"))
+list_blobs <- function(container, info=c("partial", "name", "all"),
+                       prefix=NULL)
 {
     info <- match.arg(info)
-    res <- do_container_op(container, options=list(comp="list", restype="container"))
+
+    opts <- list(comp="list", restype="container")
+    if(!is_empty(prefix))
+        opts <- c(opts, prefix=as.character(prefix))
+
+    res <- do_container_op(container, options=opts)
     lst <- res$Blobs
     while(length(res$NextMarker) > 0)
     {

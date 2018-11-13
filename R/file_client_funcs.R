@@ -172,6 +172,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' @param confirm Whether to ask for confirmation on deleting a file or directory.
 #' @param blocksize The number of bytes to upload per HTTP(S) request.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
+#' @param prefix For `list_azure_files`, filters the result to return only files and directories whose name begins with this prefix.
 #'
 #' @return
 #' For `list_azure_files`, if `info="name"`, a vector of file/directory names. If `info="all"`, a data frame giving the file size and whether each object is a file or directory.
@@ -181,10 +182,16 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #'
 #' @rdname file
 #' @export
-list_azure_files <- function(share, dir, info=c("all", "name"))
+list_azure_files <- function(share, dir, info=c("all", "name"),
+                             prefix=NULL)
 {
     info <- match.arg(info)
-    lst <- do_container_op(share, dir, options=list(comp="list", restype="directory"))
+
+    opts <- list(comp="list", restype="directory")
+    if(!is_empty(prefix))
+        opts <- c(opts, prefix=as.character(prefix))
+
+    lst <- do_container_op(share, dir, options=opts)
 
     name <- vapply(lst$Entries, function(ent) ent$Name[[1]], FUN.VALUE=character(1))
     if(info == "name")
