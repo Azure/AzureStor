@@ -9,7 +9,7 @@
 \alias{delete_azure_dir}
 \title{Operations on a file share}
 \usage{
-list_azure_files(share, dir, info = c("all", "name"))
+list_azure_files(share, dir, info = c("all", "name"), prefix = NULL)
 
 upload_azure_file(share, src, dest, blocksize = 2^24)
 
@@ -27,6 +27,8 @@ delete_azure_dir(share, dir, confirm = TRUE)
 \item{dir, file}{A string naming a directory or file respectively.}
 
 \item{info}{Whether to return names only, or all information in a directory listing.}
+
+\item{prefix}{For \code{list_azure_files}, filters the result to return only files and directories whose name begins with this prefix.}
 
 \item{src, dest}{The source and destination filenames for uploading and downloading. Paths are allowed.}
 

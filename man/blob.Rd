@@ -7,7 +7,8 @@
 \alias{delete_blob}
 \title{Operations on a blob container}
 \usage{
-list_blobs(container, info = c("partial", "name", "all"))
+list_blobs(container, info = c("partial", "name", "all"),
+  prefix = NULL)
 
 upload_blob(container, src, dest, type = "BlockBlob", blocksize = 2^24,
   lease = NULL)
@@ -20,6 +21,8 @@ delete_blob(container, blob, confirm = TRUE)
 \item{container}{A blob container object.}
 
 \item{info}{For \code{list_blobs}, level of detail about each blob to return: a vector of names only; the name, size and last-modified date (default); or all information.}
+
+\item{prefix}{For \code{list_blobs}, filters the result to return only blobs whose name begins with this prefix.}
 
 \item{src, dest}{The source and destination filenames for uploading and downloading. Paths are allowed.}
 
