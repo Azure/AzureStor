@@ -11,7 +11,7 @@
 #' ```
 #' create_storage_account(name, location, kind = "StorageV2", replication = "Standard_LRS",
 #'                        access_tier = "hot"), https_only = TRUE, 
-#;                        hierarchical_namespace_enabled = FALSE, properties = list(), ...)
+#'                        hierarchical_namespace_enabled = FALSE, properties = list(), ...)
 #' ```
 #' @section Arguments:
 #' - `name`: The name of the storage account.
