@@ -9,7 +9,9 @@
 #' @aliases create_storage_account
 #' @section Usage:
 #' ```
-#' create_storage_account(name, location, kind="Storage", sku=list(name="Standard_LRS", tier="Standard"), ...)
+#' create_storage_account(name, location, kind = "StorageV2", replication = "Standard_LRS",
+#'                        access_tier = "hot"), https_only = TRUE, 
+#;                        hierarchical_namespace_enabled = FALSE, properties = list(), ...)
 #' ```
 #' @section Arguments:
 #' - `name`: The name of the storage account.
