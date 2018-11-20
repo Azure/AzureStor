@@ -76,6 +76,26 @@ Get, list, create, or delete file shares.
 \details{
 You can call these functions in a couple of ways: by passing the full URL of the share, or by passing the endpoint object and the name of the share as a string.
 }
+\examples{
+\dontrun{
+
+endp <- file_endpoint("https://mystorage.file.core.windows.net/", key="access_key")
+
+# list file shares
+list_file_shares(endp)
+
+# get, create, and delete a file share
+file_share(endp, "myshare")
+create_file_share(endp, "newshare")
+delete_file_share(endp, "newshare")
+
+# alternative way to do the same
+file_share("https://mystorage.blob.core.windows.net/myshare", key="access_key")
+create_file_share("https://mystorage.blob.core.windows.net/newshare", key="access_key")
+delete_file_share("https://mystorage.blob.core.windows.net/newshare", key="access_key")
+
+}
+}
 \seealso{
 \link{storage_endpoint}, \link{az_storage}
 }

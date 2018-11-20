@@ -27,6 +27,16 @@ These functions allow you to transfer files to and from a storage account, given
 
 You can provide a SAS either as part of the URL itself, or in the \code{sas} argument.
 }
+\examples{
+\dontrun{
+
+# authenticated download with an access key
+download_from_url("https://mystorage.blob.core.windows.net/mycontainer/bigfile.zip",
+                  "~/bigfile.zip",
+                  key="access_key")
+
+}
+}
 \seealso{
 \link{download_azure_file}, \link{download_blob}, \link{az_storage}
 }

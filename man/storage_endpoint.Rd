@@ -43,6 +43,17 @@ Create a storage endpoint object
 \details{
 This is the starting point for the client-side storage interface in AzureRMR. \code{storage_endpoint} is a generic function to create an endpoint for any type of Azure storage while \code{blob_endpoint} and \code{file_endpoint} create endpoints for those types.
 }
+\examples{
+\dontrun{
+
+# obtaining an endpoint from the storage account resource object
+endp <- stor$get_blob_endpoint()
+
+# creating an endpoint standalone
+endp <- blob_endpoint("https://mystorage.blob.core.windows.net/", key="access_key")
+
+}
+}
 \seealso{
 \link{az_storage}, \link{file_share}, \link{create_file_share}, \link{blob_container}, \link{create_blob_container}
 }

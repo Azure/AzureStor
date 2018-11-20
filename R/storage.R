@@ -10,8 +10,6 @@
 #' - `get_account_sas(...)`: Return an account shared access signature (SAS). See 'Shared access signatures' for more details.
 #' - `get_blob_endpoint(key, sas)`: Return the account's blob storage endpoint, along with an access key and/or a SAS. See 'Endpoints' for more details
 #' - `get_file_endpoint(key, sas)`: Return the account's file storage endpoint.
-#' - `get_queue_endpoint(key, sas)`: Return the account's queue storage endpoint.
-#' - `get_table_endpoint(key, sas)`: Return the account's table storage endpoint.
 #' - `regen_key(key)`: Regenerates (creates a new value for) an access key. The argument `key` can be 1 or 2.
 #'
 #' @section Initialization:
@@ -44,6 +42,28 @@
 #' [create_storage_account], [get_storage_account], [delete_storage_account], [Date], [POSIXt],
 #' [Azure Storage Provider API reference](https://docs.microsoft.com/en-us/rest/api/storagerp/),
 #' [Azure Storage Services API reference](https://docs.microsoft.com/en-us/rest/api/storageservices/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # recommended way of retrieving a resource: via a resource group object
+#' stor <- resgroup$get_storage_account("mystorage")
+#'
+#' # list account access keys
+#' stor$list_keys()
+#'
+#' # regenerate a key
+#' stor$regen_key(1)
+#'
+#' # generate a shared access signature for blob storage, expiring in 7 days time
+#' today <- Sys.time()
+#' stor$get_account_sas(expiry=today + 7*24*60*60, services="b", permissions="rw")
+#'
+#' # storage endpoints
+#' stor$get_blob_endpoint()
+#' stor$get_file_endpoint()
+#'
+#' }
 #' @export
 az_storage <- R6::R6Class("az_storage", inherit=AzureRMR::az_resource,
 

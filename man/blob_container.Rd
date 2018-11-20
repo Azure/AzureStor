@@ -84,6 +84,26 @@ Get, list, create, or delete blob containers.
 \details{
 You can call these functions in a couple of ways: by passing the full URL of the share, or by passing the endpoint object and the name of the container as a string.
 }
+\examples{
+\dontrun{
+
+endp <- blob_endpoint("https://mystorage.blob.core.windows.net/", key="access_key")
+
+# list containers
+list_blob_containers(endp)
+
+# get, create, and delete a container
+blob_container(endp, "mycontainer")
+create_blob_container(endp, "newcontainer")
+delete_blob_container(endp, "newcontainer")
+
+# alternative way to do the same
+blob_container("https://mystorage.blob.core.windows.net/mycontainer", key="access_key")
+create_blob_container("https://mystorage.blob.core.windows.net/newcontainer", key="access_key")
+delete_blob_container("https://mystorage.blob.core.windows.net/newcontainer", key="access_key")
+
+}
+}
 \seealso{
 \link{storage_endpoint}, \link{az_storage}
 }

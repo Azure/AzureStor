@@ -44,6 +44,20 @@ For \code{list_blobs}, details on the blobs in the container.
 \description{
 Upload, download, or delete a blob; list blobs in a container.
 }
+\examples{
+\dontrun{
+
+cont <- blob_container("https://mystorage.blob.core.windows.net/mycontainer", key="access_key")
+
+list_blobs(cont)
+
+upload_blob(cont, "~/bigfile.zip", dest="bigfile.zip")
+download_blob(cont, "bigfile.zip", dest="~/bigfile_downloaded.zip")
+
+delete_blob(cont, "bigfile.zip")
+
+}
+}
 \seealso{
 \link{blob_container}, \link{az_storage}
 }

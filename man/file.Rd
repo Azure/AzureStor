@@ -44,6 +44,23 @@ For \code{list_azure_files}, if \code{info="name"}, a vector of file/directory n
 \description{
 Upload, download, or delete a file; list files in a directory; create or delete directories.
 }
+\examples{
+\dontrun{
+
+share <- file_share("https://mystorage.file.core.windows.net/myshare", key="access_key")
+
+list_azure_files(share, "/")
+
+create_azure_dir(share, "/newdir")
+
+upload_azure_file(share, "~/bigfile.zip", dest="/newdir/bigfile.zip")
+download_azure_file(share, "/newdir/bigfile.zip", dest="~/bigfile_downloaded.zip")
+
+delete_azure_file(share, "/newdir/bigfile.zip")
+delete_azure_dir(share, "/newdir")
+
+}
+}
 \seealso{
 \link{file_share}, \link{az_storage}
 }

@@ -16,6 +16,16 @@
 #' @seealso
 #' [az_storage], [file_share], [create_file_share], [blob_container], [create_blob_container]
 #'
+#' @examples
+#' \dontrun{
+#'
+#' # obtaining an endpoint from the storage account resource object
+#' endp <- stor$get_blob_endpoint()
+#'
+#' # creating an endpoint standalone
+#' endp <- blob_endpoint("https://mystorage.blob.core.windows.net/", key="access_key")
+#'
+#' }
 #' @aliases endpoint blob_endpoint file_endpoint queue_endpoint table_endpoint
 #' @export
 storage_endpoint <- function(endpoint, key=NULL, sas=NULL, api_version=getOption("azure_storage_api_version"))
@@ -89,6 +99,15 @@ print.storage_endpoint <- function(x, ...)
 #' @seealso
 #' [download_azure_file], [download_blob], [az_storage]
 #'
+#' @examples
+#' \dontrun{
+#'
+#' # authenticated download with an access key
+#' download_from_url("https://mystorage.blob.core.windows.net/mycontainer/bigfile.zip",
+#'                   "~/bigfile.zip",
+#'                   key="access_key")
+#'
+#' }
 #' @rdname file_transfer
 #' @export
 download_from_url <- function(src, dest, key=NULL, sas=NULL, ..., overwrite=FALSE)

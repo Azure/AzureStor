@@ -15,7 +15,7 @@
 #' ```
 #' @section Arguments:
 #' - `name`: The name of the storage account.
-#' - `location`: The location/region in which to create the account.
+#' - `location`: The location/region in which to create the account. Defaults to the resource group location.
 #' - `kind`: The type of account, either `"StorageV2"` (the default), `"FileStorage"` or `"BlobStorage"`.
 #' - `replication`: The replication strategy for the account. The default is locally-redundant storage (LRS).
 #' - `access_tier`: The access tier, either `"hot"` or `"cool"`, for blobs.
@@ -39,6 +39,23 @@
 #' @seealso
 #' [get_storage_account], [delete_storage_account], [az_storage],
 #' [Azure Storage Provider API reference](https://docs.microsoft.com/en-us/rest/api/storagerp/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' rg <- AzureRMR::az_rm(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' # create a new storage account
+#' rg$create_storage_account("mystorage", kind="StorageV2")
+#'
+#' # create a blob storage account in a different region
+#' rg$create_storage_account("myblobstorage",
+#'     location="australiasoutheast",
+#'     kind="BlobStorage")
+#'
+#' }
 NULL
 
 
@@ -69,6 +86,18 @@ NULL
 #' @seealso
 #' [create_storage_account], [delete_storage_account], [az_storage],
 #' [Azure Storage Provider API reference](https://docs.microsoft.com/en-us/rest/api/storagerp/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' rg <- AzureRMR::az_rm(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' # get a storage account
+#' rg$get_storage_account("mystorage")
+#'
+#' }
 NULL
 
 
@@ -95,6 +124,18 @@ NULL
 #' @seealso
 #' [create_storage_account], [get_storage_account], [az_storage],
 #' [Azure Storage Provider API reference](https://docs.microsoft.com/en-us/rest/api/storagerp/)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' rg <- AzureRMR::az_rm(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")$
+#'     get_resource_group("rgname")
+#'
+#' # delete a storage account
+#' rg$delete_storage_account("mystorage")
+#'
+#' }
 NULL
 
 

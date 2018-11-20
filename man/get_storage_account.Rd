@@ -32,6 +32,18 @@ For \code{get_storage_account()}, an object of class \code{az_storage} represent
 For \code{list_storage_accounts()}, a list of such objects.
 }
 
+\examples{
+\dontrun{
+
+rg <- AzureRMR::az_rm(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")$
+    get_resource_group("rgname")
+
+# get a storage account
+rg$get_storage_account("mystorage")
+
+}
+}
 \seealso{
 \link{create_storage_account}, \link{delete_storage_account}, \link{az_storage},
 \href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference}

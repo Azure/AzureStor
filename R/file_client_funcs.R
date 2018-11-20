@@ -20,6 +20,25 @@
 #'
 #' @seealso [storage_endpoint], [az_storage]
 #'
+#' @examples
+#' \dontrun{
+#'
+#' endp <- file_endpoint("https://mystorage.file.core.windows.net/", key="access_key")
+#'
+#' # list file shares
+#' list_file_shares(endp)
+#'
+#' # get, create, and delete a file share
+#' file_share(endp, "myshare")
+#' create_file_share(endp, "newshare")
+#' delete_file_share(endp, "newshare")
+#'
+#' # alternative way to do the same
+#' file_share("https://mystorage.blob.core.windows.net/myshare", key="access_key")
+#' create_file_share("https://mystorage.blob.core.windows.net/newshare", key="access_key")
+#' delete_file_share("https://mystorage.blob.core.windows.net/newshare", key="access_key")
+#'
+#' }
 #' @rdname file_share
 #' @export
 file_share <- function(endpoint, ...)
@@ -180,6 +199,22 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' @seealso
 #' [file_share], [az_storage]
 #'
+#' @examples
+#' \dontrun{
+#'
+#' share <- file_share("https://mystorage.file.core.windows.net/myshare", key="access_key")
+#'
+#' list_azure_files(share, "/")
+#'
+#' create_azure_dir(share, "/newdir")
+#'
+#' upload_azure_file(share, "~/bigfile.zip", dest="/newdir/bigfile.zip")
+#' download_azure_file(share, "/newdir/bigfile.zip", dest="~/bigfile_downloaded.zip")
+#'
+#' delete_azure_file(share, "/newdir/bigfile.zip")
+#' delete_azure_dir(share, "/newdir")
+#'
+#' }
 #' @rdname file
 #' @export
 list_azure_files <- function(share, dir, info=c("all", "name"),

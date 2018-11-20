@@ -17,7 +17,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 
 \itemize{
 \item \code{name}: The name of the storage account.
-\item \code{location}: The location/region in which to create the account.
+\item \code{location}: The location/region in which to create the account. Defaults to the resource group location.
 \item \code{kind}: The type of account, either \code{"StorageV2"} (the default), \code{"FileStorage"} or \code{"BlobStorage"}.
 \item \code{replication}: The replication strategy for the account. The default is locally-redundant storage (LRS).
 \item \code{access_tier}: The access tier, either \code{"hot"} or \code{"cool"}, for blobs.
@@ -46,6 +46,23 @@ Accounts created with \code{kind = "BlobStorage"} can only host blob storage, wh
 An object of class \code{az_storage} representing the created storage account.
 }
 
+\examples{
+\dontrun{
+
+rg <- AzureRMR::az_rm(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")$
+    get_resource_group("rgname")
+
+# create a new storage account
+rg$create_storage_account("mystorage", kind="StorageV2")
+
+# create a blob storage account in a different region
+rg$create_storage_account("myblobstorage",
+    location="australiasoutheast",
+    kind="BlobStorage")
+
+}
+}
 \seealso{
 \link{get_storage_account}, \link{delete_storage_account}, \link{az_storage},
 \href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference}

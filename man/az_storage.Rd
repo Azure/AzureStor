@@ -20,8 +20,6 @@ The following methods are available, in addition to those provided by the \link[
 \item \code{get_account_sas(...)}: Return an account shared access signature (SAS). See 'Shared access signatures' for more details.
 \item \code{get_blob_endpoint(key, sas)}: Return the account's blob storage endpoint, along with an access key and/or a SAS. See 'Endpoints' for more details
 \item \code{get_file_endpoint(key, sas)}: Return the account's file storage endpoint.
-\item \code{get_queue_endpoint(key, sas)}: Return the account's queue storage endpoint.
-\item \code{get_table_endpoint(key, sas)}: Return the account's table storage endpoint.
 \item \code{regen_key(key)}: Regenerates (creates a new value for) an access key. The argument \code{key} can be 1 or 2.
 }
 }
@@ -59,6 +57,28 @@ To create a storage endpoint independently of Resource Manager (for example if y
 If a storage endpoint is created without an access key and SAS, only public (anonymous) access is possible.
 }
 
+\examples{
+\dontrun{
+
+# recommended way of retrieving a resource: via a resource group object
+stor <- resgroup$get_storage_account("mystorage")
+
+# list account access keys
+stor$list_keys()
+
+# regenerate a key
+stor$regen_key(1)
+
+# generate a shared access signature for blob storage, expiring in 7 days time
+today <- Sys.time()
+stor$get_account_sas(expiry=today + 7*24*60*60, services="b", permissions="rw")
+
+# storage endpoints
+stor$get_blob_endpoint()
+stor$get_file_endpoint()
+
+}
+}
 \seealso{
 \link{blob_endpoint}, \link{file_endpoint},
 \link{create_storage_account}, \link{get_storage_account}, \link{delete_storage_account}, \link{Date}, \link{POSIXt},

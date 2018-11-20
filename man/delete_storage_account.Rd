@@ -25,6 +25,18 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 NULL on successful deletion.
 }
 
+\examples{
+\dontrun{
+
+rg <- AzureRMR::az_rm(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")$
+    get_resource_group("rgname")
+
+# delete a storage account
+rg$delete_storage_account("mystorage")
+
+}
+}
 \seealso{
 \link{create_storage_account}, \link{get_storage_account}, \link{az_storage},
 \href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference}
