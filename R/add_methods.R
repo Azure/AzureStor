@@ -43,7 +43,8 @@
 #' @examples
 #' \dontrun{
 #'
-#' rg <- AzureRMR::az_rm(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
 #'     get_subscription("subscription_id")$
 #'     get_resource_group("rgname")
 #'
@@ -90,7 +91,8 @@ NULL
 #' @examples
 #' \dontrun{
 #'
-#' rg <- AzureRMR::az_rm(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
 #'     get_subscription("subscription_id")$
 #'     get_resource_group("rgname")
 #'
@@ -128,7 +130,8 @@ NULL
 #' @examples
 #' \dontrun{
 #'
-#' rg <- AzureRMR::az_rm(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#' rg <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
 #'     get_subscription("subscription_id")$
 #'     get_resource_group("rgname")
 #'
