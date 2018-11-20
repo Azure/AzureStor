@@ -16,12 +16,13 @@ Class representing a storage account, exposing methods for working with it.
 The following methods are available, in addition to those provided by the \link[AzureRMR:az_resource]{AzureRMR::az_resource} class:
 \itemize{
 \item \code{new(...)}: Initialize a new storage object. See 'Initialization'.
-\item \code{list_keys}: Return the access keys for this account.
+\item \code{list_keys()}: Return the access keys for this account.
 \item \code{get_account_sas(...)}: Return an account shared access signature (SAS). See 'Shared access signatures' for more details.
 \item \code{get_blob_endpoint(key, sas)}: Return the account's blob storage endpoint, along with an access key and/or a SAS. See 'Endpoints' for more details
 \item \code{get_file_endpoint(key, sas)}: Return the account's file storage endpoint.
 \item \code{get_queue_endpoint(key, sas)}: Return the account's queue storage endpoint.
 \item \code{get_table_endpoint(key, sas)}: Return the account's table storage endpoint.
+\item \code{regen_key(key)}: Regenerates (creates a new value for) an access key. The argument \code{key} can be 1 or 2.
 }
 }
 

@@ -6,12 +6,13 @@
 #' @section Methods:
 #' The following methods are available, in addition to those provided by the [AzureRMR::az_resource] class:
 #' - `new(...)`: Initialize a new storage object. See 'Initialization'.
-#' - `list_keys`: Return the access keys for this account.
+#' - `list_keys()`: Return the access keys for this account.
 #' - `get_account_sas(...)`: Return an account shared access signature (SAS). See 'Shared access signatures' for more details.
 #' - `get_blob_endpoint(key, sas)`: Return the account's blob storage endpoint, along with an access key and/or a SAS. See 'Endpoints' for more details
 #' - `get_file_endpoint(key, sas)`: Return the account's file storage endpoint.
 #' - `get_queue_endpoint(key, sas)`: Return the account's queue storage endpoint.
 #' - `get_table_endpoint(key, sas)`: Return the account's table storage endpoint.
+#' - `regen_key(key)`: Regenerates (creates a new value for) an access key. The argument `key` can be 1 or 2.
 #'
 #' @section Initialization:
 #' Initializing a new object of this class can either retrieve an existing storage account, or create a account on the host. Generally, the best way to initialize an object is via the `get_storage_account`, `create_storage_account` or `list_storage_accounts` methods of the [az_resource_group] class, which handle the details automatically.
@@ -85,6 +86,14 @@ public=list(
     get_file_endpoint=function(key=self$list_keys()[1], sas=NULL)
     {
         file_endpoint(self$properties$primaryEndpoints$file, key=key, sas=sas)
+    },
+
+    regen_key=function(key=1)
+    {
+        body <- list(keyName=paste0("key", key))
+        keys <- self$do_operation("regenerateKey", body=body, encode="json", http_verb="POST")
+        keys <- named_list(keys$keys, "keyName")
+        sapply(keys, `[[`, "value")
     },
 
     print=function(...)
