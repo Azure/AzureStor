@@ -10,13 +10,11 @@ if(tenant == "" || app == "" || password == "" || subscription == "")
 
 
 sub <- az_rm$new(tenant=tenant, app=app, password=password)$get_subscription(subscription)
+rgname <- paste(sample(letters, 20, replace=TRUE), collapse="")
+rg <- sub$create_resource_group(rgname, location="australiaeast")
 
 test_that("Blob client interface works",
 {
-    rgname <- paste(sample(letters, 20, replace=TRUE), collapse="")
-    expect_false(sub$resource_group_exists(rgname))
-    rg <- sub$create_resource_group(rgname, location="australiaeast")
-    expect_true(sub$resource_group_exists(rgname))
 
     storname <- paste(sample(letters, 20, replace=TRUE), collapse="")
     stor <- rg$create_storage_account(storname)
@@ -99,6 +97,7 @@ test_that("Blob client interface works",
     delete_blob_container(paste0(bl$url, "newcontainer3"), key=bl$key, confirm=FALSE)
     Sys.sleep(5)
     expect_true(is_empty(list_blob_containers(bl)))
-
-    rg$delete(confirm=FALSE)
 })
+
+rg$delete(confirm=FALSE)
+
