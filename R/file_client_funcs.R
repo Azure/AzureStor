@@ -130,6 +130,13 @@ create_file_share.character <- function(endpoint, key=NULL, sas=NULL,
 
 #' @rdname file_share
 #' @export
+create_file_share.file_share <- function(endpoint, ...)
+{
+    create_file_share(endpoint$endpoint, endpoint$name)
+}
+
+#' @rdname file_share
+#' @export
 create_file_share.file_endpoint <- function(endpoint, name, ...)
 {
     obj <- file_share(endpoint, name)

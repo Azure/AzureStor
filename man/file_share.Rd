@@ -10,6 +10,7 @@
 \alias{list_file_shares.file_endpoint}
 \alias{create_file_share}
 \alias{create_file_share.character}
+\alias{create_file_share.file_share}
 \alias{create_file_share.file_endpoint}
 \alias{delete_file_share}
 \alias{delete_file_share.character}
@@ -37,6 +38,8 @@ create_file_share(endpoint, ...)
 
 \method{create_file_share}{character}(endpoint, key = NULL, sas = NULL,
   api_version = getOption("azure_storage_api_version"), ...)
+
+\method{create_file_share}{file_share}(endpoint, ...)
 
 \method{create_file_share}{file_endpoint}(endpoint, name, ...)
 
