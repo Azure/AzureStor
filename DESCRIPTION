@@ -21,7 +21,8 @@ Imports:
     xml2,
     AzureRMR
 Suggests:
-    knitr
+    knitr,
+    testthat
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 6.1.0.9000
 Remotes:
