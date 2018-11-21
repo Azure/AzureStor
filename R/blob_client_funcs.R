@@ -131,6 +131,13 @@ create_blob_container.character <- function(endpoint, key=NULL, sas=NULL,
 
 #' @rdname blob_container
 #' @export
+create_blob_container.blob_container <- function(endpoint, ...)
+{
+    create_blob_container(endpoint$endpoint, endpoint$name)
+}
+
+#' @rdname blob_container
+#' @export
 create_blob_container.blob_endpoint <- function(endpoint, name, public_access=c("none", "blob", "container"), ...)
 {
     public_access <- match.arg(public_access)

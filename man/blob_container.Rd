@@ -10,6 +10,7 @@
 \alias{list_blob_containers.blob_endpoint}
 \alias{create_blob_container}
 \alias{create_blob_container.character}
+\alias{create_blob_container.blob_container}
 \alias{create_blob_container.blob_endpoint}
 \alias{delete_blob_container}
 \alias{delete_blob_container.character}
@@ -39,6 +40,8 @@ create_blob_container(endpoint, ...)
 \method{create_blob_container}{character}(endpoint, key = NULL,
   sas = NULL, api_version = getOption("azure_storage_api_version"),
   ...)
+
+\method{create_blob_container}{blob_container}(endpoint, ...)
 
 \method{create_blob_container}{blob_endpoint}(endpoint, name,
   public_access = c("none", "blob", "container"), ...)

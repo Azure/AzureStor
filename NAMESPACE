@@ -2,6 +2,7 @@
 
 S3method(blob_container,blob_endpoint)
 S3method(blob_container,character)
+S3method(create_blob_container,blob_container)
 S3method(create_blob_container,blob_endpoint)
 S3method(create_blob_container,character)
 S3method(create_file_share,character)
