@@ -28,7 +28,7 @@ file_endpoint(endpoint, key = NULL, sas = NULL,
 
 \item{sas}{A shared access signature (SAS) for the account. If \code{key} is also provided, the SAS is not used. If neither \code{key} nor \code{sas} are provided, only public (anonymous) access to the endpoint is possible.}
 
-\item{api_version}{The storage API version to use when interacting with the host. Currently defaults to \code{"2017-07-29"}.}
+\item{api_version}{The storage API version to use when interacting with the host. Currently defaults to \code{"2018-03-28"}.}
 
 \item{x}{For the print method, a storage endpoint object.}
 

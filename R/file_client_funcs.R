@@ -4,7 +4,7 @@
 #'
 #' @param endpoint Either a file endpoint object as created by [storage_endpoint], or a character string giving the URL of the endpoint.
 #' @param key,sas If an endpoint object is not supplied, authentication details. If a key is provided, the SAS is not used. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.
-#' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2017-07-29"`.
+#' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2018-03-28"`.
 #' @param name The name of the file share to get, create, or delete.
 #' @param confirm For deleting a share, whether to ask for confirmation.
 #' @param x For the print method, a file share object.
@@ -34,9 +34,9 @@
 #' delete_file_share(endp, "newshare")
 #'
 #' # alternative way to do the same
-#' file_share("https://mystorage.blob.core.windows.net/myshare", key="access_key")
-#' create_file_share("https://mystorage.blob.core.windows.net/newshare", key="access_key")
-#' delete_file_share("https://mystorage.blob.core.windows.net/newshare", key="access_key")
+#' file_share("https://mystorage.file.file.windows.net/myshare", key="access_key")
+#' create_file_share("https://mystorage.file.core.windows.net/newshare", key="access_key")
+#' delete_file_share("https://mystorage.file.core.windows.net/newshare", key="access_key")
 #'
 #' }
 #' @rdname file_share

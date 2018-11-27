@@ -60,7 +60,7 @@ delete_file_share(endpoint, ...)
 
 \item{key, sas}{If an endpoint object is not supplied, authentication details. If a key is provided, the SAS is not used. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.}
 
-\item{api_version}{If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to \code{"2017-07-29"}.}
+\item{api_version}{If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to \code{"2018-03-28"}.}
 
 \item{name}{The name of the file share to get, create, or delete.}
 
@@ -93,9 +93,9 @@ create_file_share(endp, "newshare")
 delete_file_share(endp, "newshare")
 
 # alternative way to do the same
-file_share("https://mystorage.blob.core.windows.net/myshare", key="access_key")
-create_file_share("https://mystorage.blob.core.windows.net/newshare", key="access_key")
-delete_file_share("https://mystorage.blob.core.windows.net/newshare", key="access_key")
+file_share("https://mystorage.file.file.windows.net/myshare", key="access_key")
+create_file_share("https://mystorage.file.core.windows.net/newshare", key="access_key")
+delete_file_share("https://mystorage.file.core.windows.net/newshare", key="access_key")
 
 }
 }
