@@ -20,7 +20,8 @@
 #' - `replication`: The replication strategy for the account. The default is locally-redundant storage (LRS).
 #' - `access_tier`: The access tier, either `"hot"` or `"cool"`, for blobs.
 #' - `https_only`: Whether a HTTPS connection is required to access the storage.
-#' - `hierarchical_namespace_enabled`: Whether to enable hierarchical namespaces, which are a feature of Azure Data Lake Storage Gen 2. If TRUE, this allows you to create ADLS Gen2 containers in the account. Note that ADLS Gen2 is currently (as of November 2018) in limited-access public preview.
+#' - `hierarchical_namespace_enabled`: Whether to enable hierarchical namespaces, which are a feature of Azure Data Lake Storage Gen 2 and provide more a efficient way to manage storage. Note that ADLS Gen2 is currently (as of November 2018) in limited-access public preview. if you are not enrolled in the preview program, this argument has no effect.
+#' - `properties`: A list of other properties for the storage account.
 #' - `properties`: A list of other properties for the storage account.
 #' - ... Other named arguments to pass to the [az_storage] initialization function.
 #'

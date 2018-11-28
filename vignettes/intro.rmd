@@ -130,29 +130,15 @@ stor$get_file_endpoint()
 
 This shows that the base URL to access blob storage is https://mynewstorage.blob.core.windows.net/, while that for file storage is https://mynewstorage.file.core.windows.net/. While it's not displayed, the endpoint objects also include the access key necessary for authenticated access to storage; this is obtained directly from the storage account resource.
 
-More practically, you will usually want to work with a storage endpoint without having to go through the process of authenticating with Azure Resource Manager. Often, you may not have any ARM credentials to start with (a tenant ID and service principal details). In this case, you can create the endpoint object directly with `blob_endpoint()` and `file_endpoint()`:
+More practically, you will usually want to work with a storage endpoint without having to go through the process of authenticating with Azure Resource Manager. Often, you may not have any ARM credentials to start with (a tenant ID and service principal details). In this case, you can create the endpoint object directly with the `blob_endpoint()` and `file_endpoint()` functions. When create the endpoint this way, you have to provide the access key explicitly (assuming you know what it is).
 
 ```{r, eval=FALSE}
-blob_endp <- blob_endpoint("https://mynewstorage.blob.core.windows.net/",
+# same as using the get_xxxx_endpoint() methods above
+blob_endpoint("https://mynewstorage.blob.core.windows.net/",
     key="mystorageaccesskey")
-blob_endp
-# Azure blob storage endpoint
-# URL: https://mynewstorage.blob.core.windows.net/
-# Access key: <hidden>
-# Account shared access signature: <none supplied>
-# Storage API version: 2018-03-28
-
-file_endp <- file_endpoint("https://mynewstorage.file.core.windows.net/",
+file_endpoint("https://mynewstorage.file.core.windows.net/",
     key="mystorageaccesskey")
-file_endp
-# Azure file storage endpoint
-# URL: https://mynewstorage.file.core.windows.net/
-# Access key: <hidden>
-# Account shared access signature: <none supplied>
-# Storage API version: 2018-03-28
 ```
-
-Notice that when create the endpoint this way, you have to provide the access key explicitly (assuming you know what it is).
 
 Instead of an access key, you can provide a [shared access signature (SAS)](https://docs.microsoft.com/en-us/azure/storage/common/storage-dotnet-shared-access-signature-part-1) to gain authenticated access. The main difference between using a key and a SAS is that the former unlocks access to the _entire_ storage account. A user who has a key can access all containers and files, and can transfer, modify and delete data without restriction. On the other hand, a user with a SAS can be limited to have access only to specific containers, or be limited to read access, or only for a given span of time, and so on. This is usually much better in terms of security.
 
@@ -176,16 +162,14 @@ If you don't have a key or a SAS, you will only have access to unauthenticated (
 
 Given an endpoint object, AzureStor provides the following methods for working with containers:
 
-- `blob_container`: get an existing blob container
-- `create_blob_container`: create a new blob container
-- `delete_blob_container`: delete a blob container
+- `blob_container, create_blob_container, delete_blob_container`: get an existing blob container, create a new container, and delete a container
 - `list_blob_containers`: return a list of blob container objects
-- `file_share`: get an existing file share
-- `create_file_share`: create a new file share
-- `delete_file_share`: delete a file share
+- `file_share, create_file_share, delete_file_share`: get an existing file share, create a new share, and delete a share
 - `list_file_shares`: return a list of file share objects
 
-Here is some example blob container code showing their use. The file share code is similar.
+You can only use the methods corresponding to a given endpoint type. For example, it's an error to try to list the file shares for a blob endpoint.
+
+Here is some example blob container code showing their use. The file share code is similar, except that it doesn't allow any form of unauthenticated access.
 
 ```{r, eval=FALSE}
 # an existing container
@@ -223,10 +207,9 @@ blob_endp %>%
 As a convenience, instead of providing an endpoint object and a container name, you can also provide the full URL to the container. If you do this, you'll also have to supply any necessary authentication details such as the access key or SAS.
 
 ```{r, eval=FALSE}
-cont <- blob_container("https://mynewstorage.blob.core.windows.net/mycontainer",
+blob_container("https://mynewstorage.blob.core.windows.net/mycontainer",
     key="mystorageaccountkey")
-
-share <- file_share("https://mynewstorage.file.core.windows.net/myshare",
+file_share("https://mynewstorage.file.core.windows.net/myshare",
     key="mystorageaccountkey")
 ```
 

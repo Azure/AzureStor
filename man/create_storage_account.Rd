@@ -22,7 +22,8 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \item \code{replication}: The replication strategy for the account. The default is locally-redundant storage (LRS).
 \item \code{access_tier}: The access tier, either \code{"hot"} or \code{"cool"}, for blobs.
 \item \code{https_only}: Whether a HTTPS connection is required to access the storage.
-\item \code{hierarchical_namespace_enabled}: Whether to enable hierarchical namespaces, which are a feature of Azure Data Lake Storage Gen 2. If TRUE, this allows you to create ADLS Gen2 containers in the account. Note that ADLS Gen2 is currently (as of November 2018) in limited-access public preview.
+\item \code{hierarchical_namespace_enabled}: Whether to enable hierarchical namespaces, which are a feature of Azure Data Lake Storage Gen 2 and provide more a efficient way to manage storage. Note that ADLS Gen2 is currently (as of November 2018) in limited-access public preview. if you are not enrolled in the preview program, this argument has no effect.
+\item \code{properties}: A list of other properties for the storage account.
 \item \code{properties}: A list of other properties for the storage account.
 \item ... Other named arguments to pass to the \link{az_storage} initialization function.
 }
