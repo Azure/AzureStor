@@ -15,6 +15,8 @@
 #' @details
 #' You can call these functions in a couple of ways: by passing the full URL of the share, or by passing the endpoint object and the name of the container as a string.
 #'
+#' If hierarchical namespaces are enabled, there is no interoperability of the blob and ADLSgen2 storage systems. Blob containers will show up in listings of ADLS filesystems, and vice-versa, but the _contents_ of the storage are independent: files that are uploaded as blobs cannot be accessed via ADLS methods, and similarly, files and directories created via ADLS will be invisible to blob methods.
+#'
 #' @return
 #' For `blob_container` and `create_blob_container`, an S3 object representing an existing or created container respectively.
 #'

@@ -22,7 +22,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \item \code{replication}: The replication strategy for the account. The default is locally-redundant storage (LRS).
 \item \code{access_tier}: The access tier, either \code{"hot"} or \code{"cool"}, for blobs.
 \item \code{https_only}: Whether a HTTPS connection is required to access the storage.
-\item \code{hierarchical_namespace_enabled}: Whether to enable hierarchical namespaces, which are a feature of Azure Data Lake Storage Gen 2 and provide more a efficient way to manage storage. Note that ADLS Gen2 is currently (as of November 2018) in limited-access public preview. if you are not enrolled in the preview program, this argument has no effect.
+\item \code{hierarchical_namespace_enabled}: Whether to enable hierarchical namespaces, which are a feature of Azure Data Lake Storage Gen 2 and provide more a efficient way to manage storage. ADLS Gen2 is currently (as of December 2018) in general-access public preview.
 \item \code{properties}: A list of other properties for the storage account.
 \item ... Other named arguments to pass to the \link{az_storage} initialization function.
 }
@@ -39,6 +39,8 @@ This method deploys a new storage account resource, with parameters given by the
 }
 
 Accounts created with \code{kind = "BlobStorage"} can only host blob storage, while those with \code{kind = "FileStorage"} can only host file storage. Accounts with \code{kind = "StorageV2"} can host all types of storage. Currently, AzureStor provides an R interface only to blob and file storage.
+
+If hierarchical namespaces are enabled, there is no interoperability of the blob and ADLSgen2 storage systems. Blob containers will show up in listings of ADLS filesystems, and vice-versa, but the \emph{contents} of the storage are independent: files that are uploaded as blobs cannot be accessed via ADLS methods, and similarly, files and directories created via ADLS will be invisible to blob methods. Full interoperability between blobs and ADLS is planned for 2019.
 }
 
 \section{Value}{
@@ -65,6 +67,9 @@ rg$create_storage_account("myblobstorage",
 }
 }
 \seealso{
-\link{get_storage_account}, \link{delete_storage_account}, \link{az_storage},
-\href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference}
+\link{get_storage_account}, \link{delete_storage_account}, \link{az_storage}
+
+\href{https://docs.microsoft.com/en-us/azure/storage/}{Azure Storage documentation},
+\href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference},
+\href{https://docs.microsoft.com/en-us/azure/storage/data-lake-storage/namespace}{Azure Data Lake Storage hierarchical namespaces}
 }

@@ -1,7 +1,12 @@
 do_container_op <- function(container, path="", options=list(), headers=list(), http_verb="GET", ...)
 {
     endp <- container$endpoint
-    path <- sub("//", "/", paste0(container$name, "/", path))
+
+    # don't add trailing / if no within-container path supplied: ADLS will complain
+    path <- if(nchar(path) > 0)
+        sub("//", "/", paste0(container$name, "/", path))
+    else container$name
+
     invisible(do_storage_call(endp$url, path, options=options, headers=headers,
                               key=endp$key, sas=endp$sas, api_version=endp$api_version,
                               http_verb=http_verb, ...))
@@ -43,7 +48,7 @@ do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), 
             return(NULL)
 
         # silence message about missing encoding
-        cont <- suppressMessages(httr::content(response))
+        cont <- suppressMessages(httr::content(response, simplifyVector=TRUE))
         if(is_empty(cont))
             NULL
         else if(inherits(cont, "xml_node"))
@@ -118,7 +123,14 @@ storage_error_message <- function(response, for_httr=TRUE)
         cont <- xml_to_list(cont)
         paste0(unlist(cont), collapse="\n")
     }
-    else NULL
+    else if(is.character(cont))
+        cont
+    else if(is.list(cont) && is.character(cont$message))
+        cont$message
+    else if(is.list(cont) && is.list(cont$error) && is.character(cont$error$message))
+        cont$error$message
+    else ""
+
     if(for_httr)
         paste0("complete Storage Services operation. Message:\n", sub("\\.$", "", msg))
     else msg
@@ -144,8 +156,15 @@ parse_storage_url <- function(url)
 
 is_endpoint_url <- function(url, type)
 {
+    # handle cases where type != uri string
+    if(type == "adls")
+        type <- "dfs"
+    else if(type == "web")
+        type <- "z26\\.web"
+
     # endpoint URL must be of the form {scheme}://{acctname}.{type}.{etc}
     type <- sprintf("^https?://[a-z0-9]+\\.%s\\.", type)
+
     is_url(url) && grepl(type, url)
 }
 
