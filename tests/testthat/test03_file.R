@@ -24,7 +24,7 @@ test_that("File client interface works",
     {
         Sys.sleep(5)
         state <- stor$sync_fields()
-        if(state == "Succeeded")
+        if(state %in% c("Succeeded", "Error", "Failed"))
             break
     }
     if(state != "Succeeded")
