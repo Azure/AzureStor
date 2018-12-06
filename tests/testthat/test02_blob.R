@@ -17,7 +17,7 @@ test_that("Blob client interface works",
 {
 
     storname <- paste(sample(letters, 20, replace=TRUE), collapse="")
-    stor <- rg$create_storage_account(storname)
+    stor <- rg$create_storage_account(storname, hierarchical_namespace_enabled=FALSE)
 
     # wait until provisioning is complete
     for(i in 1:100)

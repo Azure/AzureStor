@@ -45,6 +45,8 @@ adls_endpoint(endpoint, key = NULL, sas = NULL,
 \code{storage_endpoint} returns an object of S3 class \code{"adls_endpoint"}, \code{"blob_endpoint"}, \code{"file_endpoint"}, \code{"queue_endpoint"} or \code{"table_endpoint"} depending on the type of endpoint. All of these also inherit from class \code{"storage_endpoint"}. \code{adls_endpoint}, \code{blob_endpoint} and \code{file_endpoint} return an object of the respective class.
 
 Currently AzureStor only includes methods for interacting with ADLSgen2 (experimental), blob and file storage.
+
+Currently (as of December 2018), if the storage account has hierarchical namespaces enabled, the blob API for the account is disabled. The blob endpoint is still accessible, but blob operations on the endpoint will fail. Full interoperability between blobs and ADLS is planned for 2019.
 }
 \description{
 Create a storage endpoint object, for interacting with blob, file, table, queue or ADLSgen2 storage. Currently (as of December 2018) ADLSgen2 is in general-access public preview.
@@ -64,5 +66,5 @@ endp <- blob_endpoint("https://mystorage.blob.core.windows.net/", key="access_ke
 }
 }
 \seealso{
-\link{az_storage}, \link{adls_filesystem}, \link{create_adls_filesystem}, \link{file_share}, \link{create_file_share}, \link{blob_container}, \link{create_blob_container}
+\link{create_storage_account}, \link{adls_filesystem}, \link{create_adls_filesystem}, \link{file_share}, \link{create_file_share}, \link{blob_container}, \link{create_blob_container}
 }

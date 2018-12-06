@@ -20,7 +20,7 @@
 #' - `replication`: The replication strategy for the account. The default is locally-redundant storage (LRS).
 #' - `access_tier`: The access tier, either `"hot"` or `"cool"`, for blobs.
 #' - `https_only`: Whether a HTTPS connection is required to access the storage.
-#' - `hierarchical_namespace_enabled`: Whether to enable hierarchical namespaces, which are a feature of Azure Data Lake Storage Gen 2 and provide more a efficient way to manage storage. ADLS Gen2 is currently (as of December 2018) in general-access public preview.
+#' - `hierarchical_namespace_enabled`: Whether to enable hierarchical namespaces, which are a feature of Azure Data Lake Storage Gen 2 and provide more a efficient way to manage storage. ADLS Gen2 is currently (as of December 2018) in general-access public preview. If this is enabled, the blob storage API for the account is disabled; see below.
 #' - `properties`: A list of other properties for the storage account.
 #' - ... Other named arguments to pass to the [az_storage] initialization function.
 #'
@@ -30,10 +30,11 @@
 #' - file storage 
 #' - table storage
 #' - queue storage
+#' - Azure Data Lake Storage Gen2 (in public preview)
 #'
-#' Accounts created with `kind = "BlobStorage"` can only host blob storage, while those with `kind = "FileStorage"` can only host file storage. Accounts with `kind = "StorageV2"` can host all types of storage. Currently, AzureStor provides an R interface only to blob and file storage.
+#' Accounts created with `kind = "BlobStorage"` can only host blob storage, while those with `kind = "FileStorage"` can only host file storage. Accounts with `kind = "StorageV2"` can host all types of storage. Currently, AzureStor provides an R interface to ADLSgen2, blob and file storage.
 #'
-#' If hierarchical namespaces are enabled, there is no interoperability of the blob and ADLSgen2 storage systems. Blob containers will show up in listings of ADLS filesystems, and vice-versa, but the _contents_ of the storage are independent: files that are uploaded as blobs cannot be accessed via ADLS methods, and similarly, files and directories created via ADLS will be invisible to blob methods. Full interoperability between blobs and ADLS is planned for 2019.
+#' Currently (as of December 2018), if hierarchical namespaces are enabled, the blob API for the account is disabled. The blob endpoint is still accessible, but blob operations on the endpoint will fail. Full interoperability between blobs and ADLS is planned for 2019.
 #'
 #' @section Value:
 #' An object of class `az_storage` representing the created storage account.
@@ -160,7 +161,7 @@ NULL
     AzureRMR::az_resource_group$set("public", "create_storage_account", overwrite=TRUE,
     function(name, location=self$location,
              kind="StorageV2", replication="Standard_LRS",
-             access_tier="hot", https_only=TRUE, hierarchical_namespace_enabled=TRUE,
+             access_tier="hot", https_only=TRUE, hierarchical_namespace_enabled=FALSE,
              properties=list(), ...)
     {
         properties <- modifyList(properties,

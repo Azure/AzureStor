@@ -100,6 +100,9 @@ public=list(
 
     get_blob_endpoint=function(key=self$list_keys()[1], sas=NULL)
     {
+        if(!is_empty(self$properties$isHnsEnabled) && self$properties$isHnsEnabled)
+            stop("Blob endpoint not available because hierarchical namespace is enabled for this account",
+                 call.=FALSE)
         blob_endpoint(self$properties$primaryEndpoints$blob, key=key, sas=sas)
     },
 
@@ -108,17 +111,17 @@ public=list(
         file_endpoint(self$properties$primaryEndpoints$file, key=key, sas=sas)
     },
 
+    get_adls_endpoint=function(key=self$list_keys()[1], sas=NULL)
+    {
+        adls_endpoint(self$properties$primaryEndpoints$dfs, key=key, sas=sas)
+    },
+
     regen_key=function(key=1)
     {
         body <- list(keyName=paste0("key", key))
         keys <- self$do_operation("regenerateKey", body=body, encode="json", http_verb="POST")
         keys <- named_list(keys$keys, "keyName")
         sapply(keys, `[[`, "value")
-    },
-
-    get_adls_endpoint=function(key=self$list_keys()[1], sas=NULL)
-    {
-        adls_endpoint(self$properties$primaryEndpoints$dfs, key=key, sas=sas)
     },
 
     print=function(...)

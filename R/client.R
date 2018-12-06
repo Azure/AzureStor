@@ -17,8 +17,10 @@
 #'
 #' Currently AzureStor only includes methods for interacting with ADLSgen2 (experimental), blob and file storage.
 #'
+#' Currently (as of December 2018), if the storage account has hierarchical namespaces enabled, the blob API for the account is disabled. The blob endpoint is still accessible, but blob operations on the endpoint will fail. Full interoperability between blobs and ADLS is planned for 2019.
+#'
 #' @seealso
-#' [az_storage], [adls_filesystem], [create_adls_filesystem], [file_share], [create_file_share], [blob_container], [create_blob_container]
+#' [create_storage_account], [adls_filesystem], [create_adls_filesystem], [file_share], [create_file_share], [blob_container], [create_blob_container]
 #'
 #' @examples
 #' \dontrun{
