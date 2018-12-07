@@ -135,8 +135,6 @@ stor$get_adls_endpoint()
 # Storage API version: 2018-03-28
 ```
 
-This shows that the base URL to access blob storage is https://mynewstorage.blob.core.windows.net/, for file storage it is https://mynewstorage.file.core.windows.net/, and for Azure Data Lake Storage Gen2, it is https://mynewstorage.dfs.core.windows.net/. While it's not displayed, the endpoint objects also include the access key necessary for authenticated access to storage; this is obtained directly from the storage account resource. 
-
 More practically, you will usually want to work with a storage endpoint without having to go through the process of authenticating with Azure Resource Manager. Often, you may not have any ARM credentials to start with (a tenant ID and/or service principal details). In this case, you can create the endpoint object directly with the  `blob_endpoint()`, `file_endpoint()` and `adls_endpoint()` functions. When you create the endpoint this way, you have to provide the access key explicitly (assuming you know what it is).
 
 ```{r, eval=FALSE}
