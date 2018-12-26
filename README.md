@@ -1,5 +1,9 @@
 # AzureStor
 
+[![CRAN](https://www.r-pkg.org/badges/version/AzureStor)](https://cran.r-project.org/package=AzureStor)
+![Downloads](https://cranlogs.r-pkg.org/badges/AzureStor)
+[![Travis Build Status](https://travis-ci.org/cloudyr/AzureStor.png?branch=master)](https://travis-ci.org/cloudyr/AzureStor)
+
 This package provides both an admin- and user-side interface to [Azure Storage Services](https://docs.microsoft.com/en-us/rest/api/storageservices/). The admin interface uses R6 classes and builds on the tools provided by [AzureRMR](https://github.com/hong-revo/AzureRMR). The user-side interface provides easy access to Azure storage accounts via S3 classes and methods.
 
 Sample admin workflow:
