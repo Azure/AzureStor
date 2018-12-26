@@ -134,7 +134,7 @@ print.adls_endpoint <- function(x, ...)
 #' @param overwrite For downloading, whether to overwrite any destination files that exist.
 #'
 #' @details
-#' These functions allow you to transfer files to and from a storage account, given the URL of the destination (for uploading) or source (for downloading). They dispatch to [upload_azure_file]/[download_azure_file] for a file storage URL, [upload_blob]/[download_blob] for a blob storage URL, and [upoad_adls_file]/[download_adls_file] for an ADLSgen2 URL respectively.
+#' These functions allow you to transfer files to and from a storage account, given the URL of the destination (for uploading) or source (for downloading). They dispatch to [upload_azure_file]/[download_azure_file] for a file storage URL, [upload_blob]/[download_blob] for a blob storage URL, and [upload_adls_file]/[download_adls_file] for an ADLSgen2 URL respectively.
 #'
 #' You can provide a SAS either as part of the URL itself, or in the `sas` argument.
 #'
