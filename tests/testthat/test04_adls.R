@@ -67,6 +67,11 @@ test_that("ADLSgen2 client interface works",
     expect_silent(download_adls_file(fs, "iris.csv", new_file, overwrite=TRUE))
     expect_identical(readBin(orig_file, "raw", n=1e5), readBin(new_file, "raw", n=1e5))
 
+    # download from url
+    suppressWarnings(file.remove(new_file))
+    url <- file.path(ad$url, fs$name, "iris.csv")
+    download_from_url(url, new_file, key=ad$key)
+
     # directory manipulation
     create_adls_dir(fs, "dir1")
     create_adls_dir(fs, "/dir_with_root")

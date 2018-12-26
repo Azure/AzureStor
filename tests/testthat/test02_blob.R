@@ -67,6 +67,11 @@ test_that("Blob client interface works",
     expect_silent(download_blob(cont, "iris.csv", new_file, overwrite=TRUE))
     expect_identical(readBin(orig_file, "raw", n=1e5), readBin(new_file, "raw", n=1e5))
 
+    # download from url
+    suppressWarnings(file.remove(new_file))
+    url <- file.path(bl$url, cont$name, "iris.csv")
+    expect_silent(download_from_url(url, new_file, key=bl$key))
+
     # public container upload/download
     public_cont <- lst[["newcontainer2"]]
     upload_blob(public_cont, orig_file, "iris_public.csv")

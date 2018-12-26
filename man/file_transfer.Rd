@@ -23,7 +23,7 @@ upload_to_url(src, dest, key = NULL, sas = NULL, ...)
 Generic upload and download
 }
 \details{
-These functions allow you to transfer files to and from a storage account, given the URL of the destination (for uploading) or source (for downloading). They dispatch to \link{upload_azure_file}/\link{download_azure_file} for a file storage URL and \link{upload_blob}/\link{download_blob} for a blob storage URL respectively.
+These functions allow you to transfer files to and from a storage account, given the URL of the destination (for uploading) or source (for downloading). They dispatch to \link{upload_azure_file}/\link{download_azure_file} for a file storage URL, \link{upload_blob}/\link{download_blob} for a blob storage URL, and \link{upoad_adls_file}/\link{download_adls_file} for an ADLSgen2 URL respectively.
 
 You can provide a SAS either as part of the URL itself, or in the \code{sas} argument.
 }

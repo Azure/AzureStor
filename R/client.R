@@ -134,7 +134,7 @@ print.adls_endpoint <- function(x, ...)
 #' @param overwrite For downloading, whether to overwrite any destination files that exist.
 #'
 #' @details
-#' These functions allow you to transfer files to and from a storage account, given the URL of the destination (for uploading) or source (for downloading). They dispatch to [upload_azure_file]/[download_azure_file] for a file storage URL and [upload_blob]/[download_blob] for a blob storage URL respectively.
+#' These functions allow you to transfer files to and from a storage account, given the URL of the destination (for uploading) or source (for downloading). They dispatch to [upload_azure_file]/[download_azure_file] for a file storage URL, [upload_blob]/[download_blob] for a blob storage URL, and [upoad_adls_file]/[download_adls_file] for an ADLSgen2 URL respectively.
 #'
 #' You can provide a SAS either as part of the URL itself, or in the `sas` argument.
 #'
@@ -169,6 +169,11 @@ download_from_url <- function(src, dest, key=NULL, sas=NULL, ..., overwrite=FALS
         share <- file_share(endpoint, az_path[2])
         download_azure_file(share, az_path[3], dest, overwrite=overwrite)
     }
+    else if(inherits(endpoint, "adls_endpoint"))
+    {
+        fs <- adls_filesystem(endpoint, az_path[2])
+        download_adls_file(fs, az_path[3], dest, overwrite=overwrite)
+    }
     else stop("Unknown storage endpoint", call.=FALSE)
 }
 
@@ -191,6 +196,11 @@ upload_to_url <- function(src, dest, key=NULL, sas=NULL, ...)
     {
         share <- file_share(endpoint, az_path[2])
         upload_azure_file(share, src, az_path[3])
+    }
+    else if(inherits(endpoint, "adls_endpoint"))
+    {
+        fs <- adls_endpoint(endpoint, az_path[2])
+        upload_adls_file(fs, src, az_path[3])
     }
     else stop("Unknown storage endpoint", call.=FALSE)
 }
