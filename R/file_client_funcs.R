@@ -52,7 +52,7 @@ file_share.character <- function(endpoint, key=NULL, sas=NULL,
                                  api_version=getOption("azure_storage_api_version"),
                                  ...)
 {
-    do.call(file_share, generate_endpoint_container(endpoint, key, sas, api_version))
+    do.call(file_share, generate_endpoint_container(endpoint, key, token=NULL, sas, api_version))
 }
 
 #' @rdname file_share
@@ -95,7 +95,7 @@ list_file_shares.character <- function(endpoint, key=NULL, sas=NULL,
                                        api_version=getOption("azure_storage_api_version"),
                                        ...)
 {
-    do.call(list_file_shares, generate_endpoint_container(endpoint, key, sas, api_version))
+    do.call(list_file_shares, generate_endpoint_container(endpoint, key, token=NULL, sas, api_version))
 }
 
 #' @rdname file_share
@@ -124,7 +124,7 @@ create_file_share.character <- function(endpoint, key=NULL, sas=NULL,
                                         api_version=getOption("azure_storage_api_version"),
                                         ...)
 {
-    endp <- generate_endpoint_container(endpoint, key, sas, api_version)
+    endp <- generate_endpoint_container(endpoint, key, token=NULL, sas, api_version)
     create_file_share(endp$endpoint, endp$name, ...)
 }
 
@@ -159,7 +159,7 @@ delete_file_share.character <- function(endpoint, key=NULL, sas=NULL,
                                         api_version=getOption("azure_storage_api_version"),
                                         ...)
 {
-    endp <- generate_endpoint_container(endpoint, key, sas, api_version)
+    endp <- generate_endpoint_container(endpoint, key, token=NULL, sas, api_version)
     delete_file_share(endp$endpoint, endp$name, ...)
 }
 

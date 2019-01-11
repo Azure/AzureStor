@@ -8,13 +8,13 @@ do_container_op <- function(container, path="", options=list(), headers=list(), 
     else container$name
 
     invisible(do_storage_call(endp$url, path, options=options, headers=headers,
-                              key=endp$key, sas=endp$sas, api_version=endp$api_version,
+                              key=endp$key, token=endp$token, sas=endp$sas, api_version=endp$api_version,
                               http_verb=http_verb, ...))
 }
 
 
 do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), body=NULL, ...,
-                            key=NULL, sas=NULL,
+                            key=NULL, token=NULL, sas=NULL,
                             api_version=getOption("azure_storage_api_version"),
                             http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD", "PATCH"),
                             http_status_handler=c("stop", "warn", "message", "pass"))
@@ -25,9 +25,11 @@ do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), 
     if(!is_empty(options))
         url$query <- options[order(names(options))] # must be sorted for access key signing
 
-    # use key if provided, otherwise sas if provided, otherwise anonymous access
+    # use key if provided, otherwise AAD token if provided, otherwise sas if provided, otherwise anonymous access
     if(!is.null(key))
         headers <- sign_request(key, verb, url, headers, api_version)
+    else if(!is.null(token))
+        headers <- add_token(token, headers, api_version)
     else if(!is.null(sas))
         url <- add_sas(sas, url)
 
@@ -56,6 +58,32 @@ do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), 
         else cont
     }
     else response
+}
+
+
+add_token <- function(token, headers, api)
+{
+    if(is.null(headers$`x-ms-version`))
+        headers$`x-ms-version` <- api
+
+    if(inherits(token, "R6") && inherits(token, "AzureToken"))
+    {
+        # if token has expired, renew it
+        if(!token$validate())
+        {
+            message("Access token has expired or is no longer valid; refreshing")
+            token$refresh()
+        }
+        type <- token$credentials$token_type
+        token <- token$credentials$access_token
+    }
+    else
+    {
+        if(!is.character(token) || length(token) != 1)
+            stop("Token must be a string, or an object of class AzureRMR::AzureToken", call.=FALSE)
+        type <- "Bearer"
+    }
+    c(headers, Authorization=paste(type, token))
 }
 
 
@@ -169,10 +197,10 @@ is_endpoint_url <- function(url, type)
 }
 
 
-generate_endpoint_container <- function(url, key, sas, api_version)
+generate_endpoint_container <- function(url, key, token, sas, api_version)
 {
     stor_path <- parse_storage_url(url)
-    endpoint <- storage_endpoint(stor_path[1], key, sas, api_version)
+    endpoint <- storage_endpoint(stor_path[1], key, token, sas, api_version)
     name <- stor_path[2]
     list(endpoint=endpoint, name=name)
 }

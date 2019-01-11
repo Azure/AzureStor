@@ -12,16 +12,16 @@
 \alias{print.adls_endpoint}
 \title{Create a storage endpoint object}
 \usage{
-storage_endpoint(endpoint, key = NULL, sas = NULL,
+storage_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
+  api_version)
+
+blob_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
   api_version = getOption("azure_storage_api_version"))
 
-blob_endpoint(endpoint, key = NULL, sas = NULL,
+file_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
   api_version = getOption("azure_storage_api_version"))
 
-file_endpoint(endpoint, key = NULL, sas = NULL,
-  api_version = getOption("azure_storage_api_version"))
-
-adls_endpoint(endpoint, key = NULL, sas = NULL,
+adls_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
   api_version = getOption("azure_adls_api_version"))
 
 \method{print}{storage_endpoint}(x, ...)
@@ -33,7 +33,9 @@ adls_endpoint(endpoint, key = NULL, sas = NULL,
 
 \item{key}{The access key for the storage account.}
 
-\item{sas}{A shared access signature (SAS) for the account. If \code{key} is also provided, the SAS is not used. If neither \code{key} nor \code{sas} are provided, only public (anonymous) access to the endpoint is possible. Note that authentication with a SAS is not supported by ADLSgen2.}
+\item{token}{An Azure Active Directory (AAD) authentication token. This can be either a string, or an object of class \link[AzureRMR:AzureToken]{AzureRMR::AzureToken} created by \link[AzureRMR:get_azure_token]{AzureRMR::get_azure_token}. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.}
+
+\item{sas}{A shared access signature (SAS) for the account.}
 
 \item{api_version}{The storage API version to use when interacting with the host. Defaults to \code{"2018-06-17"} for the ADLSgen2 endpoint, and \code{"2018-03-28"} for the others.}
 
@@ -53,6 +55,8 @@ Create a storage endpoint object, for interacting with blob, file, table, queue 
 }
 \details{
 This is the starting point for the client-side storage interface in AzureRMR. \code{storage_endpoint} is a generic function to create an endpoint for any type of Azure storage while \code{adls_endpoint}, \code{blob_endpoint} and \code{file_endpoint} create endpoints for those types.
+
+If multiple authentication objects are supplied, they are used in this order of priority: first an access key, then an AAD token, then a SAS. If no authentication objects are supplied, only public (anonymous) access to the endpoint is possible. Note that authentication with a SAS is not currently supported by ADLSgen2, and authentication with an AAD token is not supported by file storage.
 }
 \examples{
 \dontrun{
