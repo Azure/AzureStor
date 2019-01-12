@@ -31,7 +31,7 @@ do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), 
     else if(!is.null(sas))
         url <- add_sas(sas, url)
 
-    headers <- httr::add_headers(.headers=unlist(headers))
+    headers <- do.call(httr::add_headers, headers)
     verb <- get(verb, getNamespace("httr"))
 
     # do actual http[s] call
