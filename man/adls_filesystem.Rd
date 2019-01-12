@@ -20,8 +20,9 @@
 \usage{
 adls_filesystem(endpoint, ...)
 
-\method{adls_filesystem}{character}(endpoint, key = NULL, sas = NULL,
-  api_version = getOption("azure_storage_api_version"), ...)
+\method{adls_filesystem}{character}(endpoint, key = NULL, token = NULL,
+  sas = NULL, api_version = getOption("azure_storage_api_version"),
+  ...)
 
 \method{adls_filesystem}{adls_endpoint}(endpoint, name, ...)
 
@@ -30,14 +31,16 @@ adls_filesystem(endpoint, ...)
 list_adls_filesystems(endpoint, ...)
 
 \method{list_adls_filesystems}{character}(endpoint, key = NULL,
-  sas = NULL, api_version = getOption("azure_adls_api_version"), ...)
+  token = NULL, sas = NULL,
+  api_version = getOption("azure_adls_api_version"), ...)
 
 \method{list_adls_filesystems}{adls_endpoint}(endpoint, ...)
 
 create_adls_filesystem(endpoint, ...)
 
 \method{create_adls_filesystem}{character}(endpoint, key = NULL,
-  sas = NULL, api_version = getOption("azure_adls_api_version"), ...)
+  token = NULL, sas = NULL,
+  api_version = getOption("azure_adls_api_version"), ...)
 
 \method{create_adls_filesystem}{adls_filesystem}(endpoint, ...)
 
@@ -46,7 +49,8 @@ create_adls_filesystem(endpoint, ...)
 delete_adls_filesystem(endpoint, ...)
 
 \method{delete_adls_filesystem}{character}(endpoint, key = NULL,
-  sas = NULL, api_version = getOption("azure_adls_api_version"), ...)
+  token = NULL, sas = NULL,
+  api_version = getOption("azure_adls_api_version"), ...)
 
 \method{delete_adls_filesystem}{adls_filesystem}(endpoint, ...)
 
@@ -58,7 +62,7 @@ delete_adls_filesystem(endpoint, ...)
 
 \item{...}{Further arguments passed to lower-level functions.}
 
-\item{key, sas}{If an endpoint object is not supplied, authentication details. Currently the \code{sas} argument is unused.}
+\item{key, token, sas}{If an endpoint object is not supplied, authentication credentials: either an access key, an Azure Active Directory (AAD) token, or a SAS, in that order of priority. Currently the \code{sas} argument is unused.}
 
 \item{api_version}{If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to \code{"2018-06-17"}.}
 
@@ -78,6 +82,8 @@ Get, list, create, or delete ADLSgen2 filesystems. Currently (as of December 201
 }
 \details{
 You can call these functions in a couple of ways: by passing the full URL of the share, or by passing the endpoint object and the name of the share as a string.
+
+If authenticating via AAD, you can supply the token either as a string, or as an object of class \link[AzureRMR:AzureToken]{AzureRMR::AzureToken}, created via \link[AzureRMR:get_azure_token]{AzureRMR::get_azure_token}. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.
 
 Currently (as of December 2018), if the storage account has hierarchical namespaces enabled, the blob API for the account is disabled. The blob endpoint is still accessible, but blob operations on the endpoint will fail. Full interoperability between blobs and ADLS is planned for 2019.
 }

@@ -3,7 +3,7 @@
 #' Get, list, create, or delete ADLSgen2 filesystems. Currently (as of December 2018) ADLSgen2 is in general-access public preview.
 #'
 #' @param endpoint Either an ADLSgen2 endpoint object as created by [storage_endpoint] or [adls_endpoint], or a character string giving the URL of the endpoint.
-#' @param key,sas If an endpoint object is not supplied, authentication details. Currently the `sas` argument is unused.
+#' @param key,token,sas If an endpoint object is not supplied, authentication credentials: either an access key, an Azure Active Directory (AAD) token, or a SAS, in that order of priority. Currently the `sas` argument is unused.
 #' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2018-06-17"`.
 #' @param name The name of the filesystem to get, create, or delete.
 #' @param confirm For deleting a filesystem, whether to ask for confirmation.
@@ -12,6 +12,8 @@
 #'
 #' @details
 #' You can call these functions in a couple of ways: by passing the full URL of the share, or by passing the endpoint object and the name of the share as a string.
+#'
+#' If authenticating via AAD, you can supply the token either as a string, or as an object of class [AzureRMR::AzureToken], created via [AzureRMR::get_azure_token]. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.
 #'
 #' Currently (as of December 2018), if the storage account has hierarchical namespaces enabled, the blob API for the account is disabled. The blob endpoint is still accessible, but blob operations on the endpoint will fail. Full interoperability between blobs and ADLS is planned for 2019.
 #'
@@ -50,11 +52,11 @@ adls_filesystem <- function(endpoint, ...)
 
 #' @rdname adls_filesystem
 #' @export
-adls_filesystem.character <- function(endpoint, key=NULL, sas=NULL,
+adls_filesystem.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                                       api_version=getOption("azure_storage_api_version"),
                                       ...)
 {
-    do.call(adls_filesystem, generate_endpoint_container(endpoint, key, sas, api_version))
+    do.call(adls_filesystem, generate_endpoint_container(endpoint, key, token, sas, api_version))
 }
 
 #' @rdname adls_filesystem
@@ -72,12 +74,22 @@ print.adls_filesystem <- function(x, ...)
 {
     cat("Azure Data Lake Storage Gen2 filesystem '", x$name, "'\n", sep="")
     cat(sprintf("URL: %s\n", paste0(x$endpoint$url, x$name)))
+
     if(!is_empty(x$endpoint$key))
         cat("Access key: <hidden>\n")
     else cat("Access key: <none supplied>\n")
+
+    if(!is_empty(x$endpoint$token))
+    {
+        cat("Azure Active Directory token:\n")
+        print(x$endpoint$token)
+    }
+    else cat("Azure Active Directory token: <none supplied>\n")
+
     if(!is_empty(x$endpoint$sas))
         cat("Account shared access signature: <hidden>\n")
     else cat("Account shared access signature: <none supplied>\n")
+
     cat(sprintf("Storage API version: %s\n", x$endpoint$api_version))
     invisible(x)
 }
@@ -93,11 +105,11 @@ list_adls_filesystems <- function(endpoint, ...)
 
 #' @rdname adls_filesystem
 #' @export
-list_adls_filesystems.character <- function(endpoint, key=NULL, sas=NULL,
+list_adls_filesystems.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                                             api_version=getOption("azure_adls_api_version"),
                                             ...)
 {
-    do.call(list_adls_filesystems, generate_endpoint_container(endpoint, key, sas, api_version))
+    do.call(list_adls_filesystems, generate_endpoint_container(endpoint, key, token, sas, api_version))
 }
 
 #' @rdname adls_filesystem
@@ -105,7 +117,8 @@ list_adls_filesystems.character <- function(endpoint, key=NULL, sas=NULL,
 list_adls_filesystems.adls_endpoint <- function(endpoint, ...)
 {
     lst <- do_storage_call(endpoint$url, "/", options=list(resource="account"),
-                           key=endpoint$key, sas=endpoint$sas, api_version=endpoint$api_version)
+                           key=endpoint$key, token=endpoint$token,, sas=endpoint$sas,
+                           api_version=endpoint$api_version)
 
     sapply(lst$filesystems$name, function(fs) adls_filesystem(endpoint, fs), simplify=FALSE)
 }
@@ -121,11 +134,11 @@ create_adls_filesystem <- function(endpoint, ...)
 
 #' @rdname adls_filesystem
 #' @export
-create_adls_filesystem.character <- function(endpoint, key=NULL, sas=NULL,
+create_adls_filesystem.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                                              api_version=getOption("azure_adls_api_version"),
                                              ...)
 {
-    endp <- generate_endpoint_container(endpoint, key, sas, api_version)
+    endp <- generate_endpoint_container(endpoint, key, token, sas, api_version)
     create_adls_filesystem(endp$endpoint, endp$name, ...)
 }
 
@@ -156,11 +169,11 @@ delete_adls_filesystem <- function(endpoint, ...)
 
 #' @rdname adls_filesystem
 #' @export
-delete_adls_filesystem.character <- function(endpoint, key=NULL, sas=NULL,
+delete_adls_filesystem.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                                              api_version=getOption("azure_adls_api_version"),
                                              ...)
 {
-    endp <- generate_endpoint_container(endpoint, key, sas, api_version)
+    endp <- generate_endpoint_container(endpoint, key, token, sas, api_version)
     delete_adls_filesystem(endp$endpoint, endp$name, ...)
 }
 

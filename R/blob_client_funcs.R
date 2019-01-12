@@ -3,7 +3,7 @@
 #' Get, list, create, or delete blob containers.
 #'
 #' @param endpoint Either a blob endpoint object as created by [storage_endpoint], or a character string giving the URL of the endpoint.
-#' @param key,sas If an endpoint object is not supplied, authentication details. If a key is provided, the SAS is not used. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.
+#' @param key,token,sas If an endpoint object is not supplied, authentication credentials: either an access key, an Azure Active Directory (AAD) token, or a SAS, in that order of priority. If no authentication credentials are provided, only public (anonymous) access to the share is possible.
 #' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2018-03-28"`.
 #' @param name The name of the blob container to get, create, or delete.
 #' @param confirm For deleting a container, whether to ask for confirmation.
@@ -14,6 +14,8 @@
 #'
 #' @details
 #' You can call these functions in a couple of ways: by passing the full URL of the share, or by passing the endpoint object and the name of the container as a string.
+#'
+#' If authenticating via AAD, you can supply the token either as a string, or as an object of class [AzureRMR::AzureToken], created via [AzureRMR::get_azure_token]. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.
 #'
 #' Currently (as of December 2018), if the storage account has hierarchical namespaces enabled, the blob API for the account is disabled. The blob endpoint is still accessible, but blob operations on the endpoint will fail. Full interoperability between blobs and ADLS is planned for 2019.
 #'
@@ -42,6 +44,13 @@
 #' create_blob_container("https://mystorage.blob.core.windows.net/newcontainer", key="access_key")
 #' delete_blob_container("https://mystorage.blob.core.windows.net/newcontainer", key="access_key")
 #'
+#' # authenticating via AAD
+#' token <- AzureRMR::get_azure_token(resource_host="https://storage.azure.com/",
+#'     tenant="myaadtenant",
+#'     app="myappid",
+#'     password="mypassword")
+#' blob_container("https://mystorage.blob.core.windows.net/mycontainer", token=token)
+#'
 #' }
 #' @rdname blob_container
 #' @export
@@ -52,11 +61,11 @@ blob_container <- function(endpoint, ...)
 
 #' @rdname blob_container
 #' @export
-blob_container.character <- function(endpoint, key=NULL, sas=NULL,
+blob_container.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                                      api_version=getOption("azure_storage_api_version"),
                                      ...)
 {
-    do.call(blob_container, generate_endpoint_container(endpoint, key, sas, api_version))
+    do.call(blob_container, generate_endpoint_container(endpoint, key, token, sas, api_version))
 }
 
 #' @rdname blob_container
@@ -74,12 +83,22 @@ print.blob_container <- function(x, ...)
 {
     cat("Azure blob container '", x$name, "'\n", sep="")
     cat(sprintf("URL: %s\n", paste0(x$endpoint$url, x$name)))
+
     if(!is_empty(x$endpoint$key))
         cat("Access key: <hidden>\n")
     else cat("Access key: <none supplied>\n")
+
+    if(!is_empty(x$endpoint$token))
+    {
+        cat("Azure Active Directory access token:\n")
+        print(x$endpoint$token)
+    }
+    else cat("Azure Active Directory access token: <none supplied>\n")
+
     if(!is_empty(x$endpoint$sas))
         cat("Account shared access signature: <hidden>\n")
     else cat("Account shared access signature: <none supplied>\n")
+
     cat(sprintf("Storage API version: %s\n", x$endpoint$api_version))
     invisible(x)
 }
@@ -94,11 +113,11 @@ list_blob_containers <- function(endpoint, ...)
 
 #' @rdname blob_container
 #' @export
-list_blob_containers.character <- function(endpoint, key=NULL, sas=NULL,
+list_blob_containers.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                                            api_version=getOption("azure_storage_api_version"),
                                            ...)
 {
-    do.call(list_blob_containers, generate_endpoint_container(endpoint, key, sas, api_version))
+    do.call(list_blob_containers, generate_endpoint_container(endpoint, key, token, sas, api_version))
 }
 
 #' @rdname blob_container
@@ -106,7 +125,8 @@ list_blob_containers.character <- function(endpoint, key=NULL, sas=NULL,
 list_blob_containers.blob_endpoint <- function(endpoint, ...)
 {
     lst <- do_storage_call(endpoint$url, "/", options=list(comp="list"),
-                           key=endpoint$key, sas=endpoint$sas, api_version=endpoint$api_version)
+                           key=endpoint$key, token=endpoint$token, sas=endpoint$sas,
+                           api_version=endpoint$api_version)
 
     lst <- lapply(lst$Containers, function(cont) blob_container(endpoint, cont$Name[[1]]))
     named_list(lst)
@@ -123,11 +143,11 @@ create_blob_container <- function(endpoint, ...)
 
 #' @rdname blob_container
 #' @export
-create_blob_container.character <- function(endpoint, key=NULL, sas=NULL,
+create_blob_container.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                                             api_version=getOption("azure_storage_api_version"),
                                             ...)
 {
-    endp <- generate_endpoint_container(endpoint, key, sas, api_version)
+    endp <- generate_endpoint_container(endpoint, key, token, sas, api_version)
     create_blob_container(endp$endpoint, endp$name, ...)
 }
 
@@ -163,11 +183,11 @@ delete_blob_container <- function(endpoint, ...)
 
 #' @rdname blob_container
 #' @export
-delete_blob_container.character <- function(endpoint, key=NULL, sas=NULL,
+delete_blob_container.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                                             api_version=getOption("azure_storage_api_version"),
                                             ...)
 {
-    endp <- generate_endpoint_container(endpoint, key, sas, api_version)
+    endp <- generate_endpoint_container(endpoint, key, token, sas, api_version)
     delete_blob_container(endp$endpoint, endp$name, ...)
 }
 

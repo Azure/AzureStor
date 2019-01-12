@@ -5,15 +5,15 @@
 \alias{upload_to_url}
 \title{Generic upload and download}
 \usage{
-download_from_url(src, dest, key = NULL, sas = NULL, ...,
-  overwrite = FALSE)
+download_from_url(src, dest, key = NULL, token = NULL, sas = NULL,
+  ..., overwrite = FALSE)
 
-upload_to_url(src, dest, key = NULL, sas = NULL, ...)
+upload_to_url(src, dest, key = NULL, token = token, sas = NULL, ...)
 }
 \arguments{
 \item{src, dest}{The source and destination files/URLs. Paths are allowed.}
 
-\item{key, sas}{Authentication arguments: an access key or a shared access signature (SAS). If a key is is provided, the SAS is not used. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.}
+\item{key, token, sas}{Authentication arguments: an access key or a shared access signature (SAS). If a key is is provided, the SAS is not used. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.}
 
 \item{...}{Further arguments to pass to lower-level functions.}
 
