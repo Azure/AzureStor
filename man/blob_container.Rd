@@ -111,7 +111,7 @@ create_blob_container("https://mystorage.blob.core.windows.net/newcontainer", ke
 delete_blob_container("https://mystorage.blob.core.windows.net/newcontainer", key="access_key")
 
 # authenticating via AAD
-token <- AzureRMR::get_azure_token(resource_host="https://storage.azure.com/",
+token <- AzureRMR::get_azure_token(resource="https://storage.azure.com/",
     tenant="myaadtenant",
     app="myappid",
     password="mypassword")
