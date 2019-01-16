@@ -96,9 +96,40 @@ test_that("Blob client interface works",
     expect_identical(readBin(file_100k, "raw", n=2e5), readBin(single_dl, "raw", n=2e5))
     expect_identical(readBin(file_100k, "raw", n=2e5), readBin(blocked_dl, "raw", n=2e5))
 
+    # upload/download with SAS
+    sas <- stor$get_account_sas(permissions="rw")
+    blsas <- blob_endpoint(stor$properties$primaryEndpoints$blob, sas=sas)
+    contsas <- create_blob_container(blsas, "contsas")
+    upload_blob(contsas, orig_file, "iris.csv")
+
+    sas_dl <- file.path(tempdir(), "iris_sas.csv")
+    suppressWarnings(file.remove(sas_dl))
+    download_blob(cont, "iris.csv", sas_dl)
+    expect_identical(readBin(orig_file, "raw", n=1e5), readBin(sas_dl, "raw", n=1e5))
+
+    # upload from connection
+    json <- jsonlite::toJSON(iris, dataframe="columns", auto_unbox=TRUE, pretty=TRUE)
+    con <- textConnection(json)
+    upload_blob(cont, con, "iris.json")
+
+    con_dl1 <- file.path(tempdir(), "iris.json")
+    suppressWarnings(file.remove(con_dl1))
+    download_blob(cont, "iris.json", con_dl1)
+    expect_identical(readBin("../resources/iris.json", "raw", n=1e5), readBin(con_dl1, "raw", n=1e5))
+
+    rds <- serialize(iris, NULL)
+    con <- rawConnection(rds)
+    upload_blob(cont, con, "iris.rds")
+
+    con_dl2 <- file.path(tempdir(), "iris.rds")
+    suppressWarnings(file.remove(con_dl2))
+    download_blob(cont, "iris.rds", con_dl2)
+    expect_identical(readBin("../resources/iris.rds", "raw", n=1e5), readBin(con_dl2, "raw", n=1e5))
+
     # ways of deleting a container
     delete_blob_container(cont, confirm=FALSE)
     delete_blob_container(bl, "newcontainer2", confirm=FALSE)
+    delete_blob_container(bl, "contsas", confirm=FALSE)
     delete_blob_container(paste0(bl$url, "newcontainer3"), key=bl$key, confirm=FALSE)
     Sys.sleep(5)
     expect_true(is_empty(list_blob_containers(bl)))

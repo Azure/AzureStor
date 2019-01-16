@@ -224,7 +224,8 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #'
 #' @param container A blob container object.
 #' @param blob A string naming a blob.
-#' @param src,dest The source and destination filenames for uploading and downloading. Paths are allowed.
+#' @param src,dest The source and destination files for uploading and downloading. For uploading, `src` can also be a [textConnection] or [rawConnection] object to allow transferring in-memory R objects without creating a temporary file.
+#' @param dest The destination filename for uploading and downloading. Paths are allowed. For 
 #' @param info For `list_blobs`, level of detail about each blob to return: a vector of names only; the name, size and last-modified date (default); or all information.
 #' @param confirm Whether to ask for confirmation on deleting a blob.
 #' @param blocksize The number of bytes to upload per HTTP(S) request.
@@ -250,6 +251,15 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' download_blob(cont, "bigfile.zip", dest="~/bigfile_downloaded.zip")
 #'
 #' delete_blob(cont, "bigfile.zip")
+#'
+#' # uploading serialized R objects via connections
+#' json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)
+#' con <- textConnection(json)
+#' upload_blob(cont, con, "iris.json")
+#'
+#' rds <- serialize(iris, NULL)
+#' con <- rawConnection(rds)
+#' upload_blob(cont, con, "iris.rds")
 #'
 #' }
 #' @rdname blob
@@ -301,13 +311,18 @@ upload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, 
 {
     if(type != "BlockBlob")
         stop("Only block blobs currently supported")
-    content_type <- mime::guess_type(src)
+    content_type <- if(inherits(src, "connection"))
+        "application/octet-stream"
+    else mime::guess_type(src)
+
     headers <- list("x-ms-blob-type"=type)
     if(!is.null(lease))
         headers[["x-ms-lease-id"]] <- as.character(lease)
 
     con <- if(inherits(src, "textConnection"))
         rawConnection(charToRaw(paste0(readLines(src), collapse="\n")))
+    else if(inherits(src, "rawConnection"))
+        src
     else file(src, open="rb")
     on.exit(close(con))
 
