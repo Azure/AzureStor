@@ -101,6 +101,25 @@ test_that("ADLSgen2 client interface works",
     expect_identical(readBin(file_100k, "raw", n=2e5), readBin(single_dl, "raw", n=2e5))
     expect_identical(readBin(file_100k, "raw", n=2e5), readBin(blocked_dl, "raw", n=2e5))
 
+    # upload from connection
+    json <- jsonlite::toJSON(iris, dataframe="columns", auto_unbox=TRUE, pretty=TRUE)
+    con <- textConnection(json)
+    upload_adls_file(fs, con, "iris.json")
+
+    con_dl1 <- file.path(tempdir(), "iris.json")
+    suppressWarnings(file.remove(con_dl1))
+    download_adls_file(fs, "iris.json", con_dl1)
+    expect_identical(readBin("../resources/iris.json", "raw", n=1e5), readBin(con_dl1, "raw", n=1e5))
+
+    rds <- serialize(iris, NULL)
+    con <- rawConnection(rds)
+    upload_adls_file(fs, con, "iris.rds")
+
+    con_dl2 <- file.path(tempdir(), "iris.rds")
+    suppressWarnings(file.remove(con_dl2))
+    download_adls_file(fs, "iris.rds", con_dl2)
+    expect_identical(readBin("../resources/iris.rds", "raw", n=1e5), readBin(con_dl2, "raw", n=1e5))
+
     # ways of deleting a filesystem
     delete_adls_filesystem(fs, confirm=FALSE)
     delete_adls_filesystem(ad, "newfs2", confirm=FALSE)

@@ -208,7 +208,7 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #' @param filesystem An ADLSgen2 filesystem object.
 #' @param dir,file A string naming a directory or file respectively.
 #' @param info Whether to return names only, or all information in a directory listing.
-#' @param src,dest The source and destination filenames for uploading and downloading. Paths are allowed.
+#' @param src,dest The source and destination files for uploading and downloading. Paths are allowed. For uploading, `src` can also be a [textConnection] or [rawConnection] object to allow transferring in-memory R objects without creating a temporary file.
 #' @param confirm Whether to ask for confirmation on deleting a file or directory.
 #' @param blocksize The number of bytes to upload per HTTP(S) request.
 #' @param lease The lease for a file, if present.
@@ -235,6 +235,15 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #'
 #' delete_adls_file(fs, "/newdir/bigfile.zip")
 #' delete_adls_dir(fs, "/newdir")
+#'
+#' # uploading serialized R objects via connections
+#' json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)
+#' con <- textConnection(json)
+#' upload_adls_file(fs, con, "iris.json")
+#'
+#' rds <- serialize(iris, NULL)
+#' con <- rawConnection(rds)
+#' upload_adls_file(fs, con, "iris.rds")
 #'
 #' }
 #' @rdname adls
@@ -291,11 +300,15 @@ upload_adls_file <- function(filesystem, src, dest, blocksize=2^24, lease=NULL)
 {
     con <- if(inherits(src, "textConnection"))
         rawConnection(charToRaw(paste0(readLines(src), collapse="\n")))
+    else if(inherits(src, "rawConnection"))
+        src
     else file(src, open="rb")
     on.exit(close(con))
 
     # create the file
-    content_type <- mime::guess_type(src)
+    content_type <- if(inherits(src, "connection"))
+        "application/octet-stream"
+    else mime::guess_type(src)
     headers <- list(`x-ms-content-type`=content_type)
     #if(!is.null(lease))
         #headers[["x-ms-lease-id"]] <- as.character(lease)

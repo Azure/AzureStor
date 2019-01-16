@@ -101,9 +101,40 @@ test_that("File client interface works",
     expect_identical(readBin(file_100k, "raw", n=2e5), readBin(single_dl, "raw", n=2e5))
     expect_identical(readBin(file_100k, "raw", n=2e5), readBin(blocked_dl, "raw", n=2e5))
 
+    # upload/download with SAS
+    sas <- stor$get_account_sas(permissions="rw")
+    flsas <- file_endpoint(stor$properties$primaryEndpoints$file, sas=sas)
+    sharesas <- create_file_share(flsas, "sharesas")
+    upload_azure_file(sharesas, orig_file, "iris.csv")
+
+    sas_dl <- file.path(tempdir(), "iris_sas.csv")
+    suppressWarnings(file.remove(sas_dl))
+    download_azure_file(sharesas, "iris.csv", sas_dl)
+    expect_identical(readBin(orig_file, "raw", n=1e5), readBin(sas_dl, "raw", n=1e5))
+
+    # upload from connection
+    json <- jsonlite::toJSON(iris, dataframe="columns", auto_unbox=TRUE, pretty=TRUE)
+    con <- textConnection(json)
+    upload_azure_file(share, con, "iris.json")
+
+    con_dl1 <- file.path(tempdir(), "iris.json")
+    suppressWarnings(file.remove(con_dl1))
+    download_azure_file(share, "iris.json", con_dl1)
+    expect_identical(readBin("../resources/iris.json", "raw", n=1e5), readBin(con_dl1, "raw", n=1e5))
+
+    rds <- serialize(iris, NULL)
+    con <- rawConnection(rds)
+    upload_azure_file(share, con, "iris.rds")
+
+    con_dl2 <- file.path(tempdir(), "iris.rds")
+    suppressWarnings(file.remove(con_dl2))
+    download_azure_file(share, "iris.rds", con_dl2)
+    expect_identical(readBin("../resources/iris.rds", "raw", n=1e5), readBin(con_dl2, "raw", n=1e5))
+
     # ways of deleting a share
     delete_file_share(share, confirm=FALSE)
     delete_file_share(fl, "newshare2", confirm=FALSE)
+    delete_file_share(fl, "sharesas", confirm=FALSE)
     delete_file_share(paste0(fl$url, "newshare3"), key=fl$key, confirm=FALSE)
     Sys.sleep(5)
     expect_true(is_empty(list_file_shares(fl)))

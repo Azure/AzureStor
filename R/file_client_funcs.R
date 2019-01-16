@@ -194,7 +194,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' @param share A file share object.
 #' @param dir,file A string naming a directory or file respectively.
 #' @param info Whether to return names only, or all information in a directory listing.
-#' @param src,dest The source and destination filenames for uploading and downloading. Paths are allowed.
+#' @param src,dest The source and destination files for uploading and downloading. For uploading, `src` can also be a [textConnection] or [rawConnection] object to allow transferring in-memory R objects without creating a temporary file.
 #' @param confirm Whether to ask for confirmation on deleting a file or directory.
 #' @param blocksize The number of bytes to upload per HTTP(S) request.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
@@ -220,6 +220,15 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #'
 #' delete_azure_file(share, "/newdir/bigfile.zip")
 #' delete_azure_dir(share, "/newdir")
+#'
+#' # uploading serialized R objects via connections
+#' json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)
+#' con <- textConnection(json)
+#' upload_azure_file(share, con, "iris.json")
+#'
+#' rds <- serialize(iris, NULL)
+#' con <- rawConnection(rds)
+#' upload_azure_file(share, con, "iris.rds")
 #'
 #' }
 #' @rdname file
@@ -251,11 +260,30 @@ list_azure_files <- function(share, dir, info=c("all", "name"),
 #' @export
 upload_azure_file <- function(share, src, dest, blocksize=2^24)
 {
+    # set content type
+    content_type <- if(inherits(src, "connection"))
+        "application/octet-stream"
+    else mime::guess_type(src)
+
     if(inherits(src, "textConnection"))
     {
         src <- charToRaw(paste0(readLines(src), collapse="\n"))
         nbytes <- length(src)
         con <- rawConnection(src)
+    }
+    else if(inherits(src, "rawConnection"))
+    {
+        con <- src
+        # need to read the data to get object size (!)
+        nbytes <- 0
+        repeat
+        {
+            x <- readBin(con, "raw", n=blocksize)
+            if(length(x) == 0)
+                break
+            nbytes <- nbytes + length(x)
+        }
+        seek(con, 0) # reposition connection after reading
     }
     else
     {
@@ -293,8 +321,7 @@ upload_azure_file <- function(share, src, dest, blocksize=2^24)
         range_begin <- range_begin + thisblock
     }
 
-    # set content type
-    do_container_op(share, dest, headers=list("x-ms-content-type"=mime::guess_type(src)),
+    do_container_op(share, dest, headers=list("x-ms-content-type"=content_type),
                     options=list(comp="properties"),
                     http_verb="PUT")
     invisible(NULL)

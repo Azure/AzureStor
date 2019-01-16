@@ -30,7 +30,7 @@ delete_azure_dir(share, dir, confirm = TRUE)
 
 \item{prefix}{For \code{list_azure_files}, filters the result to return only files and directories whose name begins with this prefix.}
 
-\item{src, dest}{The source and destination filenames for uploading and downloading. Paths are allowed.}
+\item{src, dest}{The source and destination files for uploading and downloading. For uploading, \code{src} can also be a \link{textConnection} or \link{rawConnection} object to allow transferring in-memory R objects without creating a temporary file.}
 
 \item{blocksize}{The number of bytes to upload per HTTP(S) request.}
 
@@ -58,6 +58,15 @@ download_azure_file(share, "/newdir/bigfile.zip", dest="~/bigfile_downloaded.zip
 
 delete_azure_file(share, "/newdir/bigfile.zip")
 delete_azure_dir(share, "/newdir")
+
+# uploading serialized R objects via connections
+json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)
+con <- textConnection(json)
+upload_azure_file(share, con, "iris.json")
+
+rds <- serialize(iris, NULL)
+con <- rawConnection(rds)
+upload_azure_file(share, con, "iris.rds")
 
 }
 }

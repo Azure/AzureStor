@@ -24,7 +24,9 @@ delete_blob(container, blob, confirm = TRUE)
 
 \item{prefix}{For \code{list_blobs}, filters the result to return only blobs whose name begins with this prefix.}
 
-\item{src, dest}{The source and destination filenames for uploading and downloading. Paths are allowed.}
+\item{src, dest}{The source and destination files for uploading and downloading. For uploading, \code{src} can also be a \link{textConnection} or \link{rawConnection} object to allow transferring in-memory R objects without creating a temporary file.}
+
+\item{dest}{The destination filename for uploading and downloading. Paths are allowed. For}
 
 \item{type}{When uploading, the type of blob to create. Currently only block blobs are supported.}
 
@@ -55,6 +57,15 @@ upload_blob(cont, "~/bigfile.zip", dest="bigfile.zip")
 download_blob(cont, "bigfile.zip", dest="~/bigfile_downloaded.zip")
 
 delete_blob(cont, "bigfile.zip")
+
+# uploading serialized R objects via connections
+json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)
+con <- textConnection(json)
+upload_blob(cont, con, "iris.json")
+
+rds <- serialize(iris, NULL)
+con <- rawConnection(rds)
+upload_blob(cont, con, "iris.rds")
 
 }
 }

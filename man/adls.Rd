@@ -31,7 +31,7 @@ delete_adls_dir(filesystem, dir, recursive = FALSE, confirm = TRUE)
 
 \item{recursive}{For \code{list_adls_files}, and \code{delete_adls_dir}, whether the operation should recurse through subdirectories. For \code{delete_adls_dir}, this must be TRUE to delete a non-empty directory.}
 
-\item{src, dest}{The source and destination filenames for uploading and downloading. Paths are allowed.}
+\item{src, dest}{The source and destination files for uploading and downloading. Paths are allowed. For uploading, \code{src} can also be a \link{textConnection} or \link{rawConnection} object to allow transferring in-memory R objects without creating a temporary file.}
 
 \item{blocksize}{The number of bytes to upload per HTTP(S) request.}
 
@@ -61,6 +61,15 @@ download_adls_file(fs, "/newdir/bigfile.zip", dest="~/bigfile_downloaded.zip")
 
 delete_adls_file(fs, "/newdir/bigfile.zip")
 delete_adls_dir(fs, "/newdir")
+
+# uploading serialized R objects via connections
+json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)
+con <- textConnection(json)
+upload_adls_file(fs, con, "iris.json")
+
+rds <- serialize(iris, NULL)
+con <- rawConnection(rds)
+upload_adls_file(fs, con, "iris.rds")
 
 }
 }
