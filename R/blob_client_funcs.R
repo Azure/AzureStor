@@ -225,7 +225,6 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param container A blob container object.
 #' @param blob A string naming a blob.
 #' @param src,dest The source and destination files for uploading and downloading. For uploading, `src` can also be a [textConnection] or [rawConnection] object to allow transferring in-memory R objects without creating a temporary file.
-#' @param dest The destination filename for uploading and downloading. Paths are allowed. For 
 #' @param info For `list_blobs`, level of detail about each blob to return: a vector of names only; the name, size and last-modified date (default); or all information.
 #' @param confirm Whether to ask for confirmation on deleting a blob.
 #' @param blocksize The number of bytes to upload per HTTP(S) request.

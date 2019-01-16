@@ -26,8 +26,6 @@ delete_blob(container, blob, confirm = TRUE)
 
 \item{src, dest}{The source and destination files for uploading and downloading. For uploading, \code{src} can also be a \link{textConnection} or \link{rawConnection} object to allow transferring in-memory R objects without creating a temporary file.}
 
-\item{dest}{The destination filename for uploading and downloading. Paths are allowed. For}
-
 \item{type}{When uploading, the type of blob to create. Currently only block blobs are supported.}
 
 \item{blocksize}{The number of bytes to upload per HTTP(S) request.}
