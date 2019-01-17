@@ -165,11 +165,11 @@ storage_error_message <- function(response, for_httr=TRUE)
 }
 
 
-# keep only the scheme and host parts of a URL
-get_hostroot <- function(url)
-{
-    parse_storage_url(url)[1]
-}
+# # keep only the scheme and host parts of a URL
+# get_hostroot <- function(url)
+# {
+#     parse_storage_url(url)[1]
+# }
 
 
 parse_storage_url <- function(url)

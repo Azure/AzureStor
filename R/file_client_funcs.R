@@ -258,7 +258,7 @@ list_azure_files <- function(share, dir, info=c("all", "name"),
 
 #' @rdname file
 #' @export
-upload_azure_file <- function(share, src, dest, blocksize=2^24)
+upload_azure_file <- function(share, src, dest, blocksize=2^22)
 {
     # set content type
     content_type <- if(inherits(src, "connection"))
@@ -312,9 +312,9 @@ upload_azure_file <- function(share, src, dest, blocksize=2^24)
         if(thisblock == 0)  # sanity check
             break
 
-        # ensure content-length is never exponential notation
+        # ensure content-length and range are never exponential notation
         headers[["content-length"]] <- sprintf("%.0f", thisblock)
-        headers[["range"]] <- sprintf("bytes=%s-%s", range_begin, range_begin + thisblock - 1)
+        headers[["range"]] <- sprintf("bytes=%.0f-%.0f", range_begin, range_begin + thisblock - 1)
 
         do_container_op(share, dest, headers=headers, body=body, options=options, http_verb="PUT")
 
