@@ -11,7 +11,7 @@
 \usage{
 list_azure_files(share, dir, info = c("all", "name"), prefix = NULL)
 
-upload_azure_file(share, src, dest, blocksize = 2^24)
+upload_azure_file(share, src, dest, blocksize = 2^22)
 
 download_azure_file(share, src, dest, overwrite = FALSE)
 
