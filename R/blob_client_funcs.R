@@ -348,7 +348,7 @@ upload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, 
 
     # update block list
     body <- as.character(xml2::as_xml_document(list(BlockList=blocklist)))
-    headers <- list("content-length"=nchar(body))
+    headers <- list("content-length"=sprintf("%.0f", nchar(body)))
     do_container_op(container, dest, headers=headers, body=body, options=list(comp="blocklist"),
                     http_verb="PUT")
 
