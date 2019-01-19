@@ -148,8 +148,7 @@ NULL
 NULL
 
 
-# all methods extending classes in external package must go in .onLoad
-.onLoad <- function(libname, pkgname)
+add_methods <- function()
 {
     api <- "2018-03-28"
     adls_api <- "2018-06-17"

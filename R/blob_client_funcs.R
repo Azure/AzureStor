@@ -218,26 +218,37 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 }
 
 
-#' Operations on a blob container
+#' Operations on a blob container or blob
 #'
 #' Upload, download, or delete a blob; list blobs in a container.
 #'
 #' @param container A blob container object.
 #' @param blob A string naming a blob.
-#' @param src,dest The source and destination files for uploading and downloading. For uploading, `src` can also be a [textConnection] or [rawConnection] object to allow transferring in-memory R objects without creating a temporary file.
+#' @param src,dest The source and destination files for uploading and downloading. See 'Details' below.For uploading, `src` can also be a [textConnection] or [rawConnection] object to allow transferring in-memory R objects without creating a temporary file. For downloading, 
 #' @param info For `list_blobs`, level of detail about each blob to return: a vector of names only; the name, size and last-modified date (default); or all information.
 #' @param confirm Whether to ask for confirmation on deleting a blob.
 #' @param blocksize The number of bytes to upload per HTTP(S) request.
 #' @param lease The lease for a blob, if present.
 #' @param type When uploading, the type of blob to create. Currently only block blobs are supported.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
+#' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R. Not yet implemented.
+#' @param max_concurrent_transfers For `multiupload_blob` and `multidownload_blob`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
 #' @param prefix For `list_blobs`, filters the result to return only blobs whose name begins with this prefix.
 #'
+#' @details
+#' `upload_blob` and `download_blob` are the workhorse file transfer functions for blobs. They each take as inputs a _single_ filename or connection as the source for uploading/downloading, and a single filename as the destination.
+#'
+#' `multiupload_blob` and `multidownload_blob` are functions for uploading and downloading _multiple_ blobs at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. They take as input a wildcard pattern as the source, which expands to one or more files. The `dest` argument should be a directory for downloading, and is not used for uploading.
+#'
+#' The file transfer functions also support working with connections to allow transferring R objects without creating temporary files. For uploading, `src` can be a [textConnection] or [rawConnection] object. For downloading, `dest` can be NULL or a `rawConnection` object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
+#'
 #' @return
-#' For `list_blobs`, details on the blobs in the container.
+#' For `list_blobs`, details on the blobs in the container. For `download_blob`, if `dest=NULL`, the contents of the downloaded blob as a raw vector.
 #'
 #' @seealso
 #' [blob_container], [az_storage]
+#'
+#' [AzCopy version 10 on GitHub](https://github.com/Azure/azure-storage-azcopy)
 #'
 #' @examples
 #' \dontrun{
@@ -251,6 +262,10 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #'
 #' delete_blob(cont, "bigfile.zip")
 #'
+#' # uploading/downloading multiple files at once
+#' multiupload_blob(cont, "/data/logfiles/*.zip")
+#' multidownload_blob(cont, "jan*.*", "/data/january")
+#'
 #' # uploading serialized R objects via connections
 #' json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)
 #' con <- textConnection(json)
@@ -259,6 +274,14 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' rds <- serialize(iris, NULL)
 #' con <- rawConnection(rds)
 #' upload_blob(cont, con, "iris.rds")
+#'
+#' # downloading files into memory: as a raw vector, and via a connection
+#' rawvec <- download_blob(cont, "iris.json", NULL)
+#' rawToChar(rawvec)
+#'
+#' con <- rawConnection(raw(0), "r+")
+#' download_blob(cont, "iris.json", con)
+#' unserialize(con)
 #'
 #' }
 #' @rdname blob
@@ -306,66 +329,45 @@ list_blobs <- function(container, info=c("partial", "name", "all"),
 
 #' @rdname blob
 #' @export
-upload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL)
+upload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL,
+                        use_azcopy=FALSE)
 {
-    if(type != "BlockBlob")
-        stop("Only block blobs currently supported")
-    content_type <- if(inherits(src, "connection"))
-        "application/octet-stream"
-    else mime::guess_type(src)
-
-    headers <- list("x-ms-blob-type"=type)
-    if(!is.null(lease))
-        headers[["x-ms-lease-id"]] <- as.character(lease)
-
-    con <- if(inherits(src, "textConnection"))
-        rawConnection(charToRaw(paste0(readLines(src), collapse="\n")))
-    else if(inherits(src, "rawConnection"))
-        src
-    else file(src, open="rb")
-    on.exit(close(con))
-
-    # upload each block
-    blocklist <- list()
-    i <- 1
-    while(1)
-    {
-        body <- readBin(con, "raw", blocksize)
-        thisblock <- length(body)
-        if(thisblock == 0)
-            break
-
-        # ensure content-length is never exponential notation
-        headers[["content-length"]] <- sprintf("%.0f", thisblock)
-        id <- openssl::base64_encode(sprintf("%s-%010d", dest, i))
-        opts <- list(comp="block", blockid=id)
-
-        do_container_op(container, dest, headers=headers, body=body, options=opts, http_verb="PUT")
-
-        blocklist <- c(blocklist, list(Latest=list(id)))
-        i <- i + 1
-    }
-
-    # update block list
-    body <- as.character(xml2::as_xml_document(list(BlockList=blocklist)))
-    headers <- list("content-length"=sprintf("%.0f", nchar(body)))
-    do_container_op(container, dest, headers=headers, body=body, options=list(comp="blocklist"),
-                    http_verb="PUT")
-
-    # set content type
-    do_container_op(container, dest, headers=list("x-ms-blob-content-type"=content_type),
-                    options=list(comp="properties"),
-                    http_verb="PUT")
+    if(use_azcopy)
+        call_azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease)
+    else upload_blob_internal(container, src, dest, type=type, blocksize=blocksize, lease=lease)
 }
 
 #' @rdname blob
 #' @export
-download_blob <- function(container, src, dest, overwrite=FALSE, lease=NULL)
+multiupload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL,
+                             use_azcopy=FALSE,
+                             max_concurrent_transfers=10)
 {
-    headers <- list()
-    if(!is.null(lease))
-        headers[["x-ms-lease-id"]] <- as.character(lease)
-    do_container_op(container, src, headers=headers, config=httr::write_disk(dest, overwrite))
+    if(use_azcopy)
+        call_azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease)
+    else multiupload_blob_internal(container, src, dest, type=type, blocksize=blocksize, lease=lease,
+                                   max_concurrent_transfers=max_concurrent_transfers)
+}
+
+#' @rdname blob
+#' @export
+download_blob <- function(container, src, dest, overwrite=FALSE, lease=NULL, use_azcopy=FALSE)
+{
+    if(use_azcopy)
+        call_azcopy_download(container, src, dest, overwrite=overwrite, lease=lease)
+    else download_blob_internal(container, src, dest, overwrite=overwrite, lease=lease)
+}
+
+#' @rdname blob
+#' @export
+multidownload_blob <- function(container, src, dest, overwrite=FALSE, lease=NULL,
+                               use_azcopy=FALSE,
+                               max_concurrent_transfers=10)
+{
+    if(use_azcopy)
+        call_azcopy_download(container, src, dest, overwrite=overwrite, lease=lease)
+    else multidownload_blob_internal(container, src, dest, overwrite=overwrite, lease=lease,
+                                     max_concurrent_transfers=max_concurrent_transfers)
 }
 
 #' @rdname blob

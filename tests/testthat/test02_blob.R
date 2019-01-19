@@ -126,6 +126,37 @@ test_that("Blob client interface works",
     download_blob(cont, "iris.rds", con_dl2)
     expect_identical(readBin("../resources/iris.rds", "raw", n=1e5), readBin(con_dl2, "raw", n=1e5))
 
+    # download to memory
+    rawvec <- download_blob(cont, "iris.rds", NULL)
+    iris2 <- unserialize(rawvec)
+    expect_identical(iris, iris2)
+
+    con <- rawConnection(raw(0), open="r+")
+    download_blob(cont, "iris.json", con)
+    iris3 <- as.data.frame(jsonlite::fromJSON(con))
+    expect_identical(iris, iris3)
+
+    # multiple file transfers
+    files <- lapply(1:10, function(f) paste0(sample(letters, 1000, replace=TRUE), collapse=""))
+    filenames <- sapply(1:10, function(n) file.path(tempdir(), sprintf("multitransfer_%d", n)))
+    suppressWarnings(file.remove(filenames))
+    mapply(writeLines, files, filenames)
+
+    multiupload_blob(cont, file.path(tempdir(), "multitransfer_*"))
+    expect_warning(multiupload_blob(cont, file.path(tempdir(), "multitransfer_*"), "newnames"))
+
+    dest_dir <- file.path(tempdir(), "blob_multitransfer")
+    suppressWarnings(unlink(dest_dir, recursive=TRUE))
+    dir.create(dest_dir)
+    multidownload_blob(cont, "multitransfer_*", dest_dir, overwrite=TRUE)
+
+    expect_true(all(sapply(filenames, function(f)
+    {
+        src <- readBin(f, "raw", n=1e5)
+        dest <- readBin(file.path(dest_dir, basename(f)), "raw", n=1e5)
+        identical(src, dest)
+    })))
+
     # ways of deleting a container
     delete_blob_container(cont, confirm=FALSE)
     delete_blob_container(bl, "newcontainer2", confirm=FALSE)
@@ -133,6 +164,8 @@ test_that("Blob client interface works",
     delete_blob_container(paste0(bl$url, "newcontainer3"), key=bl$key, confirm=FALSE)
     Sys.sleep(5)
     expect_true(is_empty(list_blob_containers(bl)))
+
+    close(con)
 })
 
 rg$delete(confirm=FALSE)

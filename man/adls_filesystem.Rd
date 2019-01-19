@@ -68,7 +68,7 @@ delete_adls_filesystem(endpoint, ...)
 
 \item{name}{The name of the filesystem to get, create, or delete.}
 
-\item{x}{For the print method, a file share object.}
+\item{x}{For the print method, a filesystem object.}
 
 \item{confirm}{For deleting a filesystem, whether to ask for confirmation.}
 }
@@ -81,7 +81,7 @@ For \code{list_adls_filesystems}, a list of such objects.
 Get, list, create, or delete ADLSgen2 filesystems. Currently (as of December 2018) ADLSgen2 is in general-access public preview.
 }
 \details{
-You can call these functions in a couple of ways: by passing the full URL of the share, or by passing the endpoint object and the name of the share as a string.
+You can call these functions in a couple of ways: by passing the full URL of the filesystem, or by passing the endpoint object and the name of the filesystem as a string.
 
 If authenticating via AAD, you can supply the token either as a string, or as an object of class \link[AzureRMR:AzureToken]{AzureRMR::AzureToken}, created via \link[AzureRMR:get_azure_token]{AzureRMR::get_azure_token}. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.
 

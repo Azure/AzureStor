@@ -3,7 +3,9 @@
 \name{list_azure_files}
 \alias{list_azure_files}
 \alias{upload_azure_file}
+\alias{multiupload_azure_file}
 \alias{download_azure_file}
+\alias{multidownload_azure_file}
 \alias{delete_azure_file}
 \alias{create_azure_dir}
 \alias{delete_azure_dir}
@@ -11,9 +13,17 @@
 \usage{
 list_azure_files(share, dir, info = c("all", "name"), prefix = NULL)
 
-upload_azure_file(share, src, dest, blocksize = 2^22)
+upload_azure_file(share, src, dest, blocksize = 2^22,
+  use_azcopy = FALSE)
 
-download_azure_file(share, src, dest, overwrite = FALSE)
+multiupload_azure_file(share, src, dest, blocksize = 2^22,
+  use_azcopy = FALSE, max_concurrent_transfers = 10)
+
+download_azure_file(share, src, dest, overwrite = FALSE,
+  use_azcopy = FALSE)
+
+multidownload_azure_file(share, src, dest, overwrite = FALSE,
+  use_azcopy = FALSE, max_concurrent_transfers = 10)
 
 delete_azure_file(share, file, confirm = TRUE)
 
@@ -34,15 +44,28 @@ delete_azure_dir(share, dir, confirm = TRUE)
 
 \item{blocksize}{The number of bytes to upload per HTTP(S) request.}
 
+\item{use_azcopy}{Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R. Not yet implemented.}
+
+\item{max_concurrent_transfers}{For \code{multiupload_azure_file} and \code{multidownload_azure_file}, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.}
+
 \item{overwrite}{When downloading, whether to overwrite an existing destination file.}
 
 \item{confirm}{Whether to ask for confirmation on deleting a file or directory.}
 }
 \value{
 For \code{list_azure_files}, if \code{info="name"}, a vector of file/directory names. If \code{info="all"}, a data frame giving the file size and whether each object is a file or directory.
+
+For \code{download_azure_file}, if \code{dest=NULL}, the contents of the downloaded file as a raw vector.
 }
 \description{
 Upload, download, or delete a file; list files in a directory; create or delete directories.
+}
+\details{
+\code{upload_azure_file} and \code{download_azure_file} are the workhorse file transfer functions for file storage. They each take as inputs a \emph{single} filename or connection as the source for uploading/downloading, and a single filename as the destination.
+
+\code{multiupload_azure_file} and \code{multidownload_azure_file} are functions for uploading and downloading \emph{multiple} files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. They take as input a \emph{wildcard} pattern as the source, which expands to one or more files. The \code{dest} argument should be a directory.
+
+The file transfer functions also support working with connections to allow transferring R objects without creating temporary files. For uploading, \code{src} can be a \link{textConnection} or \link{rawConnection} object. For downloading, \code{dest} can be NULL or a \code{rawConnection} object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
 }
 \examples{
 \dontrun{
@@ -59,6 +82,10 @@ download_azure_file(share, "/newdir/bigfile.zip", dest="~/bigfile_downloaded.zip
 delete_azure_file(share, "/newdir/bigfile.zip")
 delete_azure_dir(share, "/newdir")
 
+# uploading/downloading multiple files at once
+multiupload_azure_file(share, "/data/logfiles/*.zip")
+multidownload_azure_file(share, "/monthly/jan*.*", "/data/january")
+
 # uploading serialized R objects via connections
 json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)
 con <- textConnection(json)
@@ -68,8 +95,18 @@ rds <- serialize(iris, NULL)
 con <- rawConnection(rds)
 upload_azure_file(share, con, "iris.rds")
 
+# downloading files into memory: as a raw vector, and via a connection
+rawvec <- download_azure_file(share, "iris.json", NULL)
+rawToChar(rawvec)
+
+con <- rawConnection(raw(0), "r+")
+download_azure_file(share, "iris.json", con)
+unserialize(con)
+
 }
 }
 \seealso{
 \link{file_share}, \link{az_storage}
+
+\href{https://github.com/Azure/azure-storage-azcopy}{AzCopy version 10 on GitHub}
 }
