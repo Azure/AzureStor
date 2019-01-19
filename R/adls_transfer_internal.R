@@ -91,7 +91,6 @@ multidownload_adls_file_internal <- function(filesystem, src, dest, overwrite=FA
     parallel::parLapply(.AzureStor$pool, src, function(f)
     {
         dest <- file.path(dest, basename(f))
-        writeLines(dest, file.path("d:/misc/temp", basename(f)))
         AzureStor::download_adls_file(filesystem, f, dest, overwrite=overwrite)
     })
     invisible(NULL)
