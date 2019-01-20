@@ -103,7 +103,7 @@ rawvec <- download_adls_file(fs, "iris.json", NULL)
 rawToChar(rawvec)
 
 con <- rawConnection(raw(0), "r+")
-download_adls_file(fs, "iris.json", con)
+download_adls_file(fs, "iris.rds", con)
 unserialize(con)
 
 }

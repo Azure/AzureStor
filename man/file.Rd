@@ -100,7 +100,7 @@ rawvec <- download_azure_file(share, "iris.json", NULL)
 rawToChar(rawvec)
 
 con <- rawConnection(raw(0), "r+")
-download_azure_file(share, "iris.json", con)
+download_azure_file(share, "iris.rds", con)
 unserialize(con)
 
 }

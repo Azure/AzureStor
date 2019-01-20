@@ -280,7 +280,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' rawToChar(rawvec)
 #'
 #' con <- rawConnection(raw(0), "r+")
-#' download_blob(cont, "iris.json", con)
+#' download_blob(cont, "iris.rds", con)
 #' unserialize(con)
 #'
 #' }

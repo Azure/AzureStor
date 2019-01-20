@@ -95,7 +95,7 @@ rawvec <- download_blob(cont, "iris.json", NULL)
 rawToChar(rawvec)
 
 con <- rawConnection(raw(0), "r+")
-download_blob(cont, "iris.json", con)
+download_blob(cont, "iris.rds", con)
 unserialize(con)
 
 }

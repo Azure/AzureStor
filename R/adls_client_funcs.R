@@ -265,7 +265,7 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #' rawToChar(rawvec)
 #'
 #' con <- rawConnection(raw(0), "r+")
-#' download_adls_file(fs, "iris.json", con)
+#' download_adls_file(fs, "iris.rds", con)
 #' unserialize(con)
 #'
 #' }
