@@ -12,7 +12,7 @@ rgname <- Sys.getenv("AZ_TEST_STORAGE_RG")
 storname <- Sys.getenv("AZ_TEST_STORAGE_HNS")
 
 if(rgname == "" || storname == "")
-    skip("File client tests skipped: resource names not set")
+    skip("ADLSgen2 client tests skipped: resource names not set")
 
 sub <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$get_subscription(subscription)
 stor <- sub$get_resource_group(rgname)$get_storage_account(storname)
