@@ -8,28 +8,17 @@ subscription <- Sys.getenv("AZ_TEST_SUBSCRIPTION")
 if(tenant == "" || app == "" || password == "" || subscription == "")
     skip("Authentication tests skipped: ARM credentials not set")
 
+rgname <- Sys.getenv("AZ_TEST_STORAGE_RG")
+storname <- Sys.getenv("AZ_TEST_STORAGE_HNS")
+
+if(rgname == "" || storname == "")
+    skip("File client tests skipped: resource names not set")
 
 sub <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$get_subscription(subscription)
-rgname <- paste(sample(letters, 20, replace=TRUE), collapse="")
-rg <- sub$create_resource_group(rgname, location="australiaeast")
+stor <- sub$get_resource_group(rgname)$get_storage_account(storname)
 
 test_that("ADLSgen2 client interface works",
 {
-
-    storname <- paste(sample(letters, 20, replace=TRUE), collapse="")
-    stor <- rg$create_storage_account(storname, hierarchical_namespace_enabled=TRUE)
-
-    # wait until provisioning is complete
-    for(i in 1:100)
-    {
-        Sys.sleep(5)
-        state <- stor$sync_fields()
-        if(state %in% c("Succeeded", "Error", "Failed"))
-            break
-    }
-    if(state != "Succeeded")
-        stop("Unable to create storage account")
-
     ad <- stor$get_adls_endpoint()
     ad2 <- adls_endpoint(stor$properties$primaryEndpoints$dfs, key=stor$list_keys()[1])
     expect_is(ad, "adls_endpoint")
@@ -161,4 +150,10 @@ test_that("ADLSgen2 client interface works",
     close(con)
 })
 
-rg$delete(confirm=FALSE)
+
+teardown(
+{
+    ad <- stor$get_adls_endpoint()
+    conts <- list_adls_filesystems(ad)
+    lapply(conts, delete_adls_filesystem, confirm=FALSE)
+})

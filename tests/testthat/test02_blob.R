@@ -8,28 +8,17 @@ subscription <- Sys.getenv("AZ_TEST_SUBSCRIPTION")
 if(tenant == "" || app == "" || password == "" || subscription == "")
     skip("Authentication tests skipped: ARM credentials not set")
 
+rgname <- Sys.getenv("AZ_TEST_STORAGE_RG")
+storname <- Sys.getenv("AZ_TEST_STORAGE_NOHNS")
+
+if(rgname == "" || storname == "")
+    skip("Blob client tests skipped: resource names not set")
 
 sub <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$get_subscription(subscription)
-rgname <- paste(sample(letters, 20, replace=TRUE), collapse="")
-rg <- sub$create_resource_group(rgname, location="australiaeast")
+stor <- sub$get_resource_group(rgname)$get_storage_account(storname)
 
 test_that("Blob client interface works",
 {
-
-    storname <- paste(sample(letters, 20, replace=TRUE), collapse="")
-    stor <- rg$create_storage_account(storname, hierarchical_namespace_enabled=FALSE)
-
-    # wait until provisioning is complete
-    for(i in 1:100)
-    {
-        Sys.sleep(5)
-        state <- stor$sync_fields()
-        if(state %in% c("Succeeded", "Error", "Failed"))
-            break
-    }
-    if(state != "Succeeded")
-        stop("Unable to create storage account")
-
     bl <- stor$get_blob_endpoint()
     bl2 <- blob_endpoint(stor$properties$primaryEndpoints$blob, key=stor$list_keys()[1])
     expect_is(bl, "blob_endpoint")
@@ -168,5 +157,10 @@ test_that("Blob client interface works",
     close(con)
 })
 
-rg$delete(confirm=FALSE)
 
+teardown(
+{
+    bl <- stor$get_blob_endpoint()
+    conts <- list_blob_containers(bl)
+    lapply(conts, delete_blob_container, confirm=FALSE)
+})
