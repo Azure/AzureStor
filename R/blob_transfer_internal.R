@@ -2,7 +2,7 @@ multiupload_blob_internal <- function(container, src, dest, type="BlockBlob", bl
                                       max_concurrent_transfers=10)
 {
     src_dir <- dirname(src)
-    src_files <- glob2rx(basename(src))
+    src_files <- glob2rx(sub("^/", "", src))
     src <- dir(src_dir, pattern=src_files, full.names=TRUE)
 
     if(length(src) == 0)
