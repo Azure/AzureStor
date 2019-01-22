@@ -151,7 +151,6 @@ test_that("ADLSgen2 client interface works",
 })
 
 
-
 test_that("AAD authentication works",
 {
     url <- stor$get_adls_endpoint()$url 
@@ -160,7 +159,8 @@ test_that("AAD authentication works",
     fs <- create_adls_filesystem(ad, "newfs4")
 
     # upload and download
-    upload_adls_file(fs, "../resources/iris.csv")
+    orig_file <- "../resources/iris.csv"
+    upload_adls_file(fs, orig_file, "iris.csv")
     tok_dl <- file.path(tempdir(), "iris_tok.csv")
     suppressWarnings(file.remove(tok_dl))
     download_adls_file(fs, "iris.csv", tok_dl)
@@ -187,10 +187,9 @@ test_that("AAD authentication works",
         identical(src, dest)
     })))
 
-    delete_adls_filesystem(fs)
+    delete_adls_filesystem(fs, confirm=FALSE)
     expect_true(is_empty(list_adls_filesystems(ad)))
 })
-
 
 
 teardown(

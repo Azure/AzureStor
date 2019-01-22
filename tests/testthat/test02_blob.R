@@ -166,7 +166,8 @@ test_that("AAD authentication works",
     cont <- create_blob_container(bl, "newcontainer4")
 
     # upload and download
-    upload_blob(cont, "../resources/iris.csv")
+    orig_file <- "../resources/iris.csv"
+    upload_blob(cont, orig_file, "iris.csv")
     tok_dl <- file.path(tempdir(), "iris_tok.csv")
     suppressWarnings(file.remove(tok_dl))
     download_blob(cont, "iris.csv", tok_dl)
@@ -193,7 +194,7 @@ test_that("AAD authentication works",
         identical(src, dest)
     })))
 
-    delete_blob_container(cont)
+    delete_blob_container(cont, confirm=FALSE)
     expect_true(is_empty(list_blob_containers(bl)))
 })
 
