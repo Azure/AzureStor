@@ -158,6 +158,46 @@ test_that("Blob client interface works",
 })
 
 
+test_that("AAD authentication works",
+{
+    url <- stor$get_blob_endpoint()$url 
+    token <- AzureRMR::get_azure_token(url, tenant=tenant, app=app, password=password)
+    bl <- blob_endpoint(url, token=token)
+    cont <- create_blob_container(bl, "newcontainer4")
+
+    # upload and download
+    upload_blob(cont, "../resources/iris.csv")
+    tok_dl <- file.path(tempdir(), "iris_tok.csv")
+    suppressWarnings(file.remove(tok_dl))
+    download_blob(cont, "iris.csv", tok_dl)
+    expect_identical(readBin(orig_file, "raw", n=1e5), readBin(tok_dl, "raw", n=1e5))
+
+    # multiple upload and download
+    files <- lapply(1:10, function(f) paste0(sample(letters, 1000, replace=TRUE), collapse=""))
+    filenames <- sapply(1:10, function(n) file.path(tempdir(), sprintf("multitransfer_%d", n)))
+    suppressWarnings(file.remove(filenames))
+    mapply(writeLines, files, filenames)
+
+    multiupload_blob(cont, file.path(tempdir(), "multitransfer_*"))
+    expect_warning(multiupload_blob(cont, file.path(tempdir(), "multitransfer_*"), "newnames"))
+
+    dest_dir <- file.path(tempdir(), "blob_multitransfer")
+    suppressWarnings(unlink(dest_dir, recursive=TRUE))
+    dir.create(dest_dir)
+    multidownload_blob(cont, "multitransfer_*", dest_dir, overwrite=TRUE)
+
+    expect_true(all(sapply(filenames, function(f)
+    {
+        src <- readBin(f, "raw", n=1e5)
+        dest <- readBin(file.path(dest_dir, basename(f)), "raw", n=1e5)
+        identical(src, dest)
+    })))
+
+    delete_blob_container(cont)
+    expect_true(is_empty(list_blob_containers(bl)))
+})
+
+
 teardown(
 {
     bl <- stor$get_blob_endpoint()
