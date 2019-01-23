@@ -132,19 +132,3 @@ download_blob_internal <- function(container, src, dest, overwrite=FALSE, lease=
     }
     else stop("Unrecognised dest argument", call.=FALSE)
 }
-
-
-call_azcopy_upload <- function(...)
-{
-    if(.AzureStor$azcopy == "")
-        stop("azcopy version 10+ required but not found")
-    else stop("Not yet implemented")
-}
-
-
-call_azcopy_download <- function(...)
-{
-    if(.AzureStor$azcopy == "")
-        stop("azcopy version 10+ required but not found")
-    else stop("Not yet implemented")
-}
