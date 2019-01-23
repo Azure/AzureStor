@@ -87,6 +87,7 @@ test_that("Blob client interface works",
 
     # upload/download with SAS
     sas <- stor$get_account_sas(permissions="rw")
+    Sys.sleep(2)  # deal with synchronisation issues
     blsas <- blob_endpoint(stor$properties$primaryEndpoints$blob, sas=sas)
     contsas <- create_blob_container(blsas, "contsas")
     upload_blob(contsas, orig_file, "iris.csv")
@@ -132,12 +133,30 @@ test_that("Blob client interface works",
     mapply(writeLines, files, filenames)
 
     multiupload_blob(cont, file.path(tempdir(), "multitransfer_*"))
-    expect_warning(multiupload_blob(cont, file.path(tempdir(), "multitransfer_*"), "newnames"))
 
     dest_dir <- file.path(tempdir(), "blob_multitransfer")
     suppressWarnings(unlink(dest_dir, recursive=TRUE))
     dir.create(dest_dir)
     multidownload_blob(cont, "multitransfer_*", dest_dir, overwrite=TRUE)
+
+    expect_true(all(sapply(filenames, function(f)
+    {
+        src <- readBin(f, "raw", n=1e5)
+        dest <- readBin(file.path(dest_dir, basename(f)), "raw", n=1e5)
+        identical(src, dest)
+    })))
+
+    # multiple file transfer with directory names
+    files <- lapply(1:10, function(f) paste0(sample(letters, 1000, replace=TRUE), collapse=""))
+    filenames <- sapply(1:10, function(n) file.path(tempdir(), sprintf("multitransfer2_%d", n)))
+    suppressWarnings(file.remove(filenames))
+    mapply(writeLines, files, filenames)
+
+    multiupload_blob(cont, file.path(tempdir(), "multitransfer2_*"), "new/dir")
+    dest_dir <- file.path(tempdir(), "blob_multitransfer")
+    suppressWarnings(unlink(dest_dir, recursive=TRUE))
+    dir.create(dest_dir)
+    multidownload_blob(cont, "new/dir/multitransfer2_*", dest_dir, overwrite=TRUE)
 
     expect_true(all(sapply(filenames, function(f)
     {
@@ -180,7 +199,6 @@ test_that("AAD authentication works",
     mapply(writeLines, files, filenames)
 
     multiupload_blob(cont, file.path(tempdir(), "multitransfer_*"))
-    expect_warning(multiupload_blob(cont, file.path(tempdir(), "multitransfer_*"), "newnames"))
 
     dest_dir <- file.path(tempdir(), "blob_multitransfer")
     suppressWarnings(unlink(dest_dir, recursive=TRUE))

@@ -92,6 +92,7 @@ test_that("File client interface works",
 
     # upload/download with SAS
     sas <- stor$get_account_sas(permissions="rw")
+    Sys.sleep(2)  # deal with synchronisation issues
     flsas <- file_endpoint(stor$properties$primaryEndpoints$file, sas=sas)
     sharesas <- create_file_share(flsas, "sharesas")
     upload_azure_file(sharesas, orig_file, "iris.csv")

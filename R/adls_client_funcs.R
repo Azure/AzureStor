@@ -238,6 +238,7 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #' fs <- adls_filesystem("https://mystorage.dfs.core.windows.net/myfilesystem", key="access_key")
 #'
 #' list_adls_files(fs, "/")
+#' list_adls_files(fs, "/", recursive=TRUE)
 #'
 #' create_adls_dir(fs, "/newdir")
 #'
@@ -324,7 +325,7 @@ multiupload_adls_file <- function(filesystem, src, dest, blocksize=2^22, lease=N
                                    max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        call_azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease)
+        azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease)
     else multiupload_adls_file_internal(filesystem, src, dest, blocksize=blocksize, lease=lease,
                                         max_concurrent_transfers=max_concurrent_transfers)
 }
@@ -335,7 +336,7 @@ multiupload_adls_file <- function(filesystem, src, dest, blocksize=2^22, lease=N
 upload_adls_file <- function(filesystem, src, dest, blocksize=2^24, lease=NULL, use_azcopy=FALSE)
 {
     if(use_azcopy)
-        call_azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease)
+        azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease)
     else upload_adls_file_internal(filesystem, src, dest, blocksize=blocksize, lease=lease)
 }
 
@@ -347,7 +348,7 @@ multidownload_adls_file <- function(filesystem, src, dest, overwrite=FALSE,
                                     max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        call_azcopy_upload(filesystem, src, dest, overwrite=overwrite)
+        azcopy_upload(filesystem, src, dest, overwrite=overwrite)
     else multidownload_adls_file_internal(filesystem, src, dest, overwrite=overwrite,
                                           max_concurrent_transfers=max_concurrent_transfers)
 }
@@ -358,7 +359,7 @@ multidownload_adls_file <- function(filesystem, src, dest, overwrite=FALSE,
 download_adls_file <- function(filesystem, src, dest, overwrite=FALSE, use_azcopy=FALSE)
 {
     if(use_azcopy)
-        call_azcopy_download(filesystem, src, dest, overwrite=overwrite)
+        azcopy_download(filesystem, src, dest, overwrite=overwrite)
     else download_adls_file_internal(filesystem, src, dest, overwrite=overwrite)
 }
 

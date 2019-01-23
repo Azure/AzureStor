@@ -73,6 +73,7 @@ The file transfer functions also support working with connections to allow trans
 share <- file_share("https://mystorage.file.core.windows.net/myshare", key="access_key")
 
 list_azure_files(share, "/")
+list_azure_files(share, "/", recursive=TRUE)
 
 create_azure_dir(share, "/newdir")
 

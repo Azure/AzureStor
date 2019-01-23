@@ -225,6 +225,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' share <- file_share("https://mystorage.file.core.windows.net/myshare", key="access_key")
 #'
 #' list_azure_files(share, "/")
+#' list_azure_files(share, "/", recursive=TRUE)
 #'
 #' create_azure_dir(share, "/newdir")
 #'
@@ -287,7 +288,7 @@ list_azure_files <- function(share, dir, info=c("all", "name"),
 upload_azure_file <- function(share, src, dest, blocksize=2^22, use_azcopy=FALSE)
 {
     if(use_azcopy)
-        call_azcopy_upload(share, src, dest, blocksize=blocksize)
+        azcopy_upload(share, src, dest, blocksize=blocksize)
     else upload_azure_file_internal(share, src, dest, blocksize=blocksize)
 }
 
@@ -298,7 +299,7 @@ multiupload_azure_file <- function(share, src, dest, blocksize=2^22,
                                    max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        call_azcopy_upload(share, src, dest, blocksize=blocksize)
+        azcopy_upload(share, src, dest, blocksize=blocksize)
     else multiupload_azure_file_internal(share, src, dest, blocksize=blocksize,
                                          max_concurrent_transfers=max_concurrent_transfers)
 }
@@ -308,7 +309,7 @@ multiupload_azure_file <- function(share, src, dest, blocksize=2^22,
 download_azure_file <- function(share, src, dest, overwrite=FALSE, use_azcopy=FALSE)
 {
     if(use_azcopy)
-        call_azcopy_download(share, src, dest, overwrite=overwrite)
+        azcopy_download(share, src, dest, overwrite=overwrite)
     else download_azure_file_internal(share, src, dest, overwrite=overwrite)
 }
 
@@ -319,7 +320,7 @@ multidownload_azure_file <- function(share, src, dest, overwrite=FALSE,
                                      max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        call_azcopy_download(share, src, dest, overwrite=overwrite)
+        azcopy_download(share, src, dest, overwrite=overwrite)
     else multidownload_azure_file_internal(share, src, dest, overwrite=overwrite,
                                            max_concurrent_transfers=max_concurrent_transfers)
 }

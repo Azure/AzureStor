@@ -334,7 +334,7 @@ upload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, 
                         use_azcopy=FALSE)
 {
     if(use_azcopy)
-        call_azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease)
+        azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease)
     else upload_blob_internal(container, src, dest, type=type, blocksize=blocksize, lease=lease)
 }
 
@@ -345,7 +345,7 @@ multiupload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2
                              max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        call_azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease)
+        azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease)
     else multiupload_blob_internal(container, src, dest, type=type, blocksize=blocksize, lease=lease,
                                    max_concurrent_transfers=max_concurrent_transfers)
 }
@@ -355,7 +355,7 @@ multiupload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2
 download_blob <- function(container, src, dest, overwrite=FALSE, lease=NULL, use_azcopy=FALSE)
 {
     if(use_azcopy)
-        call_azcopy_download(container, src, dest, overwrite=overwrite, lease=lease)
+        azcopy_download(container, src, dest, overwrite=overwrite, lease=lease)
     else download_blob_internal(container, src, dest, overwrite=overwrite, lease=lease)
 }
 
@@ -366,7 +366,7 @@ multidownload_blob <- function(container, src, dest, overwrite=FALSE, lease=NULL
                                max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        call_azcopy_download(container, src, dest, overwrite=overwrite, lease=lease)
+        azcopy_download(container, src, dest, overwrite=overwrite, lease=lease)
     else multidownload_blob_internal(container, src, dest, overwrite=overwrite, lease=lease,
                                      max_concurrent_transfers=max_concurrent_transfers)
 }

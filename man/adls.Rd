@@ -76,6 +76,7 @@ The file transfer functions also support working with connections to allow trans
 fs <- adls_filesystem("https://mystorage.dfs.core.windows.net/myfilesystem", key="access_key")
 
 list_adls_files(fs, "/")
+list_adls_files(fs, "/", recursive=TRUE)
 
 create_adls_dir(fs, "/newdir")
 

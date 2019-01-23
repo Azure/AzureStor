@@ -35,13 +35,13 @@ set_azcopy_path <- function(path="azcopy")
 }
 
 
-azcopy_upload <- function(...)
+azcopy_upload <- function(container, src, dest, ...)
 {
     call_azcopy(...)
 }
 
 
-azcopy_download <- function(...)
+azcopy_download <- function(container, src, dest, ...)
 {
     call_azcopy(...)
 }
