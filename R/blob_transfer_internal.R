@@ -10,17 +10,20 @@ multiupload_blob_internal <- function(container, src, dest, type="BlockBlob", bl
     if(length(src) == 1)
         return(upload_blob(container, src, dest, type=type, blocksize=blocksize, lease=lease))
 
-    if(!missing(dest))
-        warning("Internal multiupload_blob implementation does not use the 'dest' argument")
+    if(missing(dest))
+        dest <- "/"
 
     init_pool(max_concurrent_transfers)
 
     parallel::clusterExport(.AzureStor$pool,
-        c("container", "type", "blocksize", "lease"),
+        c("container", "dest", "type", "blocksize", "lease"),
         envir=environment())
     parallel::parLapply(.AzureStor$pool, src, function(f)
     {
-        AzureStor::upload_blob(container, f, basename(f), type=type, blocksize=blocksize, lease=lease)
+        dest <- if(dest == "/")
+            basename(f)
+        else file.path(dest, basename(f))
+        AzureStor::upload_blob(container, f, dest, type=type, blocksize=blocksize, lease=lease)
     })
     invisible(NULL)
 }
@@ -84,7 +87,7 @@ multidownload_blob_internal <- function(container, src, dest, overwrite=FALSE, l
 {
     files <- list_blobs(container, info="name")
 
-    src_files <- glob2rx(basename(src))
+    src_files <- glob2rx(sub("^/", "", src)) # strip leading slash if present, not meaningful
     src <- grep(src_files, files, value=TRUE)
 
     if(length(src) == 0)

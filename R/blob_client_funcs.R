@@ -238,7 +238,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @details
 #' `upload_blob` and `download_blob` are the workhorse file transfer functions for blobs. They each take as inputs a _single_ filename or connection as the source for uploading/downloading, and a single filename as the destination.
 #'
-#' `multiupload_blob` and `multidownload_blob` are functions for uploading and downloading _multiple_ blobs at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. They take as input a wildcard pattern as the source, which expands to one or more files. The `dest` argument should be a directory for downloading, and is not used for uploading.
+#' `multiupload_blob` and `multidownload_blob` are functions for uploading and downloading _multiple_ blobs at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. They take as input a wildcard pattern as the source, which expands to one or more files. The `dest` argument should be a directory.
 #'
 #' The file transfer functions also support working with connections to allow transferring R objects without creating temporary files. For uploading, `src` can be a [textConnection] or [rawConnection] object. For downloading, `dest` can be NULL or a `rawConnection` object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
 #'
@@ -263,7 +263,8 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' delete_blob(cont, "bigfile.zip")
 #'
 #' # uploading/downloading multiple files at once
-#' multiupload_blob(cont, "/data/logfiles/*.zip")
+#' multiupload_blob(cont, "/data/logfiles/*.zip", "/uploaded_data")
+#' multiupload_blob(cont, "myproj/*")  # no dest directory uploads to root
 #' multidownload_blob(cont, "jan*.*", "/data/january")
 #'
 #' # uploading serialized R objects via connections
