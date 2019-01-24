@@ -1,3 +1,6 @@
+# azcopy unset/NULL -> not initialized
+# azcopy = NA -> binary not found, or version < 10 (not usable)
+# azcopy = path -> usable
 get_azcopy_path <- function()
 {
     if(exists("azcopy", envir=.AzureStor))
@@ -17,13 +20,15 @@ get_azcopy_path <- function()
 set_azcopy_path <- function(path="azcopy")
 {
     path <- Sys.which(path)
-    if(path == "")
+    if(is.na(path) || path == "")
     {
         .AzureStor$azcopy <- NA
         return(NULL)
     }
 
-    ver <- system2(path, "--version", stdout=TRUE)
+    # both stdout=TRUE and stderr=TRUE could result in jumbled output;
+    # assume only one stream will actually have data for a given invocation
+    ver <- suppressWarnings(system2(path, "--version", stdout=TRUE, stderr=TRUE))
     if(!grepl("version 1[[:digit:]]", ver, ignore.case=TRUE))
     {
         .AzureStor$azcopy <- NA
