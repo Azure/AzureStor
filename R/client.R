@@ -169,7 +169,7 @@ print.adls_endpoint <- function(x, ...)
 #' Generic upload and download
 #'
 #' @param src,dest The source and destination files/URLs. Paths are allowed.
-#' @param key,token,sas Authentication arguments: an access key or a shared access signature (SAS). If a key is is provided, the SAS is not used. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.
+#' @param key,token,sas Authentication arguments: an access key, Azure Active Directory (AAD) token or a shared access signature (SAS). If multiple arguments are supplied, a key takes priority over a token, which takes priority over a SAS.
 #' @param ... Further arguments to pass to lower-level functions.
 #' @param overwrite For downloading, whether to overwrite any destination files that exist.
 #'
@@ -185,14 +185,14 @@ print.adls_endpoint <- function(x, ...)
 #' \dontrun{
 #'
 #' # authenticated download with an access key
-#' download_from_url("https://mystorage.blob.core.windows.net/mycontainer/bigfile.zip",
-#'                   "~/bigfile.zip",
-#'                   key="access_key")
+#' download_from_azure("https://mystorage.blob.core.windows.net/mycontainer/bigfile.zip",
+#'                     "~/bigfile.zip",
+#'                     key="access_key")
 #'
 #' }
 #' @rdname file_transfer
 #' @export
-download_from_url <- function(src, dest, key=NULL, token=NULL, sas=NULL, ..., overwrite=FALSE)
+download_from_azure <- function(src, dest, key=NULL, token=NULL, sas=NULL, ..., overwrite=FALSE)
 {
     az_path <- parse_storage_url(src)
     if(is.null(sas))
@@ -220,7 +220,7 @@ download_from_url <- function(src, dest, key=NULL, token=NULL, sas=NULL, ..., ov
 
 #' @rdname file_transfer
 #' @export
-upload_to_url <- function(src, dest, key=NULL, token=token, sas=NULL, ...)
+upload_to_azure <- function(src, dest, key=NULL, token=token, sas=NULL, ...)
 {
     az_path <- parse_storage_url(dest)
     if(is.null(sas))

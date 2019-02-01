@@ -59,7 +59,7 @@ test_that("ADLSgen2 client interface works",
     # download from url
     suppressWarnings(file.remove(new_file))
     url <- file.path(ad$url, fs$name, "iris.csv")
-    download_from_url(url, new_file, key=ad$key)
+    download_from_azure(url, new_file, key=ad$key)
 
     # directory manipulation
     create_adls_dir(fs, "dir1")
