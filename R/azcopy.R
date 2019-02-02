@@ -107,33 +107,45 @@ azcopy_download <- function(container, src, dest, ...)
 }
 
 
-check_azcopy_auth <- function(container, key, token, sas)
+check_azcopy_auth <- function(container)
+{
+    UseMethod("check_azcopy_auth")
+}
+
+check_azcopy_auth.blob_container <- function(container)
 {
     endpoint <- container$endpoint
 
-    if(inherits(container, "blob_container"))
-    {
-        if(!is.null(endpoint$token))
-            return(structure(0, method="token"))
-        if(!is.null(endpoint$sas))
-            return(structure(endpoint$sas, method="sas"))
-        warning("No supported authentication method found for blob; defaulting to public", call.=FALSE)
-        return(structure(0, method="public"))
-    }
-
-    if(inherits(container, "file_share") && !is.null(endpoint$sas))
+    if(!is.null(endpoint$token))
+        return(structure(0, method="token"))
+    if(!is.null(endpoint$sas))
         return(structure(endpoint$sas, method="sas"))
 
-    if(inherits(container, "adls_filesystem"))
-    {
-        if(!is.null(endpoint$key))
-        {
-            warning("Authenticating with a shared key is discouraged")
-            return(structure(endpoint$key, method="key"))
-        }
-        if(!is.null(endpoint$token))
-            return(structure(0, method="token"))
-    }
+    warning("No supported authentication method found for blob storage; defaulting to public", call.=FALSE)
+    return(structure(0, method="public"))
+}
 
-    stop("No supported authentication method", call.=FALSE)
+check_azcopy_auth.file_share <- function(container)
+{
+    if(!is.null(endpoint$sas))
+        return(structure(endpoint$sas, method="sas"))
+    stop("No supported authentication method found for file storage", call.=FALSE)
+}
+
+check_azcopy_auth.adls_filesystem <- function(container)
+{
+    if(!is.null(endpoint$key))
+    {
+        warning("Authenticating with a shared key is discouraged")
+        return(structure(endpoint$key, method="key"))
+    }
+    if(!is.null(endpoint$token))
+        return(structure(0, method="token"))
+
+    stop("No supported authentication method found for ADLSgen2", call.=FALSE)
+}
+
+check_azcopy_auth.default <- function(container)
+{
+    stop("Unknown or unsupported container type: ", class(container)[1], call.=FALSE)
 }
