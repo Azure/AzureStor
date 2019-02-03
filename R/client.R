@@ -254,3 +254,23 @@ find_sas <- function(url)
     else substr(url, querymark + 1, nchar(url))
 }
 
+
+## deprecate old functions
+
+#' @rdname file_transfer
+#' @export
+download_from_url <- function(src, dest, key=NULL, token=NULL, sas=NULL, ..., overwrite=FALSE)
+{
+    .Deprecated("download_from_azure")
+    download_from_azure(src, dest, key=key, token=token, sas=sas, ..., overwrite=overwrite)
+}
+
+
+#' @rdname file_transfer
+#' @export
+upload_to_url <- function(src, dest, key=NULL, token=NULL, sas=NULL, ...)
+{
+    .Deprecated("upload_to_azure")
+    upload_to_azure(src, dest, key=key, token=token, sas=sas, ...)
+}
+
