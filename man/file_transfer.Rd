@@ -3,6 +3,8 @@
 \name{download_from_azure}
 \alias{download_from_azure}
 \alias{upload_to_azure}
+\alias{download_from_url}
+\alias{upload_to_url}
 \title{Generic upload and download}
 \usage{
 download_from_azure(src, dest, key = NULL, token = NULL, sas = NULL,
@@ -10,6 +12,11 @@ download_from_azure(src, dest, key = NULL, token = NULL, sas = NULL,
 
 upload_to_azure(src, dest, key = NULL, token = token, sas = NULL,
   ...)
+
+download_from_url(src, dest, key = NULL, token = NULL, sas = NULL,
+  ..., overwrite = FALSE)
+
+upload_to_url(src, dest, key = NULL, token = NULL, sas = NULL, ...)
 }
 \arguments{
 \item{src, dest}{The source and destination files/URLs. Paths are allowed.}
