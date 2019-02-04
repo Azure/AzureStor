@@ -71,6 +71,33 @@ set_azcopy_path <- function(path="azcopy")
 
 azcopy_upload <- function(container, src, dest, ...)
 {
+    UseMethod("azcopy_upload")
+}
+
+
+azcopy_upload.blob_container <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL, ...)
+{
+    opts <- paste("--blobType", type, "--block-size", sprintf("%.0f", blocksize))
+    azcopy_upload_internal(src, dest, opts)
+}
+
+
+azcopy_upload.file_share <- function(container, src, dest, blocksize=2^24, ...)
+{
+    opts <- sprintf("--block-size %.0f", blocksize)
+    azcopy_upload_internal(container, src, dest, opts)
+}
+
+
+azcopy_upload.adls_filesystem <- function(container, src, dest, blocksize=2^24, lease=NULL, ...)
+{
+    opts <- sprintf("--block-size %.0f", blocksize)
+    azcopy_upload_internal(container, src, dest, opts)
+}
+
+
+azcopy_upload_internal <- function(container, src, dest, opts)
+{
     auth <- check_azcopy_auth(container)
 
     if(attr(auth, "method") == "key")
@@ -84,11 +111,38 @@ azcopy_upload <- function(container, src, dest, ...)
     else if(attr(auth, method) == "sas")
         dest <- paste0(dest, "?", auth)
 
-    call_azcopy("copy", src, dest, ...)
+    call_azcopy("copy", src, dest, opts)
 }
 
 
 azcopy_download <- function(container, src, dest, ...)
+{
+    UseMethod("azcopy_download")
+}
+
+# currently all azcopy_download methods are the same
+azcopy_download.blob_container <- function(container, src, dest, overwrite=FALSE, ...)
+{
+    opts <- paste("--overwrite", tolower(as.character(overwrite)))
+    acopy_download_internal(container, src, dest, opts)
+}
+
+
+azcopy_download.file_share  <- function(container, src, dest, overwrite=FALSE, ...)
+{
+    opts <- paste("--overwrite", tolower(as.character(overwrite)))
+    acopy_download_internal(container, src, dest, opts)
+}
+
+
+azcopy_download.adls_filesystem <- function(container, src, dest, overwrite=FALSE, ...)
+{
+    opts <- paste("--overwrite", tolower(as.character(overwrite)))
+    acopy_download_internal(container, src, dest, opts)
+}
+
+
+azcopy_download_internal <- function(container, src, dest, opts)
 {
     auth <- check_azcopy_auth(container)
 
@@ -103,7 +157,7 @@ azcopy_download <- function(container, src, dest, ...)
     else if(attr(auth, method) == "sas")
         src <- paste0(src, "?", auth)
 
-    call_azcopy("copy", src, dest, ...)
+    call_azcopy("copy", src, dest, opts)
 }
 
 
