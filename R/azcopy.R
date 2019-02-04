@@ -74,13 +74,11 @@ azcopy_upload <- function(container, src, dest, ...)
     UseMethod("azcopy_upload")
 }
 
-
 azcopy_upload.blob_container <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL, ...)
 {
     opts <- paste("--blobType", type, "--block-size", sprintf("%.0f", blocksize))
     azcopy_upload_internal(src, dest, opts)
 }
-
 
 azcopy_upload.file_share <- function(container, src, dest, blocksize=2^24, ...)
 {
@@ -88,13 +86,11 @@ azcopy_upload.file_share <- function(container, src, dest, blocksize=2^24, ...)
     azcopy_upload_internal(container, src, dest, opts)
 }
 
-
 azcopy_upload.adls_filesystem <- function(container, src, dest, blocksize=2^24, lease=NULL, ...)
 {
     opts <- sprintf("--block-size %.0f", blocksize)
     azcopy_upload_internal(container, src, dest, opts)
 }
-
 
 azcopy_upload_internal <- function(container, src, dest, opts)
 {
@@ -108,7 +104,7 @@ azcopy_upload_internal <- function(container, src, dest, opts)
     }
     else if(attr(auth, "method") == "token")
         azcopy_login()
-    else if(attr(auth, method) == "sas")
+    else if(attr(auth, "method") == "sas")
         dest <- paste0(dest, "?", auth)
 
     call_azcopy("copy", src, dest, opts)
@@ -127,20 +123,17 @@ azcopy_download.blob_container <- function(container, src, dest, overwrite=FALSE
     azcopy_download_internal(container, src, dest, opts)
 }
 
-
 azcopy_download.file_share  <- function(container, src, dest, overwrite=FALSE, ...)
 {
     opts <- paste("--overwrite", tolower(as.character(overwrite)))
     azcopy_download_internal(container, src, dest, opts)
 }
 
-
 azcopy_download.adls_filesystem <- function(container, src, dest, overwrite=FALSE, ...)
 {
     opts <- paste("--overwrite", tolower(as.character(overwrite)))
     azcopy_download_internal(container, src, dest, opts)
 }
-
 
 azcopy_download_internal <- function(container, src, dest, opts)
 {
@@ -154,7 +147,7 @@ azcopy_download_internal <- function(container, src, dest, opts)
     }
     else if(attr(auth, "method") == "token")
         azcopy_login()
-    else if(attr(auth, method) == "sas")
+    else if(attr(auth, "method") == "sas")
         src <- paste0(src, "?", auth)
 
     call_azcopy("copy", src, dest, opts)
@@ -181,6 +174,8 @@ check_azcopy_auth.blob_container <- function(container)
 
 check_azcopy_auth.file_share <- function(container)
 {
+    endpoint <- container$endpoint
+
     if(!is.null(endpoint$sas))
         return(structure(endpoint$sas, method="sas"))
     stop("No supported authentication method found for file storage", call.=FALSE)
@@ -188,6 +183,8 @@ check_azcopy_auth.file_share <- function(container)
 
 check_azcopy_auth.adls_filesystem <- function(container)
 {
+    endpoint <- container$endpoint
+
     if(!is.null(endpoint$key))
     {
         warning("Authenticating with a shared key is discouraged")
