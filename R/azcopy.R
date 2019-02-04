@@ -124,21 +124,21 @@ azcopy_download <- function(container, src, dest, ...)
 azcopy_download.blob_container <- function(container, src, dest, overwrite=FALSE, ...)
 {
     opts <- paste("--overwrite", tolower(as.character(overwrite)))
-    acopy_download_internal(container, src, dest, opts)
+    azcopy_download_internal(container, src, dest, opts)
 }
 
 
 azcopy_download.file_share  <- function(container, src, dest, overwrite=FALSE, ...)
 {
     opts <- paste("--overwrite", tolower(as.character(overwrite)))
-    acopy_download_internal(container, src, dest, opts)
+    azcopy_download_internal(container, src, dest, opts)
 }
 
 
 azcopy_download.adls_filesystem <- function(container, src, dest, overwrite=FALSE, ...)
 {
     opts <- paste("--overwrite", tolower(as.character(overwrite)))
-    acopy_download_internal(container, src, dest, opts)
+    azcopy_download_internal(container, src, dest, opts)
 }
 
 
