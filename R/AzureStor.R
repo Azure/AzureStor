@@ -14,8 +14,6 @@ globalVariables(c("self", "pool"), "AzureStor")
     options(azure_storage_api_version=api)
     options(azure_adls_api_version=adls_api)
 
-    # .AzureStor$azcopy <- find_azcopy()
-
     # all methods extending classes in external package must be run from .onLoad
     add_methods()
 }
