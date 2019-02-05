@@ -44,7 +44,7 @@ delete_azure_dir(share, dir, confirm = TRUE)
 
 \item{blocksize}{The number of bytes to upload per HTTP(S) request.}
 
-\item{use_azcopy}{Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R. Not yet implemented.}
+\item{use_azcopy}{Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.}
 
 \item{max_concurrent_transfers}{For \code{multiupload_azure_file} and \code{multidownload_azure_file}, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.}
 

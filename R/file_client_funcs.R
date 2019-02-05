@@ -198,7 +198,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' @param confirm Whether to ask for confirmation on deleting a file or directory.
 #' @param blocksize The number of bytes to upload per HTTP(S) request.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
-#' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R. Not yet implemented.
+#' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_azure_file` and `multidownload_azure_file`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
 #' @param prefix For `list_azure_files`, filters the result to return only files and directories whose name begins with this prefix.
 #'

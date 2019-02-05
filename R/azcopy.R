@@ -1,14 +1,28 @@
 #' Call the azcopy file transfer utility
 #'
-#' @param ... Arguments to pass to azcopy. If no arguments are supplied, azcopy will print a help screen.
-#' @param force For `azcopy_login`, whether to force azcopy to relogin.
+#' @param ... Arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.
+#' @param force For `azcopy_login`, whether to force AzCopy to relogin. If `FALSE` (the default), and AzureStor has detected that AzCopy has already logged in, this has no effect.
 #'
+#' @details
+#' AzureStor has the ability to use the Microsoft AzCopy commandline utility to transfer files. To enable this, set the argument `use_azcopy=TRUE` in any call to an upload or download function; AzureStor will then call AzCopy to perform the file transfer rather than relying on its own code. You can also call AzCopy directly with the `call_azcopy` function, passing it any arguments as required.
+#'
+#' AzureStor requires version 10 or later of AzCopy, which is a substantial rewrite and is currently (as of February 2019) in beta. The first time you try to run it, AzureStor will check that the version of AzCopy is correct, and throw an error if it is version 8 or earlier.
+#'
+#' The AzCopy utility must be in your path for AzureStor to find it. Note that unlike earlier versions, Azcopy 10 is a single, self-contained binary file that can be placed in any directory.
+#'
+#' AzCopy uses its own mechanisms for authenticating with Azure Active Directory, which is independent of the OAuth tokens used by AzureStor. AzureStor will try to ensure that AzCopy has previously authenticated before trying to transfer a file with a token, but this may not always succeed. You can run `azcopy_login(force=TRUE)` to force it to authenticate.
+#'
+#' @seealso
+#' [AzCopy page on Microsoft Docs](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10)
+#'
+#' [AzCopy GitHub repo](https://github.com/Azure/azure-storage-azcopy)
 #' @rdname azcopy
 #' @export
 call_azcopy <- function(...)
 {
     azcopy <- get_azcopy_path()
-    args <- sapply(list(...), as.character)
+    args <- paste(sapply(list(...), as.character), collapse=" ")
+    cat("Command: azcopy", args, "\n")
     system2(azcopy, args)
 }
 
@@ -107,7 +121,11 @@ azcopy_upload_internal <- function(container, src, dest, opts)
     else if(attr(auth, "method") == "sas")
         dest <- paste0(dest, "?", auth)
 
-    call_azcopy("copy", src, dest, opts)
+    dest_uri <- httr::parse_url(container$endpoint$url)
+    dest_uri$path <- gsub("//", "/", file.path(container$name, dest))
+    dest <- httr::build_url(dest_uri)
+
+    call_azcopy("copy", shQuote(src), shQuote(dest), opts)
 }
 
 
@@ -119,19 +137,19 @@ azcopy_download <- function(container, src, dest, ...)
 # currently all azcopy_download methods are the same
 azcopy_download.blob_container <- function(container, src, dest, overwrite=FALSE, ...)
 {
-    opts <- paste("--overwrite", tolower(as.character(overwrite)))
+    opts <- paste0("--overwrite=", tolower(as.character(overwrite)))
     azcopy_download_internal(container, src, dest, opts)
 }
 
 azcopy_download.file_share  <- function(container, src, dest, overwrite=FALSE, ...)
 {
-    opts <- paste("--overwrite", tolower(as.character(overwrite)))
+    opts <- paste0("--overwrite=", tolower(as.character(overwrite)))
     azcopy_download_internal(container, src, dest, opts)
 }
 
 azcopy_download.adls_filesystem <- function(container, src, dest, overwrite=FALSE, ...)
 {
-    opts <- paste("--overwrite", tolower(as.character(overwrite)))
+    opts <- paste0("--overwrite=", tolower(as.character(overwrite)))
     azcopy_download_internal(container, src, dest, opts)
 }
 
@@ -150,7 +168,11 @@ azcopy_download_internal <- function(container, src, dest, opts)
     else if(attr(auth, "method") == "sas")
         src <- paste0(src, "?", auth)
 
-    call_azcopy("copy", src, dest, opts)
+    src_uri <- httr::parse_url(container$endpoint$url)
+    src_uri$path <- gsub("//", "/", file.path(container$name, src))
+    src <- httr::build_url(src_uri)
+
+    call_azcopy("copy", shQuote(src), shQuote(dest), opts)
 }
 
 
@@ -186,10 +208,7 @@ check_azcopy_auth.adls_filesystem <- function(container)
     endpoint <- container$endpoint
 
     if(!is.null(endpoint$key))
-    {
-        warning("Authenticating with a shared key is discouraged")
         return(structure(endpoint$key, method="key"))
-    }
     if(!is.null(endpoint$token))
         return(structure(0, method="token"))
 

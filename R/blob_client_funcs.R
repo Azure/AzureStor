@@ -231,7 +231,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param lease The lease for a blob, if present.
 #' @param type When uploading, the type of blob to create. Currently only block blobs are supported.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
-#' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R. Not yet implemented.
+#' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_blob` and `multidownload_blob`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
 #' @param prefix For `list_blobs`, filters the result to return only blobs whose name begins with this prefix.
 #'
