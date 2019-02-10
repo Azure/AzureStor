@@ -120,5 +120,5 @@ blob_container("https://mystorage.blob.core.windows.net/mycontainer", token=toke
 }
 }
 \seealso{
-\link{storage_endpoint}, \link{az_storage}
+\link{storage_endpoint}, \link{az_storage}, \link{storage_container}
 }

@@ -108,5 +108,5 @@ delete_adls_filesystem("https://mystorage.dfs.core.windows.net/newfs", key="acce
 }
 }
 \seealso{
-\link{storage_endpoint}, \link{az_storage}
+\link{storage_endpoint}, \link{az_storage}, \link{storage_container}
 }

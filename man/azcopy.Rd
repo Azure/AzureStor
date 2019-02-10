@@ -2,6 +2,7 @@
 % Please edit documentation in R/azcopy.R
 \name{call_azcopy}
 \alias{call_azcopy}
+\alias{azcopy}
 \alias{azcopy_login}
 \title{Call the azcopy file transfer utility}
 \usage{

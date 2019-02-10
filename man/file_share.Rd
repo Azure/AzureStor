@@ -100,5 +100,5 @@ delete_file_share("https://mystorage.file.core.windows.net/newshare", key="acces
 }
 }
 \seealso{
-\link{storage_endpoint}, \link{az_storage}
+\link{storage_endpoint}, \link{az_storage}, \link{storage_container}
 }

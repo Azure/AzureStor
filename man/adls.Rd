@@ -110,5 +110,5 @@ unserialize(con)
 }
 }
 \seealso{
-\link{adls_filesystem}, \link{az_storage}
+\link{adls_filesystem}, \link{az_storage}, \link{storage_download}, \link{call_azcopy}
 }

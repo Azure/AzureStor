@@ -66,7 +66,7 @@ add_token <- function(token, headers, api)
     if(is.null(headers$`x-ms-version`))
         headers$`x-ms-version` <- api
 
-    if(inherits(token, "R6") && inherits(token, "AzureToken"))
+    if(AzureRMR::is_azure_token(token) || inherits(token, "Token2.0"))
     {
         # if token has expired, renew it
         if(!token$validate())
@@ -163,13 +163,6 @@ storage_error_message <- function(response, for_httr=TRUE)
         paste0("complete Storage Services operation. Message:\n", sub("\\.$", "", msg))
     else msg
 }
-
-
-# # keep only the scheme and host parts of a URL
-# get_hostroot <- function(url)
-# {
-#     parse_storage_url(url)[1]
-# }
 
 
 parse_storage_url <- function(url)

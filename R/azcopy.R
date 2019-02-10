@@ -16,6 +16,7 @@
 #' [AzCopy page on Microsoft Docs](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10)
 #'
 #' [AzCopy GitHub repo](https://github.com/Azure/azure-storage-azcopy)
+#' @aliases azcopy
 #' @rdname azcopy
 #' @export
 call_azcopy <- function(...)

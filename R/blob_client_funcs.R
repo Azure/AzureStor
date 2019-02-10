@@ -24,7 +24,8 @@
 #'
 #' For `list_blob_containers`, a list of such objects.
 #'
-#' @seealso [storage_endpoint], [az_storage]
+#' @seealso
+#' [storage_endpoint], [az_storage], [storage_container]
 #'
 #' @examples
 #' \dontrun{
@@ -73,7 +74,7 @@ blob_container.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
 blob_container.blob_endpoint <- function(endpoint, name, ...)
 {
     obj <- list(name=name, endpoint=endpoint)
-    class(obj) <- "blob_container"
+    class(obj) <- c("blob_container", "storage_container")
     obj
 }
 
@@ -246,7 +247,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' For `list_blobs`, details on the blobs in the container. For `download_blob`, if `dest=NULL`, the contents of the downloaded blob as a raw vector.
 #'
 #' @seealso
-#' [blob_container], [az_storage]
+#' [blob_container], [az_storage], [storage_download], [call_azcopy]
 #'
 #' [AzCopy version 10 on GitHub](https://github.com/Azure/azure-storage-azcopy)
 #'

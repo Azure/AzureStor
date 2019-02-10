@@ -107,7 +107,7 @@ unserialize(con)
 }
 }
 \seealso{
-\link{file_share}, \link{az_storage}
+\link{file_share}, \link{az_storage}, \link{storage_download}, \link{call_azcopy}
 
 \href{https://github.com/Azure/azure-storage-azcopy}{AzCopy version 10 on GitHub}
 }

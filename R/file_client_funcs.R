@@ -18,7 +18,8 @@
 #'
 #' For `list_file_shares`, a list of such objects.
 #'
-#' @seealso [storage_endpoint], [az_storage]
+#' @seealso
+#' [storage_endpoint], [az_storage], [storage_container]
 #'
 #' @examples
 #' \dontrun{
@@ -60,7 +61,7 @@ file_share.character <- function(endpoint, key=NULL, sas=NULL,
 file_share.file_endpoint <- function(endpoint, name, ...)
 {
     obj <- list(name=name, endpoint=endpoint)
-    class(obj) <- "file_share"
+    class(obj) <- c("file_share", "storage_container")
     obj
 }
 
@@ -215,7 +216,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' For `download_azure_file`, if `dest=NULL`, the contents of the downloaded file as a raw vector.
 #'
 #' @seealso
-#' [file_share], [az_storage]
+#' [file_share], [az_storage], [storage_download], [call_azcopy]
 #'
 #' [AzCopy version 10 on GitHub](https://github.com/Azure/azure-storage-azcopy)
 #'
