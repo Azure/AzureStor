@@ -1,0 +1,109 @@
+---
+title: "AzureStor 2.0 client generics and methods"
+author: Hong Ooi
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{AzureStor generics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{utf8}
+---
+
+AzureStor 1.0 defined several functions for working with storage, which were specific to each storage type: blob, file or ADLSgen2. AzureStor 2.0 organises these functions into a consistent framework, using S3 generics and methods.
+
+The client framework for AzureStor 2.0 is described here. While the original interface is still supported, it's recommended that you use the new framework as it protects against specifying the wrong function for a given storage type.
+
+
+## Storage endpoints and containers
+
+The `storage_endpoint` creates a storage endpoint object based on the URL specified. The `blob_endpoint`, `file_endpoint` and `adls_endpoint` functions do the same thing, but require that the URL and the function match.
+
+```r
+# generic endpoint function: storage type inferred from URL
+storage_endpoint("https://mystorage.blob.core.windows.net/", ...)  # blob endpoint
+storage_endpoint("https://mystorage.file.core.windows.net/", ...)  # file endpoint
+storage_endpoint("https://mystorage.dfs.core.windows.net/", ...)   # ADLSgen2 endpoint
+
+# storage-type-specific functions
+blob_endpoint("https://mystorage.blob.core.windows.net/", ...)     # blob endpoint
+file_endpoint("https://mystorage.file.core.windows.net/", ...)     # file endpoint
+adls_endpoint("https://mystorage.dfs.core.windows.net/", ...)      # ADLSgen2 endpoint
+
+# error: using the wrong function for a given storage type
+# this is not possible with the new framework
+file_endpoint("https://mystorage.blob.core.windows.net/")
+```
+
+The following generics are for managing storage containers, given a storage endpoint of a given type (blob, file or ADLSgen2):
+
+- `storage_container`: get a storage container
+- `create_storage_container`
+- `delete_storage_container`
+- `list_storage_containers`
+
+In turn these dispatch to the following lower-level functions for each type of storage:
+
+| Generic | Blob | File | ADLS2 |
+| ------- | ---- | ---- | ----- |
+| `storage_container` | `blob_container` | `file_share` | `adls_filesystem` |
+| `create_storage_container` | `create_blob_container` | `create_file_share` | `create_adls_filesystem` |
+| `delete_storage_container` | `delete_blob_container` | `delete_file_share` | `delete_adls_filesystem` |
+| `list_storage_containers` | `list_blob_containers` | `list_file_shares` | `list_adls_filesystems` |
+
+```r
+# example of working with containers (blob storage)
+bl_endp_key <- storage_endpoint("https://mystorage.blob.core.windows.net/", key="mykey")
+list_storage_containers(bl_endp_key)
+cont <- storage_container(bl_endp, "mycontainer")
+newcont <- create_storage_container(bl_endp, "newcontainer")
+delete_storage_container(newcont)
+
+# you can also call the lower-level functions directly if desired
+bl_endp_key <- blob_endpoint("https://mystorage.blob.core.windows.net/", key="mykey")
+list_blob_containers(bl_endp_key)
+cont <- blob_container(bl_endp, "mycontainer")
+newcont <- create_blob_container(bl_endp, "newcontainer")
+delete_blob_container(newcont)
+
+# error: using the wrong function for a given storage type
+# this is not possible with the new framework
+list_file_shares(bl_endp_key)
+```
+
+
+## Files and blobs
+
+The following generics are for working with objects within a storage container:
+
+- `list_storage_files`: list files/blobs in a directory (for ADLSgen2 and file storage) or blob container
+- `create_storage_dir`: for ADLSgen2 and file storage, create a directory
+- `delete_storage_dir`: for ADLSgen2 and file storage, delete a directory
+- `delete_storage_file`: delete a file or blob
+- `storage_upload`/`storage_download`: transfer a file to or from a storage container
+- `storage_multiupload`/`storage_multidownload`: transfer multiple files in parallel to or from a storage container
+
+As before, these dispatch to a family of lower-level functions for each type of storage:
+
+| Generic | Blob | File | ADLS2 |
+| ------- | ---- | ---- | ----- |
+| `list_storage_files` | `list_blobs` | `list_azure_files` | `list_adls_files` |
+| `create_storage_dir` | N/A | `create_azure_dir` | `create_adls_dir` |
+| `delete_storage_dir` | N/A | `delete_azure_dir` | `delete_adls_dir` |
+| `delete_storage_file` | `delete_blob` | `delete_azure_file` | `delete_adls_file` |
+| `storage_upload` | `upload_blob` | `upload_azure_file` | `upload_adls_file` |
+| `storage_download` | `download_blob` | `download_azure_file` | `download_adls_file` |
+| `storage_multiupload` | `multiupload_blob` | `multiupload_azure_file` | `multiupload_adls_file` |
+| `storage_multidownload` | `multidownload_blob` | `multidownload_azure_file` | `multidownload_adls_file` |
+
+```r
+# example workflow with generics (blob storage)
+cont <- storage_container(bl_endp, "mycontainer")
+list_storage_files(cont)
+storage_upload(cont, "description.txt", "description")
+storage_multiupload(cont, "*.tar.gz")
+
+# using lower-level functions
+cont <- blob_container(bl_endp, "mycontainer")
+list_blobs(cont)
+upload_blob(cont, "description.txt", "description")
+multiupload_blob(cont, "*.tar.gz")
+```
