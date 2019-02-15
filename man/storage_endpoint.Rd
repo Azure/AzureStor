@@ -56,7 +56,7 @@ Create a storage endpoint object, for interacting with blob, file, table, queue 
 \details{
 This is the starting point for the client-side storage interface in AzureRMR. \code{storage_endpoint} is a generic function to create an endpoint for any type of Azure storage while \code{adls_endpoint}, \code{blob_endpoint} and \code{file_endpoint} create endpoints for those types.
 
-If multiple authentication objects are supplied, they are used in this order of priority: first an access key, then an AAD token, then a SAS. If no authentication objects are supplied, only public (anonymous) access to the endpoint is possible. Note that authentication with a SAS is not currently supported by ADLSgen2, and authentication with an AAD token is not supported by file storage.
+If multiple authentication objects are supplied, they are used in this order of priority: first an access key, then an AAD token, then a SAS. If no authentication objects are supplied, only public (anonymous) access to the endpoint is possible. Note that authentication with a SAS is not currently supported by ADLSgen2.
 }
 \examples{
 \dontrun{

@@ -20,8 +20,9 @@
 \usage{
 file_share(endpoint, ...)
 
-\method{file_share}{character}(endpoint, key = NULL, sas = NULL,
-  api_version = getOption("azure_storage_api_version"), ...)
+\method{file_share}{character}(endpoint, key = NULL, token = NULL,
+  sas = NULL, api_version = getOption("azure_storage_api_version"),
+  ...)
 
 \method{file_share}{file_endpoint}(endpoint, name, ...)
 
@@ -29,14 +30,16 @@ file_share(endpoint, ...)
 
 list_file_shares(endpoint, ...)
 
-\method{list_file_shares}{character}(endpoint, key = NULL, sas = NULL,
+\method{list_file_shares}{character}(endpoint, key = NULL,
+  token = NULL, sas = NULL,
   api_version = getOption("azure_storage_api_version"), ...)
 
 \method{list_file_shares}{file_endpoint}(endpoint, ...)
 
 create_file_share(endpoint, ...)
 
-\method{create_file_share}{character}(endpoint, key = NULL, sas = NULL,
+\method{create_file_share}{character}(endpoint, key = NULL,
+  token = NULL, sas = NULL,
   api_version = getOption("azure_storage_api_version"), ...)
 
 \method{create_file_share}{file_share}(endpoint, ...)
@@ -45,7 +48,8 @@ create_file_share(endpoint, ...)
 
 delete_file_share(endpoint, ...)
 
-\method{delete_file_share}{character}(endpoint, key = NULL, sas = NULL,
+\method{delete_file_share}{character}(endpoint, key = NULL,
+  token = NULL, sas = NULL,
   api_version = getOption("azure_storage_api_version"), ...)
 
 \method{delete_file_share}{file_share}(endpoint, ...)
@@ -58,7 +62,7 @@ delete_file_share(endpoint, ...)
 
 \item{...}{Further arguments passed to lower-level functions.}
 
-\item{key, sas}{If an endpoint object is not supplied, authentication details. If a key is provided, the SAS is not used. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.}
+\item{key, token, sas}{If an endpoint object is not supplied, authentication credentials: either an access key, an Azure Active Directory (AAD) token, or a SAS, in that order of priority.}
 
 \item{api_version}{If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to \code{"2018-03-28"}.}
 
