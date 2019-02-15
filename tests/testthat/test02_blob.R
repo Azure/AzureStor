@@ -59,7 +59,7 @@ test_that("Blob client interface works",
     # download from url
     suppressWarnings(file.remove(new_file))
     url <- file.path(bl$url, cont$name, "iris.csv")
-    expect_silent(download_from_azure(url, new_file, key=bl$key))
+    expect_silent(download_from_url(url, new_file, key=bl$key))
 
     # public container upload/download
     public_cont <- lst[["newcontainer2"]]
@@ -67,7 +67,7 @@ test_that("Blob client interface works",
     public_url <- paste0(public_cont$endpoint$url, "newcontainer2/iris_public.csv")
     public_dl <- file.path(tempdir(), "iris_public.csv")
     suppressWarnings(file.remove(public_dl))
-    download_from_azure(public_url, public_dl)
+    download_from_url(public_url, public_dl)
     expect_identical(readBin(orig_file, "raw", n=1e5), readBin(public_dl, "raw", n=1e5))
     suppressWarnings(file.remove(public_dl))
     download.file(public_url, public_dl, mode="wb", quiet=TRUE)

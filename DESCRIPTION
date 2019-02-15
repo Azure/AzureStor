@@ -23,6 +23,7 @@ Imports:
     AzureRMR
 Suggests:
     knitr,
+    jsonlite,
     testthat
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 6.1.0.9000

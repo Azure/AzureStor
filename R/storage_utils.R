@@ -66,7 +66,7 @@ add_token <- function(token, headers, api)
     if(is.null(headers$`x-ms-version`))
         headers$`x-ms-version` <- api
 
-    if(AzureRMR::is_azure_token(token) || inherits(token, "Token2.0"))
+    if(inherits(token, "AzureToken") || inherits(token, "Token2.0"))
     {
         # if token has expired, renew it
         if(!token$validate())

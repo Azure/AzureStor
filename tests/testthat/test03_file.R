@@ -59,7 +59,7 @@ test_that("File client interface works",
     # download from url
     suppressWarnings(file.remove(new_file))
     url <- file.path(fl$url, share$name, "iris.csv")
-    download_from_azure(url, new_file, key=fl$key)
+    download_from_url(url, new_file, key=fl$key)
 
     # directory manipulation
     create_azure_dir(share, "dir1")
