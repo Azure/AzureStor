@@ -15,7 +15,7 @@ AzureStor supports all the different ways you can authenticate with a storage en
 - File storage supports access key and SAS;
 - ADLSgen2 supports access key and AAD token.
 
-In the case of an AAD token, you can also provide an object obtained via `AzureAuth::get_azure_token()` or `httr::oauth2.0_token`. If you do this, AzureStor can also automatically refresh the token for you when it expires.
+In the case of an AAD token, you can also provide an object obtained via `AzureAuth::get_azure_token()`. If you do this, AzureStor can automatically refresh the token for you when it expires.
 
 ```r
 # various endpoints for an account: blob, file, ADLS2
@@ -38,32 +38,17 @@ AzureStor provides a rich framework for managing storage. The following generics
 - `delete_storage_container`
 - `list_storage_containers`
 
-In turn these dispatch to the following lower-level functions for each type of storage:
-
-| Operation | Blob | File | ADLS2 |
-| --------- | ---- | ---- | ----- |
-| get container | `blob_container` | `file_share` | `adls_filesystem` |
-| create container | `create_blob_container` | `create_file_share` | `create_adls_filesystem` |
-| delete container | `delete_blob_container` | `delete_file_share` | `delete_adls_filesystem` |
-| list containers | `list_blob_containers` | `list_file_shares` | `list_adls_filesystems` |
-
 ```r
 # example of working with containers (blob storage)
 list_storage_containers(bl_endp_key)
 cont <- storage_container(bl_endp, "mycontainer")
 newcont <- create_storage_container(bl_endp, "newcontainer")
 delete_storage_container(newcont)
-
-# you can also call the lower-level functions directly if desired
-list_blob_containers(bl_endp_key)
-cont <- blob_container(bl_endp, "mycontainer")
-newcont <- create_blob_container(bl_endp, "newcontainer")
-delete_blob_container(newcont)
 ```
 
 ## Files and blobs
 
-Functions for working with objects within a storage container:
+These functions for working with objects within a storage container:
 
 - `list_storage_files`: list files/blobs in a directory (for ADLSgen2 and file storage) or blob container
 - `create_storage_dir`: for ADLSgen2 and file storage, create a directory
@@ -72,18 +57,6 @@ Functions for working with objects within a storage container:
 - `storage_upload`/`storage_download`: transfer a file to or from a storage container
 - `storage_multiupload`/`storage_multidownload`: transfer multiple files in parallel to or from a storage container
 
-As above, these dispatch to a family of lower-level functions for each type of storage:
-
-| Operation | Blob | File | ADLS2 |
-| --------- | ---- | ---- | ----- |
-| list files | `list_blobs` | `list_azure_files` | `list_adls_files` |
-| create directory | N/A | `create_azure_dir` | `create_adls_dir` |
-| delete directory | N/A | `delete_azure_dir` | `delete_adls_dir` |
-| delete file | `delete_blob` | `delete_azure_file` | `delete_adls_file` |
-| upload file | `upload_blob` | `upload_azure_file` | `upload_adls_file` |
-| download file | `download_blob` | `download_azure_file` | `download_adls_file` |
-| upload multiple files | `multiupload_blob` | `multiupload_azure_file` | `multiupload_adls_file` |
-| download multiple files | `multidownload_blob` | `multidownload_azure_file` | `multidownload_adls_file` |
 
 ```r
 # example of working with files and directories (ADLSgen2)
@@ -93,7 +66,6 @@ create_storage_dir(cont, "newdir")
 storage_download(cont, "/readme.txt", "~/readme.txt")
 storage_multiupload(cont, "N:/data/*.*", "newdir")  # uploading everything in a directory, in parallel
 ```
-
 
 ## Uploading and downloading
 
