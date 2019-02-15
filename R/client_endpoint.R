@@ -1,10 +1,10 @@
 #' Create a storage endpoint object
 #'
-#' Create a storage endpoint object, for interacting with blob, file, table, queue or ADLSgen2 storage. Currently (as of December 2018) ADLSgen2 is in general-access public preview.
+#' Create a storage endpoint object, for interacting with blob, file, table, queue or ADLSgen2 storage.
 #'
 #' @param endpoint The URL (hostname) for the endpoint. This must be of the form `http[s]://{account-name}.{type}.{core-host-name}`, where `type` is one of `"dfs"` (corresponding to ADLSgen2), `"blob"`, `"file"`, `"queue"` or `"table"`. On the public Azure cloud, endpoints will be of the form `https://{account-name}.{type}.core.windows.net`.
 #' @param key The access key for the storage account.
-#' @param token An Azure Active Directory (AAD) authentication token. This can be either a string, or an object of class [AzureRMR::AzureToken] created by [AzureRMR::get_azure_token]. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.
+#' @param token An Azure Active Directory (AAD) authentication token. This can be either a string, or an object of class AzureToken created by [AzureRMR::get_azure_token]. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.
 #' @param sas A shared access signature (SAS) for the account.
 #' @param api_version The storage API version to use when interacting with the host. Defaults to `"2018-06-17"` for the ADLSgen2 endpoint, and `"2018-03-28"` for the others.
 #' @param x For the print method, a storage endpoint object.
@@ -18,9 +18,7 @@
 #' @return
 #' `storage_endpoint` returns an object of S3 class `"adls_endpoint"`, `"blob_endpoint"`, `"file_endpoint"`, `"queue_endpoint"` or `"table_endpoint"` depending on the type of endpoint. All of these also inherit from class `"storage_endpoint"`. `adls_endpoint`, `blob_endpoint` and `file_endpoint` return an object of the respective class.
 #'
-#' Currently AzureStor only includes methods for interacting with ADLSgen2 (experimental), blob and file storage.
-#'
-#' Currently (as of December 2018), if the storage account has hierarchical namespaces enabled, the blob API for the account is disabled. The blob endpoint is still accessible, but blob operations on the endpoint will fail. Full interoperability between blobs and ADLS is planned for 2019.
+#' Currently AzureStor only includes methods for interacting with ADLSgen2, blob and file storage.
 #'
 #' @seealso
 #' [create_storage_account], [adls_filesystem], [create_adls_filesystem], [file_share], [create_file_share], [blob_container], [create_blob_container]

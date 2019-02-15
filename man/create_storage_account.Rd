@@ -22,7 +22,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \item \code{replication}: The replication strategy for the account. The default is locally-redundant storage (LRS).
 \item \code{access_tier}: The access tier, either \code{"hot"} or \code{"cool"}, for blobs.
 \item \code{https_only}: Whether a HTTPS connection is required to access the storage.
-\item \code{hierarchical_namespace_enabled}: Whether to enable hierarchical namespaces, which are a feature of Azure Data Lake Storage Gen 2 and provide more a efficient way to manage storage. ADLS Gen2 is currently (as of December 2018) in general-access public preview. If this is enabled, the blob storage API for the account is disabled; see below.
+\item \code{hierarchical_namespace_enabled}: Whether to enable hierarchical namespaces, which are a feature of Azure Data Lake Storage Gen 2 and provide more a efficient way to manage storage. See 'Details' below.
 \item \code{properties}: A list of other properties for the storage account.
 \item ... Other named arguments to pass to the \link{az_storage} initialization function.
 }
@@ -36,12 +36,12 @@ This method deploys a new storage account resource, with parameters given by the
 \item file storage
 \item table storage
 \item queue storage
-\item Azure Data Lake Storage Gen2 (in public preview)
+\item Azure Data Lake Storage Gen2
 }
 
 Accounts created with \code{kind = "BlobStorage"} can only host blob storage, while those with \code{kind = "FileStorage"} can only host file storage. Accounts with \code{kind = "StorageV2"} can host all types of storage. Currently, AzureStor provides an R interface to ADLSgen2, blob and file storage.
 
-Currently (as of December 2018), if hierarchical namespaces are enabled, the blob API for the account is disabled. The blob endpoint is still accessible, but blob operations on the endpoint will fail. Full interoperability between blobs and ADLS is planned for 2019.
+Currently (as of February 2019), if hierarchical namespaces are enabled, the blob API for the account is disabled. The blob endpoint is still accessible, but blob operations on the endpoint will fail. Full interoperability between blobs and ADLSgen2 is planned for later in 2019.
 }
 
 \section{Value}{

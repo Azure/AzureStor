@@ -33,7 +33,7 @@ adls_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
 
 \item{key}{The access key for the storage account.}
 
-\item{token}{An Azure Active Directory (AAD) authentication token. This can be either a string, or an object of class \link[AzureRMR:AzureToken]{AzureRMR::AzureToken} created by \link[AzureRMR:get_azure_token]{AzureRMR::get_azure_token}. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.}
+\item{token}{An Azure Active Directory (AAD) authentication token. This can be either a string, or an object of class AzureToken created by \link[AzureRMR:get_azure_token]{AzureRMR::get_azure_token}. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.}
 
 \item{sas}{A shared access signature (SAS) for the account.}
 
@@ -46,12 +46,10 @@ adls_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
 \value{
 \code{storage_endpoint} returns an object of S3 class \code{"adls_endpoint"}, \code{"blob_endpoint"}, \code{"file_endpoint"}, \code{"queue_endpoint"} or \code{"table_endpoint"} depending on the type of endpoint. All of these also inherit from class \code{"storage_endpoint"}. \code{adls_endpoint}, \code{blob_endpoint} and \code{file_endpoint} return an object of the respective class.
 
-Currently AzureStor only includes methods for interacting with ADLSgen2 (experimental), blob and file storage.
-
-Currently (as of December 2018), if the storage account has hierarchical namespaces enabled, the blob API for the account is disabled. The blob endpoint is still accessible, but blob operations on the endpoint will fail. Full interoperability between blobs and ADLS is planned for 2019.
+Currently AzureStor only includes methods for interacting with ADLSgen2, blob and file storage.
 }
 \description{
-Create a storage endpoint object, for interacting with blob, file, table, queue or ADLSgen2 storage. Currently (as of December 2018) ADLSgen2 is in general-access public preview.
+Create a storage endpoint object, for interacting with blob, file, table, queue or ADLSgen2 storage.
 }
 \details{
 This is the starting point for the client-side storage interface in AzureRMR. \code{storage_endpoint} is a generic function to create an endpoint for any type of Azure storage while \code{adls_endpoint}, \code{blob_endpoint} and \code{file_endpoint} create endpoints for those types.
