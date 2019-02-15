@@ -157,9 +157,7 @@ upload_to_url <- function(src, dest, key=NULL, token=token, sas=NULL, ...)
 
 find_sas <- function(url)
 {
-    querymark <- regexpr("\\?sv", url)
-    if(querymark == -1)
-        NULL
-    else substr(url, querymark + 1, nchar(url))
+    url <- httr::parse_url(url)
+    url$query$sas
 }
 
