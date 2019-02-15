@@ -3,7 +3,7 @@
 #' Get, list, create, or delete file shares.
 #'
 #' @param endpoint Either a file endpoint object as created by [storage_endpoint], or a character string giving the URL of the endpoint.
-#' @param key,sas If an endpoint object is not supplied, authentication details. If a key is provided, the SAS is not used. If neither an access key nor a SAS are provided, only public (anonymous) access to the share is possible.
+#' @param key,token,sas If an endpoint object is not supplied, authentication credentials: either an access key, an Azure Active Directory (AAD) token, or a SAS, in that order of priority. 
 #' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2018-03-28"`.
 #' @param name The name of the file share to get, create, or delete.
 #' @param confirm For deleting a share, whether to ask for confirmation.
@@ -49,11 +49,11 @@ file_share <- function(endpoint, ...)
 
 #' @rdname file_share
 #' @export
-file_share.character <- function(endpoint, key=NULL, sas=NULL,
+file_share.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                                  api_version=getOption("azure_storage_api_version"),
                                  ...)
 {
-    do.call(file_share, generate_endpoint_container(endpoint, key, token=NULL, sas, api_version))
+    do.call(file_share, generate_endpoint_container(endpoint, key, token, sas, api_version))
 }
 
 #' @rdname file_share
@@ -92,11 +92,11 @@ list_file_shares <- function(endpoint, ...)
 
 #' @rdname file_share
 #' @export
-list_file_shares.character <- function(endpoint, key=NULL, sas=NULL,
+list_file_shares.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                                        api_version=getOption("azure_storage_api_version"),
                                        ...)
 {
-    do.call(list_file_shares, generate_endpoint_container(endpoint, key, token=NULL, sas, api_version))
+    do.call(list_file_shares, generate_endpoint_container(endpoint, key, token, sas, api_version))
 }
 
 #' @rdname file_share
@@ -121,11 +121,11 @@ create_file_share <- function(endpoint, ...)
 
 #' @rdname file_share
 #' @export
-create_file_share.character <- function(endpoint, key=NULL, sas=NULL,
+create_file_share.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                                         api_version=getOption("azure_storage_api_version"),
                                         ...)
 {
-    endp <- generate_endpoint_container(endpoint, key, token=NULL, sas, api_version)
+    endp <- generate_endpoint_container(endpoint, key, token, sas, api_version)
     create_file_share(endp$endpoint, endp$name, ...)
 }
 
@@ -156,11 +156,11 @@ delete_file_share <- function(endpoint, ...)
 
 #' @rdname file_share
 #' @export
-delete_file_share.character <- function(endpoint, key=NULL, sas=NULL,
+delete_file_share.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                                         api_version=getOption("azure_storage_api_version"),
                                         ...)
 {
-    endp <- generate_endpoint_container(endpoint, key, token=NULL, sas, api_version)
+    endp <- generate_endpoint_container(endpoint, key, token, sas, api_version)
     delete_file_share(endp$endpoint, endp$name, ...)
 }
 

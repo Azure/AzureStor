@@ -13,7 +13,7 @@
 #' @details
 #' This is the starting point for the client-side storage interface in AzureRMR. `storage_endpoint` is a generic function to create an endpoint for any type of Azure storage while `adls_endpoint`, `blob_endpoint` and `file_endpoint` create endpoints for those types.
 #'
-#' If multiple authentication objects are supplied, they are used in this order of priority: first an access key, then an AAD token, then a SAS. If no authentication objects are supplied, only public (anonymous) access to the endpoint is possible. Note that authentication with a SAS is not currently supported by ADLSgen2, and authentication with an AAD token is not supported by file storage.
+#' If multiple authentication objects are supplied, they are used in this order of priority: first an access key, then an AAD token, then a SAS. If no authentication objects are supplied, only public (anonymous) access to the endpoint is possible. Note that authentication with a SAS is not currently supported by ADLSgen2.
 #'
 #' @return
 #' `storage_endpoint` returns an object of S3 class `"adls_endpoint"`, `"blob_endpoint"`, `"file_endpoint"`, `"queue_endpoint"` or `"table_endpoint"` depending on the type of endpoint. All of these also inherit from class `"storage_endpoint"`. `adls_endpoint`, `blob_endpoint` and `file_endpoint` return an object of the respective class.
@@ -56,9 +56,6 @@ storage_endpoint <- function(endpoint, key=NULL, token=NULL, sas=NULL, api_versi
     if(type == "adls" && !is_empty(sas))
         warning("ADLSgen2 does not support authentication with a shared access signature")
 
-    if(type == "file" && !is_empty(token))
-        warning("File storage does not support authentication with an AAD token")
-
     obj <- list(url=endpoint, key=key, token=token, sas=sas, api_version=api_version)
     class(obj) <- c(paste0(type, "_endpoint"), "storage_endpoint")
     obj
@@ -84,9 +81,6 @@ file_endpoint <- function(endpoint, key=NULL, token=NULL, sas=NULL,
 {
     if(!is_endpoint_url(endpoint, "file"))
         stop("Not a file endpoint", call.=FALSE)
-
-    if(!is_empty(token))
-        warning("File storage does not support authentication with an AAD token")
 
     obj <- list(url=endpoint, key=key, token=token, sas=sas, api_version=api_version)
     class(obj) <- c("file_endpoint", "storage_endpoint")
