@@ -56,7 +56,7 @@ storage_multidownload(container, ...)
 download_from_url(src, dest, key = NULL, token = NULL, sas = NULL,
   ..., overwrite = FALSE)
 
-upload_to_url(src, dest, key = NULL, token = token, sas = NULL, ...)
+upload_to_url(src, dest, key = NULL, token = NULL, sas = NULL, ...)
 }
 \arguments{
 \item{container}{A storage container object.}
