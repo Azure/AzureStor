@@ -1,3 +1,7 @@
+# AzureStor 2.0.0.9000
+
+- Fix `upload_to_url`/`download_from_url` bugs introduced in last update.
+
 # AzureStor 2.0.0
 
 ## Significant user-visible changes

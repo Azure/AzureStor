@@ -143,7 +143,7 @@ download_from_url <- function(src, dest, key=NULL, token=NULL, sas=NULL, ..., ov
 
 #' @rdname file_transfer
 #' @export
-upload_to_url <- function(src, dest, key=NULL, token=token, sas=NULL, ...)
+upload_to_url <- function(src, dest, key=NULL, token=NULL, sas=NULL, ...)
 {
     az_path <- parse_storage_url(dest)
     if(is.null(sas))
@@ -157,7 +157,8 @@ upload_to_url <- function(src, dest, key=NULL, token=token, sas=NULL, ...)
 
 find_sas <- function(url)
 {
-    url <- httr::parse_url(url)
-    url$query$sas
+    querymark <- regexpr("\\?sv", url)
+    if(querymark == -1)
+        NULL
+    else substr(url, querymark + 1, nchar(url))
 }
-
