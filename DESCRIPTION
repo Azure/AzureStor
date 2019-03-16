@@ -26,4 +26,4 @@ Suggests:
     jsonlite,
     testthat
 Roxygen: list(markdown=TRUE)
-RoxygenNote: 6.1.0.9000
+RoxygenNote: 6.1.1

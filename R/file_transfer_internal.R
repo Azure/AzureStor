@@ -125,11 +125,11 @@ multidownload_azure_file_internal <- function(share, src, dest, overwrite=FALSE,
 download_azure_file_internal <- function(share, src, dest, overwrite=FALSE)
 {
     if(is.character(dest))
-        return(do_container_op(share, src, config=httr::write_disk(dest, overwrite)))
+        return(do_container_op(share, src, config=httr::write_disk(dest, overwrite), progress="down"))
 
     # if dest is NULL or a raw connection, return the transferred data in memory as raw bytes
-    cont <- httr::content(do_container_op(share, src, http_status_handler="pass"),
-                          as="raw")
+    cont <- httr::content(do_container_op(share, src, http_status_handler="pass",
+                          as="raw", progress="down"))
     if(is.null(dest))
         return(cont)
 

@@ -17,7 +17,8 @@ do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), 
                             key=NULL, token=NULL, sas=NULL,
                             api_version=getOption("azure_storage_api_version"),
                             http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD", "PATCH"),
-                            http_status_handler=c("stop", "warn", "message", "pass"))
+                            http_status_handler=c("stop", "warn", "message", "pass"),
+                            progress=NULL)
 {
     verb <- match.arg(http_verb)
     url <- httr::parse_url(endpoint_url)
@@ -37,7 +38,9 @@ do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), 
     verb <- get(verb, getNamespace("httr"))
 
     # do actual http[s] call
-    response <- verb(url, headers, body=body, ...)
+    response <- if(!is.null(progress) && isTRUE(getOption("azure_dl_progress_bar")))
+        verb(url, headers, body=body, ..., httr::progress(progress))
+    else verb(url, headers, body=body, ...)
 
     handler <- match.arg(http_status_handler)
     if(handler != "pass")

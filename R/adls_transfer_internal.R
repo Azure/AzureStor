@@ -100,11 +100,11 @@ multidownload_adls_file_internal <- function(filesystem, src, dest, overwrite=FA
 download_adls_file_internal <- function(filesystem, src, dest, overwrite=FALSE)
 {
     if(is.character(dest))
-        return(do_container_op(filesystem, src, config=httr::write_disk(dest, overwrite)))
+        return(do_container_op(filesystem, src, config=httr::write_disk(dest, overwrite), progress="down"))
 
     # if dest is NULL or a raw connection, return the transferred data in memory as raw bytes
-    cont <- httr::content(do_container_op(filesystem, src, http_status_handler="pass"),
-                          as="raw")
+    cont <- httr::content(do_container_op(filesystem, src, http_status_handler="pass",
+                          as="raw", progress="down"))
     if(is.null(dest))
         return(cont)
 

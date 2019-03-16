@@ -1,5 +1,6 @@
 # AzureStor 2.0.0.9000
 
+- Display a progress bar when downloading single files. To turn this on or off, call `options(azuure_dl_progress_bar=TRUE|FALSE)`.
 - Fix `upload_to_url`/`download_from_url` bugs introduced in last update.
 
 # AzureStor 2.0.0

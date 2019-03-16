@@ -66,6 +66,8 @@ Upload, download, or delete a file; list files in a directory; create or delete 
 \code{multiupload_azure_file} and \code{multidownload_azure_file} are functions for uploading and downloading \emph{multiple} files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. They take as input a \emph{wildcard} pattern as the source, which expands to one or more files. The \code{dest} argument should be a directory.
 
 The file transfer functions also support working with connections to allow transferring R objects without creating temporary files. For uploading, \code{src} can be a \link{textConnection} or \link{rawConnection} object. For downloading, \code{dest} can be NULL or a \code{rawConnection} object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
+
+By default, \code{download_azure_file} will display a progress bar as it is downloading. To turn this off, use \code{options(azure_dl_progress_bar=FALSE)}. To turn the progress bar back on, use \code{options(azure_dl_progress_bar=TRUE)}.
 }
 \examples{
 \dontrun{

@@ -116,11 +116,12 @@ download_blob_internal <- function(container, src, dest, overwrite=FALSE, lease=
         headers[["x-ms-lease-id"]] <- as.character(lease)
     
     if(is.character(dest))
-        return(do_container_op(container, src, headers=headers, config=httr::write_disk(dest, overwrite)))
+        return(do_container_op(container, src, headers=headers, config=httr::write_disk(dest, overwrite),
+               progress="down"))
     
     # if dest is NULL or a raw connection, return the transferred data in memory as raw bytes
-    cont <- httr::content(do_container_op(container, src, headers=headers, http_status_handler="pass"),
-                          as="raw")
+    cont <- httr::content(do_container_op(container, src, headers=headers, http_status_handler="pass",
+                          as="raw", progress="down"))
     if(is.null(dest))
         return(cont)
 

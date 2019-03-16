@@ -9,10 +9,9 @@ globalVariables(c("self", "pool"), "AzureStor")
 
 .onLoad <- function(libname, pkgname)
 {
-    api <- "2018-03-28"
-    adls_api <- "2018-06-17"
-    options(azure_storage_api_version=api)
-    options(azure_adls_api_version=adls_api)
+    options(azure_storage_api_version="2018-03-28")
+    options(azure_adls_api_version="2018-06-17")
+    options(azure_dl_progress_bar=TRUE)
 
     # all methods extending classes in external package must be run from .onLoad
     add_methods()
