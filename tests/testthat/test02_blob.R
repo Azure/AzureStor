@@ -16,6 +16,7 @@ if(rgname == "" || storname == "")
 
 sub <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$get_subscription(subscription)
 stor <- sub$get_resource_group(rgname)$get_storage_account(storname)
+options(azure_dl_progress_bar=FALSE)
 
 test_that("Blob client interface works",
 {
@@ -99,13 +100,20 @@ test_that("Blob client interface works",
 
     # upload from connection
     json <- jsonlite::toJSON(iris, dataframe="columns", auto_unbox=TRUE, pretty=TRUE)
+
+    base_json <- file.path(tempdir(), "iris_base.json")
+    writeBin(charToRaw(json), base_json)
+
     con <- textConnection(json)
     upload_blob(cont, con, "iris.json")
 
     con_dl1 <- file.path(tempdir(), "iris.json")
     suppressWarnings(file.remove(con_dl1))
     download_blob(cont, "iris.json", con_dl1)
-    expect_identical(readBin("../resources/iris.json", "raw", n=1e5), readBin(con_dl1, "raw", n=1e5))
+    expect_identical(readBin(base_json, "raw", n=1e5), readBin(con_dl1, "raw", n=1e5))
+
+    base_rds <- file.path(tempdir(), "iris_base.rds")
+    saveRDS(iris, base_rds, compress=FALSE)
 
     rds <- serialize(iris, NULL)
     con <- rawConnection(rds)
@@ -114,7 +122,7 @@ test_that("Blob client interface works",
     con_dl2 <- file.path(tempdir(), "iris.rds")
     suppressWarnings(file.remove(con_dl2))
     download_blob(cont, "iris.rds", con_dl2)
-    expect_identical(readBin("../resources/iris.rds", "raw", n=1e5), readBin(con_dl2, "raw", n=1e5))
+    expect_identical(readBin(base_rds, "raw", n=1e5), readBin(con_dl2, "raw", n=1e5))
 
     # download to memory
     rawvec <- download_blob(cont, "iris.rds", NULL)
@@ -180,7 +188,7 @@ test_that("Blob client interface works",
 test_that("AAD authentication works",
 {
     url <- stor$get_blob_endpoint()$url 
-    token <- AzureRMR::get_azure_token(url, tenant=tenant, app=app, password=password)
+    token <- AzureRMR::get_azure_token("https://storage.azure.com/", tenant=tenant, app=app, password=password)
     bl <- blob_endpoint(url, token=token)
     cont <- create_blob_container(bl, "newcontainer4")
 

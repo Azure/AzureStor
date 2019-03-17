@@ -16,6 +16,7 @@ if(rgname == "" || storname == "")
 
 sub <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$get_subscription(subscription)
 stor <- sub$get_resource_group(rgname)$get_storage_account(storname)
+options(azure_dl_progress_bar=FALSE)
 
 test_that("File client interface works",
 {
@@ -104,13 +105,20 @@ test_that("File client interface works",
 
     # upload from connection
     json <- jsonlite::toJSON(iris, dataframe="columns", auto_unbox=TRUE, pretty=TRUE)
+
+    base_json <- file.path(tempdir(), "iris_base.json")
+    writeBin(charToRaw(json), base_json)
+
     con <- textConnection(json)
     upload_azure_file(share, con, "iris.json")
 
     con_dl1 <- file.path(tempdir(), "iris.json")
     suppressWarnings(file.remove(con_dl1))
     download_azure_file(share, "iris.json", con_dl1)
-    expect_identical(readBin("../resources/iris.json", "raw", n=1e5), readBin(con_dl1, "raw", n=1e5))
+    expect_identical(readBin(base_json, "raw", n=1e5), readBin(con_dl1, "raw", n=1e5))
+
+    base_rds <- file.path(tempdir(), "iris_base.rds")
+    saveRDS(iris, base_rds, compress=FALSE)
 
     rds <- serialize(iris, NULL)
     con <- rawConnection(rds)
@@ -119,7 +127,7 @@ test_that("File client interface works",
     con_dl2 <- file.path(tempdir(), "iris.rds")
     suppressWarnings(file.remove(con_dl2))
     download_azure_file(share, "iris.rds", con_dl2)
-    expect_identical(readBin("../resources/iris.rds", "raw", n=1e5), readBin(con_dl2, "raw", n=1e5))
+    expect_identical(readBin(base_rds, "raw", n=1e5), readBin(con_dl2, "raw", n=1e5))
 
     # download to memory
     rawvec <- download_azure_file(share, "iris.rds", NULL)
