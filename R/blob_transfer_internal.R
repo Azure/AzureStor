@@ -50,6 +50,7 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
 
     # upload each block
     blocklist <- list()
+    base_id <- openssl::md5(dest)
     i <- 1
     while(1)
     {
@@ -60,7 +61,7 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
 
         # ensure content-length is never exponential notation
         headers[["content-length"]] <- sprintf("%.0f", thisblock)
-        id <- openssl::base64_encode(sprintf("%s-%010d", dest, i))
+        id <- openssl::base64_encode(sprintf("%s-%010d", base_id, i))
         opts <- list(comp="block", blockid=id)
 
         do_container_op(container, dest, headers=headers, body=body, options=opts, http_verb="PUT")
