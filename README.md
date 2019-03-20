@@ -41,8 +41,8 @@ AzureStor provides a rich framework for managing storage. The following generics
 ```r
 # example of working with containers (blob storage)
 list_storage_containers(bl_endp_key)
-cont <- storage_container(bl_endp, "mycontainer")
-newcont <- create_storage_container(bl_endp, "newcontainer")
+cont <- storage_container(bl_endp_key, "mycontainer")
+newcont <- create_storage_container(bl_endp_key, "newcontainer")
 delete_storage_container(newcont)
 ```
 
