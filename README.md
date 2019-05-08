@@ -24,7 +24,7 @@ fl_endp_sas <- storage_endpoint("https://mystorage.file.core.windows.net", sas="
 ad_endp_tok <- storage_endpoint("https://mystorage.dfs.core.windows.net", token="my_token")
 
 # alternative (recommended) way of supplying an AAD token
-token <- AzureRMR::get_azure_token("https://mystorage.dfs.core.windows.net",
+token <- AzureRMR::get_azure_token("https://storage.azure.com",
                                    tenant="myaadtenant", app="app_id", password="mypassword"))
 ad_endp_tok2 <- storage_endpoint("https://mystorage.dfs.core.windows.net", token=token)
 ```
