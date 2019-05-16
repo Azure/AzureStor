@@ -21,7 +21,7 @@ Call the azcopy file transfer utility
 \details{
 AzureStor has the ability to use the Microsoft AzCopy commandline utility to transfer files. To enable this, set the argument \code{use_azcopy=TRUE} in any call to an upload or download function; AzureStor will then call AzCopy to perform the file transfer rather than relying on its own code. You can also call AzCopy directly with the \code{call_azcopy} function, passing it any arguments as required.
 
-AzureStor requires version 10 or later of AzCopy, which is a substantial rewrite and is currently (as of February 2019) in beta. The first time you try to run it, AzureStor will check that the version of AzCopy is correct, and throw an error if it is version 8 or earlier.
+AzureStor requires version 10 or later of AzCopy. The first time you try to run it, AzureStor will check that the version of AzCopy is correct, and throw an error if it is version 8 or earlier.
 
 The AzCopy utility must be in your path for AzureStor to find it. Note that unlike earlier versions, Azcopy 10 is a single, self-contained binary file that can be placed in any directory.
 

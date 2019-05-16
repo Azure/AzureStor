@@ -49,7 +49,7 @@ delete_adls_dir(filesystem, dir, recursive = FALSE, confirm = TRUE)
 
 \item{lease}{The lease for a file, if present.}
 
-\item{retries}{The number of times the file transfer functions will retry when they encounter an error. Set this to 0 to disable retries. This is applied per block for uploading, and to the entire file for downloading.}
+\item{retries}{The number of times the file transfer functions will retry when they encounter an error. Set this to 0 to disable retries. This is applied per block.}
 
 \item{use_azcopy}{Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.}
 
