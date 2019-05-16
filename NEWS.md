@@ -1,7 +1,7 @@
 # AzureStor 2.0.1.9000
 
 - By default, the upload/download functions will now retry file transfers on encountering a network error.
-- Downloading now proceeds in blocks, much like uploading. The default block size is set to 16MB for blob and ADLSgen2, and 4MB for file storage. While this reduces the throughput slightly for files smaller than the block size (basically there is one extra REST call involved), it allows retrying a failed transfer on a per-block basis rather than having to redownload the entire file.
+- Downloading now proceeds in blocks, much like uploading. The default block size is set to 16MB for blob and ADLSgen2, and 4MB for file storage. While this reduces the throughput slightly (basically there is one extra REST call involved), it allows retrying a failed transfer on a per-block basis rather than having to redownload the entire file.
 
 # AzureStor 2.0.1
 
