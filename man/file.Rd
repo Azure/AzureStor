@@ -13,17 +13,18 @@
 \usage{
 list_azure_files(share, dir, info = c("all", "name"), prefix = NULL)
 
-upload_azure_file(share, src, dest, blocksize = 2^22,
+upload_azure_file(share, src, dest, blocksize = 2^22, retries = 5,
   use_azcopy = FALSE)
 
-multiupload_azure_file(share, src, dest, blocksize = 2^22,
+multiupload_azure_file(share, src, dest, blocksize = 2^22, retries = 5,
   use_azcopy = FALSE, max_concurrent_transfers = 10)
 
-download_azure_file(share, src, dest, overwrite = FALSE,
-  use_azcopy = FALSE)
+download_azure_file(share, src, dest, blocksize = 2^22,
+  overwrite = FALSE, retries = 5, use_azcopy = FALSE)
 
-multidownload_azure_file(share, src, dest, overwrite = FALSE,
-  use_azcopy = FALSE, max_concurrent_transfers = 10)
+multidownload_azure_file(share, src, dest, blocksize = 2^22,
+  overwrite = FALSE, retries = 5, use_azcopy = FALSE,
+  max_concurrent_transfers = 10)
 
 delete_azure_file(share, file, confirm = TRUE)
 
@@ -42,7 +43,9 @@ delete_azure_dir(share, dir, confirm = TRUE)
 
 \item{src, dest}{The source and destination files for uploading and downloading. For uploading, \code{src} can also be a \link{textConnection} or \link{rawConnection} object to allow transferring in-memory R objects without creating a temporary file.}
 
-\item{blocksize}{The number of bytes to upload per HTTP(S) request.}
+\item{blocksize}{The number of bytes to upload/download per HTTP(S) request.}
+
+\item{retries}{The number of times the file transfer functions will retry when they encounter an error. Set this to 0 to disable retries. This is applied per block for uploading, and to the entire file for downloading.}
 
 \item{use_azcopy}{Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.}
 

@@ -27,10 +27,19 @@
 #' \dontrun{
 #'
 #' # obtaining an endpoint from the storage account resource object
-#' endp <- stor$get_blob_endpoint()
+#' stor <- AzureRMR::get_azure_login()$
+#'     get_subscription("sub_id")$
+#'     get_resource_group("rgname")$
+#'     get_storage_account("mystorage")
+#' stor$get_blob_endpoint()
 #'
 #' # creating an endpoint standalone
-#' endp <- blob_endpoint("https://mystorage.blob.core.windows.net/", key="access_key")
+#' blob_endpoint("https://mystorage.blob.core.windows.net/", key="access_key")
+#'
+#' # using an OAuth token for authentication -- note resource is 'storage.azure.com'
+#' token <- AzureAuth::get_azure_token("https://storage.azure.com",
+#'                                     "myaadtenant", "app_id", "password")
+#' adls_endpoint("https://myadlsstorage.dfs.core.windows.net/", token=token)
 #'
 #' }
 #' @aliases endpoint blob_endpoint file_endpoint queue_endpoint table_endpoint

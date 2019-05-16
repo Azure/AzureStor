@@ -199,6 +199,103 @@ test_that("AAD authentication works",
 })
 
 
+test_that("Invalid transfers handled correctly",
+{
+    ## nonexistent endpoint
+    badname <- paste0(sample(letters, 20, TRUE), collapse="")
+    endp <- adls_endpoint(sprintf("https://%s.dfs.core.windows.net", badname), key="foo")
+    fs <- adls_filesystem(endp, "nocontainer")
+
+    # uploading
+    expect_error(upload_adls_file(fs, "../resources/iris.csv", "iris.csv"))
+
+    json <- jsonlite::toJSON(iris)
+    con <- textConnection(json)
+    expect_error(upload_adls_file(fs, con, "iris.json"))
+
+    rds <- serialize(iris, NULL)
+    con <- rawConnection(rds)
+    expect_error(upload_adls_file(fs, con, "iris.rds"))
+
+    # downloading
+    expect_error(download_adls_file(fs, "nofile", tempfile()))
+    expect_error(download_adls_file(fs, "nofile", NULL))
+
+    con <- rawConnection(raw(0), "r+")
+    expect_error(download_adls_file(fs, "nofile", con))
+
+
+    ## nonexistent container
+    ad <- stor$get_adls_endpoint()
+    fs <- adls_filesystem(ad, "nocontainer")
+
+    # uploading
+    expect_error(upload_adls_file(fs, "../resources/iris.csv", "iris.csv"))
+
+    json <- jsonlite::toJSON(iris)
+    con <- textConnection(json)
+    expect_error(upload_adls_file(fs, con, "iris.json"))
+
+    rds <- serialize(iris, NULL)
+    con <- rawConnection(rds)
+    expect_error(upload_adls_file(fs, con, "iris.rds"))
+
+    # downloading
+    expect_error(download_adls_file(fs, "nofile", tempfile()))
+    expect_error(download_adls_file(fs, "nofile", NULL))
+
+    con <- rawConnection(raw(0), "r+")
+    expect_error(download_adls_file(fs, "nofile", con))
+
+
+    ## bad auth
+    ad$key <- "badkey"
+
+    fs <- adls_filesystem(ad, "nocontainer")
+
+    # uploading
+    expect_error(upload_adls_file(fs, "../resources/iris.csv", "iris.csv"))
+
+    json <- jsonlite::toJSON(iris)
+    con <- textConnection(json)
+    expect_error(upload_adls_file(fs, con, "iris.json"))
+
+    rds <- serialize(iris, NULL)
+    con <- rawConnection(rds)
+    expect_error(upload_adls_file(fs, con, "iris.rds"))
+
+    # downloading
+    expect_error(download_adls_file(fs, "nofile", tempfile()))
+    expect_error(download_adls_file(fs, "nofile", NULL))
+
+    con <- rawConnection(raw(0), "r+")
+    expect_error(download_adls_file(fs, "nofile", con))
+
+    close(con)
+})
+
+
+test_that("chunked downloading works",
+{
+    ad <- stor$get_adls_endpoint()
+    fs <- create_adls_filesystem(ad, "chunkdl")
+
+    orig_file <- "../resources/iris.csv"
+    new_file <- tempfile()
+    upload_adls_file(fs, orig_file, "iris.csv")
+
+    download_adls_file(fs, "iris.csv", new_file, overwrite=TRUE, blocksize=100)
+    expect_identical(readBin(orig_file, "raw", n=1e5), readBin(new_file, "raw", n=1e5))
+
+    con <- rawConnection(raw(0), open="r+")
+    download_adls_file(fs, "iris.csv", con, blocksize=130)
+    expect_identical(readBin(orig_file, "raw", n=1e5), readBin(con, "raw", n=1e5))
+
+    con <- download_adls_file(fs, "iris.csv", NULL, blocksize=150)
+    expect_identical(readBin(orig_file, "raw", n=1e5), readBin(con, "raw", n=1e5))
+})
+
+
 teardown(
 {
     ad <- stor$get_adls_endpoint()

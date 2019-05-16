@@ -209,3 +209,28 @@ xml_to_list <- function(x)
         xml2::as_list(x)
     else (xml2::as_list(x))[[1]]
 }
+
+
+# check whether to retry a failed file transfer
+# retry on curl error (not any other kind of error)
+# don't retry on host not found
+retry_transfer <- function(res)
+{
+    inherits(res, "error") &&
+        grepl("curl", deparse(res$call[[1]]), fixed=TRUE) &&
+        !grepl("Could not resolve host", res$message, fixed=TRUE)
+}
+
+
+retry_upload_message <- function(src)
+{
+    if(is.character(src))
+        sprintf("Error uploading file %s, retrying...", src)
+    else "Error uploading from connection, retrying..."
+}
+
+
+retry_download_message <- function(src)
+{
+    sprintf("Error downloading file %s, retrying...", src)
+}

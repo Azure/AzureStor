@@ -1,4 +1,4 @@
-multiupload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL,
+multiupload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL, retries=5,
                                       max_concurrent_transfers=10)
 {
     src_dir <- dirname(src)
@@ -23,13 +23,13 @@ multiupload_blob_internal <- function(container, src, dest, type="BlockBlob", bl
         dest <- if(dest == "/")
             basename(f)
         else file.path(dest, basename(f))
-        AzureStor::upload_blob(container, f, dest, type=type, blocksize=blocksize, lease=lease)
+        AzureStor::upload_blob(container, f, dest, type=type, blocksize=blocksize, lease=lease, retries=retries)
     })
     invisible(NULL)
 }
 
 
-upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL)
+upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL, retries=5)
 {
     if(type != "BlockBlob")
         stop("Only block blobs currently supported")
@@ -64,7 +64,18 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
         id <- openssl::base64_encode(sprintf("%s-%010d", base_id, i))
         opts <- list(comp="block", blockid=id)
 
-        do_container_op(container, dest, headers=headers, body=body, options=opts, http_verb="PUT")
+        for(r in seq_len(retries + 1))
+        {
+            res <- tryCatch(
+                do_container_op(container, dest, headers=headers, body=body, options=opts, http_verb="PUT"),
+                error=function(e) e
+            )
+            if(retry_transfer(res))
+                message(retry_upload_message(src))
+            else break 
+        }
+        if(inherits(res, "error"))
+            stop(res)
 
         blocklist <- c(blocklist, list(Latest=list(id)))
         i <- i + 1
@@ -83,7 +94,7 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
 }
 
 
-multidownload_blob_internal <- function(container, src, dest, overwrite=FALSE, lease=NULL,
+multidownload_blob_internal <- function(container, src, dest, blocksize=2^24, overwrite=FALSE, lease=NULL, retries=5,
                                         max_concurrent_transfers=10)
 {
     files <- list_blobs(container, info="name")
@@ -104,33 +115,69 @@ multidownload_blob_internal <- function(container, src, dest, overwrite=FALSE, l
     parallel::parLapply(.AzureStor$pool, src, function(f)
     {
         dest <- file.path(dest, basename(f))
-        AzureStor::download_blob(container, f, dest, overwrite=overwrite, lease=lease)
+        AzureStor::download_blob(container, f, dest, overwrite=overwrite, lease=lease, retries=retries)
     })
     invisible(NULL)
 }
 
 
-download_blob_internal <- function(container, src, dest, overwrite=FALSE, lease=NULL)
+download_blob_internal <- function(container, src, dest, blocksize=2^24, overwrite=FALSE, lease=NULL, retries=5)
 {
+    file_dest <- is.character(dest)
+    null_dest <- is.null(dest)
+    conn_dest <- inherits(dest, "rawConnection")
+
+    if(!file_dest && !null_dest && !conn_dest)
+        stop("Unrecognised dest argument", call.=FALSE)
+
     headers <- list()
     if(!is.null(lease))
         headers[["x-ms-lease-id"]] <- as.character(lease)
-    
-    if(is.character(dest))
-        return(do_container_op(container, src, headers=headers, config=httr::write_disk(dest, overwrite),
-               progress="down"))
-    
-    # if dest is NULL or a raw connection, return the transferred data in memory as raw bytes
-    cont <- httr::content(do_container_op(container, src, headers=headers, http_status_handler="pass",
-                          as="raw", progress="down"))
-    if(is.null(dest))
-        return(cont)
 
-    if(inherits(dest, "rawConnection"))
+    if(file_dest)
     {
-        writeBin(cont, dest)
-        seek(dest, 0)
-        invisible(NULL)
+        if(!overwrite && file.exists(dest))
+            stop("Destination file exists and overwrite is FALSE", call.=FALSE)
+        dest <- file(dest, "w+b")
+        on.exit(close(dest))
     }
-    else stop("Unrecognised dest argument", call.=FALSE)
+    if(null_dest)
+    {
+        dest <- rawConnection(raw(0), "w+b")
+        on.exit(seek(dest, 0))
+    }
+    if(conn_dest)
+        on.exit(seek(dest, 0))
+        
+    offset <- 0
+
+    # rather than getting the file size, we keep going until we hit eof (http 416)
+    # avoids extra REST call outside loop to get file properties
+    repeat
+    {
+        headers$Range <- sprintf("bytes=%.0f-%.0f", offset, offset + blocksize - 1)
+        for(r in seq_len(retries + 1))
+        {
+            # retry on curl errors, not on httr errors
+            res <- tryCatch(
+                do_container_op(container, src, headers=headers, progress="down", http_status_handler="pass"),
+                error=function(e) e
+            )
+            if(retry_transfer(res))
+                message(retry_download_message(src))
+            else break
+        }
+        if(inherits(res, "error"))
+            stop(res)
+
+        if(httr::status_code(res) == 416) # no data, overran eof
+            break
+
+        httr::stop_for_status(res)
+        writeBin(httr::content(res, as="raw"), dest)
+
+        offset <- offset + blocksize
+    }
+
+    if(null_dest) dest else invisible(NULL)
 }
