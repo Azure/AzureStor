@@ -11,7 +11,7 @@ public=list(
 
     initialize=function(size, direction)
     {
-        self$display <- isTRUE(getOption("azure_dl_progress_bar"))
+        self$display <- isTRUE(getOption("azure_storage_progress_bar"))
         if(self$display)
         {
             self$direction <- direction

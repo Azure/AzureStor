@@ -41,12 +41,10 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
     if(!is.null(lease))
         headers[["x-ms-lease-id"]] <- as.character(lease)
 
-    con <- if(inherits(src, "textConnection"))
-        rawConnection(charToRaw(paste0(readLines(src), collapse="\n")))
-    else if(inherits(src, "rawConnection"))
-        src
-    else file(src, open="rb")
-    on.exit(close(con))
+    src <- normalize_src(src)
+    on.exit(close(src$con))
+
+    bar <- storage_progress_bar$new(src$size, "up")
 
     # upload each block
     blocklist <- list()
@@ -54,7 +52,7 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
     i <- 1
     repeat
     {
-        body <- readBin(con, "raw", blocksize)
+        body <- readBin(src$con, "raw", blocksize)
         thisblock <- length(body)
         if(thisblock == 0)
             break
@@ -64,11 +62,15 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
         id <- openssl::base64_encode(sprintf("%s-%010d", base_id, i))
         opts <- list(comp="block", blockid=id)
 
-        do_container_op(container, dest, headers=headers, body=body, options=opts, http_verb="PUT")
+        do_container_op(container, dest, headers=headers, body=body, options=opts, progress=bar$update(),
+                        http_verb="PUT")
 
         blocklist <- c(blocklist, list(Latest=list(id)))
+        bar$offset <- bar$offset + blocksize
         i <- i + 1
     }
+
+    bar$close()
 
     # update block list
     body <- as.character(xml2::as_xml_document(list(BlockList=blocklist)))

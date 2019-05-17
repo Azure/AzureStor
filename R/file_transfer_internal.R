@@ -30,49 +30,27 @@ upload_azure_file_internal <- function(share, src, dest, blocksize=2^22)
         "application/octet-stream"
     else mime::guess_type(src)
 
-    if(inherits(src, "textConnection"))
-    {
-        src <- charToRaw(paste0(readLines(src), collapse="\n"))
-        nbytes <- length(src)
-        con <- rawConnection(src)
-    }
-    else if(inherits(src, "rawConnection"))
-    {
-        con <- src
-        # need to read the data to get object size (!)
-        nbytes <- 0
-        repeat
-        {
-            x <- readBin(con, "raw", n=blocksize)
-            if(length(x) == 0)
-                break
-            nbytes <- nbytes + length(x)
-        }
-        seek(con, 0) # reposition connection after reading
-    }
-    else
-    {
-        con <- file(src, open="rb")
-        nbytes <- file.info(src)$size
-    }
-    on.exit(close(con))
+    src <- normalize_src(src)
+    on.exit(close(src$con))
 
     # first, create the file
     # ensure content-length is never exponential notation
     headers <- list("x-ms-type"="file",
-                    "x-ms-content-length"=sprintf("%.0f", nbytes))
+                    "x-ms-content-length"=sprintf("%.0f", src$size))
     do_container_op(share, dest, headers=headers, http_verb="PUT")
 
     # then write the bytes into it, one block at a time
     options <- list(comp="range")
     headers <- list("x-ms-write"="Update")
 
+    bar <- storage_progress_bar$new(src$size, "up")
+
     # upload each block
     blocklist <- list()
     range_begin <- 0
-    while(range_begin < nbytes)
+    while(range_begin < src$size)
     {
-        body <- readBin(con, "raw", blocksize)
+        body <- readBin(src$con, "raw", blocksize)
         thisblock <- length(body)
         if(thisblock == 0)  # sanity check
             break
@@ -81,10 +59,14 @@ upload_azure_file_internal <- function(share, src, dest, blocksize=2^22)
         headers[["content-length"]] <- sprintf("%.0f", thisblock)
         headers[["range"]] <- sprintf("bytes=%.0f-%.0f", range_begin, range_begin + thisblock - 1)
 
-        do_container_op(share, dest, headers=headers, body=body, options=options, http_verb="PUT")
+        do_container_op(share, dest, headers=headers, body=body, options=options, progress=bar$update(),
+                        http_verb="PUT")
 
+        bar$offset <- bar$offset + blocksize
         range_begin <- range_begin + thisblock
     }
+
+    bar$close()
 
     do_container_op(share, dest, headers=list("x-ms-content-type"=content_type),
                     options=list(comp="properties"),

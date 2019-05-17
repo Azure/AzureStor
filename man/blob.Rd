@@ -66,7 +66,7 @@ Upload, download, or delete a blob; list blobs in a container.
 
 The file transfer functions also support working with connections to allow transferring R objects without creating temporary files. For uploading, \code{src} can be a \link{textConnection} or \link{rawConnection} object. For downloading, \code{dest} can be NULL or a \code{rawConnection} object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
 
-By default, \code{download_blob} will display a progress bar as it is downloading. To turn this off, use \code{options(azure_dl_progress_bar=FALSE)}. To turn the progress bar back on, use \code{options(azure_dl_progress_bar=TRUE)}.
+By default, the upload and download functions will display a progress bar to track the file transfer. To turn this off, use \code{options(azure_storage_progress_bar=FALSE)}. To turn the progress bar back on, use \code{options(azure_storage_progress_bar=TRUE)}.
 }
 \examples{
 \dontrun{

@@ -226,3 +226,40 @@ retry_transfer <- function(res)
 }
 
 
+normalize_src <- function(src)
+{
+    file_src <- is.character(src)
+    raw_src <- inherits(src, "rawConnection")
+    txt_src <- inherits(src, "textConnection")
+    if(!file_src && !raw_src && !txt_src)
+        stop("Invalid source specification", call.=FALSE)
+    
+    if(txt_src)
+    {
+        src <- charToRaw(paste0(readLines(src), collapse="\n"))
+        nbytes <- length(src)
+        con <- rawConnection(src)
+    }
+    else if(raw_src)
+    {
+        con <- src
+        # need to read the data to get object size (!)
+        nbytes <- 0
+        repeat
+        {
+            x <- readBin(con, "raw", n=1e6)
+            if(length(x) == 0)
+                break
+            nbytes <- nbytes + length(x)
+        }
+        seek(con, 0) # reposition connection after reading
+    }
+    else
+    {
+        con <- file(src, open="rb")
+        nbytes <- file.info(src)$size
+    }
+    list(con=con, size=nbytes)
+}
+
+

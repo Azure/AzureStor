@@ -16,7 +16,7 @@ if(rgname == "" || storname == "")
 
 sub <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$get_subscription(subscription)
 stor <- sub$get_resource_group(rgname)$get_storage_account(storname)
-options(azure_dl_progress_bar=FALSE)
+options(azure_storage_progress_bar=FALSE)
 
 test_that("File client interface works",
 {

@@ -79,7 +79,7 @@ These functions allow you to transfer files to and from a storage account.
 
 \code{upload_to_url} and \code{download_to_url} allow you to transfer a file to or from Azure storage, given the URL of the source or destination. The storage details (endpoint, container name, and so on) are obtained from the URL.
 
-By default, \code{storage_download} and \code{download_from_url} will display a progress bar while they are downloading. To turn this off, use \code{options(azure_dl_progress_bar=FALSE)}. To turn the progress bar back on, use \code{options(azure_dl_progress_bar=TRUE)}.
+By default, \code{storage_download} and \code{download_from_url} will display a progress bar while they are downloading. To turn this off, use \code{options(azure_storage_progress_bar=FALSE)}. To turn the progress bar back on, use \code{options(azure_storage_progress_bar=TRUE)}.
 }
 \examples{
 \dontrun{

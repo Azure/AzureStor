@@ -26,28 +26,28 @@ multiupload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^22
 
 upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lease=NULL)
 {
-    con <- if(inherits(src, "textConnection"))
-        rawConnection(charToRaw(paste0(readLines(src), collapse="\n")))
-    else if(inherits(src, "rawConnection"))
-        src
-    else file(src, open="rb")
-    on.exit(close(con))
-
     # create the file
     content_type <- if(inherits(src, "connection"))
         "application/octet-stream"
     else mime::guess_type(src)
+
     headers <- list(`x-ms-content-type`=content_type)
-    #if(!is.null(lease))
-        #headers[["x-ms-lease-id"]] <- as.character(lease)
+    if(!is.null(lease))
+        headers[["x-ms-lease-id"]] <- as.character(lease)
+
     do_container_op(filesystem, dest, options=list(resource="file"), headers=headers, http_verb="PUT")
+
+    src <- normalize_src(src)
+    on.exit(close(src$con))
+
+    bar <- storage_progress_bar$new(src$size, "up")
 
     # transfer the contents
     blocklist <- list()
     pos <- 0
     repeat
     {
-        body <- readBin(con, "raw", blocksize)
+        body <- readBin(src$con, "raw", blocksize)
         thisblock <- length(body)
         if(thisblock == 0)
             break
@@ -58,10 +58,14 @@ upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lea
         )
         opts <- list(action="append", position=sprintf("%.0f", pos))
 
-        do_container_op(filesystem, dest, headers=headers, body=body, options=opts, http_verb="PATCH")
+        do_container_op(filesystem, dest, headers=headers, body=body, options=opts, progress=bar$update(),
+                        http_verb="PATCH")
 
+        bar$offset <- bar$offset + blocksize
         pos <- pos + thisblock
     }
+
+    bar$close()
 
     # flush contents
     do_container_op(filesystem, dest,
