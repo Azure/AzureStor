@@ -35,12 +35,16 @@ do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), 
         url <- add_sas(sas, url)
 
     headers <- do.call(httr::add_headers, headers)
-    verb <- get(verb, getNamespace("httr"))
-
-    # do actual http[s] call
-    response <- if(!is.null(progress) && isTRUE(getOption("azure_dl_progress_bar")))
-        verb(url, headers, body=body, ..., httr::progress(progress))
-    else verb(url, headers, body=body, ...)
+    retries <- as.numeric(getOption("azure_storage_retries"))
+    for(r in seq_len(retries + 1))
+    {
+        # retry on curl errors, not on httr errors
+        response <- tryCatch(httr::VERB(verb, url, headers, body=body, ...), error=function(e) e)
+        if(!retry_transfer(response))
+            break
+    }
+    if(inherits(response, "error"))
+        stop(response)
 
     handler <- match.arg(http_status_handler)
     if(handler != "pass")
@@ -222,15 +226,3 @@ retry_transfer <- function(res)
 }
 
 
-retry_upload_message <- function(src)
-{
-    if(is.character(src))
-        sprintf("Error uploading file %s, retrying...", src)
-    else "Error uploading from connection, retrying..."
-}
-
-
-retry_download_message <- function(src)
-{
-    sprintf("Error downloading file %s, retrying...", src)
-}

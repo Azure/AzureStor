@@ -199,7 +199,6 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' @param confirm Whether to ask for confirmation on deleting a file or directory.
 #' @param blocksize The number of bytes to upload/download per HTTP(S) request.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
-#' @param retries The number of times the file transfer functions will retry when they encounter an error. Set this to 0 to disable retries. This is applied per block.
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_azure_file` and `multidownload_azure_file`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
 #' @param prefix For `list_azure_files`, filters the result to return only files and directories whose name begins with this prefix.
@@ -289,43 +288,43 @@ list_azure_files <- function(share, dir, info=c("all", "name"),
 
 #' @rdname file
 #' @export
-upload_azure_file <- function(share, src, dest, blocksize=2^22, retries=5, use_azcopy=FALSE)
+upload_azure_file <- function(share, src, dest, blocksize=2^22, use_azcopy=FALSE)
 {
     if(use_azcopy)
         azcopy_upload(share, src, dest, blocksize=blocksize)
-    else upload_azure_file_internal(share, src, dest, blocksize=blocksize, retries=retries)
+    else upload_azure_file_internal(share, src, dest, blocksize=blocksize)
 }
 
 #' @rdname file
 #' @export
-multiupload_azure_file <- function(share, src, dest, blocksize=2^22, retries=5,
+multiupload_azure_file <- function(share, src, dest, blocksize=2^22,
                                    use_azcopy=FALSE,
                                    max_concurrent_transfers=10)
 {
     if(use_azcopy)
         azcopy_upload(share, src, dest, blocksize=blocksize)
-    else multiupload_azure_file_internal(share, src, dest, blocksize=blocksize, retries=retries,
+    else multiupload_azure_file_internal(share, src, dest, blocksize=blocksize,
                                          max_concurrent_transfers=max_concurrent_transfers)
 }
 
 #' @rdname file
 #' @export
-download_azure_file <- function(share, src, dest, blocksize=2^22, overwrite=FALSE, retries=5, use_azcopy=FALSE)
+download_azure_file <- function(share, src, dest, blocksize=2^22, overwrite=FALSE, use_azcopy=FALSE)
 {
     if(use_azcopy)
         azcopy_download(share, src, dest, overwrite=overwrite)
-    else download_azure_file_internal(share, src, dest, blocksize=blocksize, overwrite=overwrite, retries=retries)
+    else download_azure_file_internal(share, src, dest, blocksize=blocksize, overwrite=overwrite)
 }
 
 #' @rdname file
 #' @export
-multidownload_azure_file <- function(share, src, dest, blocksize=2^22, overwrite=FALSE, retries=5,
+multidownload_azure_file <- function(share, src, dest, blocksize=2^22, overwrite=FALSE,
                                      use_azcopy=FALSE,
                                      max_concurrent_transfers=10)
 {
     if(use_azcopy)
         azcopy_download(share, src, dest, overwrite=overwrite)
-    else multidownload_azure_file_internal(share, src, dest, blocksize=blocksize, overwrite=overwrite, retries=retries,
+    else multidownload_azure_file_internal(share, src, dest, blocksize=blocksize, overwrite=overwrite,
                                            max_concurrent_transfers=max_concurrent_transfers)
 }
 

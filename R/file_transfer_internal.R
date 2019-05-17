@@ -1,4 +1,4 @@
-multiupload_azure_file_internal <- function(share, src, dest, blocksize=2^22, retries=5, max_concurrent_transfers=10)
+multiupload_azure_file_internal <- function(share, src, dest, blocksize=2^22, max_concurrent_transfers=10)
 {
     src_dir <- dirname(src)
     src_files <- glob2rx(basename(src))
@@ -7,7 +7,7 @@ multiupload_azure_file_internal <- function(share, src, dest, blocksize=2^22, re
     if(length(src) == 0)
         stop("No files to transfer", call.=FALSE)
     if(length(src) == 1)
-        return(upload_azure_file(share, src, dest, blocksize=blocksize, retries=retries))
+        return(upload_azure_file(share, src, dest, blocksize=blocksize))
 
     init_pool(max_concurrent_transfers)
 
@@ -17,13 +17,13 @@ multiupload_azure_file_internal <- function(share, src, dest, blocksize=2^22, re
     parallel::parLapply(.AzureStor$pool, src, function(f)
     {
         dest <- sub("//", "/", file.path(dest, basename(f))) # API too dumb to handle //'s
-        AzureStor::upload_azure_file(share, f, dest, blocksize=blocksize, retries=retries)
+        AzureStor::upload_azure_file(share, f, dest, blocksize=blocksize)
     })
     invisible(NULL)
 }
 
 
-upload_azure_file_internal <- function(share, src, dest, blocksize=2^22, retries=5)
+upload_azure_file_internal <- function(share, src, dest, blocksize=2^22)
 {
     # set content type
     content_type <- if(inherits(src, "connection"))
@@ -81,18 +81,7 @@ upload_azure_file_internal <- function(share, src, dest, blocksize=2^22, retries
         headers[["content-length"]] <- sprintf("%.0f", thisblock)
         headers[["range"]] <- sprintf("bytes=%.0f-%.0f", range_begin, range_begin + thisblock - 1)
 
-        for(r in seq_len(retries + 1))
-        {
-            res <- tryCatch(
-                do_container_op(share, dest, headers=headers, body=body, options=options, http_verb="PUT"),
-                error=function(e) e
-            )
-            if(retry_transfer(res))
-                retry_upload_message(src)
-            else break 
-        }
-        if(inherits(res, "error"))
-            stop(res)
+        do_container_op(share, dest, headers=headers, body=body, options=options, http_verb="PUT")
 
         range_begin <- range_begin + thisblock
     }
@@ -104,7 +93,7 @@ upload_azure_file_internal <- function(share, src, dest, blocksize=2^22, retries
 }
 
 
-multidownload_azure_file_internal <- function(share, src, dest, blocksize=2^22, overwrite=FALSE, retries=5,
+multidownload_azure_file_internal <- function(share, src, dest, blocksize=2^22, overwrite=FALSE,
                                               max_concurrent_transfers=10)
 {
     src_files <- glob2rx(basename(src))
@@ -118,7 +107,7 @@ multidownload_azure_file_internal <- function(share, src, dest, blocksize=2^22, 
     if(length(src) == 0)
         stop("No files to transfer", call.=FALSE)
     if(length(src) == 1)
-        return(download_azure_file(share, src, dest, blocksize=blocksize, overwrite=overwrite, retries=retries))
+        return(download_azure_file(share, src, dest, blocksize=blocksize, overwrite=overwrite))
 
     init_pool(max_concurrent_transfers)
 
@@ -128,13 +117,13 @@ multidownload_azure_file_internal <- function(share, src, dest, blocksize=2^22, 
     parallel::parLapply(.AzureStor$pool, src, function(f)
     {
         dest <- file.path(dest, basename(f))
-        AzureStor::download_azure_file(share, f, dest, blocksize=blocksize, overwrite=overwrite, retries=retries)
+        AzureStor::download_azure_file(share, f, dest, blocksize=blocksize, overwrite=overwrite)
     })
     invisible(NULL)
 }
 
 
-download_azure_file_internal <- function(share, src, dest, blocksize=2^22, overwrite=FALSE, retries=5)
+download_azure_file_internal <- function(share, src, dest, blocksize=2^22, overwrite=FALSE)
 {
     file_dest <- is.character(dest)
     null_dest <- is.null(dest)
@@ -166,19 +155,7 @@ download_azure_file_internal <- function(share, src, dest, blocksize=2^22, overw
     repeat
     {
         headers$Range <- sprintf("bytes=%.0f-%.0f", offset, offset + blocksize - 1)
-        for(r in seq_len(retries + 1))
-        {
-            # retry on curl errors, not on httr errors
-            res <- tryCatch(
-                do_container_op(share, src, headers=headers, progress="down", http_status_handler="pass"),
-                error=function(e) e
-            )
-            if(retry_transfer(res))
-                message(retry_download_message(src))
-            else break
-        }
-        if(inherits(res, "error"))
-            stop(res)
+        res <- do_container_op(share, src, headers=headers, progress="down", http_status_handler="pass")
 
         if(httr::status_code(res) == 416) # no data, overran eof
             break

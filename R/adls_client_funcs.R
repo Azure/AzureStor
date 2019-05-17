@@ -214,7 +214,6 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #' @param blocksize The number of bytes to upload/download per HTTP(S) request.
 #' @param lease The lease for a file, if present.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
-#' @param retries The number of times the file transfer functions will retry when they encounter an error. Set this to 0 to disable retries. This is applied per block.
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_adls_file` and `multidownload_adls_file`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
 #' @param recursive For `list_adls_files`, and `delete_adls_dir`, whether the operation should recurse through subdirectories. For `delete_adls_dir`, this must be TRUE to delete a non-empty directory.
@@ -324,48 +323,47 @@ list_adls_files <- function(filesystem, dir="/", info=c("all", "name"),
 
 #' @rdname adls
 #' @export
-multiupload_adls_file <- function(filesystem, src, dest, blocksize=2^22, lease=NULL, retries=5,
+multiupload_adls_file <- function(filesystem, src, dest, blocksize=2^22, lease=NULL,
                                    use_azcopy=FALSE,
                                    max_concurrent_transfers=10)
 {
     if(use_azcopy)
         azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease)
-    else multiupload_adls_file_internal(filesystem, src, dest, blocksize=blocksize, lease=lease, retries=retries,
+    else multiupload_adls_file_internal(filesystem, src, dest, blocksize=blocksize, lease=lease,
                                         max_concurrent_transfers=max_concurrent_transfers)
 }
 
 
 #' @rdname adls
 #' @export
-upload_adls_file <- function(filesystem, src, dest, blocksize=2^24, lease=NULL, retries=5, use_azcopy=FALSE)
+upload_adls_file <- function(filesystem, src, dest, blocksize=2^24, lease=NULL, use_azcopy=FALSE)
 {
     if(use_azcopy)
         azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease)
-    else upload_adls_file_internal(filesystem, src, dest, blocksize=blocksize, lease=lease, retries=retries)
+    else upload_adls_file_internal(filesystem, src, dest, blocksize=blocksize, lease=lease)
 }
 
 
 #' @rdname adls
 #' @export
-multidownload_adls_file <- function(filesystem, src, dest, blocksize=2^24, overwrite=FALSE, retries=5,
+multidownload_adls_file <- function(filesystem, src, dest, blocksize=2^24, overwrite=FALSE,
                                     use_azcopy=FALSE,
                                     max_concurrent_transfers=10)
 {
     if(use_azcopy)
         azcopy_upload(filesystem, src, dest, overwrite=overwrite)
     else multidownload_adls_file_internal(filesystem, src, dest, blocksize=blocksize, overwrite=overwrite,
-                                          retries=retries,
                                           max_concurrent_transfers=max_concurrent_transfers)
 }
 
 
 #' @rdname adls
 #' @export
-download_adls_file <- function(filesystem, src, dest, blocksize=2^24, overwrite=FALSE, retries=5, use_azcopy=FALSE)
+download_adls_file <- function(filesystem, src, dest, blocksize=2^24, overwrite=FALSE, use_azcopy=FALSE)
 {
     if(use_azcopy)
         azcopy_download(filesystem, src, dest, overwrite=overwrite)
-    else download_adls_file_internal(filesystem, src, dest, blocksize=blocksize, overwrite=overwrite, retries=retries)
+    else download_adls_file_internal(filesystem, src, dest, blocksize=blocksize, overwrite=overwrite)
 }
 
 

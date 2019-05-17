@@ -1,4 +1,4 @@
-multiupload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL, retries=5,
+multiupload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL,
                                       max_concurrent_transfers=10)
 {
     src_dir <- dirname(src)
@@ -23,13 +23,13 @@ multiupload_blob_internal <- function(container, src, dest, type="BlockBlob", bl
         dest <- if(dest == "/")
             basename(f)
         else file.path(dest, basename(f))
-        AzureStor::upload_blob(container, f, dest, type=type, blocksize=blocksize, lease=lease, retries=retries)
+        AzureStor::upload_blob(container, f, dest, type=type, blocksize=blocksize, lease=lease)
     })
     invisible(NULL)
 }
 
 
-upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL, retries=5)
+upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL)
 {
     if(type != "BlockBlob")
         stop("Only block blobs currently supported")
@@ -52,7 +52,7 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
     blocklist <- list()
     base_id <- openssl::md5(dest)
     i <- 1
-    while(1)
+    repeat
     {
         body <- readBin(con, "raw", blocksize)
         thisblock <- length(body)
@@ -64,18 +64,7 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
         id <- openssl::base64_encode(sprintf("%s-%010d", base_id, i))
         opts <- list(comp="block", blockid=id)
 
-        for(r in seq_len(retries + 1))
-        {
-            res <- tryCatch(
-                do_container_op(container, dest, headers=headers, body=body, options=opts, http_verb="PUT"),
-                error=function(e) e
-            )
-            if(retry_transfer(res))
-                message(retry_upload_message(src))
-            else break 
-        }
-        if(inherits(res, "error"))
-            stop(res)
+        do_container_op(container, dest, headers=headers, body=body, options=opts, http_verb="PUT")
 
         blocklist <- c(blocklist, list(Latest=list(id)))
         i <- i + 1
@@ -94,7 +83,7 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
 }
 
 
-multidownload_blob_internal <- function(container, src, dest, blocksize=2^24, overwrite=FALSE, lease=NULL, retries=5,
+multidownload_blob_internal <- function(container, src, dest, blocksize=2^24, overwrite=FALSE, lease=NULL,
                                         max_concurrent_transfers=10)
 {
     files <- list_blobs(container, info="name")
@@ -115,13 +104,13 @@ multidownload_blob_internal <- function(container, src, dest, blocksize=2^24, ov
     parallel::parLapply(.AzureStor$pool, src, function(f)
     {
         dest <- file.path(dest, basename(f))
-        AzureStor::download_blob(container, f, dest, overwrite=overwrite, lease=lease, retries=retries)
+        AzureStor::download_blob(container, f, dest, overwrite=overwrite, lease=lease)
     })
     invisible(NULL)
 }
 
 
-download_blob_internal <- function(container, src, dest, blocksize=2^24, overwrite=FALSE, lease=NULL, retries=5)
+download_blob_internal <- function(container, src, dest, blocksize=2^24, overwrite=FALSE, lease=NULL)
 {
     file_dest <- is.character(dest)
     null_dest <- is.null(dest)
@@ -156,19 +145,7 @@ download_blob_internal <- function(container, src, dest, blocksize=2^24, overwri
     repeat
     {
         headers$Range <- sprintf("bytes=%.0f-%.0f", offset, offset + blocksize - 1)
-        for(r in seq_len(retries + 1))
-        {
-            # retry on curl errors, not on httr errors
-            res <- tryCatch(
-                do_container_op(container, src, headers=headers, progress="down", http_status_handler="pass"),
-                error=function(e) e
-            )
-            if(retry_transfer(res))
-                message(retry_download_message(src))
-            else break
-        }
-        if(inherits(res, "error"))
-            stop(res)
+        res <- do_container_op(container, src, headers=headers, progress="down", http_status_handler="pass")
 
         if(httr::status_code(res) == 416) # no data, overran eof
             break
