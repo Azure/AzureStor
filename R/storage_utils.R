@@ -39,7 +39,7 @@ do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), 
     for(r in seq_len(retries + 1))
     {
         # retry on curl errors, not on httr errors
-        response <- tryCatch(httr::VERB(verb, url, headers, body=body, ...), error=function(e) e)
+        response <- tryCatch(httr::VERB(verb, url, headers, body=body, progress, ...), error=function(e) e)
         if(!retry_transfer(response))
             break
     }

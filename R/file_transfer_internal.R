@@ -148,23 +148,25 @@ download_azure_file_internal <- function(share, src, dest, blocksize=2^22, overw
     if(conn_dest)
         on.exit(seek(dest, 0))
         
+    # get file size (for progress bar)
+    res <- do_container_op(share, src, headers=headers, http_verb="HEAD", http_status_handler="pass")
+    httr::stop_for_status(res, storage_error_message(res))
+    size <- as.numeric(httr::headers(res)[["Content-Length"]])
+
+    bar <- storage_progress_bar$new(size, "down")
     offset <- 0
 
-    # rather than getting the file size, we keep going until we hit eof (http 416)
-    # avoids extra REST call outside loop to get file properties
-    repeat
+    while(offset < size)
     {
         headers$Range <- sprintf("bytes=%.0f-%.0f", offset, offset + blocksize - 1)
-        res <- do_container_op(share, src, headers=headers, progress="down", http_status_handler="pass")
-
-        if(httr::status_code(res) == 416) # no data, overran eof
-            break
-
-        httr::stop_for_status(res)
+        res <- do_container_op(share, src, headers=headers, progress=bar$update(), http_status_handler="pass")
+        httr::stop_for_status(res, storage_error_message(res))
         writeBin(httr::content(res, as="raw"), dest)
 
         offset <- offset + blocksize
+        bar$offset <- offset
     }
 
+    bar$close()
     if(null_dest) dest else invisible(NULL)
 }
