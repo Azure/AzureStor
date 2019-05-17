@@ -17,8 +17,7 @@ AzureStor implements an interface to Azure Resource Manager, which you can use m
 
 ```r
 # create a new resource group for the storage account
-rg <- AzureRMR::az_rm$
-    new(tenant="{tenant_id}", app="{app_id}", password="{password}")$
+rg <- AzureRMR::get_azure_login()$
     get_subscription("{subscription_id}")$
     create_resource_group("myresourcegroup", location="australiaeast")
 
