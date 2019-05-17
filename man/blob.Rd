@@ -13,17 +13,17 @@ list_blobs(container, info = c("partial", "name", "all"),
   prefix = NULL)
 
 upload_blob(container, src, dest, type = "BlockBlob", blocksize = 2^24,
-  lease = NULL, retries = 5, use_azcopy = FALSE)
+  lease = NULL, use_azcopy = FALSE)
 
 multiupload_blob(container, src, dest, type = "BlockBlob",
-  blocksize = 2^24, lease = NULL, retries = 5, use_azcopy = FALSE,
+  blocksize = 2^24, lease = NULL, use_azcopy = FALSE,
   max_concurrent_transfers = 10)
 
 download_blob(container, src, dest, blocksize = 2^24,
-  overwrite = FALSE, lease = NULL, retries = 5, use_azcopy = FALSE)
+  overwrite = FALSE, lease = NULL, use_azcopy = FALSE)
 
 multidownload_blob(container, src, dest, blocksize = 2^24,
-  overwrite = FALSE, lease = NULL, retries = 5, use_azcopy = FALSE,
+  overwrite = FALSE, lease = NULL, use_azcopy = FALSE,
   max_concurrent_transfers = 10)
 
 delete_blob(container, blob, confirm = TRUE)
@@ -42,8 +42,6 @@ delete_blob(container, blob, confirm = TRUE)
 \item{blocksize}{The number of bytes to upload/download per HTTP(S) request.}
 
 \item{lease}{The lease for a blob, if present.}
-
-\item{retries}{The number of times the file transfer functions will retry when they encounter an error. Set this to 0 to disable retries. This is applied per block.}
 
 \item{use_azcopy}{Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.}
 

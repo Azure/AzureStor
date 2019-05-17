@@ -1,4 +1,4 @@
-multiupload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^22, lease=lease, retries=5,
+multiupload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^22, lease=lease,
                                            max_concurrent_transfers=10)
 {
     src_files <- glob2rx(basename(src))
@@ -8,7 +8,7 @@ multiupload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^22
     if(length(src) == 0)
         stop("No files to transfer", call.=FALSE)
     if(length(src) == 1)
-        return(upload_adls_file(filesystem, src, dest, blocksize=blocksize, lease=lease, retries=retries))
+        return(upload_adls_file(filesystem, src, dest, blocksize=blocksize, lease=lease))
 
     init_pool(max_concurrent_transfers)
 
@@ -18,13 +18,13 @@ multiupload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^22
     parallel::parLapply(.AzureStor$pool, src, function(f)
     {
         dest <- sub("//", "/", file.path(dest, basename(f))) # API too dumb to handle //'s
-        AzureStor::upload_adls_file(filesystem, f, dest, blocksize=blocksize, lease=lease, retries=retries)
+        AzureStor::upload_adls_file(filesystem, f, dest, blocksize=blocksize, lease=lease)
     })
     invisible(NULL)
 }
 
 
-upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lease=NULL, retries=5)
+upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lease=NULL)
 {
     con <- if(inherits(src, "textConnection"))
         rawConnection(charToRaw(paste0(readLines(src), collapse="\n")))
@@ -45,7 +45,7 @@ upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lea
     # transfer the contents
     blocklist <- list()
     pos <- 0
-    while(1)
+    repeat
     {
         body <- readBin(con, "raw", blocksize)
         thisblock <- length(body)
@@ -58,18 +58,7 @@ upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lea
         )
         opts <- list(action="append", position=sprintf("%.0f", pos))
 
-        for(r in seq_len(retries + 1))
-        {
-            res <- tryCatch(
-                do_container_op(filesystem, dest, headers=headers, body=body, options=opts, http_verb="PATCH"),
-                error=function(e) e
-            )
-            if(retry_transfer(res))
-                message(retry_upload_message(src))
-            else break 
-        }
-        if(inherits(res, "error"))
-            stop(res)
+        do_container_op(filesystem, dest, headers=headers, body=body, options=opts, http_verb="PATCH")
 
         pos <- pos + thisblock
     }
@@ -81,7 +70,7 @@ upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lea
 }
 
 
-multidownload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, overwrite=FALSE, retries=5,
+multidownload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, overwrite=FALSE,
                                              max_concurrent_transfers=10)
 {
     src_dir <- dirname(src)
@@ -94,7 +83,7 @@ multidownload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^
     if(length(src) == 0)
         stop("No files to transfer", call.=FALSE)
     if(length(src) == 1)
-        return(download_adls_file(filesystem, src, dest, blocksize=blocksize, overwrite=overwrite, retries=retries))
+        return(download_adls_file(filesystem, src, dest, blocksize=blocksize, overwrite=overwrite))
 
     init_pool(max_concurrent_transfers)
 
@@ -104,13 +93,13 @@ multidownload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^
     parallel::parLapply(.AzureStor$pool, src, function(f)
     {
         dest <- file.path(dest, basename(f))
-        AzureStor::download_adls_file(filesystem, f, dest, blocksize=blocksize, overwrite=overwrite, retries=retries)
+        AzureStor::download_adls_file(filesystem, f, dest, blocksize=blocksize, overwrite=overwrite)
     })
     invisible(NULL)
 }
 
 
-download_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, overwrite=FALSE, retries=5)
+download_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, overwrite=FALSE)
 {
     file_dest <- is.character(dest)
     null_dest <- is.null(dest)
@@ -142,19 +131,7 @@ download_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, o
     repeat
     {
         headers$Range <- sprintf("bytes=%.0f-%.0f", offset, offset + blocksize - 1)
-        for(r in seq_len(retries + 1))
-        {
-            # retry on curl errors, not on httr errors
-            res <- tryCatch(
-                do_container_op(filesystem, src, headers=headers, progress="down", http_status_handler="pass"),
-                error=function(e) e
-            )
-            if(retry_transfer(res))
-                message(retry_download_message(src))
-            else break
-        }
-        if(inherits(res, "error"))
-            stop(res)
+        res <- do_container_op(filesystem, src, headers=headers, progress="down", http_status_handler="pass")
 
         if(httr::status_code(res) == 416) # no data, overran eof
             break
