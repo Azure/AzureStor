@@ -25,11 +25,6 @@ multiupload_azure_file_internal <- function(share, src, dest, blocksize=2^22, ma
 
 upload_azure_file_internal <- function(share, src, dest, blocksize=2^22)
 {
-    # set content type
-    content_type <- if(inherits(src, "connection"))
-        "application/octet-stream"
-    else mime::guess_type(src)
-
     src <- normalize_src(src)
     on.exit(close(src$con))
 
@@ -68,7 +63,7 @@ upload_azure_file_internal <- function(share, src, dest, blocksize=2^22)
 
     bar$close()
 
-    do_container_op(share, dest, headers=list("x-ms-content-type"=content_type),
+    do_container_op(share, dest, headers=list("x-ms-content-type"=src$content_type),
                     options=list(comp="properties"),
                     http_verb="PUT")
     invisible(NULL)

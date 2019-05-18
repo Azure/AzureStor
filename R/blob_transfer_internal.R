@@ -33,16 +33,13 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
 {
     if(type != "BlockBlob")
         stop("Only block blobs currently supported")
-    content_type <- if(inherits(src, "connection"))
-        "application/octet-stream"
-    else mime::guess_type(src)
+
+    src <- normalize_src(src)
+    on.exit(close(src$con))
 
     headers <- list("x-ms-blob-type"=type)
     if(!is.null(lease))
         headers[["x-ms-lease-id"]] <- as.character(lease)
-
-    src <- normalize_src(src)
-    on.exit(close(src$con))
 
     bar <- storage_progress_bar$new(src$size, "up")
 
@@ -79,7 +76,7 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
                     http_verb="PUT")
 
     # set content type
-    do_container_op(container, dest, headers=list("x-ms-blob-content-type"=content_type),
+    do_container_op(container, dest, headers=list("x-ms-blob-content-type"=src$content_type),
                     options=list(comp="properties"),
                     http_verb="PUT")
 }

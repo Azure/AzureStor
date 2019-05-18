@@ -233,33 +233,36 @@ normalize_src <- function(src)
     txt_src <- inherits(src, "textConnection")
     if(!file_src && !raw_src && !txt_src)
         stop("Invalid source specification", call.=FALSE)
-    
+
     if(txt_src)
     {
+        content_type <- "application/octet-stream"
         src <- charToRaw(paste0(readLines(src), collapse="\n"))
-        nbytes <- length(src)
+        size <- length(src)
         con <- rawConnection(src)
     }
     else if(raw_src)
     {
+        content_type <- "application/octet-stream"
         con <- src
         # need to read the data to get object size (!)
-        nbytes <- 0
+        size <- 0
         repeat
         {
             x <- readBin(con, "raw", n=1e6)
             if(length(x) == 0)
                 break
-            nbytes <- nbytes + length(x)
+            size <- size + length(x)
         }
         seek(con, 0) # reposition connection after reading
     }
     else
     {
+        content_type <- mime::guess_type(src)
         con <- file(src, open="rb")
-        nbytes <- file.info(src)$size
+        size <- file.info(src)$size
     }
-    list(con=con, size=nbytes)
+    list(content_type=content_type, con=con, size=size)
 }
 
 

@@ -26,19 +26,14 @@ multiupload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^22
 
 upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lease=NULL)
 {
-    # create the file
-    content_type <- if(inherits(src, "connection"))
-        "application/octet-stream"
-    else mime::guess_type(src)
+    src <- normalize_src(src)
+    on.exit(close(src$con))
 
-    headers <- list(`x-ms-content-type`=content_type)
+    headers <- list(`x-ms-content-type`=src$content_type)
     if(!is.null(lease))
         headers[["x-ms-lease-id"]] <- as.character(lease)
 
     do_container_op(filesystem, dest, options=list(resource="file"), headers=headers, http_verb="PUT")
-
-    src <- normalize_src(src)
-    on.exit(close(src$con))
 
     bar <- storage_progress_bar$new(src$size, "up")
 
