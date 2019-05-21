@@ -5,5 +5,5 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- script: 'git push --prune https://$(ghPat)@github.com/cloudyr/AzureStor +refs/remotes/origin/*:refs/heads/* +refs/tags/*:refs/tags/*'
+  displayName: 'copy to cloudyr'
