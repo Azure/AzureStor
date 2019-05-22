@@ -2,9 +2,9 @@
 
 [![CRAN](https://www.r-pkg.org/badges/version/AzureStor)](https://cran.r-project.org/package=AzureStor)
 ![Downloads](https://cranlogs.r-pkg.org/badges/AzureStor)
-[![Travis Build Status](https://travis-ci.org/cloudyr/AzureStor.png?branch=master)](https://travis-ci.org/cloudyr/AzureStor)
+[![Travis Build Status](https://travis-ci.org/Azure/AzureStor.png?branch=master)](https://travis-ci.org/Azure/AzureStor)
 
-This package implements both an admin- and client-side interface to [Azure Storage Services](https://docs.microsoft.com/en-us/rest/api/storageservices/). The admin interface uses R6 classes and extends the framework provided by [AzureRMR](https://github.com/hong-revo/AzureRMR). The client interface provides several S3 methods for efficiently managing storage and performing file transfers.
+This package implements both an admin- and client-side interface to [Azure Storage Services](https://docs.microsoft.com/en-us/rest/api/storageservices/). The admin interface uses R6 classes and extends the framework provided by [AzureRMR](https://github.com/Azure/AzureRMR). The client interface provides several S3 methods for efficiently managing storage and performing file transfers.
 
 ## Storage endpoints
 
