@@ -36,12 +36,15 @@ do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), 
 
     headers <- do.call(httr::add_headers, headers)
     retries <- as.numeric(getOption("azure_storage_retries"))
-    for(r in seq_len(retries + 1))
+    r <- 0
+    repeat
     {
+        r <- r + 1
         # retry on curl errors, not on httr errors
         response <- tryCatch(httr::VERB(verb, url, headers, body=body, progress, ...), error=function(e) e)
-        if(!retry_transfer(response))
-            break
+        if(retry_transfer(response) && r <= retries)
+            message("Connection error, retrying (", r, " of ", retries, ")")
+        else break
     }
     if(inherits(response, "error"))
         stop(response)
