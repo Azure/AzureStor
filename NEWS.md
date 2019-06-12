@@ -1,3 +1,7 @@
+# AzureStor 2.0.2.9000
+
+- Update client API versions to "2018-11-09".
+
 # AzureStor 2.0.2
 
 - By default, HTTP(S) requests to the storage endpoint will now be retried on encountering a network error. To change the number of retries, call `options(azure_storage_retries=N)` where N >= 0. Setting this option to zero disables retrying.

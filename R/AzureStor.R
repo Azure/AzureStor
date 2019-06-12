@@ -9,8 +9,8 @@ globalVariables(c("self", "pool"), "AzureStor")
 
 .onLoad <- function(libname, pkgname)
 {
-    options(azure_storage_api_version="2018-03-28")
-    options(azure_adls_api_version="2018-06-17")
+    options(azure_storage_api_version="2018-11-09")
+    options(azure_adls_api_version="2018-11-09")
     options(azure_storage_progress_bar=TRUE)
     options(azure_storage_retries=10)
 
