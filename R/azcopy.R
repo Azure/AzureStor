@@ -92,7 +92,7 @@ azcopy_upload <- function(container, src, dest, ...)
 azcopy_upload.blob_container <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL, ...)
 {
     opts <- paste("--blobType", type, "--block-size", sprintf("%.0f", blocksize))
-    azcopy_upload_internal(src, dest, opts)
+    azcopy_upload_internal(container, src, dest, opts)
 }
 
 azcopy_upload.file_share <- function(container, src, dest, blocksize=2^24, ...)
