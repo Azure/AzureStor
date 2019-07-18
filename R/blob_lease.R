@@ -40,7 +40,7 @@ break_lease <- function(container, blob="", period=NULL)
 {
     headers <- list("x-ms-lease-action"="break")
     if(!is_empty(period))
-        headers=c(headers, list("x-ms-lease-break-period"=period))
+        headers <- c(headers, list("x-ms-lease-break-period"=period))
     do_container_op(container, blob, options=list(comp="lease", restype="container"), headers=headers,
                     http_verb="PUT")
 }

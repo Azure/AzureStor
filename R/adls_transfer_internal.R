@@ -122,7 +122,7 @@ download_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, o
     }
     if(conn_dest)
         on.exit(seek(dest, 0))
-        
+
     # get file size (for progress bar)
     res <- do_container_op(filesystem, src, headers=headers, http_verb="HEAD", http_status_handler="pass")
     httr::stop_for_status(res, storage_error_message(res))

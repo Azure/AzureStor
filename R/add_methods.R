@@ -10,7 +10,7 @@
 #' @section Usage:
 #' ```
 #' create_storage_account(name, location, kind = "StorageV2", replication = "Standard_LRS",
-#'                        access_tier = "hot"), https_only = TRUE, 
+#'                        access_tier = "hot"), https_only = TRUE,
 #'                        hierarchical_namespace_enabled = FALSE, properties = list(), ...)
 #' ```
 #' @section Arguments:
@@ -27,7 +27,7 @@
 #' @section Details:
 #' This method deploys a new storage account resource, with parameters given by the arguments. A storage account can host multiple types of storage:
 #' - blob storage
-#' - file storage 
+#' - file storage
 #' - table storage
 #' - queue storage
 #' - Azure Data Lake Storage Gen2

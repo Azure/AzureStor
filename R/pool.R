@@ -45,7 +45,7 @@ delete_pool <- function()
 {
     if(!exists("pool", envir=.AzureStor))
         return()
-    
+
     message("Deleting background pool")
     parallel::stopCluster(.AzureStor$pool)
     rm(pool, envir=.AzureStor)

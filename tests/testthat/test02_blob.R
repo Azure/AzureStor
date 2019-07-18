@@ -187,7 +187,7 @@ test_that("Blob client interface works",
 
 test_that("AAD authentication works",
 {
-    url <- stor$get_blob_endpoint()$url 
+    url <- stor$get_blob_endpoint()$url
     token <- AzureRMR::get_azure_token("https://storage.azure.com/", tenant=tenant, app=app, password=password)
     bl <- blob_endpoint(url, token=token)
     cont <- create_blob_container(bl, "newcontainer4")
@@ -319,6 +319,24 @@ test_that("chunked downloading works",
 
     con <- download_blob(cont, "iris.csv", NULL, blocksize=150)
     expect_identical(readBin(orig_file, "raw", n=1e5), readBin(con, "raw", n=1e5))
+})
+
+
+test_that("copy from url works",
+{
+    bl <- stor$get_blob_endpoint()
+    cont <- create_blob_container(bl, "urltransfer")
+
+    # copy from GitHub repo
+    src_url <- "https://raw.githubusercontent.com/Azure/AzureStor/master/tests/resources/iris.csv"
+    orig_file <- "../resources/iris.csv"
+    new_file <- tempfile()
+
+    copy_url_to_blob(cont, src_url, "iris.csv", async=FALSE)
+    download_blob(cont, "iris.csv", new_file)
+
+    # use readLines to workaround GH auto-translating CRLF -> LF
+    expect_identical(readLines(orig_file), readLines(new_file))
 })
 
 

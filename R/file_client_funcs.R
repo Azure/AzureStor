@@ -3,7 +3,7 @@
 #' Get, list, create, or delete file shares.
 #'
 #' @param endpoint Either a file endpoint object as created by [storage_endpoint], or a character string giving the URL of the endpoint.
-#' @param key,token,sas If an endpoint object is not supplied, authentication credentials: either an access key, an Azure Active Directory (AAD) token, or a SAS, in that order of priority. 
+#' @param key,token,sas If an endpoint object is not supplied, authentication credentials: either an access key, an Azure Active Directory (AAD) token, or a SAS, in that order of priority.
 #' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2018-03-28"`.
 #' @param name The name of the file share to get, create, or delete.
 #' @param confirm For deleting a share, whether to ask for confirmation.
@@ -195,7 +195,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' @param share A file share object.
 #' @param dir,file A string naming a directory or file respectively.
 #' @param info Whether to return names only, or all information in a directory listing.
-#' @param src,dest The source and destination files for uploading and downloading. For uploading, `src` can also be a [textConnection] or [rawConnection] object to allow transferring in-memory R objects without creating a temporary file.
+#' @param src,dest The source and destination files for uploading and downloading. See 'Details' below.
 #' @param confirm Whether to ask for confirmation on deleting a file or directory.
 #' @param blocksize The number of bytes to upload/download per HTTP(S) request.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
@@ -276,7 +276,7 @@ list_azure_files <- function(share, dir, info=c("all", "name"),
     name <- vapply(lst$Entries, function(ent) ent$Name[[1]], FUN.VALUE=character(1))
     if(info == "name")
         return(name)
- 
+
     type <- if(is_empty(name)) character(0) else names(name)
     size <- vapply(lst$Entries,
                    function(ent) if(is_empty(ent$Properties)) NA_character_

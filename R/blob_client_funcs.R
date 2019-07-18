@@ -225,7 +225,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #'
 #' @param container A blob container object.
 #' @param blob A string naming a blob.
-#' @param src,dest The source and destination files for uploading and downloading. See 'Details' below.For uploading, `src` can also be a [textConnection] or [rawConnection] object to allow transferring in-memory R objects without creating a temporary file. For downloading, 
+#' @param src,dest The source and destination files for uploading and downloading. See 'Details' below.
 #' @param info For `list_blobs`, level of detail about each blob to return: a vector of names only; the name, size and last-modified date (default); or all information.
 #' @param confirm Whether to ask for confirmation on deleting a blob.
 #' @param blocksize The number of bytes to upload/download per HTTP(S) request.
@@ -286,6 +286,11 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' con <- rawConnection(raw(0), "r+")
 #' download_blob(cont, "iris.rds", con)
 #' unserialize(con)
+#'
+#' # copy from a public URL: Iris data from UCI machine learning repository
+#' copy_url_to_blob(cont,
+#'     "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data",
+#'     "iris.csv")
 #'
 #' }
 #' @rdname blob
