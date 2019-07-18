@@ -287,6 +287,11 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' download_blob(cont, "iris.rds", con)
 #' unserialize(con)
 #'
+#' # copy from a public URL: Iris data from UCI machine learning repository
+#' copy_url_to_blob(cont,
+#'     "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data",
+#'     "iris.csv")
+#'
 #' }
 #' @rdname blob
 #' @export
