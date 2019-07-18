@@ -41,7 +41,7 @@ delete_azure_dir(share, dir, confirm = TRUE)
 
 \item{prefix}{For \code{list_azure_files}, filters the result to return only files and directories whose name begins with this prefix.}
 
-\item{src, dest}{The source and destination files for uploading and downloading. For uploading, \code{src} can also be a \link{textConnection} or \link{rawConnection} object to allow transferring in-memory R objects without creating a temporary file.}
+\item{src, dest}{The source and destination files for uploading and downloading. See 'Details' below.}
 
 \item{blocksize}{The number of bytes to upload/download per HTTP(S) request.}
 

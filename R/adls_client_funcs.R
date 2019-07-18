@@ -118,7 +118,7 @@ list_adls_filesystems.character <- function(endpoint, key=NULL, token=NULL, sas=
 list_adls_filesystems.adls_endpoint <- function(endpoint, ...)
 {
     lst <- do_storage_call(endpoint$url, "/", options=list(resource="account"),
-                           key=endpoint$key, token=endpoint$token,, sas=endpoint$sas,
+                           key=endpoint$key, token=endpoint$token, sas=endpoint$sas,
                            api_version=endpoint$api_version)
 
     sapply(lst$filesystems$name, function(fs) adls_filesystem(endpoint, fs), simplify=FALSE)
@@ -209,7 +209,7 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #' @param filesystem An ADLSgen2 filesystem object.
 #' @param dir,file A string naming a directory or file respectively.
 #' @param info Whether to return names only, or all information in a directory listing.
-#' @param src,dest The source and destination files for uploading and downloading. Paths are allowed. For uploading, `src` can also be a [textConnection] or [rawConnection] object to allow transferring in-memory R objects without creating a temporary file.
+#' @param src,dest The source and destination paths/files for uploading and downloading. See 'Details' below.
 #' @param confirm Whether to ask for confirmation on deleting a file or directory.
 #' @param blocksize The number of bytes to upload/download per HTTP(S) request.
 #' @param lease The lease for a file, if present.

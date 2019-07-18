@@ -8,7 +8,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 }
 \section{Usage}{
 \preformatted{create_storage_account(name, location, kind = "StorageV2", replication = "Standard_LRS",
-                       access_tier = "hot"), https_only = TRUE, 
+                       access_tier = "hot"), https_only = TRUE,
                        hierarchical_namespace_enabled = FALSE, properties = list(), ...)
 }
 }

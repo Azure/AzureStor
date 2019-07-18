@@ -42,7 +42,7 @@ delete_adls_dir(filesystem, dir, recursive = FALSE, confirm = TRUE)
 
 \item{recursive}{For \code{list_adls_files}, and \code{delete_adls_dir}, whether the operation should recurse through subdirectories. For \code{delete_adls_dir}, this must be TRUE to delete a non-empty directory.}
 
-\item{src, dest}{The source and destination files for uploading and downloading. Paths are allowed. For uploading, \code{src} can also be a \link{textConnection} or \link{rawConnection} object to allow transferring in-memory R objects without creating a temporary file.}
+\item{src, dest}{The source and destination paths/files for uploading and downloading. See 'Details' below.}
 
 \item{blocksize}{The number of bytes to upload/download per HTTP(S) request.}
 

@@ -35,7 +35,7 @@ delete_blob(container, blob, confirm = TRUE)
 
 \item{prefix}{For \code{list_blobs}, filters the result to return only blobs whose name begins with this prefix.}
 
-\item{src, dest}{The source and destination files for uploading and downloading. See 'Details' below.For uploading, \code{src} can also be a \link{textConnection} or \link{rawConnection} object to allow transferring in-memory R objects without creating a temporary file. For downloading,}
+\item{src, dest}{The source and destination files for uploading and downloading. See 'Details' below.}
 
 \item{type}{When uploading, the type of blob to create. Currently only block blobs are supported.}
 
