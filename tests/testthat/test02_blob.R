@@ -187,7 +187,7 @@ test_that("Blob client interface works",
 
 test_that("AAD authentication works",
 {
-    url <- stor$get_blob_endpoint()$url 
+    url <- stor$get_blob_endpoint()$url
     token <- AzureRMR::get_azure_token("https://storage.azure.com/", tenant=tenant, app=app, password=password)
     bl <- blob_endpoint(url, token=token)
     cont <- create_blob_container(bl, "newcontainer4")
