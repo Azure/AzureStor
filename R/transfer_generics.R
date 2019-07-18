@@ -13,7 +13,7 @@
 #'
 #' `upload_to_url` and `download_to_url` allow you to transfer a file to or from Azure storage, given the URL of the source or destination. The storage details (endpoint, container name, and so on) are obtained from the URL.
 #'
-#' By default, `storage_download` and `download_from_url` will display a progress bar while they are downloading. To turn this off, use `options(azure_storage_progress_bar=FALSE)`. To turn the progress bar back on, use `options(azure_storage_progress_bar=TRUE)`.
+#' By default, the upload and download functions will display a progress bar while they are downloading. To turn this off, use `options(azure_storage_progress_bar=FALSE)`. To turn the progress bar back on, use `options(azure_storage_progress_bar=TRUE)`.
 #'
 #' @seealso
 #' [storage_container], [blob_container], [file_share], [adls_filesystem]
