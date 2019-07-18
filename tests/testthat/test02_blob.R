@@ -322,6 +322,24 @@ test_that("chunked downloading works",
 })
 
 
+test_that("copy from url works",
+{
+    bl <- stor$get_blob_endpoint()
+    cont <- create_blob_container(bl, "urltransfer")
+
+    # copy from GitHub repo
+    src_url <- "https://raw.githubusercontent.com/Azure/AzureStor/master/tests/resources/iris.csv"
+    orig_file <- "../resources/iris.csv"
+    new_file <- tempfile()
+
+    copy_url_to_blob(cont, src_url, "iris.csv", async=FALSE)
+    download_blob(cont, "iris.csv", new_file)
+
+    # use readLines to workaround GH auto-translating CRLF -> LF
+    expect_identical(readLines(orig_file), readLines(new_file))
+})
+
+
 teardown(
 {
     bl <- stor$get_blob_endpoint()
