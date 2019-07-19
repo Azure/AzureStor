@@ -1,4 +1,4 @@
-# AzureStor 2.0.2.9000
+# AzureStor 2.1.0
 
 - Update client API versions to "2018-11-09".
 - Fix bug with blob uploading using azcopy.
