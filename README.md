@@ -6,7 +6,7 @@
 
 This package implements both an admin- and client-side interface to [Azure Storage Services](https://docs.microsoft.com/en-us/rest/api/storageservices/). The admin interface uses R6 classes and extends the framework provided by [AzureRMR](https://github.com/Azure/AzureRMR). The client interface provides several S3 methods for efficiently managing storage and performing file transfers.
 
-The primary repo for this package is at https://github.com/Azure/AzureStor; please submit issues and PRs there. It is also mirrored at the Cloudyr org at https://github.com/cloudyr/AzureStor. You can install the development version of the package with devtools::install_github("Azure/AzureStor").
+The primary repo for this package is at https://github.com/Azure/AzureStor; please submit issues and PRs there. It is also mirrored at the Cloudyr org at https://github.com/cloudyr/AzureStor. You can install the development version of the package with `devtools::install_github("Azure/AzureStor")`.
 
 ## Storage endpoints
 
