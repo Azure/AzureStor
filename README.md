@@ -6,6 +6,8 @@
 
 This package implements both an admin- and client-side interface to [Azure Storage Services](https://docs.microsoft.com/en-us/rest/api/storageservices/). The admin interface uses R6 classes and extends the framework provided by [AzureRMR](https://github.com/Azure/AzureRMR). The client interface provides several S3 methods for efficiently managing storage and performing file transfers.
 
+The primary repo for this package is at https://github.com/Azure/AzureStor; please submit issues and PRs there. It is also mirrored at the Cloudyr org at https://github.com/cloudyr/AzureStor. You can install the development version of the package with devtools::install_github("Azure/AzureStor").
+
 ## Storage endpoints
 
 The interface for accessing storage is similar across blobs, files and ADLSGen2. You call the `storage_endpoint` function and provide the endpoint URI, along with your authentication credentials. AzureStor will figure out the type of storage from the URI.
@@ -127,12 +129,10 @@ For more information, see the [AzCopy repo on GitHub](https://github.com/Azure/a
 Finally, AzureStor's admin-side interface allows you to easily create and delete resource accounts, as well as obtain access keys and generate a SAS. Here is a sample workflow:
 
 ```r
-library(AzureRMR)
 library(AzureStor)
 
 # authenticate with Resource Manager
-az <- az_rm$new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")
-
+az <- AzureRMR::get_azure_login("mytenant")
 sub1 <- az$get_subscription("subscription_id")
 rg <- sub1$get_resource_group("resgroup")
 
