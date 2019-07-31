@@ -1,8 +1,8 @@
-# AzureStor
+# AzureStor <img src="man/figures/logo.png" align="right" width=150 />
 
 [![CRAN](https://www.r-pkg.org/badges/version/AzureStor)](https://cran.r-project.org/package=AzureStor)
 ![Downloads](https://cranlogs.r-pkg.org/badges/AzureStor)
-[![Travis Build Status](https://travis-ci.org/Azure/AzureStor.png?branch=master)](https://travis-ci.org/Azure/AzureStor)
+[![Travis Build Status](https://travis-ci.org/Azure/AzureStor.svg?branch=master)](https://travis-ci.org/Azure/AzureStor)
 
 This package implements both an admin- and client-side interface to [Azure Storage Services](https://docs.microsoft.com/en-us/rest/api/storageservices/). The admin interface uses R6 classes and extends the framework provided by [AzureRMR](https://github.com/Azure/AzureRMR). The client interface provides several S3 methods for efficiently managing storage and performing file transfers.
 
@@ -173,4 +173,4 @@ blobstor2$delete()
 ```
 
 ---
-[![cloudyr project logo](https://i.imgur.com/JHS98Y7.png)](https://github.com/cloudyr)
+<p align="center"><a href="https://github.com/Azure/AzureR"><img src="https://github.com/Azure/AzureR/raw/master/images/logo2.png" width=800 /></a></p>
