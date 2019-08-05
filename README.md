@@ -13,6 +13,7 @@ The primary repo for this package is at https://github.com/Azure/AzureStor; plea
 The interface for accessing storage is similar across blobs, files and ADLSGen2. You call the `storage_endpoint` function and provide the endpoint URI, along with your authentication credentials. AzureStor will figure out the type of storage from the URI.
 
 AzureStor supports all the different ways you can authenticate with a storage endpoint:
+
 - Blob storage supports authenticating with an access key, shared access signature (SAS), or an Azure Active Directory (AAD) OAuth token;
 - File storage supports access key and SAS;
 - ADLSgen2 supports access key and AAD token.
