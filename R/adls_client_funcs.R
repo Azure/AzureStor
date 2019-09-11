@@ -279,15 +279,26 @@ list_adls_files <- function(filesystem, dir="/", info=c("all", "name"),
                             recursive=FALSE)
 {
     info <- match.arg(info)
+    opts <- list(
+        recursive=tolower(as.character(recursive)),
+        resource="filesystem",
+        directory=as.character(dir)
+    )
 
-    opts <- list(recursive=tolower(as.character(recursive)), resource="filesystem")
-    opts <- c(opts, directory=as.character(dir))
+    out <- NULL
+    repeat
+    {
+        res <- do_container_op(filesystem, "", options=opts, http_status_handler="pass")
+        httr::stop_for_status(res, storage_error_message(res))
+        out <- rbind(out, httr::content(res, simplifyVector=TRUE)$paths)
+        headers <- httr::headers(res)
+        if(is_empty(headers$`x-ms-continuation`))
+            break
+        else opts$continuation <- headers$`x-ms-continuation`
+    }
 
-    lst <- do_container_op(filesystem, "", options=opts)
     if(info == "all")
     {
-        out <- lst$paths
-
         # cater for null output
         if(is_empty(out))
             return(data.frame(
@@ -317,7 +328,7 @@ list_adls_files <- function(filesystem, dir="/", info=c("all", "name"),
             out$etag <- NULL
         out
     }
-    else as.character(lst$paths$name)
+    else as.character(out$name)
 }
 
 
