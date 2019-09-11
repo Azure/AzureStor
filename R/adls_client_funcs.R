@@ -189,13 +189,8 @@ delete_adls_filesystem.adls_filesystem <- function(endpoint, ...)
 #' @export
 delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 {
-    if(confirm && interactive())
-    {
-        path <- paste0(endpoint$url, name)
-        yn <- readline(paste0("Are you sure you really want to delete the filesystem '", path, "'? (y/N) "))
-        if(tolower(substr(yn, 1, 1)) != "y")
-            return(invisible(NULL))
-    }
+    if(!delete_confirmed(confirm, paste0(endpoint$url, name), "filesystem"))
+        return(invisible(NULL))
 
     obj <- adls_filesystem(endpoint, name)
     do_container_op(obj, options=list(resource="filesystem"), http_verb="DELETE")
@@ -383,14 +378,8 @@ download_adls_file <- function(filesystem, src, dest, blocksize=2^24, overwrite=
 #' @export
 delete_adls_file <- function(filesystem, file, confirm=TRUE)
 {
-    if(confirm && interactive())
-    {
-        endp <- filesystem$endpoint
-        path <- paste0(endp$url, filesystem$name, "/", file)
-        yn <- readline(paste0("Are you sure you really want to delete '", path, "'? (y/N) "))
-        if(tolower(substr(yn, 1, 1)) != "y")
-            return(invisible(NULL))
-    }
+    if(!delete_confirmed(confirm, paste0(filesystem$endpoint$url, filesystem$name, "/", file), "file"))
+        return(invisible(NULL))
 
     do_container_op(filesystem, file, http_verb="DELETE")
 }
@@ -409,14 +398,8 @@ create_adls_dir <- function(filesystem, dir)
 #' @export
 delete_adls_dir <- function(filesystem, dir, recursive=FALSE, confirm=TRUE)
 {
-    if(confirm && interactive())
-    {
-        endp <- filesystem$endpoint
-        path <- paste0(endp$url, filesystem$name, "/", dir)
-        yn <- readline(paste0("Are you sure you really want to delete directory '", path, "'? (y/N) "))
-        if(tolower(substr(yn, 1, 1)) != "y")
-            return(invisible(NULL))
-    }
+    if(!delete_confirmed(confirm, paste0(filesystem$endpoint$url, filesystem$name, "/", dir), "directory"))
+        return(invisible(NULL))
 
     opts <- list(recursive=tolower(as.character(recursive)))
     do_container_op(filesystem, dir, options=opts, http_verb="DELETE")

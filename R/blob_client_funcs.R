@@ -203,13 +203,9 @@ delete_blob_container.blob_container <- function(endpoint, ...)
 #' @export
 delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, lease=NULL, ...)
 {
-    if(confirm && interactive())
-    {
-        path <- paste0(endpoint$url, name)
-        yn <- readline(paste0("Are you sure you really want to delete the container '", path, "'? (y/N) "))
-        if(tolower(substr(yn, 1, 1)) != "y")
-            return(invisible(NULL))
-    }
+    if(!delete_confirmed(confirm, paste0(endpoint$url, name), "container"))
+        return(invisible(NULL))
+
     headers <- if(!is_empty(lease))
         list("x-ms-lease-id"=lease)
     else list()
@@ -384,14 +380,9 @@ multidownload_blob <- function(container, src, dest, blocksize=2^24, overwrite=F
 #' @export
 delete_blob <- function(container, blob, confirm=TRUE)
 {
-    if(confirm && interactive())
-    {
-        endp <- container$endpoint
-        path <- paste0(endp$url, container$name, "/", blob)
-        yn <- readline(paste0("Are you sure you really want to delete '", path, "'? (y/N) "))
-        if(tolower(substr(yn, 1, 1)) != "y")
-            return(invisible(NULL))
-    }
+    if(!delete_confirmed(confirm, paste0(container$endpoint$url, container$name, "/", blob), "blob"))
+        return(invisible(NULL))
+
     do_container_op(container, blob, http_verb="DELETE")
 }
 
