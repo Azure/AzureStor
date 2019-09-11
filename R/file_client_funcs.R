@@ -266,19 +266,26 @@ list_azure_files <- function(share, dir, info=c("all", "name"),
                              prefix=NULL)
 {
     info <- match.arg(info)
-
     opts <- list(comp="list", restype="directory")
     if(!is_empty(prefix))
         opts <- c(opts, prefix=as.character(prefix))
 
-    lst <- do_container_op(share, dir, options=opts)
+    out <- NULL
+    repeat
+    {
+        lst <- do_container_op(share, dir, options=opts)
+        out <- c(out, lst$Entries)
+        if(is_empty(lst$NextMarker))
+            break
+        else opts$marker <- lst$NextMarker[[1]]
+    }
 
-    name <- vapply(lst$Entries, function(ent) ent$Name[[1]], FUN.VALUE=character(1))
+    name <- vapply(out, function(ent) ent$Name[[1]], FUN.VALUE=character(1))
     if(info == "name")
         return(name)
 
     type <- if(is_empty(name)) character(0) else names(name)
-    size <- vapply(lst$Entries,
+    size <- vapply(out,
                    function(ent) if(is_empty(ent$Properties)) NA_character_
                                  else ent$Properties$`Content-Length`[[1]],
                    FUN.VALUE=character(1))
