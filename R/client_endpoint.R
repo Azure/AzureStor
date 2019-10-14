@@ -6,7 +6,7 @@
 #' @param key The access key for the storage account.
 #' @param token An Azure Active Directory (AAD) authentication token. This can be either a string, or an object of class AzureToken created by [AzureRMR::get_azure_token]. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.
 #' @param sas A shared access signature (SAS) for the account.
-#' @param api_version The storage API version to use when interacting with the host. Defaults to `"2018-06-17"` for the ADLSgen2 endpoint, and `"2018-03-28"` for the others.
+#' @param api_version The storage API version to use when interacting with the host. Defaults to `"2018-11-09"`.
 #' @param x For the print method, a storage endpoint object.
 #' @param ... For the print method, further arguments passed to lower-level functions.
 #'
@@ -74,7 +74,7 @@ blob_endpoint <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                           api_version=getOption("azure_storage_api_version"))
 {
     if(!is_endpoint_url(endpoint, "blob"))
-        stop("Not a blob endpoint", call.=FALSE)
+        warning("Not a recognised blob endpoint", call.=FALSE)
 
     obj <- list(url=endpoint, key=key, token=token, sas=sas, api_version=api_version)
     class(obj) <- c("blob_endpoint", "storage_endpoint")
@@ -87,7 +87,7 @@ file_endpoint <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                           api_version=getOption("azure_storage_api_version"))
 {
     if(!is_endpoint_url(endpoint, "file"))
-        stop("Not a file endpoint", call.=FALSE)
+        warning("Not a recognised file endpoint", call.=FALSE)
 
     obj <- list(url=endpoint, key=key, token=token, sas=sas, api_version=api_version)
     class(obj) <- c("file_endpoint", "storage_endpoint")
@@ -100,7 +100,7 @@ adls_endpoint <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                           api_version=getOption("azure_adls_api_version"))
 {
     if(!is_endpoint_url(endpoint, "adls"))
-        stop("Not an ADLS Gen2 endpoint", call.=FALSE)
+        warning("Not a recognised ADLS Gen2 endpoint", call.=FALSE)
 
     if(!is_empty(sas))
         warning("ADLSgen2 does not support authentication with a shared access signature")

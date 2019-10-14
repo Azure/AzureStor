@@ -37,7 +37,7 @@ adls_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
 
 \item{sas}{A shared access signature (SAS) for the account.}
 
-\item{api_version}{The storage API version to use when interacting with the host. Defaults to \code{"2018-06-17"} for the ADLSgen2 endpoint, and \code{"2018-03-28"} for the others.}
+\item{api_version}{The storage API version to use when interacting with the host. Defaults to \code{"2018-11-09"}.}
 
 \item{x}{For the print method, a storage endpoint object.}
 
