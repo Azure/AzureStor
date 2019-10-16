@@ -1,3 +1,8 @@
+# AzureStor 2.1.1.9000
+
+- Creating a service-specific endpoint (`file_endpoint`, `blob_endpoint`, `adls_endpoint`) with an invalid URL will now warn, instead of throwing an error. This enables using tools like Azurite, which use a local address as the endpoint. Calling `storage_endpoint` with an invalid URL will still throw an error, as the function has no way of telling which storage service is required.
+- Remove the warning about ADLSgen2 not supporting shared access signatures (SAS).
+
 # AzureStor 2.1.1
 
 - Correctly handle ADLSgen2 and file storage listings with more than 5000 files.
