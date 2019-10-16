@@ -269,6 +269,46 @@ test_that("chunked downloading works",
 })
 
 
+test_that("vector source for upload/download works",
+{
+    write_file <- function(fname)
+    {
+        bytes <- openssl::rand_bytes(1000)
+        writeBin(bytes, file.path(srcdir, fname))
+        invisible(fname)
+    }
+
+    fl <- stor$get_file_endpoint()
+    share <- create_file_share(fl, "vectransfer")
+
+    srcdir <- tempfile()
+    destdir <- tempfile()
+    destdir2 <- tempfile()
+    dir.create(srcdir)
+    dir.create(destdir)
+    dir.create(destdir2)
+
+    srcs <- unlist(lapply(letters[1:3], function(letter)
+    {
+        for(i in 1:4)
+            write_file(paste0(letter, i, collapse=""))
+        paste0(letter, "*")
+    }))
+    srcs <- c(srcs, write_file("d1"), write_file("d2"))
+
+    multiupload_azure_file(share, file.path(srcdir, srcs), "/")
+    multidownload_azure_file(share, srcs, destdir)
+
+    expect_identical(dir(srcdir), dir(destdir))
+
+    create_azure_dir(share, "/newdir")
+    multiupload_azure_file(share, file.path(srcdir, srcs), "/newdir")
+    multidownload_azure_file(share, file.path("/newdir", srcs), destdir2)
+
+    expect_identical(dir(srcdir), dir(destdir2))
+})
+
+
 teardown(
 {
     fl <- stor$get_file_endpoint()

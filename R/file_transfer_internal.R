@@ -89,7 +89,9 @@ multidownload_azure_file_internal <- function(share, src, dest, blocksize=2^22, 
     files <- unlist(lapply(src_dirs, function(dname)
     {
         fnames <- list_azure_files(share, dname, info="name")
-        file.path(dname, fnames)
+        if(dname != "")
+            file.path(dname, fnames)
+        else fnames
     }))
 
     src <- make_download_set(src, files)
