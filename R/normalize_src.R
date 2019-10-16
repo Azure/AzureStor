@@ -8,7 +8,7 @@ normalize_src.character <- function(src)
 {
     content_type <- mime::guess_type(src)
     con <- file(src, open="rb")
-    size <- file.info(src)$size
+    size <- file.size(src)
     list(content_type=content_type, con=con, size=size)
 }
 

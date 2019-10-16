@@ -1,8 +1,14 @@
 multiupload_azure_file_internal <- function(share, src, dest, blocksize=2^22, max_concurrent_transfers=10)
 {
-    src_dir <- dirname(src)
-    src_files <- glob2rx(basename(src))
-    src <- dir(src_dir, pattern=src_files, full.names=TRUE)
+    if(length(dest) > 1)
+        stop("'dest' must be a single directory", call.=FALSE)
+
+    src <- unlist(lapply(src, function(x)
+    {
+        src_files <- glob2rx(basename(x))
+        src_dir <- dirname(x)
+        dir(src_dir, pattern=src_files, full.names=TRUE)
+    }))
 
     if(length(src) == 0)
         stop("No files to transfer", call.=FALSE)
@@ -73,13 +79,20 @@ upload_azure_file_internal <- function(share, src, dest, blocksize=2^22)
 multidownload_azure_file_internal <- function(share, src, dest, blocksize=2^22, overwrite=FALSE,
                                               max_concurrent_transfers=10)
 {
-    src_files <- glob2rx(basename(src))
-    src_dir <- dirname(src)
-    if(src_dir == ".")
-        src_dir <- "/"
+    if(length(dest) > 1)
+        stop("'dest' must be a single directory", call.=FALSE)
 
-    files <- list_azure_files(share, src_dir, info="name")
-    src <- sub("//", "/", file.path(src_dir, grep(src_files, files, value=TRUE)))
+    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
+    src_dirs <- unique(dirname(src))
+    src_dirs[src_dirs == "."] <- ""
+
+    files <- unlist(lapply(src_dirs, function(dname)
+    {
+        fnames <- list_azure_files(share, dname, info="name")
+        file.path(dname, fnames)
+    }))
+
+    src <- make_download_set(src, files)
 
     if(length(src) == 0)
         stop("No files to transfer", call.=FALSE)
@@ -124,7 +137,7 @@ download_azure_file_internal <- function(share, src, dest, blocksize=2^22, overw
     }
     if(conn_dest)
         on.exit(seek(dest, 0))
-        
+
     # get file size (for progress bar)
     res <- do_container_op(share, src, headers=headers, http_verb="HEAD", http_status_handler="pass")
     httr::stop_for_status(res, storage_error_message(res))

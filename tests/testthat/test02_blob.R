@@ -340,6 +340,38 @@ test_that("copy from url works",
 })
 
 
+test_that("vector source for upload/download works",
+{
+    write_file <- function(fname)
+    {
+        bytes <- openssl::rand_bytes(1000)
+        writeBin(bytes, file.path(srcdir, fname))
+        invisible(fname)
+    }
+
+    bl <- stor$get_blob_endpoint()
+    cont <- create_blob_container(bl, "vectransfer")
+
+    srcdir <- tempfile()
+    destdir <- tempfile()
+    dir.create(srcdir)
+    dir.create(destdir)
+
+    srcs <- unlist(lapply(letters[1:3], function(letter)
+    {
+        for(i in 1:4)
+            write_file(paste0(letter, i, collapse=""))
+        paste0(letter, "*")
+    }))
+    srcs <- c(srcs, write_file("d1"), write_file("d2"))
+
+    multiupload_blob(cont, file.path(srcdir, srcs))
+    multidownload_blob(cont, srcs, destdir)
+
+    expect_identical(dir(srcdir), dir(destdir))
+})
+
+
 teardown(
 {
     bl <- stor$get_blob_endpoint()

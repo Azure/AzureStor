@@ -1,9 +1,15 @@
 multiupload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^22, lease=lease,
                                            max_concurrent_transfers=10)
 {
-    src_files <- glob2rx(basename(src))
-    src_dir <- dirname(src)
-    src <- dir(src_dir, pattern=src_files, full.names=TRUE)
+    if(length(dest) > 1)
+        stop("'dest' must be a single directory", call.=FALSE)
+
+    src <- unlist(lapply(src, function(x)
+    {
+        src_files <- glob2rx(basename(x))
+        src_dir <- dirname(x)
+        dir(src_dir, pattern=src_files, full.names=TRUE)
+    }))
 
     if(length(src) == 0)
         stop("No files to transfer", call.=FALSE)
@@ -64,20 +70,26 @@ upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lea
 
     # flush contents
     do_container_op(filesystem, dest,
-        options=list(action="flush", position=sprintf("%.0f", pos)),
-        http_verb="PATCH")
+                    options=list(action="flush", position=sprintf("%.0f", pos)),
+                    http_verb="PATCH")
+    invisible(NULL)
 }
 
 
 multidownload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, overwrite=FALSE,
                                              max_concurrent_transfers=10)
 {
-    src_dir <- dirname(src)
-    if(src_dir == ".")
-        src_dir <- "/"
+    if(length(dest) > 1)
+        stop("'dest' must be a single directory", call.=FALSE)
 
-    files <- list_adls_files(filesystem, src_dir, info="name")
-    src <- grep(glob2rx(src), files, value=TRUE) # file listing on ADLS includes directory name
+    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
+    src_dirs <- unique(dirname(src))
+    src_dirs[src_dirs == "."] <- "/"
+
+    # file listing on ADLS includes directory name
+    files <- unlist(lapply(src_dirs, function(x) list_adls_files(filesystem, x, info="name")))
+
+    src <- make_download_set(src, files)
 
     if(length(src) == 0)
         stop("No files to transfer", call.=FALSE)

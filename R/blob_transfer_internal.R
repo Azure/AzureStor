@@ -1,17 +1,23 @@
 multiupload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL,
                                       max_concurrent_transfers=10)
 {
-    src_dir <- dirname(src)
-    src_files <- glob2rx(basename(src))
-    src <- dir(src_dir, pattern=src_files, full.names=TRUE)
+    if(missing(dest))
+        dest <- "/"
+
+    if(length(dest) > 1)
+        stop("'dest' must be a single directory", call.=FALSE)
+
+    src <- unlist(lapply(src, function(x)
+    {
+        src_files <- glob2rx(basename(x))
+        src_dir <- dirname(x)
+        dir(src_dir, pattern=src_files, full.names=TRUE)
+    }))
 
     if(length(src) == 0)
         stop("No files to transfer", call.=FALSE)
     if(length(src) == 1)
         return(upload_blob(container, src, dest, type=type, blocksize=blocksize, lease=lease))
-
-    if(missing(dest))
-        dest <- "/"
 
     init_pool(max_concurrent_transfers)
 
@@ -79,16 +85,20 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
     do_container_op(container, dest, headers=list("x-ms-blob-content-type"=src$content_type),
                     options=list(comp="properties"),
                     http_verb="PUT")
+    invisible(NULL)
 }
 
 
 multidownload_blob_internal <- function(container, src, dest, blocksize=2^24, overwrite=FALSE, lease=NULL,
                                         max_concurrent_transfers=10)
 {
+    if(length(dest) > 1)
+        stop("'dest' must be a single directory", call.=FALSE)
+
+    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
     files <- list_blobs(container, info="name")
 
-    src_files <- glob2rx(sub("^/", "", src)) # strip leading slash if present, not meaningful
-    src <- grep(src_files, files, value=TRUE)
+    src <- make_download_set(src, files)
 
     if(length(src) == 0)
         stop("No files to transfer", call.=FALSE)
