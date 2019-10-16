@@ -41,6 +41,26 @@ normalize_src.rawConnection <- function(src)
 }
 
 
+make_upload_set <- function(src)
+{
+    src_files <- basename(src)
+    src_spec <- glob2rx(src_files)
+    fixed <- paste0("^", src_files, "$") == src_spec
+
+    src_regex <- if(!all(fixed))
+    {
+        unlist(mapply(function(dname, fpat) dir(dname, pattern=fpat, full.names=TRUE),
+                      dirname(src[!fixed]), src_spec[!fixed], SIMPLIFY=FALSE, USE.NAMES=FALSE))
+    }
+    else character(0)
+    src_fixed <- if(any(fixed))
+        (src[fixed])[file.exists(src[fixed])]
+    else character(0)
+
+    c(src_fixed, src_regex)
+}
+
+
 make_download_set <- function(src, files)
 {
     # don't grep unnecessarily

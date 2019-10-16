@@ -3,12 +3,7 @@ multiupload_azure_file_internal <- function(share, src, dest, blocksize=2^22, ma
     if(length(dest) > 1)
         stop("'dest' must be a single directory", call.=FALSE)
 
-    src <- unlist(lapply(src, function(x)
-    {
-        src_files <- glob2rx(basename(x))
-        src_dir <- dirname(x)
-        dir(src_dir, pattern=src_files, full.names=TRUE)
-    }))
+    src <- make_upload_set(src)
 
     if(length(src) == 0)
         stop("No files to transfer", call.=FALSE)
