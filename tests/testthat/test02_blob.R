@@ -354,8 +354,10 @@ test_that("vector source for upload/download works",
 
     srcdir <- tempfile()
     destdir <- tempfile()
+    destdir2 <- tempfile()
     dir.create(srcdir)
     dir.create(destdir)
+    dir.create(destdir2)
 
     srcs <- unlist(lapply(letters[1:3], function(letter)
     {
@@ -369,6 +371,12 @@ test_that("vector source for upload/download works",
     multidownload_blob(cont, srcs, destdir)
 
     expect_identical(dir(srcdir), dir(destdir))
+
+    src_urls <- paste0("https://raw.githubusercontent.com/Azure/AzureStor/master/tests/resources/",
+        c("iris.csv", "100k.out"))
+    multicopy_url_to_blob(cont, src_urls, "/urls")
+    multidownload_blob(cont, c("urls/iris.csv", "urls/100k.out"), destdir2)
+    expect_identical(dir(destdir2), c("100k.out", "iris.csv"))
 })
 
 
