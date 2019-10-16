@@ -39,3 +39,21 @@ normalize_src.rawConnection <- function(src)
     seek(src, 0) # reposition connection after reading
     list(content_type=content_type, con=src, size=size)
 }
+
+
+make_download_set <- function(src, files)
+{
+    # don't grep unnecessarily
+    src_spec <- glob2rx(src)
+    fixed <- paste0("^", src, "$") == src_spec
+
+    src_regex <- if(!all(fixed))
+        grep(paste0(src_spec[!fixed], collapse="|"), files, value=TRUE)
+    else character(0)
+    src_fixed <- if(any(fixed))
+        (src[fixed])[src[fixed] %in% files]
+    else character(0)
+
+    c(src_fixed, src_regex)
+}
+
