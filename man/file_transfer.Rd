@@ -2,7 +2,9 @@
 % Please edit documentation in R/blob_copyurl.R, R/transfer_generics.R
 \name{copy_url_to_storage}
 \alias{copy_url_to_storage}
+\alias{multicopy_url_to_storage}
 \alias{copy_url_to_storage.blob_container}
+\alias{multicopy_url_to_storage.blob_container}
 \alias{storage_upload}
 \alias{storage_upload.blob_container}
 \alias{storage_upload.file_share}
@@ -25,7 +27,12 @@
 \usage{
 copy_url_to_storage(container, src, dest, ...)
 
+multicopy_url_to_storage(container, src, dest, ...)
+
 \method{copy_url_to_storage}{blob_container}(container, src, dest, ...)
+
+\method{multicopy_url_to_storage}{blob_container}(container, src, dest,
+  ...)
 
 storage_upload(container, ...)
 
@@ -79,7 +86,7 @@ upload_to_url(src, dest, key = NULL, token = NULL, sas = NULL, ...)
 Upload and download generics
 }
 \details{
-\code{copy_url_to_storage} transfers the contents of the file at the specified HTTP[S] URL directly to storage, without requiring a temporary local copy to be made. Currently this is only implemented for blob storage.
+\code{copy_url_to_storage} transfers the contents of the file at the specified HTTP[S] URL directly to storage, without requiring a temporary local copy to be made. \code{multicopy_url_to_storage} does the same, for multiple URLs at once. Currently methods for these are only implemented for blob storage.
 
 These functions allow you to transfer files to and from a storage account.
 

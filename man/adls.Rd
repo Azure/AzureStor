@@ -65,11 +65,11 @@ For \code{download_adls_file}, if \code{dest=NULL}, the contents of the download
 Upload, download, or delete a file; list files in a directory; create or delete directories.
 }
 \details{
-\code{upload_adls_file} and \code{download_adls_file} are the workhorse file transfer functions for ADLSgen2 storage. They each take as inputs a \emph{single} filename or connection as the source for uploading/downloading, and a single filename as the destination.
-
-\code{multiupload_adls_file} and \code{multidownload_adls_file} are functions for uploading and downloading \emph{multiple} files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. They take as input a \emph{wildcard} pattern as the source, which expands to one or more files. The \code{dest} argument should be a directory.
+\code{upload_adls_file} and \code{download_adls_file} are the workhorse file transfer functions for ADLSgen2 storage. They each take as inputs a \emph{single} filename or connection as the source for uploading/downloading, and a single filename or connection as the destination.
 
 The file transfer functions also support working with connections to allow transferring R objects without creating temporary files. For uploading, \code{src} can be a \link{textConnection} or \link{rawConnection} object. For downloading, \code{dest} can be NULL or a \code{rawConnection} object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
+
+\code{multiupload_adls_file} and \code{multidownload_adls_file} are functions for uploading and downloading \emph{multiple} files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The \code{src} argument for these should be a \emph{vector} of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The \code{dest} argument should be a directory.
 
 By default, the upload and download functions will display a progress bar to track the file transfer. To turn this off, use \code{options(azure_storage_progress_bar=FALSE)}. To turn the progress bar back on, use \code{options(azure_storage_progress_bar=TRUE)}.
 }
@@ -92,6 +92,10 @@ delete_adls_dir(fs, "/newdir")
 # uploading/downloading multiple files at once
 multiupload_adls_file(fs, "/data/logfiles/*.zip")
 multidownload_adls_file(fs, "/monthly/jan*.*", "/data/january")
+
+# you can pass a vector of file specs as the source to multiupload/download
+multiupload_adls_file(fs, c("intro.doc", "chap*.doc", "figures.*"), "report")
+multidownload_adls_file(fs, c("readme", "*.csv"), "./destdir")
 
 # uploading serialized R objects via connections
 json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)

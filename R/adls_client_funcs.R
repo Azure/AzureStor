@@ -214,11 +214,11 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #' @param recursive For `list_adls_files`, and `delete_adls_dir`, whether the operation should recurse through subdirectories. For `delete_adls_dir`, this must be TRUE to delete a non-empty directory.
 #'
 #' @details
-#' `upload_adls_file` and `download_adls_file` are the workhorse file transfer functions for ADLSgen2 storage. They each take as inputs a _single_ filename or connection as the source for uploading/downloading, and a single filename as the destination.
-#'
-#' `multiupload_adls_file` and `multidownload_adls_file` are functions for uploading and downloading _multiple_ files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. They take as input a _wildcard_ pattern as the source, which expands to one or more files. The `dest` argument should be a directory.
+#' `upload_adls_file` and `download_adls_file` are the workhorse file transfer functions for ADLSgen2 storage. They each take as inputs a _single_ filename or connection as the source for uploading/downloading, and a single filename or connection as the destination.
 #'
 #' The file transfer functions also support working with connections to allow transferring R objects without creating temporary files. For uploading, `src` can be a [textConnection] or [rawConnection] object. For downloading, `dest` can be NULL or a `rawConnection` object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
+#'
+#' `multiupload_adls_file` and `multidownload_adls_file` are functions for uploading and downloading _multiple_ files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The `src` argument for these should be a _vector_ of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The `dest` argument should be a directory.
 #'
 #' By default, the upload and download functions will display a progress bar to track the file transfer. To turn this off, use `options(azure_storage_progress_bar=FALSE)`. To turn the progress bar back on, use `options(azure_storage_progress_bar=TRUE)`.
 #'
@@ -249,6 +249,10 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #' # uploading/downloading multiple files at once
 #' multiupload_adls_file(fs, "/data/logfiles/*.zip")
 #' multidownload_adls_file(fs, "/monthly/jan*.*", "/data/january")
+#'
+#' # you can pass a vector of file specs as the source to multiupload/download
+#' multiupload_adls_file(fs, c("intro.doc", "chap*.doc", "figures.*"), "report")
+#' multidownload_adls_file(fs, c("readme", "*.csv"), "./destdir")
 #'
 #' # uploading serialized R objects via connections
 #' json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)

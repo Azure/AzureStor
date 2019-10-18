@@ -8,6 +8,7 @@
 \alias{multidownload_blob}
 \alias{delete_blob}
 \alias{copy_url_to_blob}
+\alias{multicopy_url_to_blob}
 \title{Operations on a blob container or blob}
 \usage{
 list_blobs(container, info = c("partial", "name", "all"),
@@ -30,6 +31,9 @@ multidownload_blob(container, src, dest, blocksize = 2^24,
 delete_blob(container, blob, confirm = TRUE)
 
 copy_url_to_blob(container, src, dest, lease = NULL, async = FALSE)
+
+multicopy_url_to_blob(container, src, dest, lease = NULL,
+  async = FALSE, max_concurrent_transfers = 10)
 }
 \arguments{
 \item{container}{A blob container object.}
@@ -56,7 +60,7 @@ copy_url_to_blob(container, src, dest, lease = NULL, async = FALSE)
 
 \item{confirm}{Whether to ask for confirmation on deleting a blob.}
 
-\item{async}{For \code{copy_url_to_blob}, whether the copy operation should be asynchronous (proceed in the background).}
+\item{async}{For \code{copy_url_to_blob} and \code{multicopy_url_to_blob}, whether the copy operation should be asynchronous (proceed in the background).}
 }
 \value{
 For \code{list_blobs}, details on the blobs in the container. For \code{download_blob}, if \code{dest=NULL}, the contents of the downloaded blob as a raw vector.
@@ -65,15 +69,15 @@ For \code{list_blobs}, details on the blobs in the container. For \code{download
 Upload, download, or delete a blob; list blobs in a container.
 }
 \details{
-\code{upload_blob} and \code{download_blob} are the workhorse file transfer functions for blobs. They each take as inputs a \emph{single} filename or connection as the source for uploading/downloading, and a single filename as the destination.
-
-\code{multiupload_blob} and \code{multidownload_blob} are functions for uploading and downloading \emph{multiple} blobs at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. They take as input a wildcard pattern as the source, which expands to one or more files. The \code{dest} argument should be a directory.
+\code{upload_blob} and \code{download_blob} are the workhorse file transfer functions for blobs. They each take as inputs a \emph{single} filename or connection as the source for uploading/downloading, and a single filename or connection as the destination.
 
 The file transfer functions also support working with connections to allow transferring R objects without creating temporary files. For uploading, \code{src} can be a \link{textConnection} or \link{rawConnection} object. For downloading, \code{dest} can be NULL or a \code{rawConnection} object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
 
+\code{multiupload_blob} and \code{multidownload_blob} are functions for uploading and downloading \emph{multiple} blobs at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The \code{src} argument for these should be a \emph{vector} of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The \code{dest} argument should be a directory.
+
 By default, the upload and download functions will display a progress bar to track the file transfer. To turn this off, use \code{options(azure_storage_progress_bar=FALSE)}. To turn the progress bar back on, use \code{options(azure_storage_progress_bar=TRUE)}.
 
-\code{copy_url_to_blob} transfers the contents of the file at the specified HTTP[S] URL directly to blob storage, without requiring a temporary local copy to be made. This has a current file size limit of 256MB.
+\code{copy_url_to_blob} transfers the contents of the file at the specified HTTP[S] URL directly to blob storage, without requiring a temporary local copy to be made. `multicopy_url_to_blob1 does the same, for multiple URLs at once. These functions have a current file size limit of 256MB.
 }
 \examples{
 \dontrun{
@@ -91,6 +95,10 @@ delete_blob(cont, "bigfile.zip")
 multiupload_blob(cont, "/data/logfiles/*.zip", "/uploaded_data")
 multiupload_blob(cont, "myproj/*")  # no dest directory uploads to root
 multidownload_blob(cont, "jan*.*", "/data/january")
+
+# you can pass a vector of file specs as the source to multiupload/download
+multiupload_blob(cont, c("intro.doc", "chap*.doc", "figures.*"))
+multidownload_blob(cont, c("readme", "*.csv"))
 
 # uploading serialized R objects via connections
 json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)

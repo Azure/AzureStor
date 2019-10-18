@@ -18,7 +18,7 @@
 #' @return
 #' `storage_endpoint` returns an object of S3 class `"adls_endpoint"`, `"blob_endpoint"`, `"file_endpoint"`, `"queue_endpoint"` or `"table_endpoint"` depending on the type of endpoint. All of these also inherit from class `"storage_endpoint"`. `adls_endpoint`, `blob_endpoint` and `file_endpoint` return an object of the respective class.
 #'
-#' Currently AzureStor only includes methods for interacting with ADLSgen2, blob and file storage.
+#' Note that while endpoint classes exist for all storage types, currently AzureStor only includes methods for interacting with ADLSgen2, blob and file storage.
 #'
 #' @seealso
 #' [create_storage_account], [adls_filesystem], [create_adls_filesystem], [file_share], [create_file_share], [blob_container], [create_blob_container]

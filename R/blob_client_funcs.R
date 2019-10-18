@@ -233,11 +233,11 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param prefix For `list_blobs`, filters the result to return only blobs whose name begins with this prefix.
 #'
 #' @details
-#' `upload_blob` and `download_blob` are the workhorse file transfer functions for blobs. They each take as inputs a _single_ filename or connection as the source for uploading/downloading, and a single filename as the destination.
-#'
-#' `multiupload_blob` and `multidownload_blob` are functions for uploading and downloading _multiple_ blobs at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. They take as input a wildcard pattern as the source, which expands to one or more files. The `dest` argument should be a directory.
+#' `upload_blob` and `download_blob` are the workhorse file transfer functions for blobs. They each take as inputs a _single_ filename or connection as the source for uploading/downloading, and a single filename or connection as the destination.
 #'
 #' The file transfer functions also support working with connections to allow transferring R objects without creating temporary files. For uploading, `src` can be a [textConnection] or [rawConnection] object. For downloading, `dest` can be NULL or a `rawConnection` object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
+#'
+#' `multiupload_blob` and `multidownload_blob` are functions for uploading and downloading _multiple_ blobs at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The `src` argument for these should be a _vector_ of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The `dest` argument should be a directory.
 #'
 #' By default, the upload and download functions will display a progress bar to track the file transfer. To turn this off, use `options(azure_storage_progress_bar=FALSE)`. To turn the progress bar back on, use `options(azure_storage_progress_bar=TRUE)`.
 #'
@@ -265,6 +265,10 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' multiupload_blob(cont, "/data/logfiles/*.zip", "/uploaded_data")
 #' multiupload_blob(cont, "myproj/*")  # no dest directory uploads to root
 #' multidownload_blob(cont, "jan*.*", "/data/january")
+#'
+#' # you can pass a vector of file specs as the source to multiupload/download
+#' multiupload_blob(cont, c("intro.doc", "chap*.doc", "figures.*"))
+#' multidownload_blob(cont, c("readme", "*.csv"))
 #'
 #' # uploading serialized R objects via connections
 #' json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)
