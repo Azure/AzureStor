@@ -93,6 +93,8 @@ As before, these dispatch to a family of lower-level functions for each type of 
 | `storage_download` | `download_blob` | `download_azure_file` | `download_adls_file` |
 | `storage_multiupload` | `multiupload_blob` | `multiupload_azure_file` | `multiupload_adls_file` |
 | `storage_multidownload` | `multidownload_blob` | `multidownload_azure_file` | `multidownload_adls_file` |
+| `copy_url_to_storage` | `copy_url_to_blob`  | N/A | N/A |
+| `multicopy_url_to_storage` | `multicopy_url_to_blob`  | N/A | N/A |
 
 ```r
 # example workflow with generics (blob storage)

@@ -98,18 +98,18 @@ You can upload a (single) in-memory R object via a _connection_, and similarly, 
 # uploading serialized R objects via connections
 json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)
 con <- textConnection(json)
-upload_blob(cont, src=con, dest="iris.json")
+storage_upload(cont, src=con, dest="iris.json")
 
 rds <- serialize(iris, NULL)
 con <- rawConnection(rds)
-upload_blob(cont, src=con, dest="iris.rds")
+storage_upload(cont, src=con, dest="iris.rds")
 
 # downloading files into memory: as a raw vector with dest=NULL, and via a connection
-rawvec <- download_blob(cont, src="iris.json", dest=NULL)
+rawvec <- storage_download(cont, src="iris.json", dest=NULL)
 rawToChar(rawvec)
 
 con <- rawConnection(raw(0), "r+")
-download_blob(cont, src="iris.rds", dest=con)
+storage_download(cont, src="iris.rds", dest=con)
 unserialize(con)
 ```
 
