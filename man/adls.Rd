@@ -71,6 +71,8 @@ The file transfer functions also support working with connections to allow trans
 
 \code{multiupload_adls_file} and \code{multidownload_adls_file} are functions for uploading and downloading \emph{multiple} files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The \code{src} argument for these should be a \emph{vector} of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The \code{dest} argument should be a directory.
 
+Note that \code{multiupload_adls_file} and \code{multidownload_adls_file} do not attempt to recreate any directory structure in the source; all files transferred will be placed in the same destination directory. If you want to transfer a directory tree, call the function once for each subdirectory in the source and set the destination to match.
+
 By default, the upload and download functions will display a progress bar to track the file transfer. To turn this off, use \code{options(azure_storage_progress_bar=FALSE)}. To turn the progress bar back on, use \code{options(azure_storage_progress_bar=TRUE)}.
 }
 \examples{

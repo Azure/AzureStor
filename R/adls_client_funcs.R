@@ -220,6 +220,8 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #'
 #' `multiupload_adls_file` and `multidownload_adls_file` are functions for uploading and downloading _multiple_ files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The `src` argument for these should be a _vector_ of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The `dest` argument should be a directory.
 #'
+#' Note that `multiupload_adls_file` and `multidownload_adls_file` do not attempt to recreate any directory structure in the source; all files transferred will be placed in the same destination directory. If you want to transfer a directory tree, call the function once for each subdirectory in the source and set the destination to match.
+#'
 #' By default, the upload and download functions will display a progress bar to track the file transfer. To turn this off, use `options(azure_storage_progress_bar=FALSE)`. To turn the progress bar back on, use `options(azure_storage_progress_bar=TRUE)`.
 #'
 #' @return

@@ -55,6 +55,9 @@ copy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE)
 #' @export
 multicopy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE, max_concurrent_transfers=10)
 {
+    if(missing(dest))
+        dest <- "/"
+
     if(length(dest) > 1)
         stop("'dest' must be a single directory", call.=FALSE)
 
@@ -66,8 +69,8 @@ multicopy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE,
     parallel::parLapply(.AzureStor$pool, src, function(f)
     {
         dest <- if(dest == "/")
-            basename(f)
-        else file.path(dest, basename(f))
+            basename(httr::parse_url(f)$path)
+        else file.path(dest, basename(httr::parse_url(f)$path))
         AzureStor::copy_url_to_blob(container, f, dest, lease=lease, async=async)
     })
     invisible(NULL)
