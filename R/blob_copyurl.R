@@ -63,10 +63,9 @@ multicopy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE,
 
     init_pool(max_concurrent_transfers)
 
-    parallel::clusterExport(.AzureStor$pool,
-        c("container", "dest", "lease", "async"),
+    pool_export(c("container", "dest", "lease", "async"),
         envir=environment())
-    parallel::parLapply(.AzureStor$pool, src, function(f)
+    pool_lapply(src, function(f)
     {
         dest <- if(dest == "/")
             basename(httr::parse_url(f)$path)

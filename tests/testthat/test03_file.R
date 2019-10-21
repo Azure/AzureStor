@@ -284,9 +284,11 @@ test_that("vector source for upload/download works",
     srcdir <- tempfile()
     destdir <- tempfile()
     destdir2 <- tempfile()
+    destdir3 <- tempfile()
     dir.create(srcdir)
     dir.create(destdir)
     dir.create(destdir2)
+    dir.create(destdir3)
 
     srcs <- unlist(lapply(letters[1:3], function(letter)
     {
@@ -299,13 +301,24 @@ test_that("vector source for upload/download works",
     multiupload_azure_file(share, file.path(srcdir, srcs), "/")
     multidownload_azure_file(share, srcs, destdir)
 
+    expect_identical(pool_size(), 10L)
     expect_identical(dir(srcdir), dir(destdir))
 
     create_azure_dir(share, "/newdir")
     multiupload_azure_file(share, file.path(srcdir, srcs), "/newdir")
     multidownload_azure_file(share, file.path("/newdir", srcs), destdir2)
 
+    expect_identical(pool_size(), 10L)
     expect_identical(dir(srcdir), dir(destdir2))
+
+    srcs <- dir(srcdir)
+    dests <- paste0("destname_", srcs)
+    expect_identical(length(srcs), length(dests))
+    multiupload_azure_file(share, file.path(srcdir, srcs), dests)
+    multidownload_azure_file(share, dests, destdir3)
+
+    expect_identical(pool_size(), 10L)
+    expect_identical(dests, dir(destdir3))
 })
 
 

@@ -237,7 +237,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #'
 #' The file transfer functions also support working with connections to allow transferring R objects without creating temporary files. For uploading, `src` can be a [textConnection] or [rawConnection] object. For downloading, `dest` can be NULL or a `rawConnection` object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
 #'
-#' `multiupload_blob` and `multidownload_blob` are functions for uploading and downloading _multiple_ blobs at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The `src` argument for these should be a _vector_ of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The `dest` argument should be a directory, or can be omitted for uploading.
+#' `multiupload_blob` and `multidownload_blob` are functions for uploading and downloading _multiple_ blobs at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The `src` argument for these should be a _vector_ of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The `dest` argument should either be a directory, or a vector of file/pathnames with one name for each file transferred.
 #'
 #' Note that `multiupload_blob` and `multidownload_blob` do not attempt to recreate any directory structure in the source; all files transferred will be placed in the same destination directory. If you want to transfer a directory tree, call the function once for each subdirectory in the source and set the destination to match.
 #'
@@ -271,6 +271,11 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' # you can pass a vector of file specs as the source to multiupload/download
 #' multiupload_blob(cont, c("intro.doc", "chap*.doc", "figures.*"))
 #' multidownload_blob(cont, c("readme", "*.csv"))
+#'
+#' # you can also pass a vector of file/pathnames as the destination
+#' src <- c("file1.csv", "file2.csv", "file3.csv")
+#' dest <- paste0("uploaded_", src)
+#' multiupload_blob(cont, src, dest)
 #'
 #' # uploading serialized R objects via connections
 #' json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)
@@ -350,14 +355,15 @@ upload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, 
 
 #' @rdname blob
 #' @export
-multiupload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL,
+multiupload_blob <- function(container, src, dest="/", type="BlockBlob", blocksize=2^24, lease=NULL,
                              use_azcopy=FALSE,
                              max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease)
-    else multiupload_blob_internal(container, src, dest, type=type, blocksize=blocksize, lease=lease,
-                                   max_concurrent_transfers=max_concurrent_transfers)
+        return(azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease))
+
+    multiupload_internal(container, src, dest, type=type, blocksize=blocksize, lease=lease,
+                         max_concurrent_transfers=max_concurrent_transfers, ulfunc="upload_blob")
 }
 
 #' @rdname blob
@@ -378,8 +384,12 @@ multidownload_blob <- function(container, src, dest, blocksize=2^24, overwrite=F
 {
     if(use_azcopy)
         azcopy_download(container, src, dest, overwrite=overwrite, lease=lease)
-    else multidownload_blob_internal(container, src, dest, blocksize=blocksize, overwrite=overwrite, lease=lease,
-                                     max_concurrent_transfers=max_concurrent_transfers)
+
+    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
+    files <- list_blobs(container, info="name")
+
+    multidownload_internal(container, src, dest, blocksize=blocksize, overwrite=overwrite, lease=lease, files=files,
+                           max_concurrent_transfers=max_concurrent_transfers, dlfunc="download_blob")
 }
 
 #' @rdname blob

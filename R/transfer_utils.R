@@ -1,3 +1,59 @@
+multiupload_internal <- function(container, src, dest, ..., max_concurrent_transfers=10, ulfunc)
+{
+    src <- make_upload_set(src)
+
+    if(length(src) == 0)
+        stop("No files to transfer", call.=FALSE)
+
+    if(length(dest) != 1 && length(dest) != length(src))
+        stop("'dest' must be either a single directory, or one name per file in 'src'", call.=FALSE)
+
+    if(length(src) == 1)
+        return(upload_blob(container, src, dest, type=type, blocksize=blocksize, lease=lease))
+
+    if(length(dest) == 1)
+        dest <- sub("//", "/", file.path(dest, basename(src)))
+
+    init_pool(max_concurrent_transfers)
+    pool_export(c("container", "ulfunc"), envir=environment())
+    pool_map(function(f, d, ...)
+    {
+        ulfunc <- get(ulfunc, getNamespace("AzureStor"))
+        ulfunc(container, f, d, ...)
+    }, src, dest, MoreArgs=list(...), RECYCLE=FALSE)
+
+    invisible(NULL)
+}
+
+
+multidownload_internal <- function(container, src, dest, ..., files, max_concurrent_transfers=10, dlfunc)
+{
+    src <- make_download_set(src, files)
+
+    if(length(src) == 0)
+        stop("No files to transfer", call.=FALSE)
+
+    if(length(dest) != 1 && length(dest) != length(src))
+        stop("'dest' must be either a single directory, or one name per file in 'src'", call.=FALSE)
+
+    if(length(src) == 1)
+        return(download_adls_file(filesystem, src, dest, blocksize=blocksize, overwrite=overwrite))
+
+    if(length(dest) == 1)
+        dest <- sub("//", "/", file.path(dest, basename(src)))
+
+    init_pool(max_concurrent_transfers)
+    pool_export(c("container", "dlfunc"), envir=environment())
+    pool_map(function(f, d, ...)
+    {
+        dlfunc <- get(dlfunc, getNamespace("AzureStor"))
+        dlfunc(container, f, d, ...)
+    }, src, dest, MoreArgs=list(...), RECYCLE=FALSE)
+
+    invisible(NULL)
+}
+
+
 normalize_src <- function(src)
 {
     UseMethod("normalize_src")

@@ -1,35 +1,3 @@
-multiupload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL,
-                                      max_concurrent_transfers=10)
-{
-    if(missing(dest))
-        dest <- "/"
-
-    if(length(dest) > 1)
-        stop("'dest' must be a single directory", call.=FALSE)
-
-    src <- make_upload_set(src)
-
-    if(length(src) == 0)
-        stop("No files to transfer", call.=FALSE)
-    if(length(src) == 1)
-        return(upload_blob(container, src, dest, type=type, blocksize=blocksize, lease=lease))
-
-    init_pool(max_concurrent_transfers)
-
-    parallel::clusterExport(.AzureStor$pool,
-        c("container", "dest", "type", "blocksize", "lease"),
-        envir=environment())
-    parallel::parLapply(.AzureStor$pool, src, function(f)
-    {
-        dest <- if(dest == "/")
-            basename(f)
-        else file.path(dest, basename(f))
-        AzureStor::upload_blob(container, f, dest, type=type, blocksize=blocksize, lease=lease)
-    })
-    invisible(NULL)
-}
-
-
 upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL)
 {
     if(type != "BlockBlob")
@@ -80,36 +48,6 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
     do_container_op(container, dest, headers=list("x-ms-blob-content-type"=src$content_type),
                     options=list(comp="properties"),
                     http_verb="PUT")
-    invisible(NULL)
-}
-
-
-multidownload_blob_internal <- function(container, src, dest, blocksize=2^24, overwrite=FALSE, lease=NULL,
-                                        max_concurrent_transfers=10)
-{
-    if(length(dest) > 1)
-        stop("'dest' must be a single directory", call.=FALSE)
-
-    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
-    files <- list_blobs(container, info="name")
-
-    src <- make_download_set(src, files)
-
-    if(length(src) == 0)
-        stop("No files to transfer", call.=FALSE)
-    if(length(src) == 1)
-        return(download_blob(container, src, dest, overwrite=overwrite, lease=lease))
-
-    init_pool(max_concurrent_transfers)
-
-    parallel::clusterExport(.AzureStor$pool,
-        c("container", "dest", "overwrite", "lease"),
-        envir=environment())
-    parallel::parLapply(.AzureStor$pool, src, function(f)
-    {
-        dest <- file.path(dest, basename(f))
-        AzureStor::download_blob(container, f, dest, overwrite=overwrite, lease=lease)
-    })
     invisible(NULL)
 }
 

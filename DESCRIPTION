@@ -20,7 +20,7 @@ Imports:
     mime,
     openssl,
     xml2,
-    AzureRMR
+    AzureRMR (>= 2.2.1)
 Suggests:
     knitr,
     jsonlite,

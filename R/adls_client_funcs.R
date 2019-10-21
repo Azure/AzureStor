@@ -218,7 +218,7 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #'
 #' The file transfer functions also support working with connections to allow transferring R objects without creating temporary files. For uploading, `src` can be a [textConnection] or [rawConnection] object. For downloading, `dest` can be NULL or a `rawConnection` object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
 #'
-#' `multiupload_adls_file` and `multidownload_adls_file` are functions for uploading and downloading _multiple_ files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The `src` argument for these should be a _vector_ of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The `dest` argument should be a directory.
+#' `multiupload_adls_file` and `multidownload_adls_file` are functions for uploading and downloading _multiple_ files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The `src` argument for these should be a _vector_ of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The `dest` argument should either be a directory, or a vector of file/pathnames with one name for each file transferred.
 #'
 #' Note that `multiupload_adls_file` and `multidownload_adls_file` do not attempt to recreate any directory structure in the source; all files transferred will be placed in the same destination directory. If you want to transfer a directory tree, call the function once for each subdirectory in the source and set the destination to match.
 #'
@@ -255,6 +255,11 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #' # you can pass a vector of file specs as the source to multiupload/download
 #' multiupload_adls_file(fs, c("intro.doc", "chap*.doc", "figures.*"), "report")
 #' multidownload_adls_file(fs, c("readme", "*.csv"), "./destdir")
+#'
+#' # you can also pass a vector of file/pathnames as the destination
+#' src <- c("file1.csv", "file2.csv", "file3.csv")
+#' dest <- paste0("uploaded_", src)
+#' multiupload_adls_file(share, src, dest)
 #'
 #' # uploading serialized R objects via connections
 #' json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)
@@ -340,9 +345,10 @@ multiupload_adls_file <- function(filesystem, src, dest, blocksize=2^22, lease=N
                                    max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease)
-    else multiupload_adls_file_internal(filesystem, src, dest, blocksize=blocksize, lease=lease,
-                                        max_concurrent_transfers=max_concurrent_transfers)
+        return(azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease))
+
+    multiupload_internal(filesystem, src, dest, blocksize=blocksize, lease=lease,
+                         max_concurrent_transfers=max_concurrent_transfers, ulfunc="upload_adls_file")
 }
 
 
@@ -363,9 +369,17 @@ multidownload_adls_file <- function(filesystem, src, dest, blocksize=2^24, overw
                                     max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        azcopy_upload(filesystem, src, dest, overwrite=overwrite)
-    else multidownload_adls_file_internal(filesystem, src, dest, blocksize=blocksize, overwrite=overwrite,
-                                          max_concurrent_transfers=max_concurrent_transfers)
+        return(azcopy_upload(filesystem, src, dest, overwrite=overwrite))
+
+    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
+    src_dirs <- unique(dirname(src))
+    src_dirs[src_dirs == "."] <- "/"
+
+    # file listing on ADLS includes directory name
+    files <- unlist(lapply(src_dirs, function(x) list_adls_files(filesystem, x, info="name")))
+
+    multidownload_internal(filesystem, src, dest, blocksize=blocksize, overwrite=overwrite, files=files,
+                           max_concurrent_transfers=max_concurrent_transfers, dlfunc="download_adls_file")
 }
 
 

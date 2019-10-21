@@ -203,7 +203,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #'
 #' The file transfer functions support working with connections to allow transferring R objects without creating temporary files. For uploading, `src` can be a [textConnection] or [rawConnection] object. For downloading, `dest` can be NULL or a `rawConnection` object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
 #'
-#' `multiupload_azure_file` and `multidownload_azure_file` are functions for uploading and downloading _multiple_ files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The `src` argument for these should be a _vector_ of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The `dest` argument should be a directory.
+#' `multiupload_azure_file` and `multidownload_azure_file` are functions for uploading and downloading _multiple_ files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The `src` argument for these should be a _vector_ of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The `dest` argument should either be a directory, or a vector of file/pathnames with one name for each file transferred.
 #'
 #' Note that `multiupload_azure_file` and `multidownload_azure_file` do not attempt to recreate any directory structure in the source; all files transferred will be placed in the same destination directory. If you want to transfer a directory tree, call the function once for each subdirectory in the source and set the destination to match.
 #'
@@ -242,6 +242,11 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' # you can pass a vector of file specs as the source to multiupload/download
 #' multiupload_azure_file(share, c("intro.doc", "chap*.doc", "figures.*"), "report")
 #' multidownload_azure_file(share, c("readme", "*.csv"), "./destdir")
+#'
+#' # you can also pass a vector of file/pathnames as the destination
+#' src <- c("file1.csv", "file2.csv", "file3.csv")
+#' dest <- paste0("uploaded_", src)
+#' multiupload_azure_file(share, src, dest)
 #'
 #' # uploading serialized R objects via connections
 #' json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)
@@ -310,9 +315,10 @@ multiupload_azure_file <- function(share, src, dest, blocksize=2^22,
                                    max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        azcopy_upload(share, src, dest, blocksize=blocksize)
-    else multiupload_azure_file_internal(share, src, dest, blocksize=blocksize,
-                                         max_concurrent_transfers=max_concurrent_transfers)
+        return(azcopy_upload(share, src, dest, blocksize=blocksize))
+
+    multiupload_internal(share, src, dest, blocksize=blocksize,
+                         max_concurrent_transfers=max_concurrent_transfers, ulfunc="upload_azure_file")
 }
 
 #' @rdname file
@@ -331,9 +337,22 @@ multidownload_azure_file <- function(share, src, dest, blocksize=2^22, overwrite
                                      max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        azcopy_download(share, src, dest, overwrite=overwrite)
-    else multidownload_azure_file_internal(share, src, dest, blocksize=blocksize, overwrite=overwrite,
-                                           max_concurrent_transfers=max_concurrent_transfers)
+        return(azcopy_download(share, src, dest, overwrite=overwrite))
+
+    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
+    src_dirs <- unique(dirname(src))
+    src_dirs[src_dirs == "."] <- ""
+
+    files <- unlist(lapply(src_dirs, function(dname)
+    {
+        fnames <- list_azure_files(share, dname, info="name")
+        if(dname != "")
+            file.path(dname, fnames)
+        else fnames
+    }))
+
+    multidownload_internal(share, src, dest, blocksize=blocksize, overwrite=overwrite, files=files,
+                           max_concurrent_transfers=max_concurrent_transfers, dlfunc="download_azure_file")
 }
 
 #' @rdname file

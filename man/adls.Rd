@@ -69,7 +69,7 @@ Upload, download, or delete a file; list files in a directory; create or delete 
 
 The file transfer functions also support working with connections to allow transferring R objects without creating temporary files. For uploading, \code{src} can be a \link{textConnection} or \link{rawConnection} object. For downloading, \code{dest} can be NULL or a \code{rawConnection} object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
 
-\code{multiupload_adls_file} and \code{multidownload_adls_file} are functions for uploading and downloading \emph{multiple} files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The \code{src} argument for these should be a \emph{vector} of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The \code{dest} argument should be a directory.
+\code{multiupload_adls_file} and \code{multidownload_adls_file} are functions for uploading and downloading \emph{multiple} files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The \code{src} argument for these should be a \emph{vector} of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The \code{dest} argument should either be a directory, or a vector of file/pathnames with one name for each file transferred.
 
 Note that \code{multiupload_adls_file} and \code{multidownload_adls_file} do not attempt to recreate any directory structure in the source; all files transferred will be placed in the same destination directory. If you want to transfer a directory tree, call the function once for each subdirectory in the source and set the destination to match.
 
@@ -98,6 +98,11 @@ multidownload_adls_file(fs, "/monthly/jan*.*", "/data/january")
 # you can pass a vector of file specs as the source to multiupload/download
 multiupload_adls_file(fs, c("intro.doc", "chap*.doc", "figures.*"), "report")
 multidownload_adls_file(fs, c("readme", "*.csv"), "./destdir")
+
+# you can also pass a vector of file/pathnames as the destination
+src <- c("file1.csv", "file2.csv", "file3.csv")
+dest <- paste0("uploaded_", src)
+multiupload_adls_file(share, src, dest)
 
 # uploading serialized R objects via connections
 json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)
