@@ -247,3 +247,4 @@ delete_confirmed <- function(confirm, name, type)
     else utils::askYesNo(msg, FALSE)
     isTRUE(ok)
 }
+

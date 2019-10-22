@@ -67,7 +67,7 @@ cont <- storage_container(ad_end_tok, "myfilesystem")
 list_storage_files(cont)
 create_storage_dir(cont, "newdir")
 storage_download(cont, "/readme.txt", "~/readme.txt")
-storage_multiupload(cont, "N:/data/*.*", "newdir")  # uploading everything in a directory, in parallel
+storage_multiupload(cont, "N:/data/*.*", "newdir")  # uploading everything in a directory
 ```
 
 ## Uploading and downloading
@@ -76,40 +76,62 @@ AzureStor includes a number of extra features to make transferring files efficie
 
 ### Parallel file transfers
 
- First, as noted above, you can transfer multiple files in parallel using the `multiupload_*`/`multidownload_*` functions. These use a pool of background R processes to do the transfers in parallel, which usually results in major speedups when transferring multiple small files. The pool is created the first time a parallel file transfer is performed, and persists for the duration of the R session; this means you don't have to wait for the pool to be (re-)created each time.
+First, as noted above, you can transfer multiple files in parallel using the `multiupload_*`/`multidownload_*` functions. These use a pool of background R processes to do the transfers in parallel, which usually results in major speedups when transferring multiple small files. The pool is created the first time a parallel file transfer is performed, and persists for the duration of the R session; this means you don't have to wait for the pool to be (re-)created each time.
 
 ```r
 # uploading/downloading multiple files at once: use a wildcard to specify files to transfer
-multiupload_adls_file(filesystem, src="N:/logfiles/*.zip", dest="/")
-multidownload_adls_file(filesystem, src="/monthly/jan*.*", dest="~/data/january")
+storage_multiupload(cont, src="N:/logfiles/*.zip", dest="/")
+storage_multidownload(cont, src="/monthly/jan*.*", dest="~/data/january")
+
+# you can also supply a vector of file specs as the source
+storage_multiupload(cont, c("*.doc", "figure1.png"), "report")
+storage_multidownload(cont, c("README", "*.csv", "*.bin"), "newdir")
 ```
 
 ### Transfer to and from connections
 
-Second, you can upload a (single) in-memory R object via a _connection_, and similarly, you can download a file to a connection, or return it as a raw vector. This lets you transfer an object without having to create a temporary file as an intermediate step.
+You can upload a (single) in-memory R object via a _connection_, and similarly, you can download a file to a connection, or return it as a raw vector. This lets you transfer an object without having to create a temporary file as an intermediate step.
 
 ```r
 # uploading serialized R objects via connections
 json <- jsonlite::toJSON(iris, pretty=TRUE, auto_unbox=TRUE)
 con <- textConnection(json)
-upload_blob(cont, src=con, dest="iris.json")
+storage_upload(cont, src=con, dest="iris.json")
 
 rds <- serialize(iris, NULL)
 con <- rawConnection(rds)
-upload_blob(cont, src=con, dest="iris.rds")
+storage_upload(cont, src=con, dest="iris.rds")
 
 # downloading files into memory: as a raw vector with dest=NULL, and via a connection
-rawvec <- download_blob(cont, src="iris.json", dest=NULL)
+rawvec <- storage_download(cont, src="iris.json", dest=NULL)
 rawToChar(rawvec)
 
 con <- rawConnection(raw(0), "r+")
-download_blob(cont, src="iris.rds", dest=con)
+storage_download(cont, src="iris.rds", dest=con)
 unserialize(con)
+```
+
+### Copy from URLs (blob storage only)
+
+The `copy_url_to_storage` function lets you transfer the contents of a URL directly to storage, without having to download it to your local machine first. The `multicopy_url_to_storage` function does the same, but for a vector of URLs. Currently, these only work for blob storage.
+
+```r
+# copy from a public URL: Iris data from UCI machine learning repository
+copy_url_to_storage(cont,
+    "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data",
+    "iris.csv")
+
+# copying files from another storage account, by appending a SAS to the URL(s)
+sas <- "?sv=...."
+files <- paste0("https://srcstorage.blob.core.windows.net/container/file", 0:9, ".csv", sas)
+
+# for blob multicopy, a missing 'dest' arg will copy to the root directory
+multicopy_url_to_storage(cont, files)
 ```
 
 ### Interface to AzCopy
 
-Third, AzureStor includes an interface to [AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10), Microsoft's high-performance commandline utility for copying files to and from storage. To take advantage of this, simply include the argument `use_azcopy=TRUE` on any upload or download function. AzureStor will then call AzCopy to perform the file transfer, rather than using its own internal code. In addition, a `call_azcopy` function is provided to let you use AzCopy for any task.
+AzureStor includes an interface to [AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10), Microsoft's high-performance commandline utility for copying files to and from storage. To take advantage of this, simply include the argument `use_azcopy=TRUE` on any upload or download function. AzureStor will then call AzCopy to perform the file transfer, rather than using its own internal code. In addition, a `call_azcopy` function is provided to let you use AzCopy for any task.
 
 ```r
 # use azcopy to download

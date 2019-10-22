@@ -161,7 +161,7 @@ test_that("ADLSgen2 client interface works",
 
 test_that("AAD authentication works",
 {
-    url <- stor$get_adls_endpoint()$url 
+    url <- stor$get_adls_endpoint()$url
     token <- AzureRMR::get_azure_token("https://storage.azure.com/", tenant=tenant, app=app, password=password)
     ad <- adls_endpoint(url, token=token)
     fs <- create_adls_filesystem(ad, "newfs4")
@@ -293,6 +293,59 @@ test_that("chunked downloading works",
 
     con <- download_adls_file(fs, "iris.csv", NULL, blocksize=150)
     expect_identical(readBin(orig_file, "raw", n=1e5), readBin(con, "raw", n=1e5))
+})
+
+
+test_that("vector source for upload/download works",
+{
+    write_file <- function(fname)
+    {
+        bytes <- openssl::rand_bytes(1000)
+        writeBin(bytes, file.path(srcdir, fname))
+        invisible(fname)
+    }
+
+    ad <- stor$get_adls_endpoint()
+    fs <- create_adls_filesystem(ad, "vectransfer")
+
+    srcdir <- tempfile()
+    destdir <- tempfile()
+    destdir2 <- tempfile()
+    destdir3 <- tempfile()
+    dir.create(srcdir)
+    dir.create(destdir)
+    dir.create(destdir2)
+    dir.create(destdir3)
+
+    srcs <- unlist(lapply(letters[1:3], function(letter)
+    {
+        for(i in 1:4)
+            write_file(paste0(letter, i, collapse=""))
+        paste0(letter, "*")
+    }))
+    srcs <- c(srcs, write_file("d1"), write_file("d2"))
+
+    multiupload_adls_file(fs, file.path(srcdir, srcs), "/")
+    multidownload_adls_file(fs, srcs, destdir)
+
+    expect_identical(pool_size(), 10L)
+    expect_identical(dir(srcdir), dir(destdir))
+
+    create_adls_dir(fs, "/newdir")
+    multiupload_adls_file(fs, file.path(srcdir, srcs), "/newdir")
+    multidownload_adls_file(fs, file.path("/newdir", srcs), destdir2)
+
+    expect_identical(pool_size(), 10L)
+    expect_identical(dir(srcdir), dir(destdir2))
+
+    srcs <- dir(srcdir)
+    dests <- paste0("destname_", srcs)
+    expect_identical(length(srcs), length(dests))
+    multiupload_adls_file(fs, file.path(srcdir, srcs), dests)
+    multidownload_adls_file(fs, dests, destdir3)
+
+    expect_identical(pool_size(), 10L)
+    expect_identical(dests, dir(destdir3))
 })
 
 

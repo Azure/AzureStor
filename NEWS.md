@@ -1,3 +1,10 @@
+# AzureStor 2.1.1.9000
+
+- The multiple-file transfer functions now accept vectors as their source and destination arguments. Each element of the source can be a filename, or a wildcard expanding to multiple files, eg `multiupload_adls_file(container, c("file1", "name.*", "*.csv"), "destdir")`. Th destination should be either a single name giving the destination directory, or a vector of file/pathnames with one element for each file transferred. See the examples for more details.
+- Creating a service-specific endpoint (`file_endpoint`, `blob_endpoint`, `adls_endpoint`) with an invalid URL will now warn, instead of throwing an error. This enables using tools like Azurite, which use a local address as the endpoint. Calling `storage_endpoint` with an invalid URL will still throw an error, as the function has no way of telling which storage service is required.
+- Remove the warning about ADLSgen2 not supporting shared access signatures (SAS).
+- Background process pool functionality has been moved to AzureRMR. This removes code duplication, and also makes it available for other packages that may benefit.
+
 # AzureStor 2.1.1
 
 - Correctly handle ADLSgen2 and file storage listings with more than 5000 files.

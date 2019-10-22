@@ -340,6 +340,63 @@ test_that("copy from url works",
 })
 
 
+test_that("vector source/dest for upload/download works",
+{
+    write_file <- function(fname)
+    {
+        bytes <- openssl::rand_bytes(1000)
+        writeBin(bytes, file.path(srcdir, fname))
+        invisible(fname)
+    }
+
+    bl <- stor$get_blob_endpoint()
+    cont <- create_blob_container(bl, "vectransfer")
+
+    srcdir <- tempfile()
+    destdir <- tempfile()
+    destdir2 <- tempfile()
+    destdir3 <- tempfile()
+    dir.create(srcdir)
+    dir.create(destdir)
+    dir.create(destdir2)
+    dir.create(destdir3)
+
+    srcs <- unlist(lapply(letters[1:3], function(letter)
+    {
+        for(i in 1:4)
+            write_file(paste0(letter, i, collapse=""))
+        paste0(letter, "*")
+    }))
+    srcs <- c(srcs, write_file("d1"), write_file("d2"))
+
+    # test that extra args passed to nodes
+    expect_error(multiupload_blob(cont, file.path(srcdir, srcs), type="AppendBlob"))
+
+    multiupload_blob(cont, file.path(srcdir, srcs))
+    multidownload_blob(cont, srcs, destdir)
+
+    expect_identical(pool_size(), 10L)
+    expect_identical(dir(srcdir), dir(destdir))
+
+    src_urls <- paste0("https://raw.githubusercontent.com/Azure/AzureStor/master/tests/resources/",
+        c("iris.csv", "100k.out"))
+    multicopy_url_to_blob(cont, src_urls, "/urls")
+    multidownload_blob(cont, c("urls/iris.csv", "urls/100k.out"), destdir2)
+
+    expect_identical(pool_size(), 10L)
+    expect_identical(dir(destdir2), c("100k.out", "iris.csv"))
+
+    srcs <- dir(srcdir)
+    dests <- paste0("destname_", srcs)
+    expect_identical(length(srcs), length(dests))
+    multiupload_blob(cont, file.path(srcdir, srcs), dests)
+    multidownload_blob(cont, dests, destdir3)
+
+    expect_identical(pool_size(), 10L)
+    expect_identical(dests, dir(destdir3))
+})
+
+
 teardown(
 {
     bl <- stor$get_blob_endpoint()
