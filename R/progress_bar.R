@@ -11,8 +11,8 @@ public=list(
 
     initialize=function(size, direction)
     {
-        self$display <- isTRUE(getOption("azure_storage_progress_bar"))
-        if(self$display)
+        self$display <- isTRUE(getOption("azure_storage_progress_bar")) && interactive()
+        if(self$display && size > 0)
         {
             self$direction <- direction
             self$offset <- 0
@@ -22,7 +22,7 @@ public=list(
 
     update=function()
     {
-        if(!self$display) return(NULL)
+        if(!self$display || is.null(self$bar)) return(NULL)
 
         func <- function(down, up)
         {
@@ -39,6 +39,6 @@ public=list(
 
     close=function()
     {
-        if(self$display) close(self$bar)
+        if(self$display && !is.null(self$bar)) close(self$bar)
     }
 ))
