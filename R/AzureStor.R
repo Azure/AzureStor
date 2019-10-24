@@ -19,10 +19,4 @@ globalVariables(c("self", "pool"), "AzureStor")
 }
 
 
-.onUnload <- function(libpath)
-{
-    if(exists("pool", envir=.AzureStor))
-        try(parallel::stopCluster(.AzureStor$pool), silent=TRUE)
-}
-
 
