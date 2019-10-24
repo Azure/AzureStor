@@ -9,7 +9,10 @@ multiupload_internal <- function(container, src, dest, ..., max_concurrent_trans
         stop("'dest' must be either a single directory, or one name per file in 'src'", call.=FALSE)
 
     if(length(src) == 1)
-        return(upload_blob(container, src, dest, type=type, blocksize=blocksize, lease=lease))
+    {
+        ulfunc <- get(ulfunc, getNamespace("AzureStor"))
+        return(ulfunc(container, src, dest, ...))
+    }
 
     if(length(dest) == 1)
         dest <- sub("//", "/", file.path(dest, basename(src)))
@@ -37,7 +40,10 @@ multidownload_internal <- function(container, src, dest, ..., files, max_concurr
         stop("'dest' must be either a single directory, or one name per file in 'src'", call.=FALSE)
 
     if(length(src) == 1)
-        return(download_adls_file(filesystem, src, dest, blocksize=blocksize, overwrite=overwrite))
+    {
+        dlfunc <- get(dlfunc, getNamespace("AzureStor"))
+        return(dlfunc(container, src, dest, ...))
+    }
 
     if(length(dest) == 1)
         dest <- sub("//", "/", file.path(dest, basename(src)))
