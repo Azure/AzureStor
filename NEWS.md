@@ -5,6 +5,7 @@
 - Remove the warning about ADLSgen2 not supporting shared access signatures (SAS).
 - Background process pool functionality has been moved to AzureRMR. This removes code duplication, and also makes it available for other packages that may benefit.
 - Only display the file transfer progress bar in an interactive session.
+- The default directory for `list_azure_files` is now the root, mirroring the behaviour for blobs and ADLSgen2.
 
 # AzureStor 2.1.1
 

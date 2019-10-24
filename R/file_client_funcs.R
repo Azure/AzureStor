@@ -268,7 +268,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' }
 #' @rdname file
 #' @export
-list_azure_files <- function(share, dir, info=c("all", "name"),
+list_azure_files <- function(share, dir="/", info=c("all", "name"),
                              prefix=NULL)
 {
     info <- match.arg(info)
@@ -296,7 +296,7 @@ list_azure_files <- function(share, dir, info=c("all", "name"),
                                  else ent$Properties$`Content-Length`[[1]],
                    FUN.VALUE=character(1))
 
-    data.frame(name=name, type=type, size=as.numeric(size), stringsAsFactors=FALSE)
+    data.frame(name=name, type=type, size=as.numeric(size), stringsAsFactors=FALSE, row.names=NULL)
 }
 
 #' @rdname file

@@ -119,7 +119,7 @@ make_upload_set <- function(src)
         (src[fixed])[file.exists(src[fixed])]
     else character(0)
 
-    c(src_fixed, src_regex)
+    unique(c(src_fixed, src_regex))
 }
 
 
@@ -136,6 +136,6 @@ make_download_set <- function(src, files)
         (src[fixed])[src[fixed] %in% files]
     else character(0)
 
-    c(src_fixed, src_regex)
+    unique(c(src_fixed, src_regex))
 }
 

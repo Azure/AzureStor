@@ -11,7 +11,8 @@
 \alias{delete_azure_dir}
 \title{Operations on a file share}
 \usage{
-list_azure_files(share, dir, info = c("all", "name"), prefix = NULL)
+list_azure_files(share, dir = "/", info = c("all", "name"),
+  prefix = NULL)
 
 upload_azure_file(share, src, dest, blocksize = 2^22,
   use_azcopy = FALSE)
