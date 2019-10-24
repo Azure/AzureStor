@@ -1,65 +1,3 @@
-multiupload_internal <- function(container, src, dest, ..., max_concurrent_transfers=10, ulfunc)
-{
-    src <- make_upload_set(src)
-
-    if(length(src) == 0)
-        stop("No files to transfer", call.=FALSE)
-
-    if(length(dest) != 1 && length(dest) != length(src))
-        stop("'dest' must be either a single directory, or one name per file in 'src'", call.=FALSE)
-
-    if(length(src) == 1)
-    {
-        ulfunc <- get(ulfunc, getNamespace("AzureStor"))
-        return(ulfunc(container, src, dest, ...))
-    }
-
-    if(length(dest) == 1)
-        dest <- sub("//", "/", file.path(dest, basename(src)))
-
-    init_pool(max_concurrent_transfers)
-    pool_export(c("container", "ulfunc"), envir=environment())
-    pool_map(function(f, d, ...)
-    {
-        ulfunc <- get(ulfunc, getNamespace("AzureStor"))
-        ulfunc(container, f, d, ...)
-    }, src, dest, MoreArgs=list(...), RECYCLE=FALSE)
-
-    invisible(NULL)
-}
-
-
-multidownload_internal <- function(container, src, dest, ..., files, max_concurrent_transfers=10, dlfunc)
-{
-    src <- make_download_set(src, files)
-
-    if(length(src) == 0)
-        stop("No files to transfer", call.=FALSE)
-
-    if(length(dest) != 1 && length(dest) != length(src))
-        stop("'dest' must be either a single directory, or one name per file in 'src'", call.=FALSE)
-
-    if(length(src) == 1)
-    {
-        dlfunc <- get(dlfunc, getNamespace("AzureStor"))
-        return(dlfunc(container, src, dest, ...))
-    }
-
-    if(length(dest) == 1)
-        dest <- sub("//", "/", file.path(dest, basename(src)))
-
-    init_pool(max_concurrent_transfers)
-    pool_export(c("container", "dlfunc"), envir=environment())
-    pool_map(function(f, d, ...)
-    {
-        dlfunc <- get(dlfunc, getNamespace("AzureStor"))
-        dlfunc(container, f, d, ...)
-    }, src, dest, MoreArgs=list(...), RECYCLE=FALSE)
-
-    invisible(NULL)
-}
-
-
 normalize_src <- function(src)
 {
     UseMethod("normalize_src")
@@ -103,27 +41,124 @@ normalize_src.rawConnection <- function(src)
 }
 
 
-make_upload_set <- function(src)
+multiupload_internal <- function(container, src, dest, recursive, ..., max_concurrent_transfers=10)
 {
-    src_files <- basename(src)
-    src_spec <- glob2rx(src_files)
-    fixed <- paste0("^", src_files, "$") == src_spec
+    src <- make_upload_set(src, recursive)
 
-    src_regex <- if(!all(fixed))
+    if(length(src) == 0)
+        stop("No files to transfer", call.=FALSE)
+
+    if(length(dest) != 1 && length(dest) != length(src))
+        stop("'dest' must be either a single directory, or one name per file in 'src'", call.=FALSE)
+
+    if(length(src) == 1)
+        return(storage_upload(container, src, dest, ...))
+
+    if(length(dest) == 1)
     {
-        unlist(mapply(function(dname, fpat) dir(dname, pattern=fpat, full.names=TRUE),
-                      dirname(src[!fixed]), src_spec[!fixed], SIMPLIFY=FALSE, USE.NAMES=FALSE))
+        src_root <- attr(src, "root")
+        dest <- sub("//", "/", file.path(dest, substr(src, nchar(src_root) + 2, nchar(src))))
     }
-    else character(0)
-    src_fixed <- if(any(fixed))
-        (src[fixed])[file.exists(src[fixed])]
-    else character(0)
 
-    unique(c(src_fixed, src_regex))
+    init_pool(max_concurrent_transfers)
+    pool_export("container", envir=environment())
+    pool_map(function(f, d, ...) AzureStor::storage_upload(container, f, d, ...),
+             src, dest, MoreArgs=list(...))
+
+    invisible(NULL)
 }
 
 
-make_download_set <- function(src, files)
+multidownload_internal <- function(container, src, dest, recursive, ..., max_concurrent_transfers=10)
+{
+    src <- make_download_set(container, src, recursive)
+
+    if(length(src) == 0)
+        stop("No files to transfer", call.=FALSE)
+
+    if(length(dest) != 1 && length(dest) != length(src))
+        stop("'dest' must be either a single directory, or one name per file in 'src'", call.=FALSE)
+
+    if(length(src) == 1)
+        return(storage_download(container, src, dest, ...))
+
+    if(length(dest) == 1)
+        dest <- sub("//", "/", file.path(dest, basename(src)))
+
+    init_pool(max_concurrent_transfers)
+    pool_export("container", envir=environment())
+    pool_map(function(f, d, ...) AzureStor::storage_download(container, f, d, ...),
+             src, dest, MoreArgs=list(...))
+
+    invisible(NULL)
+}
+
+
+make_upload_set <- function(src, recursive=FALSE)
+{
+    if(length(src) == 1)  # possible wildcard
+    {
+        src_dir <- dirname(src)
+        src_spec <- glob2rx(basename(src))
+        fnames <- dir(dirname(src), pattern=src_spec, full.names=TRUE, recursive=recursive,
+                      ignore.case=(.Platform$OS.type == "windows"))
+        dnames <- list.dirs(dirname(src), full.names=TRUE, recursive=recursive)
+        src <- setdiff(fnames, dnames)
+        # store original src dir of the wildcard
+        attr(src, "root") <- src_dir
+        src
+    }
+    else src[file.exists(src)]
+}
+
+
+make_download_set <- function(container, src)
+{
+    UseMethod("make_download_set")
+}
+
+
+make_download_set.adls_filesystem <- function(container, src, recursive)
+{
+    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
+    src_dirs <- unique(dirname(src))
+    src_dirs[src_dirs == "."] <- "/"
+
+    # file listing on ADLS includes directory name
+    files <- unlist(lapply(src_dirs, function(x) list_adls_files(filesystem, x, info="name", recursive=recursive)))
+
+    make_download_set_internal(src, files)
+}
+
+
+make_download_set.blob_container <- function(container, src, recursive)
+{
+    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
+    files <- list_blobs(container, info="name")
+
+    make_download_set_internal(src, files)
+}
+
+
+make_download_set.file_share <- function(container, src, recursive)
+{
+    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
+    src_dirs <- unique(dirname(src))
+    src_dirs[src_dirs == "."] <- ""
+
+    files <- unlist(lapply(src_dirs, function(dname)
+    {
+        fnames <- list_azure_files(share, dname, info="name")
+        if(dname != "")
+            file.path(dname, fnames)
+        else fnames
+    }))
+
+    make_download_set_internal(src, files)
+}
+
+
+make_download_set_internal <- function(src, files)
 {
     # don't grep unnecessarily
     src_spec <- glob2rx(src)

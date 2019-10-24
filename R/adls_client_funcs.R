@@ -340,15 +340,15 @@ list_adls_files <- function(filesystem, dir="/", info=c("all", "name"),
 
 #' @rdname adls
 #' @export
-multiupload_adls_file <- function(filesystem, src, dest, blocksize=2^22, lease=NULL,
+multiupload_adls_file <- function(filesystem, src, dest, recursive=FALSE, blocksize=2^22, lease=NULL,
                                    use_azcopy=FALSE,
                                    max_concurrent_transfers=10)
 {
     if(use_azcopy)
         return(azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease))
 
-    multiupload_internal(filesystem, src, dest, blocksize=blocksize, lease=lease,
-                         max_concurrent_transfers=max_concurrent_transfers, ulfunc="upload_adls_file")
+    multiupload_internal(filesystem, src, dest, recursive=recursive, blocksize=blocksize, lease=lease,
+                         max_concurrent_transfers=max_concurrent_transfers)
 }
 
 
@@ -364,22 +364,15 @@ upload_adls_file <- function(filesystem, src, dest, blocksize=2^24, lease=NULL, 
 
 #' @rdname adls
 #' @export
-multidownload_adls_file <- function(filesystem, src, dest, blocksize=2^24, overwrite=FALSE,
+multidownload_adls_file <- function(filesystem, src, dest, recursive=FALSE, blocksize=2^24, overwrite=FALSE,
                                     use_azcopy=FALSE,
                                     max_concurrent_transfers=10)
 {
     if(use_azcopy)
         return(azcopy_upload(filesystem, src, dest, overwrite=overwrite))
 
-    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
-    src_dirs <- unique(dirname(src))
-    src_dirs[src_dirs == "."] <- "/"
-
-    # file listing on ADLS includes directory name
-    files <- unlist(lapply(src_dirs, function(x) list_adls_files(filesystem, x, info="name")))
-
-    multidownload_internal(filesystem, src, dest, blocksize=blocksize, overwrite=overwrite, files=files,
-                           max_concurrent_transfers=max_concurrent_transfers, dlfunc="download_adls_file")
+    multidownload_internal(filesystem, src, dest, recursive=recursive, blocksize=blocksize, overwrite=overwrite,
+                           max_concurrent_transfers=max_concurrent_transfers)
 }
 
 
