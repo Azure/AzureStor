@@ -231,6 +231,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_blob` and `multidownload_blob`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
 #' @param prefix For `list_blobs`, filters the result to return only blobs whose name begins with this prefix.
+#' @param recursive For consistency with the other storage types, not used for blob storage.
 #'
 #' @details
 #' `upload_blob` and `download_blob` are the workhorse file transfer functions for blobs. They each take as inputs a _single_ filename or connection as the source for uploading/downloading, and a single filename or connection as the destination.
@@ -303,7 +304,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @rdname blob
 #' @export
 list_blobs <- function(container, info=c("partial", "name", "all"),
-                       prefix=NULL)
+                       prefix=NULL, recursive=TRUE)
 {
     info <- match.arg(info)
 

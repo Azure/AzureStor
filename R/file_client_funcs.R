@@ -192,7 +192,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' @param info Whether to return names only, or all information in a directory listing.
 #' @param src,dest The source and destination files for uploading and downloading. See 'Details' below.
 #' @param confirm Whether to ask for confirmation on deleting a file or directory.
-#' @param recursive For the multiupload/download functions, whether to recursively transfer files in subdirectories. For `create_azure_dir` and `delete_azure_dir`, whether to recursively create/delete each component of a nested directory path. Note that in all cases this can be slow, so try to use a non-recursive solution if possible.
+#' @param recursive For the multiupload/download functions, whether to recursively transfer files in subdirectories. For `list_azure_dir`, whether to include the contents of any subdirectories in the listing. For `create_azure_dir` and `delete_azure_dir`, whether to recursively create/delete each component of a nested directory path. Note that in all cases this can be slow, so try to use a non-recursive solution if possible.
 #' @param blocksize The number of bytes to upload/download per HTTP(S) request.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
@@ -270,7 +270,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' @rdname file
 #' @export
 list_azure_files <- function(share, dir="/", info=c("all", "name"),
-                             prefix=NULL)
+                             prefix=NULL, recursive=FALSE)
 {
     info <- match.arg(info)
     opts <- list(comp="list", restype="directory")
@@ -288,16 +288,24 @@ list_azure_files <- function(share, dir="/", info=c("all", "name"),
     }
 
     name <- vapply(out, function(ent) ent$Name[[1]], FUN.VALUE=character(1))
-    if(info == "name")
-        return(name)
-
     type <- if(is_empty(name)) character(0) else names(name)
     size <- vapply(out,
                    function(ent) if(is_empty(ent$Properties)) NA_character_
                                  else ent$Properties$`Content-Length`[[1]],
                    FUN.VALUE=character(1))
 
-    data.frame(name=name, type=type, size=as.numeric(size), stringsAsFactors=FALSE, row.names=NULL)
+    df <- data.frame(name=name, type=type, size=as.numeric(size), stringsAsFactors=FALSE, row.names=NULL)
+
+    if(recursive)
+    {
+        dirs <- file.path(dir, df$name[df$type == "Directory"])
+        nextlevel <- lapply(dir, function(d) list_azure_files(share, d, info="all", prefix=prefix, recursive=TRUE))
+        df <- do.call(rbind, c(list(df), nextlevel))
+    }
+
+    if(info == "name")
+        df$name
+    else df
 }
 
 #' @rdname file

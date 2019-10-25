@@ -129,12 +129,6 @@ make_upload_set <- function(src, recursive)
 
 make_download_set <- function(container, src, recursive)
 {
-    UseMethod("make_download_set")
-}
-
-
-make_download_set.adls_filesystem <- function(container, src, recursive)
-{
     src <- sub("^/", "", src) # strip leading slash if present, not meaningful
 
     if(length(src) == 1)  # possible wildcard
@@ -147,63 +141,12 @@ make_download_set.adls_filesystem <- function(container, src, recursive)
         {
             if(src_dir == ".")
                 src_dir <- "/"
-            dirlist <- list_adls_files(container, src_dir, recursive=TRUE)
-            src <- dirlist$name[!dirlist$isDirectory]
+            src <- list_storage_files(container, src, recursive=recursive, info="name")
+            src <- src[grepl(src_spec, basename(src))]
             # store original src dir of the wildcard
             attr(src, "root") <- src_dir
-            return(src)
         }
     }
-    src_dirs <- unique(dirname(src))
-    src_dirs[src_dirs == "."] <- "/"
 
-    # file listing on ADLS includes directory name
-    files <- unlist(lapply(src_dirs, function(x) list_adls_files(container, x, info="name", recursive=recursive)))
-
-    make_download_set_internal(src, files)
+    src
 }
-
-
-make_download_set.blob_container <- function(container, src, recursive)
-{
-    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
-    files <- list_blobs(container, info="name")
-
-    make_download_set_internal(src, files)
-}
-
-
-make_download_set.file_share <- function(container, src, recursive)
-{
-    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
-    src_dirs <- unique(dirname(src))
-    src_dirs[src_dirs == "."] <- ""
-
-    files <- unlist(lapply(src_dirs, function(dname)
-    {
-        fnames <- list_azure_files(container, dname, info="name")
-        if(dname != "")
-            file.path(dname, fnames)
-        else fnames
-    }))
-
-    make_download_set_internal(src, files)
-}
-
-
-make_download_set_internal <- function(src, files)
-{
-    # don't grep unnecessarily
-    src_spec <- glob2rx(src)
-    fixed <- paste0("^", src, "$") == src_spec
-
-    src_regex <- if(!all(fixed))
-        grep(paste0(src_spec[!fixed], collapse="|"), files, value=TRUE)
-    else character(0)
-    src_fixed <- if(any(fixed))
-        (src[fixed])[src[fixed] %in% files]
-    else character(0)
-
-    unique(c(src_fixed, src_regex))
-}
-
