@@ -192,6 +192,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' @param info Whether to return names only, or all information in a directory listing.
 #' @param src,dest The source and destination files for uploading and downloading. See 'Details' below.
 #' @param confirm Whether to ask for confirmation on deleting a file or directory.
+#' @param recursive For the multiupload/download functions, whether to recursively transfer files in subdirectories. For `create_azure_dir` and `delete_azure_dir`, whether to recursively create/delete each component of a nested directory path. Note that in all cases this can be slow, so try to use a non-recursive solution if possible.
 #' @param blocksize The number of bytes to upload/download per HTTP(S) request.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
@@ -301,24 +302,24 @@ list_azure_files <- function(share, dir="/", info=c("all", "name"),
 
 #' @rdname file
 #' @export
-upload_azure_file <- function(share, src, dest, blocksize=2^22, use_azcopy=FALSE)
+upload_azure_file <- function(share, src, dest, create_dir=FALSE, blocksize=2^22, use_azcopy=FALSE)
 {
     if(use_azcopy)
         azcopy_upload(share, src, dest, blocksize=blocksize)
-    else upload_azure_file_internal(share, src, dest, blocksize=blocksize)
+    else upload_azure_file_internal(share, src, dest, create_dir=create_dir, blocksize=blocksize)
 }
 
 #' @rdname file
 #' @export
-multiupload_azure_file <- function(share, src, dest, blocksize=2^22,
+multiupload_azure_file <- function(share, src, dest, recursive=FALSE, blocksize=2^22,
                                    use_azcopy=FALSE,
                                    max_concurrent_transfers=10)
 {
     if(use_azcopy)
         return(azcopy_upload(share, src, dest, blocksize=blocksize))
 
-    multiupload_internal(share, src, dest, blocksize=blocksize,
-                         max_concurrent_transfers=max_concurrent_transfers, ulfunc="upload_azure_file")
+    multiupload_internal(share, src, dest, recursive=recursive, create_dir=recursive, blocksize=blocksize,
+                         max_concurrent_transfers=max_concurrent_transfers)
 }
 
 #' @rdname file
@@ -332,27 +333,15 @@ download_azure_file <- function(share, src, dest, blocksize=2^22, overwrite=FALS
 
 #' @rdname file
 #' @export
-multidownload_azure_file <- function(share, src, dest, blocksize=2^22, overwrite=FALSE,
+multidownload_azure_file <- function(share, src, dest, recursive=FALSE, blocksize=2^22, overwrite=FALSE,
                                      use_azcopy=FALSE,
                                      max_concurrent_transfers=10)
 {
     if(use_azcopy)
         return(azcopy_download(share, src, dest, overwrite=overwrite))
 
-    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
-    src_dirs <- unique(dirname(src))
-    src_dirs[src_dirs == "."] <- ""
-
-    files <- unlist(lapply(src_dirs, function(dname)
-    {
-        fnames <- list_azure_files(share, dname, info="name")
-        if(dname != "")
-            file.path(dname, fnames)
-        else fnames
-    }))
-
-    multidownload_internal(share, src, dest, blocksize=blocksize, overwrite=overwrite, files=files,
-                           max_concurrent_transfers=max_concurrent_transfers, dlfunc="download_azure_file")
+    multidownload_internal(share, src, dest, recursive=recursive, blocksize=blocksize, overwrite=overwrite,
+                           max_concurrent_transfers=max_concurrent_transfers)
 }
 
 #' @rdname file
@@ -367,17 +356,29 @@ delete_azure_file <- function(share, file, confirm=TRUE)
 
 #' @rdname file
 #' @export
-create_azure_dir <- function(share, dir)
+create_azure_dir <- function(share, dir, recursive=FALSE)
 {
+    if(dir %in% c("/", "."))
+        return(invisible(NULL))
+
+    if(recursive)
+        try(create_azure_dir(share, dirname(dir), recursive=TRUE), silent=TRUE)
+
     do_container_op(share, dir, options=list(restype="directory"), http_verb="PUT")
 }
 
 #' @rdname file
 #' @export
-delete_azure_dir <- function(share, dir, confirm=TRUE)
+delete_azure_dir <- function(share, dir, recursive=FALSE, confirm=TRUE)
 {
+    if(dir %in% c("/", "."))
+        return(invisible(NULL))
+
     if(!delete_confirmed(confirm, paste0(share$endpoint$url, share$name, "/", dir), "directory"))
         return(invisible(NULL))
+
+    if(recursive)
+        try(delete_azure_dir(share, dirname(dir), recursive=TRUE, confirm=FALSE), silent=TRUE)
 
     do_container_op(share, dir, options=list(restype="directory"), http_verb="DELETE")
 }

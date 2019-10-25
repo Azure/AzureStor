@@ -355,15 +355,15 @@ upload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, 
 
 #' @rdname blob
 #' @export
-multiupload_blob <- function(container, src, dest="/", type="BlockBlob", blocksize=2^24, lease=NULL,
+multiupload_blob <- function(container, src, dest="/", recursive=FALSE, type="BlockBlob", blocksize=2^24, lease=NULL,
                              use_azcopy=FALSE,
                              max_concurrent_transfers=10)
 {
     if(use_azcopy)
         return(azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease))
 
-    multiupload_internal(container, src, dest, type=type, blocksize=blocksize, lease=lease,
-                         max_concurrent_transfers=max_concurrent_transfers, ulfunc="upload_blob")
+    multiupload_internal(container, src, dest, recursive=recursive, type=type, blocksize=blocksize, lease=lease,
+                         max_concurrent_transfers=max_concurrent_transfers)
 }
 
 #' @rdname blob
@@ -378,18 +378,15 @@ download_blob <- function(container, src, dest, blocksize=2^24, overwrite=FALSE,
 
 #' @rdname blob
 #' @export
-multidownload_blob <- function(container, src, dest, blocksize=2^24, overwrite=FALSE, lease=NULL,
+multidownload_blob <- function(container, src, dest, recursive=recursive, blocksize=2^24, overwrite=FALSE, lease=NULL,
                                use_azcopy=FALSE,
                                max_concurrent_transfers=10)
 {
     if(use_azcopy)
         azcopy_download(container, src, dest, overwrite=overwrite, lease=lease)
 
-    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
-    files <- list_blobs(container, info="name")
-
-    multidownload_internal(container, src, dest, blocksize=blocksize, overwrite=overwrite, lease=lease, files=files,
-                           max_concurrent_transfers=max_concurrent_transfers, dlfunc="download_blob")
+    multidownload_internal(container, src, dest, recursive=recursive, blocksize=blocksize, overwrite=overwrite,
+                           lease=lease, max_concurrent_transfers=max_concurrent_transfers)
 }
 
 #' @rdname blob

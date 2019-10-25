@@ -58,6 +58,8 @@ download_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, o
     {
         if(!overwrite && file.exists(dest))
             stop("Destination file exists and overwrite is FALSE", call.=FALSE)
+        if(!dir.exists(dirname(dest)))
+            dir.create(dirname(dest), recursive=TRUE)
         dest <- file(dest, "w+b")
         on.exit(close(dest))
     }
