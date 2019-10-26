@@ -14,14 +14,15 @@
 list_adls_files(filesystem, dir = "/", info = c("all", "name"),
   recursive = FALSE)
 
-multiupload_adls_file(filesystem, src, dest, blocksize = 2^22,
-  lease = NULL, use_azcopy = FALSE, max_concurrent_transfers = 10)
+multiupload_adls_file(filesystem, src, dest, recursive = FALSE,
+  blocksize = 2^22, lease = NULL, use_azcopy = FALSE,
+  max_concurrent_transfers = 10)
 
 upload_adls_file(filesystem, src, dest, blocksize = 2^24, lease = NULL,
   use_azcopy = FALSE)
 
-multidownload_adls_file(filesystem, src, dest, blocksize = 2^24,
-  overwrite = FALSE, use_azcopy = FALSE,
+multidownload_adls_file(filesystem, src, dest, recursive = FALSE,
+  blocksize = 2^24, overwrite = FALSE, use_azcopy = FALSE,
   max_concurrent_transfers = 10)
 
 download_adls_file(filesystem, src, dest, blocksize = 2^24,

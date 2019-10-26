@@ -92,7 +92,12 @@ multidownload_internal <- function(container, src, dest, recursive, ..., max_con
         return(storage_download(container, src, dest, ...))
 
     if(wildcard_src)
-        dest <- sub("//", "/", file.path(dest, substr(src, nchar(attr(src, "root")) + 2, nchar(src))))
+    {
+        root <- attr(src, "root")
+        if(root != "/")
+            dest <- substr(src, nchar(root) + 2, nchar(src))
+        dest <- sub("//", "/", file.path(dest, src))
+    }
 
     init_pool(max_concurrent_transfers)
     pool_export("container", envir=environment())
@@ -141,8 +146,11 @@ make_download_set <- function(container, src, recursive)
         {
             if(src_dir == ".")
                 src_dir <- "/"
-            src <- list_storage_files(container, src, recursive=recursive, info="name")
-            src <- src[grepl(src_spec, basename(src))]
+
+            src <- list_storage_files(container, src_dir, recursive=recursive)
+            if(is.null(src$isdir))  # blob wart
+                src$isdir <- FALSE
+            src <- src$name[grepl(src_spec, basename(src$name)) & !(src$isdir)]
             # store original src dir of the wildcard
             attr(src, "root") <- src_dir
         }

@@ -222,6 +222,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param container A blob container object.
 #' @param blob A string naming a blob.
 #' @param src,dest The source and destination files for uploading and downloading. See 'Details' below.
+#' @param dir For `list_blobs`, the directory. Note that blob storage does not support real directories; this argument simply filters the result to return only blobs whose names begin with the given value.
 #' @param info For `list_blobs`, level of detail about each blob to return: a vector of names only; the name, size and last-modified date (default); or all information.
 #' @param confirm Whether to ask for confirmation on deleting a blob.
 #' @param blocksize The number of bytes to upload/download per HTTP(S) request.
@@ -230,7 +231,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_blob` and `multidownload_blob`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
-#' @param prefix For `list_blobs`, filters the result to return only blobs whose name begins with this prefix.
+#' @param prefix For `list_blobs`, an alternative way to specify the directory.
 #' @param recursive For consistency with the other storage types, not used for blob storage.
 #'
 #' @details
@@ -239,8 +240,6 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' The file transfer functions also support working with connections to allow transferring R objects without creating temporary files. For uploading, `src` can be a [textConnection] or [rawConnection] object. For downloading, `dest` can be NULL or a `rawConnection` object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
 #'
 #' `multiupload_blob` and `multidownload_blob` are functions for uploading and downloading _multiple_ blobs at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The `src` argument for these should be a _vector_ of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The `dest` argument should either be a directory, or a vector of file/pathnames with one name for each file transferred.
-#'
-#' Note that `multiupload_blob` and `multidownload_blob` do not attempt to recreate any directory structure in the source; all files transferred will be placed in the same destination directory. If you want to transfer a directory tree, call the function once for each subdirectory in the source and set the destination to match.
 #'
 #' By default, the upload and download functions will display a progress bar to track the file transfer. To turn this off, use `options(azure_storage_progress_bar=FALSE)`. To turn the progress bar back on, use `options(azure_storage_progress_bar=TRUE)`.
 #'
@@ -303,12 +302,15 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' }
 #' @rdname blob
 #' @export
-list_blobs <- function(container, info=c("partial", "name", "all"),
+list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
                        prefix=NULL, recursive=TRUE)
 {
     info <- match.arg(info)
 
     opts <- list(comp="list", restype="container")
+    if(dir != "/")
+        prefix <- dir
+
     if(!is_empty(prefix))
         opts <- c(opts, prefix=as.character(prefix))
 

@@ -12,26 +12,27 @@
 \title{Operations on a file share}
 \usage{
 list_azure_files(share, dir = "/", info = c("all", "name"),
-  prefix = NULL)
+  prefix = NULL, recursive = FALSE)
 
-upload_azure_file(share, src, dest, blocksize = 2^22,
-  use_azcopy = FALSE)
+upload_azure_file(share, src, dest, create_dir = FALSE,
+  blocksize = 2^22, use_azcopy = FALSE)
 
-multiupload_azure_file(share, src, dest, blocksize = 2^22,
-  use_azcopy = FALSE, max_concurrent_transfers = 10)
+multiupload_azure_file(share, src, dest, recursive = FALSE,
+  blocksize = 2^22, use_azcopy = FALSE,
+  max_concurrent_transfers = 10)
 
 download_azure_file(share, src, dest, blocksize = 2^22,
   overwrite = FALSE, use_azcopy = FALSE)
 
-multidownload_azure_file(share, src, dest, blocksize = 2^22,
-  overwrite = FALSE, use_azcopy = FALSE,
+multidownload_azure_file(share, src, dest, recursive = FALSE,
+  blocksize = 2^22, overwrite = FALSE, use_azcopy = FALSE,
   max_concurrent_transfers = 10)
 
 delete_azure_file(share, file, confirm = TRUE)
 
-create_azure_dir(share, dir)
+create_azure_dir(share, dir, recursive = FALSE)
 
-delete_azure_dir(share, dir, confirm = TRUE)
+delete_azure_dir(share, dir, recursive = FALSE, confirm = TRUE)
 }
 \arguments{
 \item{share}{A file share object.}
@@ -41,6 +42,8 @@ delete_azure_dir(share, dir, confirm = TRUE)
 \item{info}{Whether to return names only, or all information in a directory listing.}
 
 \item{prefix}{For \code{list_azure_files}, filters the result to return only files and directories whose name begins with this prefix.}
+
+\item{recursive}{For the multiupload/download functions, whether to recursively transfer files in subdirectories. For \code{list_azure_dir}, whether to include the contents of any subdirectories in the listing. For \code{create_azure_dir} and \code{delete_azure_dir}, whether to recursively create/delete each component of a nested directory path. Note that in all cases this can be slow, so try to use a non-recursive solution if possible.}
 
 \item{src, dest}{The source and destination files for uploading and downloading. See 'Details' below.}
 

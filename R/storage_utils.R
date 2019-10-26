@@ -1,3 +1,6 @@
+#' Call a storage account endpoint
+#' @rdname storage_call
+#' @export
 do_container_op <- function(container, path="", options=list(), headers=list(), http_verb="GET", ...)
 {
     endp <- container$endpoint
@@ -13,6 +16,8 @@ do_container_op <- function(container, path="", options=list(), headers=list(), 
 }
 
 
+#' @rdname storage_call
+#' @export
 do_storage_call <- function(endpoint_url, path, options=list(), headers=list(), body=NULL, ...,
                             key=NULL, token=NULL, sas=NULL,
                             api_version=getOption("azure_storage_api_version"),

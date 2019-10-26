@@ -12,21 +12,21 @@
 \title{Operations on a blob container or blob}
 \usage{
 list_blobs(container, info = c("partial", "name", "all"),
-  prefix = NULL)
+  prefix = NULL, recursive = TRUE)
 
 upload_blob(container, src, dest, type = "BlockBlob", blocksize = 2^24,
   lease = NULL, use_azcopy = FALSE)
 
-multiupload_blob(container, src, dest = "/", type = "BlockBlob",
-  blocksize = 2^24, lease = NULL, use_azcopy = FALSE,
-  max_concurrent_transfers = 10)
+multiupload_blob(container, src, dest = "/", recursive = FALSE,
+  type = "BlockBlob", blocksize = 2^24, lease = NULL,
+  use_azcopy = FALSE, max_concurrent_transfers = 10)
 
 download_blob(container, src, dest, blocksize = 2^24,
   overwrite = FALSE, lease = NULL, use_azcopy = FALSE)
 
-multidownload_blob(container, src, dest, blocksize = 2^24,
-  overwrite = FALSE, lease = NULL, use_azcopy = FALSE,
-  max_concurrent_transfers = 10)
+multidownload_blob(container, src, dest, recursive = recursive,
+  blocksize = 2^24, overwrite = FALSE, lease = NULL,
+  use_azcopy = FALSE, max_concurrent_transfers = 10)
 
 delete_blob(container, blob, confirm = TRUE)
 
@@ -41,6 +41,8 @@ multicopy_url_to_blob(container, src, dest, lease = NULL,
 \item{info}{For \code{list_blobs}, level of detail about each blob to return: a vector of names only; the name, size and last-modified date (default); or all information.}
 
 \item{prefix}{For \code{list_blobs}, filters the result to return only blobs whose name begins with this prefix.}
+
+\item{recursive}{For consistency with the other storage types, not used for blob storage.}
 
 \item{src, dest}{The source and destination files for uploading and downloading. See 'Details' below.}
 
