@@ -65,7 +65,7 @@ delete_blob_container(endpoint, ...)
 
 \item{key, token, sas}{If an endpoint object is not supplied, authentication credentials: either an access key, an Azure Active Directory (AAD) token, or a SAS, in that order of priority. If no authentication credentials are provided, only public (anonymous) access to the share is possible.}
 
-\item{api_version}{If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to \code{"2018-03-28"}.}
+\item{api_version}{If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to \code{"2018-11-09"}.}
 
 \item{name}{The name of the blob container to get, create, or delete.}
 

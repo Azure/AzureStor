@@ -8,6 +8,7 @@
 - Background process pool functionality has been moved to AzureRMR. This removes code duplication, and also makes it available for other packages that may benefit.
 - Only display the file transfer progress bar in an interactive session.
 - The default directory for `list_azure_files` is now the root, mirroring the behaviour for blobs and ADLSgen2.
+- The output of `list_azure_files` now always has the subdirectory prepended to the name, similar to `list_adls_files` and `list_blobs`.
 - Make output format for `list_adls_files`, `list_blobs` and `list_azure_files` more consistent. The first 2 columns for a data frame output are now always `name` and `size`; the size of a directory is zero. The 3rd column for non-blobs is `isdir` which is TRUE/FALSE depending on whether the object is a directory or file. Any additional columns remain storage type-specific.
 - Export `do_storage_call` and `do_container_op` to allow direct calls to the storage account endpoint.
 

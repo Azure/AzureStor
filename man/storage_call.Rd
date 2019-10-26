@@ -2,19 +2,53 @@
 % Please edit documentation in R/storage_utils.R
 \name{do_container_op}
 \alias{do_container_op}
-\alias{do_storage_call}
-\title{Call a storage account endpoint}
+\alias{call_storage_endpoint}
+\title{Carry out operations on a storage account container or endpoint}
 \usage{
-do_container_op(container, path = "", options = list(),
+do_container_op(container, operation = "", options = list(),
   headers = list(), http_verb = "GET", ...)
 
-do_storage_call(endpoint_url, path, options = list(), headers = list(),
-  body = NULL, ..., key = NULL, token = NULL, sas = NULL,
-  api_version = getOption("azure_storage_api_version"),
-  http_verb = c("GET", "DELETE", "PUT", "POST", "HEAD", "PATCH"),
-  http_status_handler = c("stop", "warn", "message", "pass"),
-  progress = NULL)
+call_storage_endpoint(endpoint, path, options = list(),
+  headers = list(), body = NULL, ..., http_verb = c("GET", "DELETE",
+  "PUT", "POST", "HEAD", "PATCH"), http_status_handler = c("stop",
+  "warn", "message", "pass"), progress = NULL)
+}
+\arguments{
+\item{container, endpoint}{For \code{do_container_op}, a storage container object (inheriting from \code{storage_container}). For \code{call_storage_endpoint}, a  storage endpoint object (inheriting from \code{storage_endpoint}).}
+
+\item{operation}{The container operation to perform, which will form part of the URL path.}
+
+\item{options}{A named list giving the query parameters for the operation.}
+
+\item{headers}{A named list giving any additional HTTP headers to send to the host. Note that AzureStor will handle authentication details, so you don't have to specify these here.}
+
+\item{http_verb}{The HTTP verb as a string, one of \code{GET}, \code{DELETE}, \code{PUT}, \code{POST}, \code{HEAD} or \code{PATCH}.}
+
+\item{...}{Any additional arguments to pass to \code{httr::VERB}.}
+
+\item{path}{The path component of the endpoint call.}
+
+\item{body}{The request body for a \code{PUT/POST/PATCH} call.}
+
+\item{http_status_handler}{The R handler for the HTTP status code of the response. \code{"stop"}, \code{"warn"} or \code{"message"} will call the corresponding handlers in httr, while \code{"pass"} ignores the status code. The latter is primarily useful for debugging purposes.}
+
+\item{progress}{Used by the file transfer functions, to display a progress bar.}
+}
+\value{
+If \code{http_status_handler} is one of \code{"stop"}, \code{"warn"} or \code{"message"}, the status code of the response is checked, and if an error is not thrown, the parsed content of the response is returned. An exception is if the response was written to disk, as part of a file download; in this case, the return value is NULL.
+
+If \code{http_status_handler} is \code{"pass"}, the entire response is returned without modification.
 }
 \description{
-Call a storage account endpoint
+Carry out operations on a storage account container or endpoint
+}
+\details{
+These functions form the low-level interface between R and the storage API. \code{do_container_op} constructs a path from the operation and the container name, and passes it and the other arguments to \code{call_storage_endpoint}.
+}
+\seealso{
+\link{blob_endpoint}, \link{file_endpoint}, \link{adls_endpoint}
+
+\link{blob_container}, \link{file_share}, \link{adls_filesystem}
+
+\link[httr:GET]{httr::GET}, \link[httr:PUT]{httr::PUT}, \link[httr:POST]{httr::POST}, \link[httr:PATCH]{httr::PATCH}, \link[httr:HEAD]{httr::HEAD}, \link[httr:DELETE]{httr::DELETE}
 }

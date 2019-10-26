@@ -29,8 +29,7 @@ get_storage_properties <- function(object)
 #' @export
 get_storage_properties.storage_endpoint <- function(object)
 {
-    res <- do_storage_call(object$url, "", options=list(restype="service", comp="properties"),
-                           key=object$key, sas=object$sas, api_version=object$api_version)
+    res <- call_storage_endpoint(object, "", options=list(restype="service", comp="properties"))
     tidy_list(res)
 }
 

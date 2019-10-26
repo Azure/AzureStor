@@ -79,7 +79,7 @@ multidownload_internal <- function(container, src, dest, recursive, ..., max_con
     n_dest <- length(dest)
     wildcard_src <- !is.null(attr(src, "root"))
 
-    if(length(src) == 0)
+    if(n_src == 0)
         stop("No files to transfer", call.=FALSE)
 
     if(wildcard_src && n_dest > 1)
