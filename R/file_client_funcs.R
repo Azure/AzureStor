@@ -288,18 +288,20 @@ list_azure_files <- function(share, dir="/", info=c("all", "name"),
     }
 
     name <- vapply(out, function(ent) ent$Name[[1]], FUN.VALUE=character(1))
-    type <- if(is_empty(name)) character(0) else names(name)
+    isdir <- if(is_empty(name)) character(0) else names(name) == "Directory"
     size <- vapply(out,
                    function(ent) if(is_empty(ent$Properties)) NA_character_
                                  else ent$Properties$`Content-Length`[[1]],
                    FUN.VALUE=character(1))
 
-    df <- data.frame(name=name, type=type, size=as.numeric(size), stringsAsFactors=FALSE, row.names=NULL)
+    df <- data.frame(name=name, size=as.numeric(size), isdir=isdir, stringsAsFactors=FALSE, row.names=NULL)
 
     if(recursive)
     {
-        dirs <- file.path(dir, df$name[df$type == "Directory"])
-        nextlevel <- lapply(dir, function(d) list_azure_files(share, d, info="all", prefix=prefix, recursive=TRUE))
+        df$name <- sub("^//", "", file.path(dir, df$name))
+        dirs <- df$name[df$isdir]
+
+        nextlevel <- lapply(dirs, function(d) list_azure_files(share, d, info="all", prefix=prefix, recursive=TRUE))
         df <- do.call(rbind, c(list(df), nextlevel))
     }
 
