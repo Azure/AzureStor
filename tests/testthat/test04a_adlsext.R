@@ -41,11 +41,9 @@ srcdir <- tempfile(pattern="ul")
 destdir <- tempfile(pattern="dl")
 destdir2 <- tempfile(pattern="dl")
 destdir3 <- tempfile(pattern="dl")
+destdir4 <- tempfile(pattern="dl")
 dir.create(srcdir)
 dir.create(file.path(srcdir, "subdir"))
-dir.create(destdir)
-dir.create(destdir2)
-dir.create(destdir3)
 
 srcs <- replicate(5, write_file(srcdir))
 srcs_sub <- replicate(5, write_file(file.path(srcdir, "subdir")))
@@ -59,7 +57,7 @@ test_that("ADLS vector multitransfer works",
     multiupload_adls_file(cont, file.path(srcdir, srcs), srcs)
     multidownload_adls_file(cont, srcs, file.path(destdir, srcs))
 
-    expect_identical(pool_size(), 10L)
+    expect_identical(AzureRMR::pool_size(), 10L)
     expect_true(files_identical(file.path(srcdir, srcs), file.path(destdir, srcs)))
 
     # vector src needs vector dest
@@ -80,7 +78,19 @@ test_that("ADLS wildcard multitransfer works",
 
     # wildcard src needs directory dest
     expect_error(multiupload_adls_file(cont, file.path(srcdir, "*"), srcs))
-    expect_error(multidownload_adls_file(cont, "*", file.path(destdir, srcs)))
+    expect_error(multidownload_adls_file(cont, "*", file.path(destdir2, srcs)))
+})
+
+
+test_that("ADLS wildcard multitransfer from subdir works",
+{
+    contname <- paste0(sample(letters, 10, TRUE), collapse="")
+    cont <- create_adls_filesystem(ad, contname)
+
+    multiupload_adls_file(cont, file.path(srcdir, "*"), "/", recursive=TRUE)
+    multidownload_adls_file(cont, "subdir/*", destdir3)
+
+    expect_true(files_identical(file.path(srcdir, "subdir", srcs_sub), file.path(destdir3, srcs_sub)))
 })
 
 
@@ -90,13 +100,13 @@ test_that("ADLS recursive wildcard multitransfer works",
     cont <- create_adls_filesystem(ad, contname)
 
     multiupload_adls_file(cont, file.path(srcdir, "*"), "/", recursive=TRUE)
-    multidownload_adls_file(cont, "*", destdir3, recursive=TRUE)
+    multidownload_adls_file(cont, "*", destdir4, recursive=TRUE)
 
-    expect_true(files_identical(file.path(srcdir, srcs), file.path(destdir3, srcs)))
+    expect_true(files_identical(file.path(srcdir, srcs), file.path(destdir4, srcs)))
 
     # wildcard src needs directory dest
     expect_error(multiupload_adls_file(cont, file.path(srcdir, "*"), srcs))
-    expect_error(multidownload_adls_file(cont, "*", file.path(destdir, srcs)))
+    expect_error(multidownload_adls_file(cont, "*", file.path(destdir4, srcs)))
 })
 
 

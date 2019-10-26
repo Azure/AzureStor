@@ -94,9 +94,10 @@ multidownload_internal <- function(container, src, dest, recursive, ..., max_con
     if(wildcard_src)
     {
         root <- attr(src, "root")
-        if(root != "/")
-            dest <- substr(src, nchar(root) + 2, nchar(src))
-        dest <- sub("//", "/", file.path(dest, src))
+        destnames <- if(root != "/")
+            substr(src, nchar(root) + 2, nchar(src))
+        else src
+        dest <- sub("//", "/", file.path(dest, destnames))
     }
 
     init_pool(max_concurrent_transfers)

@@ -295,10 +295,10 @@ list_azure_files <- function(share, dir="/", info=c("all", "name"),
                    FUN.VALUE=character(1))
 
     df <- data.frame(name=name, size=as.numeric(size), isdir=isdir, stringsAsFactors=FALSE, row.names=NULL)
+    df$name <- sub("^//", "", file.path(dir, df$name))
 
     if(recursive)
     {
-        df$name <- sub("^//", "", file.path(dir, df$name))
         dirs <- df$name[df$isdir]
 
         nextlevel <- lapply(dirs, function(d) list_azure_files(share, d, info="all", prefix=prefix, recursive=TRUE))
