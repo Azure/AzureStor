@@ -1,7 +1,11 @@
-upload_azure_file_internal <- function(share, src, dest, blocksize=2^22)
+upload_azure_file_internal <- function(share, src, dest, create_dir=FALSE, blocksize=2^22)
 {
     src <- normalize_src(src)
     on.exit(close(src$con))
+
+    # file API needs separate call(s) to create destination dir
+    if(create_dir)
+        try(create_azure_dir(share, dirname(dest), recursive=TRUE), silent=TRUE)
 
     # first, create the file
     # ensure content-length is never exponential notation
@@ -59,6 +63,8 @@ download_azure_file_internal <- function(share, src, dest, blocksize=2^22, overw
     {
         if(!overwrite && file.exists(dest))
             stop("Destination file exists and overwrite is FALSE", call.=FALSE)
+        if(!dir.exists(dirname(dest)))
+            dir.create(dirname(dest), recursive=TRUE)
         dest <- file(dest, "w+b")
         on.exit(close(dest))
     }

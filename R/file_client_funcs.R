@@ -4,7 +4,7 @@
 #'
 #' @param endpoint Either a file endpoint object as created by [storage_endpoint], or a character string giving the URL of the endpoint.
 #' @param key,token,sas If an endpoint object is not supplied, authentication credentials: either an access key, an Azure Active Directory (AAD) token, or a SAS, in that order of priority.
-#' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2018-03-28"`.
+#' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2018-11-09"`.
 #' @param name The name of the file share to get, create, or delete.
 #' @param confirm For deleting a share, whether to ask for confirmation.
 #' @param x For the print method, a file share object.
@@ -103,8 +103,7 @@ list_file_shares.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
 #' @export
 list_file_shares.file_endpoint <- function(endpoint, ...)
 {
-    lst <- do_storage_call(endpoint$url, "/", options=list(comp="list"),
-                           key=endpoint$key, sas=endpoint$sas, api_version=endpoint$api_version)
+    lst <- call_storage_endpoint(endpoint, "/", options=list(comp="list"))
 
     lst <- lapply(lst$Shares, function(cont) file_share(endpoint, cont$Name[[1]]))
     named_list(lst)
@@ -192,6 +191,8 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' @param info Whether to return names only, or all information in a directory listing.
 #' @param src,dest The source and destination files for uploading and downloading. See 'Details' below.
 #' @param confirm Whether to ask for confirmation on deleting a file or directory.
+#' @param recursive For the multiupload/download functions, whether to recursively transfer files in subdirectories. For `list_azure_dir`, whether to include the contents of any subdirectories in the listing. For `create_azure_dir` and `delete_azure_dir`, whether to recursively create/delete each component of a nested directory path. Note that in all cases this can be slow, so try to use a non-recursive solution if possible.
+#' @param create_dir For the uploading functions, whether to create the destination directory if it doesn't exist. Again for the file storage API this can be slow, hence is optional.
 #' @param blocksize The number of bytes to upload/download per HTTP(S) request.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
@@ -199,15 +200,13 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' @param prefix For `list_azure_files`, filters the result to return only files and directories whose name begins with this prefix.
 #'
 #' @details
-#' `upload_azure_file` and `download_azure_file` are the workhorse file transfer functions for file storage. They each take as inputs a _single_ filename or connection as the source for uploading/downloading, and a single filename or connection as the destination.
+#' `upload_azure_file` and `download_azure_file` are the workhorse file transfer functions for file storage. They each take as inputs a _single_ filename as the source for uploading/downloading, and a single filename as the destination. Alternatively, for uploading, `src` can be a [textConnection] or [rawConnection] object; and for downloading, `dest` can be NULL or a `rawConnection` object. If `dest` is NULL, the downloaded data is returned as a raw vector, and if a raw connection, it will be placed into the connection. See the examples below.
 #'
-#' The file transfer functions support working with connections to allow transferring R objects without creating temporary files. For uploading, `src` can be a [textConnection] or [rawConnection] object. For downloading, `dest` can be NULL or a `rawConnection` object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
+#' `multiupload_azure_file` and `multidownload_azure_file` are functions for uploading and downloading _multiple_ files at once. They parallelise file transfers by using the background process pool provided by AzureRMR, which can lead to significant efficiency gains when transferring many small files. There are two ways to specify the source and destination for these functions:
+#' - Both `src` and `dest` can be vectors naming the individual source and destination pathnames.
+#' - The `src` argument can be a wildcard pattern expanding to one or more files, with `dest` naming a destination directory. In this case, if `recursive` is true, the file transfer will replicate the source directory structure at the destination.
 #'
-#' `multiupload_azure_file` and `multidownload_azure_file` are functions for uploading and downloading _multiple_ files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The `src` argument for these should be a _vector_ of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The `dest` argument should either be a directory, or a vector of file/pathnames with one name for each file transferred.
-#'
-#' Note that `multiupload_azure_file` and `multidownload_azure_file` do not attempt to recreate any directory structure in the source; all files transferred will be placed in the same destination directory. If you want to transfer a directory tree, call the function once for each subdirectory in the source and set the destination to match.
-#'
-#' By default, the upload and download functions will display a progress bar to track the file transfer. To turn this off, use `options(azure_storage_progress_bar=FALSE)`. To turn the progress bar back on, use `options(azure_storage_progress_bar=TRUE)`.
+#' `upload_azure_file` and `download_azure_file` can display a progress bar to track the file transfer. You can control whether to display this with `options(azure_storage_progress_bar=TRUE|FALSE)`; the default is TRUE.
 #'
 #' @return
 #' For `list_azure_files`, if `info="name"`, a vector of file/directory names. If `info="all"`, a data frame giving the file size and whether each object is a file or directory.
@@ -239,11 +238,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' multiupload_azure_file(share, "/data/logfiles/*.zip")
 #' multidownload_azure_file(share, "/monthly/jan*.*", "/data/january")
 #'
-#' # you can pass a vector of file specs as the source to multiupload/download
-#' multiupload_azure_file(share, c("intro.doc", "chap*.doc", "figures.*"), "report")
-#' multidownload_azure_file(share, c("readme", "*.csv"), "./destdir")
-#'
-#' # you can also pass a vector of file/pathnames as the destination
+#' # you can also pass a vector of file/pathnames as the source and destination
 #' src <- c("file1.csv", "file2.csv", "file3.csv")
 #' dest <- paste0("uploaded_", src)
 #' multiupload_azure_file(share, src, dest)
@@ -268,8 +263,8 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' }
 #' @rdname file
 #' @export
-list_azure_files <- function(share, dir, info=c("all", "name"),
-                             prefix=NULL)
+list_azure_files <- function(share, dir="/", info=c("all", "name"),
+                             prefix=NULL, recursive=FALSE)
 {
     info <- match.arg(info)
     opts <- list(comp="list", restype="directory")
@@ -287,38 +282,48 @@ list_azure_files <- function(share, dir, info=c("all", "name"),
     }
 
     name <- vapply(out, function(ent) ent$Name[[1]], FUN.VALUE=character(1))
-    if(info == "name")
-        return(name)
-
-    type <- if(is_empty(name)) character(0) else names(name)
+    isdir <- if(is_empty(name)) character(0) else names(name) == "Directory"
     size <- vapply(out,
                    function(ent) if(is_empty(ent$Properties)) NA_character_
                                  else ent$Properties$`Content-Length`[[1]],
                    FUN.VALUE=character(1))
 
-    data.frame(name=name, type=type, size=as.numeric(size), stringsAsFactors=FALSE)
+    df <- data.frame(name=name, size=as.numeric(size), isdir=isdir, stringsAsFactors=FALSE, row.names=NULL)
+    df$name <- sub("^//", "", file.path(dir, df$name))
+
+    if(recursive)
+    {
+        dirs <- df$name[df$isdir]
+
+        nextlevel <- lapply(dirs, function(d) list_azure_files(share, d, info="all", prefix=prefix, recursive=TRUE))
+        df <- do.call(rbind, c(list(df), nextlevel))
+    }
+
+    if(info == "name")
+        df$name
+    else df
 }
 
 #' @rdname file
 #' @export
-upload_azure_file <- function(share, src, dest, blocksize=2^22, use_azcopy=FALSE)
+upload_azure_file <- function(share, src, dest, create_dir=FALSE, blocksize=2^22, use_azcopy=FALSE)
 {
     if(use_azcopy)
         azcopy_upload(share, src, dest, blocksize=blocksize)
-    else upload_azure_file_internal(share, src, dest, blocksize=blocksize)
+    else upload_azure_file_internal(share, src, dest, create_dir=create_dir, blocksize=blocksize)
 }
 
 #' @rdname file
 #' @export
-multiupload_azure_file <- function(share, src, dest, blocksize=2^22,
+multiupload_azure_file <- function(share, src, dest="/", recursive=FALSE, create_dir=recursive, blocksize=2^22,
                                    use_azcopy=FALSE,
                                    max_concurrent_transfers=10)
 {
     if(use_azcopy)
         return(azcopy_upload(share, src, dest, blocksize=blocksize))
 
-    multiupload_internal(share, src, dest, blocksize=blocksize,
-                         max_concurrent_transfers=max_concurrent_transfers, ulfunc="upload_azure_file")
+    multiupload_internal(share, src, dest, recursive=recursive, create_dir=create_dir, blocksize=blocksize,
+                         max_concurrent_transfers=max_concurrent_transfers)
 }
 
 #' @rdname file
@@ -332,27 +337,15 @@ download_azure_file <- function(share, src, dest, blocksize=2^22, overwrite=FALS
 
 #' @rdname file
 #' @export
-multidownload_azure_file <- function(share, src, dest, blocksize=2^22, overwrite=FALSE,
+multidownload_azure_file <- function(share, src, dest, recursive=FALSE, blocksize=2^22, overwrite=FALSE,
                                      use_azcopy=FALSE,
                                      max_concurrent_transfers=10)
 {
     if(use_azcopy)
         return(azcopy_download(share, src, dest, overwrite=overwrite))
 
-    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
-    src_dirs <- unique(dirname(src))
-    src_dirs[src_dirs == "."] <- ""
-
-    files <- unlist(lapply(src_dirs, function(dname)
-    {
-        fnames <- list_azure_files(share, dname, info="name")
-        if(dname != "")
-            file.path(dname, fnames)
-        else fnames
-    }))
-
-    multidownload_internal(share, src, dest, blocksize=blocksize, overwrite=overwrite, files=files,
-                           max_concurrent_transfers=max_concurrent_transfers, dlfunc="download_azure_file")
+    multidownload_internal(share, src, dest, recursive=recursive, blocksize=blocksize, overwrite=overwrite,
+                           max_concurrent_transfers=max_concurrent_transfers)
 }
 
 #' @rdname file
@@ -367,17 +360,29 @@ delete_azure_file <- function(share, file, confirm=TRUE)
 
 #' @rdname file
 #' @export
-create_azure_dir <- function(share, dir)
+create_azure_dir <- function(share, dir, recursive=FALSE)
 {
+    if(dir %in% c("/", "."))
+        return(invisible(NULL))
+
+    if(recursive)
+        try(create_azure_dir(share, dirname(dir), recursive=TRUE), silent=TRUE)
+
     do_container_op(share, dir, options=list(restype="directory"), http_verb="PUT")
 }
 
 #' @rdname file
 #' @export
-delete_azure_dir <- function(share, dir, confirm=TRUE)
+delete_azure_dir <- function(share, dir, recursive=FALSE, confirm=TRUE)
 {
+    if(dir %in% c("/", "."))
+        return(invisible(NULL))
+
     if(!delete_confirmed(confirm, paste0(share$endpoint$url, share$name, "/", dir), "directory"))
         return(invisible(NULL))
+
+    if(recursive)
+        try(delete_azure_dir(share, dirname(dir), recursive=TRUE, confirm=FALSE), silent=TRUE)
 
     do_container_op(share, dir, options=list(restype="directory"), http_verb="DELETE")
 }

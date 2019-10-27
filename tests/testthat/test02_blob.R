@@ -134,45 +134,6 @@ test_that("Blob client interface works",
     iris3 <- as.data.frame(jsonlite::fromJSON(con))
     expect_identical(iris, iris3)
 
-    # multiple file transfers
-    files <- lapply(1:10, function(f) paste0(sample(letters, 1000, replace=TRUE), collapse=""))
-    filenames <- sapply(1:10, function(n) file.path(tempdir(), sprintf("multitransfer_%d", n)))
-    suppressWarnings(file.remove(filenames))
-    mapply(writeLines, files, filenames)
-
-    multiupload_blob(cont, file.path(tempdir(), "multitransfer_*"))
-
-    dest_dir <- file.path(tempdir(), "blob_multitransfer")
-    suppressWarnings(unlink(dest_dir, recursive=TRUE))
-    dir.create(dest_dir)
-    multidownload_blob(cont, "multitransfer_*", dest_dir, overwrite=TRUE)
-
-    expect_true(all(sapply(filenames, function(f)
-    {
-        src <- readBin(f, "raw", n=1e5)
-        dest <- readBin(file.path(dest_dir, basename(f)), "raw", n=1e5)
-        identical(src, dest)
-    })))
-
-    # multiple file transfer with directory names
-    files <- lapply(1:10, function(f) paste0(sample(letters, 1000, replace=TRUE), collapse=""))
-    filenames <- sapply(1:10, function(n) file.path(tempdir(), sprintf("multitransfer2_%d", n)))
-    suppressWarnings(file.remove(filenames))
-    mapply(writeLines, files, filenames)
-
-    multiupload_blob(cont, file.path(tempdir(), "multitransfer2_*"), "new/dir")
-    dest_dir <- file.path(tempdir(), "blob_multitransfer")
-    suppressWarnings(unlink(dest_dir, recursive=TRUE))
-    dir.create(dest_dir)
-    multidownload_blob(cont, "new/dir/multitransfer2_*", dest_dir, overwrite=TRUE)
-
-    expect_true(all(sapply(filenames, function(f)
-    {
-        src <- readBin(f, "raw", n=1e5)
-        dest <- readBin(file.path(dest_dir, basename(f)), "raw", n=1e5)
-        identical(src, dest)
-    })))
-
     # ways of deleting a container
     delete_blob_container(cont, confirm=FALSE)
     delete_blob_container(bl, "newcontainer2", confirm=FALSE)
@@ -199,26 +160,6 @@ test_that("AAD authentication works",
     suppressWarnings(file.remove(tok_dl))
     download_blob(cont, "iris.csv", tok_dl)
     expect_identical(readBin(orig_file, "raw", n=1e5), readBin(tok_dl, "raw", n=1e5))
-
-    # multiple upload and download
-    files <- lapply(1:10, function(f) paste0(sample(letters, 1000, replace=TRUE), collapse=""))
-    filenames <- sapply(1:10, function(n) file.path(tempdir(), sprintf("multitransfer_%d", n)))
-    suppressWarnings(file.remove(filenames))
-    mapply(writeLines, files, filenames)
-
-    multiupload_blob(cont, file.path(tempdir(), "multitransfer_*"))
-
-    dest_dir <- file.path(tempdir(), "blob_multitransfer")
-    suppressWarnings(unlink(dest_dir, recursive=TRUE))
-    dir.create(dest_dir)
-    multidownload_blob(cont, "multitransfer_*", dest_dir, overwrite=TRUE)
-
-    expect_true(all(sapply(filenames, function(f)
-    {
-        src <- readBin(f, "raw", n=1e5)
-        dest <- readBin(file.path(dest_dir, basename(f)), "raw", n=1e5)
-        identical(src, dest)
-    })))
 
     delete_blob_container(cont, confirm=FALSE)
     expect_true(is_empty(list_blob_containers(bl)))
@@ -337,63 +278,6 @@ test_that("copy from url works",
 
     # use readLines to workaround GH auto-translating CRLF -> LF
     expect_identical(readLines(orig_file), readLines(new_file))
-})
-
-
-test_that("vector source/dest for upload/download works",
-{
-    write_file <- function(fname)
-    {
-        bytes <- openssl::rand_bytes(1000)
-        writeBin(bytes, file.path(srcdir, fname))
-        invisible(fname)
-    }
-
-    bl <- stor$get_blob_endpoint()
-    cont <- create_blob_container(bl, "vectransfer")
-
-    srcdir <- tempfile()
-    destdir <- tempfile()
-    destdir2 <- tempfile()
-    destdir3 <- tempfile()
-    dir.create(srcdir)
-    dir.create(destdir)
-    dir.create(destdir2)
-    dir.create(destdir3)
-
-    srcs <- unlist(lapply(letters[1:3], function(letter)
-    {
-        for(i in 1:4)
-            write_file(paste0(letter, i, collapse=""))
-        paste0(letter, "*")
-    }))
-    srcs <- c(srcs, write_file("d1"), write_file("d2"))
-
-    # test that extra args passed to nodes
-    expect_error(multiupload_blob(cont, file.path(srcdir, srcs), type="AppendBlob"))
-
-    multiupload_blob(cont, file.path(srcdir, srcs))
-    multidownload_blob(cont, srcs, destdir)
-
-    expect_identical(pool_size(), 10L)
-    expect_identical(dir(srcdir), dir(destdir))
-
-    src_urls <- paste0("https://raw.githubusercontent.com/Azure/AzureStor/master/tests/resources/",
-        c("iris.csv", "100k.out"))
-    multicopy_url_to_blob(cont, src_urls, "/urls")
-    multidownload_blob(cont, c("urls/iris.csv", "urls/100k.out"), destdir2)
-
-    expect_identical(pool_size(), 10L)
-    expect_identical(dir(destdir2), c("100k.out", "iris.csv"))
-
-    srcs <- dir(srcdir)
-    dests <- paste0("destname_", srcs)
-    expect_identical(length(srcs), length(dests))
-    multiupload_blob(cont, file.path(srcdir, srcs), dests)
-    multidownload_blob(cont, dests, destdir3)
-
-    expect_identical(pool_size(), 10L)
-    expect_identical(dests, dir(destdir3))
 })
 
 

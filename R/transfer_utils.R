@@ -1,65 +1,3 @@
-multiupload_internal <- function(container, src, dest, ..., max_concurrent_transfers=10, ulfunc)
-{
-    src <- make_upload_set(src)
-
-    if(length(src) == 0)
-        stop("No files to transfer", call.=FALSE)
-
-    if(length(dest) != 1 && length(dest) != length(src))
-        stop("'dest' must be either a single directory, or one name per file in 'src'", call.=FALSE)
-
-    if(length(src) == 1)
-    {
-        ulfunc <- get(ulfunc, getNamespace("AzureStor"))
-        return(ulfunc(container, src, dest, ...))
-    }
-
-    if(length(dest) == 1)
-        dest <- sub("//", "/", file.path(dest, basename(src)))
-
-    init_pool(max_concurrent_transfers)
-    pool_export(c("container", "ulfunc"), envir=environment())
-    pool_map(function(f, d, ...)
-    {
-        ulfunc <- get(ulfunc, getNamespace("AzureStor"))
-        ulfunc(container, f, d, ...)
-    }, src, dest, MoreArgs=list(...), RECYCLE=FALSE)
-
-    invisible(NULL)
-}
-
-
-multidownload_internal <- function(container, src, dest, ..., files, max_concurrent_transfers=10, dlfunc)
-{
-    src <- make_download_set(src, files)
-
-    if(length(src) == 0)
-        stop("No files to transfer", call.=FALSE)
-
-    if(length(dest) != 1 && length(dest) != length(src))
-        stop("'dest' must be either a single directory, or one name per file in 'src'", call.=FALSE)
-
-    if(length(src) == 1)
-    {
-        dlfunc <- get(dlfunc, getNamespace("AzureStor"))
-        return(dlfunc(container, src, dest, ...))
-    }
-
-    if(length(dest) == 1)
-        dest <- sub("//", "/", file.path(dest, basename(src)))
-
-    init_pool(max_concurrent_transfers)
-    pool_export(c("container", "dlfunc"), envir=environment())
-    pool_map(function(f, d, ...)
-    {
-        dlfunc <- get(dlfunc, getNamespace("AzureStor"))
-        dlfunc(container, f, d, ...)
-    }, src, dest, MoreArgs=list(...), RECYCLE=FALSE)
-
-    invisible(NULL)
-}
-
-
 normalize_src <- function(src)
 {
     UseMethod("normalize_src")
@@ -103,39 +41,121 @@ normalize_src.rawConnection <- function(src)
 }
 
 
-make_upload_set <- function(src)
+multiupload_internal <- function(container, src, dest, recursive, ..., max_concurrent_transfers=10)
 {
-    src_files <- basename(src)
-    src_spec <- glob2rx(src_files)
-    fixed <- paste0("^", src_files, "$") == src_spec
+    src <- make_upload_set(src, recursive)
+    n_src <- length(src)
+    n_dest <- length(dest)
+    wildcard_src <- !is.null(attr(src, "root"))
 
-    src_regex <- if(!all(fixed))
+    if(n_src == 0)
+        stop("No files to transfer", call.=FALSE)
+
+    if(wildcard_src && n_dest > 1)
+        stop("'dest' for a wildcard 'src' must be a single directory", call.=FALSE)
+
+    if(!wildcard_src && n_dest != n_src)
+        stop("'dest' must contain one name per file in 'src'", call.=FALSE)
+
+    if(n_src == 1 && !wildcard_src)
+        return(storage_upload(container, src, dest, ...))
+
+    if(wildcard_src)
+        dest <- sub("//", "/", file.path(dest, substr(src, nchar(attr(src, "root")) + 2, nchar(src))))
+
+    init_pool(max_concurrent_transfers)
+    pool_export("container", envir=environment())
+    pool_map(function(s, d, ...) AzureStor::storage_upload(container, s, d, ...),
+             src, dest, MoreArgs=list(...))
+
+    invisible(NULL)
+}
+
+
+multidownload_internal <- function(container, src, dest, recursive, ..., max_concurrent_transfers=10)
+{
+    src <- make_download_set(container, src, recursive)
+    n_src <- length(src)
+    n_dest <- length(dest)
+    wildcard_src <- !is.null(attr(src, "root"))
+
+    if(n_src == 0)
+        stop("No files to transfer", call.=FALSE)
+
+    if(wildcard_src && n_dest > 1)
+        stop("'dest' for a wildcard 'src' must be a single directory", call.=FALSE)
+
+    if(!wildcard_src && n_dest != n_src)
+        stop("'dest' must contain one name per file in 'src'", call.=FALSE)
+
+    if(n_src == 1 && !wildcard_src)
+        return(storage_download(container, src, dest, ...))
+
+    if(wildcard_src)
     {
-        unlist(mapply(function(dname, fpat) dir(dname, pattern=fpat, full.names=TRUE),
-                      dirname(src[!fixed]), src_spec[!fixed], SIMPLIFY=FALSE, USE.NAMES=FALSE))
+        root <- attr(src, "root")
+        destnames <- if(root != "/")
+            substr(src, nchar(root) + 2, nchar(src))
+        else src
+        dest <- sub("//", "/", file.path(dest, destnames))
     }
-    else character(0)
-    src_fixed <- if(any(fixed))
-        (src[fixed])[file.exists(src[fixed])]
-    else character(0)
 
-    c(src_fixed, src_regex)
+    init_pool(max_concurrent_transfers)
+    pool_export("container", envir=environment())
+    pool_map(function(s, d, ...) AzureStor::storage_download(container, s, d, ...),
+             src, dest, MoreArgs=list(...))
+
+    invisible(NULL)
 }
 
 
-make_download_set <- function(src, files)
+make_upload_set <- function(src, recursive)
 {
-    # don't grep unnecessarily
-    src_spec <- glob2rx(src)
-    fixed <- paste0("^", src, "$") == src_spec
+    if(length(src) == 1)  # possible wildcard
+    {
+        src_dir <- dirname(src)
+        src_name <- basename(src)
+        src_spec <- glob2rx(src_name)
 
-    src_regex <- if(!all(fixed))
-        grep(paste0(src_spec[!fixed], collapse="|"), files, value=TRUE)
-    else character(0)
-    src_fixed <- if(any(fixed))
-        (src[fixed])[src[fixed] %in% files]
-    else character(0)
+        if(src_spec != paste0("^", gsub("\\.", "\\\\.", src_name), "$"))  # a wildcard
+        {
+            fnames <- dir(src_dir, pattern=src_spec, full.names=TRUE, recursive=recursive,
+                        ignore.case=(.Platform$OS.type == "windows"))
+            dnames <- list.dirs(dirname(src), full.names=TRUE, recursive=recursive)
+            src <- setdiff(fnames, dnames)
+            # store original src dir of the wildcard
+            attr(src, "root") <- src_dir
+            return(src)
+        }
+    }
 
-    c(src_fixed, src_regex)
+    src[file.exists(src)]
 }
 
+
+make_download_set <- function(container, src, recursive)
+{
+    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
+
+    if(length(src) == 1)  # possible wildcard
+    {
+        src_dir <- dirname(src)
+        src_name <- basename(src)
+        src_spec <- glob2rx(src_name)
+
+        if(src_spec != paste0("^", gsub("\\.", "\\\\.", src_name), "$"))  # a wildcard
+        {
+            if(src_dir == ".")
+                src_dir <- "/"
+
+            src <- list_storage_files(container, src_dir, recursive=recursive)
+            if(is.null(src$isdir))  # blob wart
+                src$isdir <- FALSE
+            src <- src$name[grepl(src_spec, basename(src$name)) & !(src$isdir)]
+            # store original src dir of the wildcard
+            attr(src, "root") <- src_dir
+        }
+    }
+
+    src
+}

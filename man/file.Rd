@@ -11,26 +11,28 @@
 \alias{delete_azure_dir}
 \title{Operations on a file share}
 \usage{
-list_azure_files(share, dir, info = c("all", "name"), prefix = NULL)
+list_azure_files(share, dir = "/", info = c("all", "name"),
+  prefix = NULL, recursive = FALSE)
 
-upload_azure_file(share, src, dest, blocksize = 2^22,
-  use_azcopy = FALSE)
+upload_azure_file(share, src, dest, create_dir = FALSE,
+  blocksize = 2^22, use_azcopy = FALSE)
 
-multiupload_azure_file(share, src, dest, blocksize = 2^22,
-  use_azcopy = FALSE, max_concurrent_transfers = 10)
+multiupload_azure_file(share, src, dest = "/", recursive = FALSE,
+  create_dir = recursive, blocksize = 2^22, use_azcopy = FALSE,
+  max_concurrent_transfers = 10)
 
 download_azure_file(share, src, dest, blocksize = 2^22,
   overwrite = FALSE, use_azcopy = FALSE)
 
-multidownload_azure_file(share, src, dest, blocksize = 2^22,
-  overwrite = FALSE, use_azcopy = FALSE,
+multidownload_azure_file(share, src, dest, recursive = FALSE,
+  blocksize = 2^22, overwrite = FALSE, use_azcopy = FALSE,
   max_concurrent_transfers = 10)
 
 delete_azure_file(share, file, confirm = TRUE)
 
-create_azure_dir(share, dir)
+create_azure_dir(share, dir, recursive = FALSE)
 
-delete_azure_dir(share, dir, confirm = TRUE)
+delete_azure_dir(share, dir, recursive = FALSE, confirm = TRUE)
 }
 \arguments{
 \item{share}{A file share object.}
@@ -41,7 +43,11 @@ delete_azure_dir(share, dir, confirm = TRUE)
 
 \item{prefix}{For \code{list_azure_files}, filters the result to return only files and directories whose name begins with this prefix.}
 
+\item{recursive}{For the multiupload/download functions, whether to recursively transfer files in subdirectories. For \code{list_azure_dir}, whether to include the contents of any subdirectories in the listing. For \code{create_azure_dir} and \code{delete_azure_dir}, whether to recursively create/delete each component of a nested directory path. Note that in all cases this can be slow, so try to use a non-recursive solution if possible.}
+
 \item{src, dest}{The source and destination files for uploading and downloading. See 'Details' below.}
+
+\item{create_dir}{For the uploading functions, whether to create the destination directory if it doesn't exist. Again for the file storage API this can be slow, hence is optional.}
 
 \item{blocksize}{The number of bytes to upload/download per HTTP(S) request.}
 
@@ -62,15 +68,15 @@ For \code{download_azure_file}, if \code{dest=NULL}, the contents of the downloa
 Upload, download, or delete a file; list files in a directory; create or delete directories.
 }
 \details{
-\code{upload_azure_file} and \code{download_azure_file} are the workhorse file transfer functions for file storage. They each take as inputs a \emph{single} filename or connection as the source for uploading/downloading, and a single filename or connection as the destination.
+\code{upload_azure_file} and \code{download_azure_file} are the workhorse file transfer functions for file storage. They each take as inputs a \emph{single} filename as the source for uploading/downloading, and a single filename as the destination. Alternatively, for uploading, \code{src} can be a \link{textConnection} or \link{rawConnection} object; and for downloading, \code{dest} can be NULL or a \code{rawConnection} object. If \code{dest} is NULL, the downloaded data is returned as a raw vector, and if a raw connection, it will be placed into the connection. See the examples below.
 
-The file transfer functions support working with connections to allow transferring R objects without creating temporary files. For uploading, \code{src} can be a \link{textConnection} or \link{rawConnection} object. For downloading, \code{dest} can be NULL or a \code{rawConnection} object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
+\code{multiupload_azure_file} and \code{multidownload_azure_file} are functions for uploading and downloading \emph{multiple} files at once. They parallelise file transfers by using the background process pool provided by AzureRMR, which can lead to significant efficiency gains when transferring many small files. There are two ways to specify the source and destination for these functions:
+\itemize{
+\item Both \code{src} and \code{dest} can be vectors naming the individual source and destination pathnames.
+\item The \code{src} argument can be a wildcard pattern expanding to one or more files, with \code{dest} naming a destination directory. In this case, if \code{recursive} is true, the file transfer will replicate the source directory structure at the destination.
+}
 
-\code{multiupload_azure_file} and \code{multidownload_azure_file} are functions for uploading and downloading \emph{multiple} files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The \code{src} argument for these should be a \emph{vector} of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The \code{dest} argument should either be a directory, or a vector of file/pathnames with one name for each file transferred.
-
-Note that \code{multiupload_azure_file} and \code{multidownload_azure_file} do not attempt to recreate any directory structure in the source; all files transferred will be placed in the same destination directory. If you want to transfer a directory tree, call the function once for each subdirectory in the source and set the destination to match.
-
-By default, the upload and download functions will display a progress bar to track the file transfer. To turn this off, use \code{options(azure_storage_progress_bar=FALSE)}. To turn the progress bar back on, use \code{options(azure_storage_progress_bar=TRUE)}.
+\code{upload_azure_file} and \code{download_azure_file} can display a progress bar to track the file transfer. You can control whether to display this with \code{options(azure_storage_progress_bar=TRUE|FALSE)}; the default is TRUE.
 }
 \examples{
 \dontrun{
@@ -92,11 +98,7 @@ delete_azure_dir(share, "/newdir")
 multiupload_azure_file(share, "/data/logfiles/*.zip")
 multidownload_azure_file(share, "/monthly/jan*.*", "/data/january")
 
-# you can pass a vector of file specs as the source to multiupload/download
-multiupload_azure_file(share, c("intro.doc", "chap*.doc", "figures.*"), "report")
-multidownload_azure_file(share, c("readme", "*.csv"), "./destdir")
-
-# you can also pass a vector of file/pathnames as the destination
+# you can also pass a vector of file/pathnames as the source and destination
 src <- c("file1.csv", "file2.csv", "file3.csv")
 dest <- paste0("uploaded_", src)
 multiupload_azure_file(share, src, dest)

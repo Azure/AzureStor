@@ -4,7 +4,7 @@
 #'
 #' @param endpoint Either an ADLSgen2 endpoint object as created by [storage_endpoint] or [adls_endpoint], or a character string giving the URL of the endpoint.
 #' @param key,token,sas If an endpoint object is not supplied, authentication credentials: either an access key, an Azure Active Directory (AAD) token, or a SAS, in that order of priority. Currently the `sas` argument is unused.
-#' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2018-06-17"`.
+#' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2018-11-09"`.
 #' @param name The name of the filesystem to get, create, or delete.
 #' @param confirm For deleting a filesystem, whether to ask for confirmation.
 #' @param x For the print method, a filesystem object.
@@ -117,9 +117,7 @@ list_adls_filesystems.character <- function(endpoint, key=NULL, token=NULL, sas=
 #' @export
 list_adls_filesystems.adls_endpoint <- function(endpoint, ...)
 {
-    lst <- do_storage_call(endpoint$url, "/", options=list(resource="account"),
-                           key=endpoint$key, token=endpoint$token, sas=endpoint$sas,
-                           api_version=endpoint$api_version)
+    lst <- call_storage_endpoint(endpoint, "/", options=list(resource="account"))
 
     sapply(lst$filesystems$name, function(fs) adls_filesystem(endpoint, fs), simplify=FALSE)
 }
@@ -207,22 +205,20 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #' @param src,dest The source and destination paths/files for uploading and downloading. See 'Details' below.
 #' @param confirm Whether to ask for confirmation on deleting a file or directory.
 #' @param blocksize The number of bytes to upload/download per HTTP(S) request.
+#' @param recursive For the multiupload/download functions, whether to recursively transfer files in subdirectories. For `list_adls_files`, and `delete_adls_dir`, whether the operation should recurse through subdirectories. For `delete_adls_dir`, this must be TRUE to delete a non-empty directory.
 #' @param lease The lease for a file, if present.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_adls_file` and `multidownload_adls_file`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
-#' @param recursive For `list_adls_files`, and `delete_adls_dir`, whether the operation should recurse through subdirectories. For `delete_adls_dir`, this must be TRUE to delete a non-empty directory.
 #'
 #' @details
-#' `upload_adls_file` and `download_adls_file` are the workhorse file transfer functions for ADLSgen2 storage. They each take as inputs a _single_ filename or connection as the source for uploading/downloading, and a single filename or connection as the destination.
+#' `upload_adls_file` and `download_adls_file` are the workhorse file transfer functions for ADLSgen2 storage. They each take as inputs a _single_ filename as the source for uploading/downloading, and a single filename as the destination. Alternatively, for uploading, `src` can be a [textConnection] or [rawConnection] object; and for downloading, `dest` can be NULL or a `rawConnection` object. If `dest` is NULL, the downloaded data is returned as a raw vector, and if a raw connection, it will be placed into the connection. See the examples below.
 #'
-#' The file transfer functions also support working with connections to allow transferring R objects without creating temporary files. For uploading, `src` can be a [textConnection] or [rawConnection] object. For downloading, `dest` can be NULL or a `rawConnection` object. In the former case, the downloaded data is returned as a raw vector, and for the latter, it will be placed into the connection. See the examples below.
+#' `multiupload_adls_file` and `multidownload_adls_file` are functions for uploading and downloading _multiple_ files at once. They parallelise file transfers by using the background process pool provided by AzureRMR, which can lead to significant efficiency gains when transferring many small files. There are two ways to specify the source and destination for these functions:
+#' - Both `src` and `dest` can be vectors naming the individual source and destination pathnames.
+#' - The `src` argument can be a wildcard pattern expanding to one or more files, with `dest` naming a destination directory. In this case, if `recursive` is true, the file transfer will replicate the source directory structure at the destination.
 #'
-#' `multiupload_adls_file` and `multidownload_adls_file` are functions for uploading and downloading _multiple_ files at once. They parallelise file transfers by deploying a pool of R processes in the background, which can lead to significantly greater efficiency when transferring many small files. The `src` argument for these should be a _vector_ of file specifications, each of which can be a filename or a wildcard pattern expanding to one or more files. The `dest` argument should either be a directory, or a vector of file/pathnames with one name for each file transferred.
-#'
-#' Note that `multiupload_adls_file` and `multidownload_adls_file` do not attempt to recreate any directory structure in the source; all files transferred will be placed in the same destination directory. If you want to transfer a directory tree, call the function once for each subdirectory in the source and set the destination to match.
-#'
-#' By default, the upload and download functions will display a progress bar to track the file transfer. To turn this off, use `options(azure_storage_progress_bar=FALSE)`. To turn the progress bar back on, use `options(azure_storage_progress_bar=TRUE)`.
+#' `upload_adls_file` and `download_adls_file` can display a progress bar to track the file transfer. You can control whether to display this with `options(azure_storage_progress_bar=TRUE|FALSE)`; the default is TRUE.
 #'
 #' @return
 #' For `list_adls_files`, if `info="name"`, a vector of file/directory names. If `info="all"`, a data frame giving the file size and whether each object is a file or directory.
@@ -252,11 +248,7 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #' multiupload_adls_file(fs, "/data/logfiles/*.zip")
 #' multidownload_adls_file(fs, "/monthly/jan*.*", "/data/january")
 #'
-#' # you can pass a vector of file specs as the source to multiupload/download
-#' multiupload_adls_file(fs, c("intro.doc", "chap*.doc", "figures.*"), "report")
-#' multidownload_adls_file(fs, c("readme", "*.csv"), "./destdir")
-#'
-#' # you can also pass a vector of file/pathnames as the destination
+#' # you can also pass a vector of file/pathnames as the source and destination
 #' src <- c("file1.csv", "file2.csv", "file3.csv")
 #' dest <- paste0("uploaded_", src)
 #' multiupload_adls_file(share, src, dest)
@@ -318,15 +310,19 @@ list_adls_files <- function(filesystem, dir="/", info=c("all", "name"),
             out$isDirectory <- FALSE
         else out$isDirectory <- !is.na(out$isDirectory)
         if(is.null(out$contentLength))
-            out$contentLength <- 0
-        else out$contentLength[is.na(out$contentLength)] <- 0
+            out$contentLength <- NA_real_
+        else out$contentLength[is.na(out$contentLength)] <- NA_real_
         if(is.null(out$etag))
             out$etag <- ""
         else out$etag[is.na(out$etag)] <- ""
         if(is.null(out$permissions))
             out$permissions <- ""
         else out$permissions[is.na(out$permissions)] <- ""
+
         out <- out[c("name", "contentLength", "isDirectory", "lastModified", "permissions", "etag")]
+        out$contentLength <- as.numeric(out$contentLength)
+        out$lastModified <- as.POSIXct(out$lastModified, format="%a, %d %b %Y %H:%M:%S", tz="GMT")
+        names(out)[c(2, 3)] <- c("size", "isdir")
 
         if(all(out$permissions == ""))
             out$permissions <- NULL
@@ -340,15 +336,15 @@ list_adls_files <- function(filesystem, dir="/", info=c("all", "name"),
 
 #' @rdname adls
 #' @export
-multiupload_adls_file <- function(filesystem, src, dest, blocksize=2^22, lease=NULL,
+multiupload_adls_file <- function(filesystem, src, dest="/", recursive=FALSE, blocksize=2^22, lease=NULL,
                                    use_azcopy=FALSE,
                                    max_concurrent_transfers=10)
 {
     if(use_azcopy)
         return(azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease))
 
-    multiupload_internal(filesystem, src, dest, blocksize=blocksize, lease=lease,
-                         max_concurrent_transfers=max_concurrent_transfers, ulfunc="upload_adls_file")
+    multiupload_internal(filesystem, src, dest, recursive=recursive, blocksize=blocksize, lease=lease,
+                         max_concurrent_transfers=max_concurrent_transfers)
 }
 
 
@@ -364,22 +360,15 @@ upload_adls_file <- function(filesystem, src, dest, blocksize=2^24, lease=NULL, 
 
 #' @rdname adls
 #' @export
-multidownload_adls_file <- function(filesystem, src, dest, blocksize=2^24, overwrite=FALSE,
+multidownload_adls_file <- function(filesystem, src, dest, recursive=FALSE, blocksize=2^24, overwrite=FALSE,
                                     use_azcopy=FALSE,
                                     max_concurrent_transfers=10)
 {
     if(use_azcopy)
         return(azcopy_upload(filesystem, src, dest, overwrite=overwrite))
 
-    src <- sub("^/", "", src) # strip leading slash if present, not meaningful
-    src_dirs <- unique(dirname(src))
-    src_dirs[src_dirs == "."] <- "/"
-
-    # file listing on ADLS includes directory name
-    files <- unlist(lapply(src_dirs, function(x) list_adls_files(filesystem, x, info="name")))
-
-    multidownload_internal(filesystem, src, dest, blocksize=blocksize, overwrite=overwrite, files=files,
-                           max_concurrent_transfers=max_concurrent_transfers, dlfunc="download_adls_file")
+    multidownload_internal(filesystem, src, dest, recursive=recursive, blocksize=blocksize, overwrite=overwrite,
+                           max_concurrent_transfers=max_concurrent_transfers)
 }
 
 
