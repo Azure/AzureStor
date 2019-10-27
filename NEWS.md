@@ -1,16 +1,18 @@
 # AzureStor 2.1.1.9000
 
-- The multiple-file transfer functions now accept vectors of pathnames as their source and destination arguments. See the online help for more details on how to specify these.
-- The file transfer methods (up and down) can now create subdirectories that are specified in their destination argument, if necessary. For ADLS and blob uploading this happens automatically; for Azure file uploading it requires a separate API call which can be slow, so is optional.
+- Substantial enhancements to multiple-file transfers (up and down):
+  - These can now accept a vector of pathnames as the source and destination arguments.
+  - Alternatively, for a wildcard source, add the ability to recurse through subdirectories. Any directory structure in the source will be reproduced at the destination.
+- Related to the above: the file transfer methods can now create subdirectories that are specified in their destination argument. For ADLS and blob uploading this happens automatically; for Azure file uploading it requires a separate API call which can be slow, so is optional.
 - Add `recursive` argument to Azure file storage methods for recursing through subdirectories. Again, for file storage this can be slow, so try to use a non-recursive solution where possible.
 - Creating a service-specific endpoint (`file_endpoint`, `blob_endpoint`, `adls_endpoint`) with an invalid URL will now warn, instead of throwing an error. This enables using tools like Azurite, which use a local address as the endpoint. Calling `storage_endpoint` with an invalid URL will still throw an error, as the function has no way of telling which storage service is required.
 - Remove the warning about ADLSgen2 not supporting shared access signatures (SAS).
 - Background process pool functionality has been moved to AzureRMR. This removes code duplication, and also makes it available for other packages that may benefit.
-- Only display the file transfer progress bar in an interactive session.
 - The default directory for `list_azure_files` is now the root, mirroring the behaviour for blobs and ADLSgen2.
 - The output of `list_azure_files` now always has the subdirectory prepended to the name, similar to `list_adls_files` and `list_blobs`.
 - Make output format for `list_adls_files`, `list_blobs` and `list_azure_files` more consistent. The first 2 columns for a data frame output are now always `name` and `size`; the size of a directory is zero. The 3rd column for non-blobs is `isdir` which is TRUE/FALSE depending on whether the object is a directory or file. Any additional columns remain storage type-specific.
-- Export `do_storage_call` and `do_container_op` to allow direct calls to the storage account endpoint.
+- Only display the file transfer progress bar in an interactive session.
+- Export `do_container_op` and `call_storage_endpoint` to allow direct calls to the storage account endpoint.
 
 # AzureStor 2.1.1
 
