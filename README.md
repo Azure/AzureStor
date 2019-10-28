@@ -74,9 +74,9 @@ storage_multiupload(cont, "N:/data/*.*", "newdir")  # uploading everything in a 
 
 AzureStor includes a number of extra features to make transferring files efficient.
 
-### Parallel file transfers
+### Parallel connections
 
-First, as noted above, you can transfer multiple files in parallel using the `multiupload_*`/`multidownload_*` functions. These use a pool of background R processes to do the transfers in parallel, which usually results in major speedups when transferring multiple small files. The pool is created the first time a parallel file transfer is performed, and persists for the duration of the R session; this means you don't have to wait for the pool to be (re-)created each time.
+As noted above, you can transfer multiple files in parallel using the `multiupload_*`/`multidownload_*` functions. These functions utilise a background process pool supplied by AzureRMR to do the transfers in parallel, which usually results in major speedups when transferring multiple small files. The pool is created the first time a parallel file transfer is performed, and persists for the duration of the R session; this means you don't have to wait for the pool to be (re-)created each time.
 
 ```r
 # uploading/downloading multiple files at once: use a wildcard to specify files to transfer
@@ -89,15 +89,15 @@ dest <- file.path("data/", src)
 storage_multiupload(cont, src, dest)
 ```
 
-AzureStor leverages the background process pool functionality supplied by AzureRMR. You can also utilise it to parallelise tasks for which there is no built-in function. For example, the following code will delete multiple files in parallel:
+You can also use the process pool to parallelise tasks for which there is no built-in function. For example, the following code will delete multiple files in parallel:
 
 ```r
-endp <- storage_endpoint("storage_acct_url", key="key")
-cont <- storage_container(endp, "containername")
-files_to_delete <- c("file1", "file2", "file3")
+files_to_delete <- list_storage_files(cont, "datadir", info="name")
 
 # initialise the background pool with 10 nodes
 AzureRMR::init_pool(10)
+
+# export the container object to the nodes
 AzureRMR::pool_export("cont")
 
 # delete the files
