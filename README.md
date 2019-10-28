@@ -83,9 +83,25 @@ First, as noted above, you can transfer multiple files in parallel using the `mu
 storage_multiupload(cont, src="N:/logfiles/*.zip", dest="/")
 storage_multidownload(cont, src="/monthly/jan*.*", dest="~/data/january")
 
-# you can also supply a vector of file specs as the source
-storage_multiupload(cont, c("*.doc", "figure1.png"), "report")
-storage_multidownload(cont, c("README", "*.csv", "*.bin"), "newdir")
+# or supply a vector of file specs as the source and destination
+src <- c("file1.csv", "file2.csv", "file3.csv")
+dest <- file.path("data/", src)
+storage_multiupload(cont, src, dest)
+```
+
+AzureStor leverages the background process pool functionality supplied by AzureRMR. You can also utilise it to parallelise tasks for which there is no built-in function. For example, the following code will delete multiple files in parallel:
+
+```r
+endp <- storage_endpoint("storage_acct_url", key="key")
+cont <- storage_container(endp, "containername")
+files_to_delete <- c("file1", "file2", "file3")
+
+# initialise the background pool with 10 nodes
+AzureRMR::init_pool(10)
+AzureRMR::pool_export("cont")
+
+# delete the files
+AzureRMR::pool_sapply(files_to_delete, function(f) AzureStor::delete_storage_file(cont, f))
 ```
 
 ### Transfer to and from connections
