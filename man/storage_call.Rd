@@ -11,7 +11,8 @@ do_container_op(container, operation = "", options = list(),
 call_storage_endpoint(endpoint, path, options = list(),
   headers = list(), body = NULL, ..., http_verb = c("GET", "DELETE",
   "PUT", "POST", "HEAD", "PATCH"), http_status_handler = c("stop",
-  "warn", "message", "pass"), progress = NULL)
+  "warn", "message", "pass"), progress = NULL,
+  return_headers = (http_verb == "HEAD"))
 }
 \arguments{
 \item{container, endpoint}{For \code{do_container_op}, a storage container object (inheriting from \code{storage_container}). For \code{call_storage_endpoint}, a  storage endpoint object (inheriting from \code{storage_endpoint}).}
@@ -33,17 +34,32 @@ call_storage_endpoint(endpoint, path, options = list(),
 \item{http_status_handler}{The R handler for the HTTP status code of the response. \code{"stop"}, \code{"warn"} or \code{"message"} will call the corresponding handlers in httr, while \code{"pass"} ignores the status code. The latter is primarily useful for debugging purposes.}
 
 \item{progress}{Used by the file transfer functions, to display a progress bar.}
+
+\item{return_headers}{Whether to return the (parsed) response headers, rather than the body. Ignored if \code{http_status_handler="pass"}.}
 }
 \value{
-If \code{http_status_handler} is one of \code{"stop"}, \code{"warn"} or \code{"message"}, the status code of the response is checked, and if an error is not thrown, the parsed content of the response is returned. An exception is if the response was written to disk, as part of a file download; in this case, the return value is NULL.
+Based on the \code{http_status_handler} and \code{return_headers} arguments. If \code{http_status_handler} is \code{"pass"}, the entire response is returned without modification.
 
-If \code{http_status_handler} is \code{"pass"}, the entire response is returned without modification.
+If \code{http_status_handler} is one of \code{"stop"}, \code{"warn"} or \code{"message"}, the status code of the response is checked, and if an error is not thrown, the parsed headers or body of the response is returned. An exception is if the response was written to disk, as part of a file download; in this case, the return value is NULL.
+
+Note that the return value is \emph{invisible}; see the example below for how to display it.
 }
 \description{
 Carry out operations on a storage account container or endpoint
 }
 \details{
 These functions form the low-level interface between R and the storage API. \code{do_container_op} constructs a path from the operation and the container name, and passes it and the other arguments to \code{call_storage_endpoint}.
+}
+\examples{
+\dontrun{
+
+# get the metadata for a blob
+# wrap with () to print an invisible return value
+bl_endp <- blob_endpoint("storage_acct_url", key="key")
+cont <- storage_container(bl_endp, "containername")
+(do_container_op(cont, "filename.txt", options=list(comp="metadata"), http_verb="HEAD"))
+
+}
 }
 \seealso{
 \link{blob_endpoint}, \link{file_endpoint}, \link{adls_endpoint}
