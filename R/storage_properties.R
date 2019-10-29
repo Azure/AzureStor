@@ -172,38 +172,17 @@ get_azure_dir_metadata <- function(share, dir)
 #' @export
 get_adls_file_metadata <- function(filesystem, file)
 {
-    meta <- strsplit(get_adls_file_properties(filesystem, file)[["x-ms-properties"]], ",")[[1]]
-    pos <- regexpr("=", meta)
-    if(any(pos == -1))
-        stop("Error getting object metadata", call.=FALSE)
-
-    metanames <- substr(meta, 1, pos - 1)
-    metavals <- lapply(substr(meta, pos + 1, nchar(meta)),
-                       function(x) rawToChar(openssl::base64_decode(x)))
-    names(metavals) <- metanames
-    metavals
+    res <- get_adls_file_properties(filesystem, file)
+    get_adls_metadata_header(res)
 }
 
 
 #' @rdname properties
 #' @export
-set_adls_file_metadata <- function(filesystem, file, ..., keep_existing=TRUE)
+get_adls_dir_metadata <- function(filesystem, dir)
 {
-    meta <- if(keep_existing)
-        modifyList(get_adls_file_metadata(filesystem, file), list(...))
-    else list(...)
-
-    if(is.null(names(meta)) || any(names(meta) == ""))
-        stop("All metadata values must be named")
-
-    metaenc <- sapply(meta, function(x) openssl::base64_encode(as.character(x)))
-    metastring <- paste(names(metaenc), metaenc, sep="=", collapse=",")
-
-    do_container_op(filesystem, file,
-                    options=list(action="setProperties"),
-                    headers=list(`x-ms-properties`=metastring),
-                    http_verb="PATCH")
-    invisible(meta)
+    res <- get_adls_file_properties(filesystem, dir)
+    get_adls_metadata_header(res)
 }
 
 
@@ -249,6 +228,20 @@ set_azure_dir_metadata <- function(share, dir, ..., keep_existing=TRUE)
 }
 
 
+#' @rdname properties
+#' @export
+set_adls_dir_metadata <- function(filesystem, dir, ..., keep_existing=TRUE)
+{
+    meta <- if(keep_existing)
+        modifyList(get_adls_file_metadata(filesystem, dir), list(...))
+    else list(...)
+
+    do_container_op(filesystem, dir, options=list(action="setProperties"),
+                    headers=set_adls_metadata_header(meta), http_verb="PATCH")
+    invisible(meta)
+}
+
+
 # recursively tidy XML list: turn leaf nodes into scalars
 tidy_list <- function(x)
 {
@@ -283,4 +276,29 @@ set_classic_metadata_headers <- function(metalist)
         stop("All metadata values must be named")
     names(metalist) <- paste0("x-ms-meta-", names(metalist))
     metalist
+}
+
+
+get_adls_metadata_header <- function(res)
+{
+    meta <- strsplit(res[["x-ms-properties"]], ",")[[1]]
+    pos <- regexpr("=", meta)
+    if(any(pos == -1))
+        stop("Error getting object metadata", call.=FALSE)
+
+    metanames <- substr(meta, 1, pos - 1)
+    metavals <- lapply(substr(meta, pos + 1, nchar(meta)),
+                       function(x) rawToChar(openssl::base64_decode(x)))
+    names(metavals) <- metanames
+    metavals
+}
+
+
+set_adls_metadata_header <- function(metalist)
+{
+    if(is.null(names(metalist)) || any(names(metalist) == ""))
+        stop("All metadata values must be named")
+
+    metalist <- sapply(metalist, function(x) openssl::base64_encode(as.character(x)))
+    list(`x-ms-properties`=paste(names(metalist), metalist, sep="=", collapse=","))
 }

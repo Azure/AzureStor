@@ -15,12 +15,16 @@
 \alias{get_adls_file_acls}
 \alias{get_adls_dir_acls}
 \alias{get_adls_file_status}
+\alias{get_adls_dir_status}
 \alias{get_blob_metadata}
 \alias{get_azure_file_metadata}
 \alias{get_azure_dir_metadata}
+\alias{get_adls_file_metadata}
+\alias{get_adls_dir_metadata}
 \alias{set_blob_metadata}
 \alias{set_azure_file_metadata}
 \alias{set_azure_dir_metadata}
+\alias{set_adls_dir_metadata}
 \title{Get storage properties for an endpoint or container}
 \usage{
 get_storage_properties(object)
@@ -51,17 +55,25 @@ get_adls_dir_acls(filesystem, dir)
 
 get_adls_file_status(filesystem, file)
 
+get_adls_dir_status(filesystem, dir)
+
 get_blob_metadata(container, blob)
 
 get_azure_file_metadata(share, file)
 
 get_azure_dir_metadata(share, dir)
 
+get_adls_file_metadata(filesystem, file)
+
+get_adls_dir_metadata(filesystem, dir)
+
 set_blob_metadata(container, blob, ..., keep_existing = TRUE)
 
 set_azure_file_metadata(share, file, ..., keep_existing = TRUE)
 
 set_azure_dir_metadata(share, dir, ..., keep_existing = TRUE)
+
+set_adls_dir_metadata(filesystem, dir, ..., keep_existing = TRUE)
 }
 \arguments{
 \item{object}{A storage object.}
