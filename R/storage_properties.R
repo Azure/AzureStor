@@ -11,11 +11,13 @@
 #' A list describing the object properties.
 #'
 #' @seealso
-#' [storage_endpoint], [blob_container], [file_share],
+#' [storage_endpoint], [blob_container], [file_share]
+#'
 #' [Blob service properties reference[(https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-service-properties).
 #' [File service properties reference](https://docs.microsoft.com/en-us/rest/api/storageservices/get-file-service-properties),
 #' [Blob container properties reference](https://docs.microsoft.com/en-us/rest/api/storageservices/get-container-properties),
-#' [File share properties reference](https://docs.microsoft.com/en-us/rest/api/storageservices/get-share-properties)
+#' [File share properties reference](https://docs.microsoft.com/en-us/rest/api/storageservices/get-share-properties),
+#' [ADLS filesystem properties reference](https://docs.microsoft.com/en-us/rest/api/storageservices/datalakestoragegen2/filesystem/getproperties)
 #'
 #' @rdname properties
 #' @export
@@ -38,10 +40,7 @@ get_storage_properties.storage_endpoint <- function(object)
 #' @export
 get_storage_properties.blob_container <- function(object)
 {
-    res <- do_container_op(object, options=list(restype="container"), http_status_handler="pass")
-    httr::stop_for_status(res, storage_error_message(res))
-    res <- httr::headers(res)
-    res[setdiff(names(res), c("transfer-encoding", "server", "x-ms-request-id", "x-ms-version", "date"))]
+    do_container_op(object, options=list(restype="container"), http_verb="HEAD")
 }
 
 
@@ -49,10 +48,15 @@ get_storage_properties.blob_container <- function(object)
 #' @export
 get_storage_properties.file_share <- function(object)
 {
-    res <- do_container_op(object, options=list(restype="share"), http_status_handler="pass")
-    httr::stop_for_status(res, storage_error_message(res))
-    res <- httr::headers(res)
-    res[setdiff(names(res), c("transfer-encoding", "server", "x-ms-request-id", "x-ms-version", "date"))]
+    do_container_op(object, options=list(restype="share"), http_verb="HEAD")
+}
+
+
+#' @rdname properties
+#' @export
+get_storage_properties.adls_filesystem <- function(object)
+{
+    do_container_op(object, options=list(resource="filesystem"), http_verb="HEAD")
 }
 
 
@@ -60,10 +64,7 @@ get_storage_properties.file_share <- function(object)
 #' @export
 get_blob_properties <- function(container, blob)
 {
-    res <- do_container_op(container, blob, http_verb="HEAD", http_status_handler="pass")
-    httr::stop_for_status(res, storage_error_message(res))
-    res <- httr::headers(res)
-    res[setdiff(names(res), c("transfer-encoding", "server", "x-ms-request-id", "x-ms-version", "date"))]
+    do_container_op(container, blob, http_verb="HEAD")
 }
 
 
@@ -71,10 +72,7 @@ get_blob_properties <- function(container, blob)
 #' @export
 get_azure_file_properties <- function(share, file)
 {
-    res <- do_container_op(share, file, http_verb="HEAD", http_status_handler="pass")
-    httr::stop_for_status(res, storage_error_message(res))
-    res <- httr::headers(res)
-    res[setdiff(names(res), c("transfer-encoding", "server", "x-ms-request-id", "x-ms-version", "date"))]
+    do_container_op(share, file, http_verb="HEAD")
 }
 
 
@@ -82,10 +80,31 @@ get_azure_file_properties <- function(share, file)
 #' @export
 get_azure_dir_properties <- function(share, dir)
 {
-    res <- do_container_op(share, dir, options=list(restype="directory"), http_verb="HEAD", http_status_handler="pass")
-    httr::stop_for_status(res, storage_error_message(res))
-    res <- httr::headers(res)
-    res[setdiff(names(res), c("transfer-encoding", "server", "x-ms-request-id", "x-ms-version", "date"))]
+    do_container_op(share, dir, options=list(restype="directory"), http_verb="HEAD")
+}
+
+
+#' @rdname properties
+#' @export
+get_adls_file_properties <- function(filesystem, file)
+{
+    do_container_op(filesystem, file, http_verb="HEAD")
+}
+
+
+#' @rdname properties
+#' @export
+get_adls_file_acls <- function(filesystem, file)
+{
+    do_container_op(filesystem, file, options=list(action="getaccesscontrol"), http_verb="HEAD")[["x-ms-acl"]]
+}
+
+
+#' @rdname properties
+#' @export
+get_adls_file_status <- function(filesystem, file)
+{
+    do_container_op(filesystem, file, options=list(action="getstatus"), http_verb="HEAD")
 }
 
 

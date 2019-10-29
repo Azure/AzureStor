@@ -5,9 +5,13 @@
 \alias{get_storage_properties.storage_endpoint}
 \alias{get_storage_properties.blob_container}
 \alias{get_storage_properties.file_share}
+\alias{get_storage_properties.adls_filesystem}
 \alias{get_blob_properties}
 \alias{get_azure_file_properties}
 \alias{get_azure_dir_properties}
+\alias{get_adls_file_properties}
+\alias{get_adls_file_acls}
+\alias{get_adls_file_status}
 \title{Get storage properties for an endpoint or container}
 \usage{
 get_storage_properties(object)
@@ -18,11 +22,19 @@ get_storage_properties(object)
 
 \method{get_storage_properties}{file_share}(object)
 
+\method{get_storage_properties}{adls_filesystem}(object)
+
 get_blob_properties(container, blob)
 
 get_azure_file_properties(share, file)
 
 get_azure_dir_properties(share, dir)
+
+get_adls_file_properties(filesystem, file)
+
+get_adls_file_acls(filesystem, file)
+
+get_adls_file_status(filesystem, file)
 }
 \arguments{
 \item{object}{An storage object.}
@@ -41,9 +53,11 @@ Get storage properties for an endpoint or container
 The \code{get_storage_properties} generic returns a list of properties for the given storage object. There are methods defined for objects of class \code{storage_endpoint}, \code{blob_container} and \code{file_share}. Similar functions are defined for individual blobs, files and directories.
 }
 \seealso{
-\link{storage_endpoint}, \link{blob_container}, \link{file_share},
+\link{storage_endpoint}, \link{blob_container}, \link{file_share}
+
 [Blob service properties reference[(https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-service-properties).
 \href{https://docs.microsoft.com/en-us/rest/api/storageservices/get-file-service-properties}{File service properties reference},
 \href{https://docs.microsoft.com/en-us/rest/api/storageservices/get-container-properties}{Blob container properties reference},
-\href{https://docs.microsoft.com/en-us/rest/api/storageservices/get-share-properties}{File share properties reference}
+\href{https://docs.microsoft.com/en-us/rest/api/storageservices/get-share-properties}{File share properties reference},
+\href{https://docs.microsoft.com/en-us/rest/api/storageservices/datalakestoragegen2/filesystem/getproperties}{ADLS filesystem properties reference}
 }
