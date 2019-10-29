@@ -177,7 +177,7 @@ process_storage_response <- function(response, handler, return_headers)
     handler(response, storage_error_message(response))
 
     if(return_headers)
-        return(httr::headers(response))
+        return(unclass(httr::headers(response)))
 
     # if file was written to disk, printing content(*) will read it back into memory!
     if(inherits(response$content, "path"))

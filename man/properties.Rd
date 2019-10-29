@@ -2,7 +2,8 @@
 % Please edit documentation in R/storage_properties.R
 \name{get_storage_properties}
 \alias{get_storage_properties}
-\alias{get_storage_properties.storage_endpoint}
+\alias{get_storage_properties.blob_endpoint}
+\alias{get_storage_properties.file_endpoint}
 \alias{get_storage_properties.blob_container}
 \alias{get_storage_properties.file_share}
 \alias{get_storage_properties.adls_filesystem}
@@ -10,13 +11,23 @@
 \alias{get_azure_file_properties}
 \alias{get_azure_dir_properties}
 \alias{get_adls_file_properties}
+\alias{get_adls_dir_properties}
 \alias{get_adls_file_acls}
+\alias{get_adls_dir_acls}
 \alias{get_adls_file_status}
+\alias{get_blob_metadata}
+\alias{get_azure_file_metadata}
+\alias{get_azure_dir_metadata}
+\alias{set_blob_metadata}
+\alias{set_azure_file_metadata}
+\alias{set_azure_dir_metadata}
 \title{Get storage properties for an endpoint or container}
 \usage{
 get_storage_properties(object)
 
-\method{get_storage_properties}{storage_endpoint}(object)
+\method{get_storage_properties}{blob_endpoint}(object)
+
+\method{get_storage_properties}{file_endpoint}(object)
 
 \method{get_storage_properties}{blob_container}(object)
 
@@ -32,16 +43,34 @@ get_azure_dir_properties(share, dir)
 
 get_adls_file_properties(filesystem, file)
 
+get_adls_dir_properties(filesystem, dir)
+
 get_adls_file_acls(filesystem, file)
 
+get_adls_dir_acls(filesystem, dir)
+
 get_adls_file_status(filesystem, file)
+
+get_blob_metadata(container, blob)
+
+get_azure_file_metadata(share, file)
+
+get_azure_dir_metadata(share, dir)
+
+set_blob_metadata(container, blob, ..., keep_existing = TRUE)
+
+set_azure_file_metadata(share, file, ..., keep_existing = TRUE)
+
+set_azure_dir_metadata(share, dir, ..., keep_existing = TRUE)
 }
 \arguments{
-\item{object}{An storage object.}
+\item{object}{A storage object.}
 
-\item{container, share}{A blob container or file share.}
+\item{container, share, filesystem}{A blob container, file share, or ADLS filesystem object.}
 
 \item{blob, file, dir}{The name of an individual blob, file or directory.}
+
+\item{...}{Name-value pairs to set as metadata for a blob or file.}
 }
 \value{
 A list describing the object properties.
@@ -50,7 +79,7 @@ A list describing the object properties.
 Get storage properties for an endpoint or container
 }
 \details{
-The \code{get_storage_properties} generic returns a list of properties for the given storage object. There are methods defined for objects of class \code{storage_endpoint}, \code{blob_container} and \code{file_share}. Similar functions are defined for individual blobs, files and directories.
+The \code{get_storage_properties} generic returns a list of properties for the given storage object. There are methods defined for objects of class \code{storage_endpoint}, \code{blob_container}, \code{file_share} and \code{adls_filesystem}. Similar functions are defined for individual blobs, files and directories.
 }
 \seealso{
 \link{storage_endpoint}, \link{blob_container}, \link{file_share}
