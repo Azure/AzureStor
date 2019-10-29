@@ -24,6 +24,7 @@
 \alias{set_blob_metadata}
 \alias{set_azure_file_metadata}
 \alias{set_azure_dir_metadata}
+\alias{set_adls_file_metadata}
 \alias{set_adls_dir_metadata}
 \title{Get storage properties for an endpoint or container}
 \usage{
@@ -73,6 +74,8 @@ set_azure_file_metadata(share, file, ..., keep_existing = TRUE)
 
 set_azure_dir_metadata(share, dir, ..., keep_existing = TRUE)
 
+set_adls_file_metadata(filesystem, file, ..., keep_existing = TRUE)
+
 set_adls_dir_metadata(filesystem, dir, ..., keep_existing = TRUE)
 }
 \arguments{
@@ -82,7 +85,9 @@ set_adls_dir_metadata(filesystem, dir, ..., keep_existing = TRUE)
 
 \item{blob, file, dir}{The name of an individual blob, file or directory.}
 
-\item{...}{Name-value pairs to set as metadata for a blob or file.}
+\item{...}{For the metadata setters, name-value pairs to set as metadata for a blob or file.}
+
+\item{keep_existing}{For the metadata setters, whether to retain existing metadata information.}
 }
 \value{
 A list describing the object properties.

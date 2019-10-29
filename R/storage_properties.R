@@ -3,7 +3,8 @@
 #' @param object A storage object.
 #' @param container,share,filesystem A blob container, file share, or ADLS filesystem object.
 #' @param blob,file,dir The name of an individual blob, file or directory.
-#' @param ... Name-value pairs to set as metadata for a blob or file.
+#' @param ... For the metadata setters, name-value pairs to set as metadata for a blob or file.
+#' @param keep_existing For the metadata setters, whether to retain existing metadata information.
 #'
 #' @details
 #' The `get_storage_properties` generic returns a list of properties for the given storage object. There are methods defined for objects of class `storage_endpoint`, `blob_container`, `file_share` and `adls_filesystem`. Similar functions are defined for individual blobs, files and directories.
@@ -230,10 +231,24 @@ set_azure_dir_metadata <- function(share, dir, ..., keep_existing=TRUE)
 
 #' @rdname properties
 #' @export
+set_adls_file_metadata <- function(filesystem, file, ..., keep_existing=TRUE)
+{
+    meta <- if(keep_existing)
+        modifyList(get_adls_file_metadata(filesystem, file), list(...))
+    else list(...)
+
+    do_container_op(filesystem, file, options=list(action="setProperties"),
+                    headers=set_adls_metadata_header(meta), http_verb="PATCH")
+    invisible(meta)
+}
+
+
+#' @rdname properties
+#' @export
 set_adls_dir_metadata <- function(filesystem, dir, ..., keep_existing=TRUE)
 {
     meta <- if(keep_existing)
-        modifyList(get_adls_file_metadata(filesystem, dir), list(...))
+        modifyList(get_adls_dir_metadata(filesystem, dir), list(...))
     else list(...)
 
     do_container_op(filesystem, dir, options=list(action="setProperties"),
