@@ -48,6 +48,7 @@ copy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE)
         headers[["x-ms-lease-id"]] <- as.character(lease)
 
     do_container_op(container, dest, headers=headers, http_verb="PUT")
+    invisible(NULL)
 }
 
 
