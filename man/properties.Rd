@@ -51,7 +51,7 @@ Get storage properties for an object
 \seealso{
 \link{storage_endpoint}, \link{blob_container}, \link{file_share}, \link{adls_filesystem}
 
-\link{metadata} for getting and setting \emph{user-defined} properties (metadata)
+\link{get_storage_metadata} for getting and setting \emph{user-defined} properties (metadata)
 
 [Blob service properties reference[(https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-service-properties).
 \href{https://docs.microsoft.com/en-us/rest/api/storageservices/get-file-service-properties}{File service properties reference},

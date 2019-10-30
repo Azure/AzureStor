@@ -15,7 +15,7 @@
 #' @seealso
 #' [storage_endpoint], [blob_container], [file_share], [adls_filesystem]
 #'
-#' [metadata] for getting and setting _user-defined_ properties (metadata)
+#' [get_storage_metadata] for getting and setting _user-defined_ properties (metadata)
 #'
 #' [Blob service properties reference[(https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-service-properties).
 #' [File service properties reference](https://docs.microsoft.com/en-us/rest/api/storageservices/get-file-service-properties),
