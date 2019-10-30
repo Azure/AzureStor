@@ -1,25 +1,40 @@
-#' Get storage properties for an endpoint or container
+#' Get storage properties for an object
 #'
-#' @param object An storage object.
-#' @param container,share A blob container or file share.
-#' @param blob,file,dir The name of an individual blob, file or directory.
-#'
-#' @details
-#' The `get_storage_properties` generic returns a list of properties for the given storage object. There are methods defined for objects of class `storage_endpoint`, `blob_container` and `file_share`. Similar functions are defined for individual blobs, files and directories.
-#'
+#' @param object A blob container, file share, or ADLS filesystem object.
+#' @param filesystem An ADLS filesystem.
+#' @param blob,file Optionally the name of an individual blob, file or directory within a container.
+#' @param isdir For the file share method, whether the `file` argument is a file or directory. If omitted, `get_storage_properties` will auto-detect the type; however this can be slow, so supply this argument if possible.
+#' @param ... For compatibility with the generic.
 #' @return
-#' A list describing the object properties.
+#' `get_storage_properties` returns a list describing the object properties. If the `blob` or `file` argument is present for the container methods, the properties will be for the blob/file specified. If this argument is omitted, the properties will be for the container itself.
+#'
+#' `get_adls_file_acl` returns a string giving the ADLSgen2 ACL for the file.
+#'
+#' `get_adls_file_status` returns a list of ADLSgen2 system properties for the file.
 #'
 #' @seealso
-#' [storage_endpoint], [blob_container], [file_share],
-#' [Blob service properties reference[(https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-service-properties).
-#' [File service properties reference](https://docs.microsoft.com/en-us/rest/api/storageservices/get-file-service-properties),
-#' [Blob container properties reference](https://docs.microsoft.com/en-us/rest/api/storageservices/get-container-properties),
-#' [File share properties reference](https://docs.microsoft.com/en-us/rest/api/storageservices/get-share-properties)
+#' [blob_container], [file_share], [adls_filesystem]
 #'
+#' [get_storage_metadata] for getting and setting _user-defined_ properties (metadata)
+#' @examples
+#' \dontrun{
+#'
+#' fs <- storage_container("https://mystorage.dfs.core.windows.net/myshare", key="access_key")
+#' create_storage_dir("newdir")
+#' storage_upload(share, "iris.csv", "newdir/iris.csv")
+#'
+#' get_storage_properties(fs)
+#' get_storage_properties(fs, "newdir")
+#' get_storage_properties(fs, "newdir/iris.csv")
+#'
+#' # these are ADLS only
+#' get_adls_file_acl(fs, "newdir/iris.csv")
+#' get_adls_file_status(fs, "newdir/iris.csv")
+#'
+#' }
 #' @rdname properties
 #' @export
-get_storage_properties <- function(object)
+get_storage_properties <- function(object, ...)
 {
     UseMethod("get_storage_properties")
 }
@@ -27,81 +42,66 @@ get_storage_properties <- function(object)
 
 #' @rdname properties
 #' @export
-get_storage_properties.storage_endpoint <- function(object)
+get_storage_properties.blob_container <- function(object, blob, ...)
 {
-    res <- call_storage_endpoint(object, "", options=list(restype="service", comp="properties"))
-    tidy_list(res)
+    # properties for container
+    if(missing(blob))
+        return(do_container_op(object, options=list(restype="container"), http_verb="HEAD"))
+
+    # properties for blob
+    do_container_op(object, blob, http_verb="HEAD")
 }
 
 
 #' @rdname properties
 #' @export
-get_storage_properties.blob_container <- function(object)
+get_storage_properties.file_share <- function(object, file, isdir, ...)
 {
-    res <- do_container_op(object, options=list(restype="container"), http_status_handler="pass")
-    httr::stop_for_status(res, storage_error_message(res))
-    res <- httr::headers(res)
-    res[setdiff(names(res), c("transfer-encoding", "server", "x-ms-request-id", "x-ms-version", "date"))]
-}
+    # properties for container
+    if(missing(file))
+        return(do_container_op(object, options=list(restype="share"), http_verb="HEAD"))
 
-
-#' @rdname properties
-#' @export
-get_storage_properties.file_share <- function(object)
-{
-    res <- do_container_op(object, options=list(restype="share"), http_status_handler="pass")
-    httr::stop_for_status(res, storage_error_message(res))
-    res <- httr::headers(res)
-    res[setdiff(names(res), c("transfer-encoding", "server", "x-ms-request-id", "x-ms-version", "date"))]
-}
-
-
-#' @rdname properties
-#' @export
-get_blob_properties <- function(container, blob)
-{
-    res <- do_container_op(container, blob, http_verb="HEAD", http_status_handler="pass")
-    httr::stop_for_status(res, storage_error_message(res))
-    res <- httr::headers(res)
-    res[setdiff(names(res), c("transfer-encoding", "server", "x-ms-request-id", "x-ms-version", "date"))]
-}
-
-
-#' @rdname properties
-#' @export
-get_azure_file_properties <- function(share, file)
-{
-    res <- do_container_op(share, file, http_verb="HEAD", http_status_handler="pass")
-    httr::stop_for_status(res, storage_error_message(res))
-    res <- httr::headers(res)
-    res[setdiff(names(res), c("transfer-encoding", "server", "x-ms-request-id", "x-ms-version", "date"))]
-}
-
-
-#' @rdname properties
-#' @export
-get_azure_dir_properties <- function(share, dir)
-{
-    res <- do_container_op(share, dir, options=list(restype="directory"), http_verb="HEAD", http_status_handler="pass")
-    httr::stop_for_status(res, storage_error_message(res))
-    res <- httr::headers(res)
-    res[setdiff(names(res), c("transfer-encoding", "server", "x-ms-request-id", "x-ms-version", "date"))]
-}
-
-
-# recursively tidy XML list: turn leaf nodes into scalars
-tidy_list <- function(x)
-{
-    if(is_empty(x))
-        return()
-    else if(!is.list(x[[1]]))
+    # properties for file/directory
+    if(missing(isdir))
     {
-        x <- unlist(x)
-        if(x %in% c("true", "false"))
-            x <- as.logical(x)
-        else if(!is.numeric(x) && !is.na(suppressWarnings(as.numeric(x))))
-            x <- as.numeric(x)
-        x
+        res <- tryCatch(Recall(object, file, FALSE), error=function(e) e)
+        if(inherits(res, "error"))
+            res <- tryCatch(Recall(object, file, TRUE), error=function(e) e)
+        if(inherits(res, "error"))
+            stop(res)
+        return(res)
     }
-    else lapply(x, tidy_list)
+
+    options <- if(isdir) list(restype="directory") else list()
+    do_container_op(object, file, options=options, http_verb="HEAD")
 }
+
+
+#' @rdname properties
+#' @export
+get_storage_properties.adls_filesystem <- function(object, file, ...)
+{
+    # properties for container
+    if(missing(file))
+        return(do_container_op(object, options=list(resource="filesystem"), http_verb="HEAD"))
+
+    # properties for file/directory
+    do_container_op(object, file, http_verb="HEAD")
+}
+
+
+#' @rdname properties
+#' @export
+get_adls_file_acl <- function(filesystem, file)
+{
+    do_container_op(filesystem, file, options=list(action="getaccesscontrol"), http_verb="HEAD")[["x-ms-acl"]]
+}
+
+
+#' @rdname properties
+#' @export
+get_adls_file_status <- function(filesystem, file)
+{
+    do_container_op(filesystem, file, options=list(action="getstatus"), http_verb="HEAD")
+}
+

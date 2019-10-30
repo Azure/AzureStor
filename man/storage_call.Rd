@@ -41,8 +41,6 @@ call_storage_endpoint(endpoint, path, options = list(),
 Based on the \code{http_status_handler} and \code{return_headers} arguments. If \code{http_status_handler} is \code{"pass"}, the entire response is returned without modification.
 
 If \code{http_status_handler} is one of \code{"stop"}, \code{"warn"} or \code{"message"}, the status code of the response is checked, and if an error is not thrown, the parsed headers or body of the response is returned. An exception is if the response was written to disk, as part of a file download; in this case, the return value is NULL.
-
-Note that the return value is \emph{invisible}; see the example below for how to display it.
 }
 \description{
 Carry out operations on a storage account container or endpoint
@@ -54,10 +52,9 @@ These functions form the low-level interface between R and the storage API. \cod
 \dontrun{
 
 # get the metadata for a blob
-# wrap with () to print an invisible return value
 bl_endp <- blob_endpoint("storage_acct_url", key="key")
 cont <- storage_container(bl_endp, "containername")
-(do_container_op(cont, "filename.txt", options=list(comp="metadata"), http_verb="HEAD"))
+do_container_op(cont, "filename.txt", options=list(comp="metadata"), http_verb="HEAD")
 
 }
 }

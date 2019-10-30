@@ -191,7 +191,7 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
         return(invisible(NULL))
 
     obj <- adls_filesystem(endpoint, name)
-    do_container_op(obj, options=list(resource="filesystem"), http_verb="DELETE")
+    invisible(do_container_op(obj, options=list(resource="filesystem"), http_verb="DELETE"))
 }
 
 
@@ -390,7 +390,7 @@ delete_adls_file <- function(filesystem, file, confirm=TRUE)
     if(!delete_confirmed(confirm, paste0(filesystem$endpoint$url, filesystem$name, "/", file), "file"))
         return(invisible(NULL))
 
-    do_container_op(filesystem, file, http_verb="DELETE")
+    invisible(do_container_op(filesystem, file, http_verb="DELETE"))
 }
 
 
@@ -399,7 +399,7 @@ delete_adls_file <- function(filesystem, file, confirm=TRUE)
 #' @export
 create_adls_dir <- function(filesystem, dir)
 {
-    do_container_op(filesystem, dir, options=list(resource="directory"), http_verb="PUT")
+    invisible(do_container_op(filesystem, dir, options=list(resource="directory"), http_verb="PUT"))
 }
 
 
@@ -411,6 +411,6 @@ delete_adls_dir <- function(filesystem, dir, recursive=FALSE, confirm=TRUE)
         return(invisible(NULL))
 
     opts <- list(recursive=tolower(as.character(recursive)))
-    do_container_op(filesystem, dir, options=opts, http_verb="DELETE")
+    invisible(do_container_op(filesystem, dir, options=opts, http_verb="DELETE"))
 }
 

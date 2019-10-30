@@ -209,7 +209,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
     else list()
 
     obj <- blob_container(endpoint, name)
-    do_container_op(obj, options=list(restype="container"), headers=headers, http_verb="DELETE")
+    invisible(do_container_op(obj, options=list(restype="container"), headers=headers, http_verb="DELETE"))
 }
 
 
@@ -401,7 +401,7 @@ delete_blob <- function(container, blob, confirm=TRUE)
     if(!delete_confirmed(confirm, paste0(container$endpoint$url, container$name, "/", blob), "blob"))
         return(invisible(NULL))
 
-    do_container_op(container, blob, http_verb="DELETE")
+    invisible(do_container_op(container, blob, http_verb="DELETE"))
 }
 
 

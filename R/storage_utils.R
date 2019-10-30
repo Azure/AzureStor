@@ -18,7 +18,6 @@
 #'
 #' If `http_status_handler` is one of `"stop"`, `"warn"` or `"message"`, the status code of the response is checked, and if an error is not thrown, the parsed headers or body of the response is returned. An exception is if the response was written to disk, as part of a file download; in this case, the return value is NULL.
 #'
-#' Note that the return value is _invisible_; see the example below for how to display it.
 #' @seealso
 #' [blob_endpoint], [file_endpoint], [adls_endpoint]
 #'
@@ -29,10 +28,9 @@
 #' \dontrun{
 #'
 #' # get the metadata for a blob
-#' # wrap with () to print an invisible return value
 #' bl_endp <- blob_endpoint("storage_acct_url", key="key")
 #' cont <- storage_container(bl_endp, "containername")
-#' (do_container_op(cont, "filename.txt", options=list(comp="metadata"), http_verb="HEAD"))
+#' do_container_op(cont, "filename.txt", options=list(comp="metadata"), http_verb="HEAD")
 #'
 #' }
 #' @rdname storage_call
@@ -44,8 +42,7 @@ do_container_op <- function(container, operation="", options=list(), headers=lis
         sub("//", "/", paste0(container$name, "/", operation))
     else container$name
 
-    invisible(call_storage_endpoint(container$endpoint, operation, options=options, headers=headers,
-                                    http_verb=http_verb, ...))
+    call_storage_endpoint(container$endpoint, operation, options=options, headers=headers, http_verb=http_verb, ...)
 }
 
 
@@ -180,7 +177,7 @@ process_storage_response <- function(response, handler, return_headers)
     handler(response, storage_error_message(response))
 
     if(return_headers)
-        return(httr::headers(response))
+        return(unclass(httr::headers(response)))
 
     # if file was written to disk, printing content(*) will read it back into memory!
     if(inherits(response$content, "path"))

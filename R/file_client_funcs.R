@@ -178,7 +178,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
         return(invisible(NULL))
 
     obj <- file_share(endpoint, name)
-    do_container_op(obj, options=list(restype="share"), http_verb="DELETE")
+    invisible(do_container_op(obj, options=list(restype="share"), http_verb="DELETE"))
 }
 
 
@@ -355,7 +355,7 @@ delete_azure_file <- function(share, file, confirm=TRUE)
     if(!delete_confirmed(confirm, paste0(share$endpoint$url, share$name, "/", file), "file"))
         return(invisible(NULL))
 
-    do_container_op(share, file, http_verb="DELETE")
+    invisible(do_container_op(share, file, http_verb="DELETE"))
 }
 
 #' @rdname file
@@ -368,7 +368,7 @@ create_azure_dir <- function(share, dir, recursive=FALSE)
     if(recursive)
         try(create_azure_dir(share, dirname(dir), recursive=TRUE), silent=TRUE)
 
-    do_container_op(share, dir, options=list(restype="directory"), http_verb="PUT")
+    invisible(do_container_op(share, dir, options=list(restype="directory"), http_verb="PUT"))
 }
 
 #' @rdname file
@@ -384,6 +384,6 @@ delete_azure_dir <- function(share, dir, recursive=FALSE, confirm=TRUE)
     if(recursive)
         try(delete_azure_dir(share, dirname(dir), recursive=TRUE, confirm=FALSE), silent=TRUE)
 
-    do_container_op(share, dir, options=list(restype="directory"), http_verb="DELETE")
+    invisible(do_container_op(share, dir, options=list(restype="directory"), http_verb="DELETE"))
 }
 
