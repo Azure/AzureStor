@@ -74,7 +74,7 @@ get_storage_properties.file_share <- function(object, file, isdir, ...)
         if(inherits(res, "error"))
             res <- tryCatch(Recall(object, file, TRUE), error=function(e) e)
         if(inherits(res, "error"))
-            stop(e)
+            stop(res)
         return(res)
     }
 
