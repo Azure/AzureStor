@@ -32,14 +32,14 @@ get_adls_file_status(filesystem, file)
 
 \item{...}{For compatibility with the generic.}
 
-\item{blob, file}{The name of an individual blob, file or directory within a container.}
+\item{blob, file}{Optionally the name of an individual blob, file or directory within a container.}
 
 \item{isdir}{For the file share method, whether the \code{file} argument is a file or directory. If omitted, \code{get_storage_properties} will auto-detect the type; however this can be slow, so supply this argument if possible.}
 
 \item{filesystem}{An ADLS filesystem.}
 }
 \value{
-\code{get_storage_properties} returns a list describing the object properties. If the \code{blob} or \code{file} argument is present, the properties will be for the blob/file specified. If this argument is omitted, the properties will be for the container itself.
+\code{get_storage_properties} returns a list describing the object properties. If the \code{blob} or \code{file} argument is present for the container methods, the properties will be for the blob/file specified. If this argument is omitted, the properties will be for the container itself.
 
 \code{get_adls_file_acl} returns a string giving the ACL for the file.
 
@@ -52,10 +52,4 @@ Get storage properties for an object
 \link{storage_endpoint}, \link{blob_container}, \link{file_share}, \link{adls_filesystem}
 
 \link{get_storage_metadata} for getting and setting \emph{user-defined} properties (metadata)
-
-[Blob service properties reference[(https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-service-properties).
-\href{https://docs.microsoft.com/en-us/rest/api/storageservices/get-file-service-properties}{File service properties reference},
-\href{https://docs.microsoft.com/en-us/rest/api/storageservices/get-container-properties}{Blob container properties reference},
-\href{https://docs.microsoft.com/en-us/rest/api/storageservices/get-share-properties}{File share properties reference},
-\href{https://docs.microsoft.com/en-us/rest/api/storageservices/datalakestoragegen2/filesystem/getproperties}{ADLS filesystem properties reference}
 }

@@ -2,11 +2,11 @@
 #'
 #' @param object A storage object: an endpoint, blob container, file share, or ADLS filesystem.
 #' @param filesystem An ADLS filesystem.
-#' @param blob,file The name of an individual blob, file or directory within a container.
+#' @param blob,file Optionally the name of an individual blob, file or directory within a container.
 #' @param isdir For the file share method, whether the `file` argument is a file or directory. If omitted, `get_storage_properties` will auto-detect the type; however this can be slow, so supply this argument if possible.
 #' @param ... For compatibility with the generic.
 #' @return
-#' `get_storage_properties` returns a list describing the object properties. If the `blob` or `file` argument is present, the properties will be for the blob/file specified. If this argument is omitted, the properties will be for the container itself.
+#' `get_storage_properties` returns a list describing the object properties. If the `blob` or `file` argument is present for the container methods, the properties will be for the blob/file specified. If this argument is omitted, the properties will be for the container itself.
 #'
 #' `get_adls_file_acl` returns a string giving the ACL for the file.
 #'
@@ -16,13 +16,6 @@
 #' [storage_endpoint], [blob_container], [file_share], [adls_filesystem]
 #'
 #' [get_storage_metadata] for getting and setting _user-defined_ properties (metadata)
-#'
-#' [Blob service properties reference[(https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-service-properties).
-#' [File service properties reference](https://docs.microsoft.com/en-us/rest/api/storageservices/get-file-service-properties),
-#' [Blob container properties reference](https://docs.microsoft.com/en-us/rest/api/storageservices/get-container-properties),
-#' [File share properties reference](https://docs.microsoft.com/en-us/rest/api/storageservices/get-share-properties),
-#' [ADLS filesystem properties reference](https://docs.microsoft.com/en-us/rest/api/storageservices/datalakestoragegen2/filesystem/getproperties)
-#'
 #' @rdname properties
 #' @export
 get_storage_properties <- function(object, ...)

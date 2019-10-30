@@ -1,14 +1,20 @@
 #' Get/set user-defined metadata for a storage object
 #'
 #' @param object A blob container, file share or ADLS filesystem object.
-#' @param blob,file The name of an individual blob, file or directory within a container.
+#' @param blob,file Optionally the name of an individual blob, file or directory within a container.
 #' @param isdir For the file share method, whether the `file` argument is a file or directory. If omitted, `get_storage_metadata` will auto-detect the type; however this can be slow, so supply this argument if possible.
 #' @param ... For the metadata setters, name-value pairs to set as metadata for a blob or file.
 #' @param keep_existing For the metadata setters, whether to retain existing metadata information.
 #' @details
 #' These methods let you get and set user-defined properties (metadata) for storage objects.
 #' @return
-#' `get_storage_metadata` returns a named list of metadata properties. `set_storage_metadata` returns the same list after setting the object's metadata, invisibly.
+#' `get_storage_metadata` returns a named list of metadata properties. If the `blob` or `file` argument is present, the properties will be for the blob/file specified. If this argument is omitted, the properties will be for the container itself.
+#'
+#' `set_storage_metadata` returns the same list after setting the object's metadata, invisibly.
+#' @seealso
+#' [storage_endpoint], [blob_container], [file_share], [adls_filesystem]
+#'
+#' [get_storage_properties] for standard properties
 #' @rdname metadata
 #' @export
 get_storage_metadata <- function(object, ...)
