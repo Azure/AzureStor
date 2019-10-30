@@ -14,14 +14,14 @@
 list_blobs(container, dir = "/", info = c("partial", "name", "all"),
   prefix = NULL, recursive = TRUE)
 
-upload_blob(container, src, dest, type = "BlockBlob", blocksize = 2^24,
-  lease = NULL, use_azcopy = FALSE)
+upload_blob(container, src, dest = basename(src), type = "BlockBlob",
+  blocksize = 2^24, lease = NULL, use_azcopy = FALSE)
 
-multiupload_blob(container, src, dest = "/", recursive = FALSE,
+multiupload_blob(container, src, dest, recursive = FALSE,
   type = "BlockBlob", blocksize = 2^24, lease = NULL,
   use_azcopy = FALSE, max_concurrent_transfers = 10)
 
-download_blob(container, src, dest, blocksize = 2^24,
+download_blob(container, src, dest = basename(src), blocksize = 2^24,
   overwrite = FALSE, lease = NULL, use_azcopy = FALSE)
 
 multidownload_blob(container, src, dest, recursive = recursive,

@@ -14,14 +14,14 @@
 list_azure_files(share, dir = "/", info = c("all", "name"),
   prefix = NULL, recursive = FALSE)
 
-upload_azure_file(share, src, dest, create_dir = FALSE,
+upload_azure_file(share, src, dest = basename(src), create_dir = FALSE,
   blocksize = 2^22, use_azcopy = FALSE)
 
-multiupload_azure_file(share, src, dest = "/", recursive = FALSE,
+multiupload_azure_file(share, src, dest, recursive = FALSE,
   create_dir = recursive, blocksize = 2^22, use_azcopy = FALSE,
   max_concurrent_transfers = 10)
 
-download_azure_file(share, src, dest, blocksize = 2^22,
+download_azure_file(share, src, dest = basename(src), blocksize = 2^22,
   overwrite = FALSE, use_azcopy = FALSE)
 
 multidownload_azure_file(share, src, dest, recursive = FALSE,
