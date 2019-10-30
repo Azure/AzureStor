@@ -35,12 +35,18 @@ set_storage_metadata(object, ...)
 
 \item{...}{For the metadata setters, name-value pairs to set as metadata for a blob or file.}
 
-\item{file}{The name of an individual blob, file or directory within a container.}
+\item{blob, file}{The name of an individual blob, file or directory within a container.}
 
-\item{isdir}{For the file share method, whether the object is a file or directory.}
+\item{isdir}{For the file share method, whether the \code{file} argument is a file or directory. If omitted, \code{get_storage_metadata} will auto-detect the type; however this can be slow, so supply this argument if possible.}
 
 \item{keep_existing}{For the metadata setters, whether to retain existing metadata information.}
 }
+\value{
+\code{get_storage_metadata} returns a named list of metadata properties. \code{set_storage_metadata} returns the same list after setting the object's metadata, invisibly.
+}
 \description{
 Get/set user-defined metadata for a storage object
+}
+\details{
+These methods let you get and set user-defined properties (metadata) for storage objects.
 }

@@ -30,23 +30,28 @@ get_adls_file_status(filesystem, file)
 \arguments{
 \item{object}{A storage object: an endpoint, blob container, file share, or ADLS filesystem.}
 
-\item{file}{The name of an individual blob, file or directory within a container.}
+\item{...}{For compatibility with the generic.}
 
-\item{isdir}{Whether the object is a file or directory.}
+\item{blob, file}{The name of an individual blob, file or directory within a container.}
+
+\item{isdir}{For the file share method, whether the \code{file} argument is a file or directory. If omitted, \code{get_storage_properties} will auto-detect the type; however this can be slow, so supply this argument if possible.}
 
 \item{filesystem}{An ADLS filesystem.}
 }
 \value{
-A list describing the object properties.
+\code{get_storage_properties} returns a list describing the object properties. If the \code{blob} or \code{file} argument is present, the properties will be for the blob/file specified. If this argument is omitted, the properties will be for the container itself.
+
+\code{get_adls_file_acl} returns a string giving the ACL for the file.
+
+\code{get_adls_file_status} returns a list of system properties for the file.
 }
 \description{
 Get storage properties for an object
 }
-\details{
-The \code{get_storage_properties} generic returns a list of properties for the given storage object. There are methods defined for objects of class \code{storage_endpoint}, \code{blob_container}, \code{file_share} and \code{adls_filesystem}. Similar functions are defined for individual blobs, files and directories.
-}
 \seealso{
-\link{storage_endpoint}, \link{blob_container}, \link{file_share}
+\link{storage_endpoint}, \link{blob_container}, \link{file_share}, \link{adls_filesystem}
+
+\link{metadata} for getting and setting \emph{user-defined} properties (metadata)
 
 [Blob service properties reference[(https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-service-properties).
 \href{https://docs.microsoft.com/en-us/rest/api/storageservices/get-file-service-properties}{File service properties reference},
