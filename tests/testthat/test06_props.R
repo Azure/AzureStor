@@ -40,14 +40,11 @@ test_that("Blob property getters work",
 {
     expect_is(cont, "blob_container")
 
-    prop1 <- get_storage_properties(bl)
+    prop1 <- get_storage_properties(cont)
     expect_true(is.list(prop1) && !is_empty(prop1))
 
-    prop2 <- get_storage_properties(cont)
+    prop2 <- get_storage_properties(cont, "iris.csv")
     expect_true(is.list(prop2) && !is_empty(prop2))
-
-    prop3 <- get_storage_properties(cont, "iris.csv")
-    expect_true(is.list(prop3) && !is_empty(prop3))
 })
 
 
@@ -55,17 +52,14 @@ test_that("File property getters work",
 {
     expect_is(share, "file_share")
 
-    prop1 <- get_storage_properties(fl)
+    prop1 <- get_storage_properties(share)
     expect_true(is.list(prop1) && !is_empty(prop1))
 
-    prop2 <- get_storage_properties(share)
+    prop2 <- get_storage_properties(share, "iris.csv")
     expect_true(is.list(prop2) && !is_empty(prop2))
 
-    prop3 <- get_storage_properties(share, "iris.csv")
+    prop3 <- get_storage_properties(share, "dir")
     expect_true(is.list(prop3) && !is_empty(prop3))
-
-    prop4 <- get_storage_properties(share, "dir")
-    expect_true(is.list(prop4) && !is_empty(prop4))
 })
 
 
@@ -73,17 +67,14 @@ test_that("ADLS property getters work",
 {
     expect_is(fs, "adls_filesystem")
 
-    # no filesystem method for ADLS
-    expect_error(get_storage_properties(ad))
+    prop1 <- get_storage_properties(fs)
+    expect_true(is.list(prop1) && !is_empty(prop1))
 
-    prop2 <- get_storage_properties(fs)
+    prop2 <- get_storage_properties(fs, "iris.csv")
     expect_true(is.list(prop2) && !is_empty(prop2))
 
-    prop3 <- get_storage_properties(fs, "iris.csv")
+    prop3 <- get_storage_properties(fs, "dir")
     expect_true(is.list(prop3) && !is_empty(prop3))
-
-    prop4 <- get_storage_properties(fs, "dir")
-    expect_true(is.list(prop4) && !is_empty(prop4))
 
     # ACLs
     expect_type(get_adls_file_acl(fs, "iris.csv"), "character")

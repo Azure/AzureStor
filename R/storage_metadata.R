@@ -49,7 +49,14 @@ get_storage_metadata <- function(object, ...)
 #' @export
 get_storage_metadata.blob_container <- function(object, blob, ...)
 {
-    res <- do_container_op(object, blob, options=list(comp="metadata"), http_verb="HEAD")
+    if(missing(blob))
+    {
+        options <- list(restype="container", comp="metadata")
+        blob <- ""
+    }
+    else options <- list(comp="metadata")
+
+    res <- do_container_op(object, blob, options=options, http_verb="HEAD")
     get_classic_metadata_headers(res)
 }
 
@@ -68,9 +75,14 @@ get_storage_metadata.file_share <- function(object, file, isdir, ...)
         return(res)
     }
 
-    options <- if(isdir)
-        list(restype="directory", comp="metadata")
-    else list(comp="metadata")
+    if(missing(file))
+    {
+        options <- list(restype="share", comp="metadata")
+        file <- ""
+    }
+    else if(isdir)
+        options <- list(restype="directory", comp="metadata")
+    else options <- list(comp="metadata")
     res <- do_container_op(object, file, options=options, http_verb="HEAD")
     get_classic_metadata_headers(res)
 }
@@ -101,7 +113,14 @@ set_storage_metadata.blob_container <- function(object, blob, ..., keep_existing
         modifyList(get_storage_metadata(object, blob), list(...))
     else list(...)
 
-    do_container_op(object, blob, options=list(comp="metadata"), headers=set_classic_metadata_headers(meta),
+    if(missing(blob))
+    {
+        options <- list(restype="container", comp="metadata")
+        blob <- ""
+    }
+    else options <- list(comp="metadata")
+
+    do_container_op(object, blob, options=options, headers=set_classic_metadata_headers(meta),
                     http_verb="PUT")
     invisible(meta)
 }
@@ -124,9 +143,16 @@ set_storage_metadata.file_share <- function(object, file, isdir, ..., keep_exist
     meta <- if(keep_existing)
         modifyList(get_storage_metadata(object, file, isdir=isdir), list(...))
     else list(...)
-    options <- if(isdir)
-        list(restype="directory", comp="metadata")
-    else list(comp="metadata")
+
+    if(missing(file))
+    {
+        options <- list(restype="share", comp="metadata")
+        file <- ""
+    }
+    else if(isdir)
+        options <- list(restype="directory", comp="metadata")
+    else options <- list(comp="metadata")
+
     do_container_op(object, file, options=options, headers=set_classic_metadata_headers(meta),
                     http_verb="PUT")
     invisible(meta)
@@ -141,7 +167,14 @@ set_storage_metadata.adls_filesystem <- function(object, file, ..., keep_existin
         modifyList(get_storage_metadata(object, file), list(...))
     else list(...)
 
-    do_container_op(object, file, options=list(action="setProperties"), headers=set_adls_metadata_header(meta),
+    if(missing(file))
+    {
+        options <- list(resource="filesystem")
+        file <- ""
+    }
+    else options <- list(action="setProperties")
+
+    do_container_op(object, file, options=options, headers=set_adls_metadata_header(meta),
                     http_verb="PATCH")
     invisible(meta)
 }

@@ -36,6 +36,32 @@ create_storage_dir(fs, "dir")
 storage_upload(fs, "../resources/iris.csv", "iris.csv")
 
 
+test_that("Blob container metadata getters/setters work",
+{
+    expect_is(cont, "blob_container")
+
+    meta0 <- get_storage_metadata(cont)
+    expect_true(is_empty(meta0))
+
+    meta1set <- set_storage_metadata(cont, name1="value1")
+    meta1get <- get_storage_metadata(cont)
+    expect_identical(meta1set, meta1get)
+    expect_identical(meta1get, list(name1="value1"))
+
+    set_storage_metadata(cont, name2="value2")
+    meta2get <- get_storage_metadata(cont)
+    expect_identical(meta2get, c(meta1get, list(name2="value2")))
+
+    set_storage_metadata(cont, name3="value3", keep_existing=FALSE)
+    meta3get <- get_storage_metadata(cont)
+    expect_identical(meta3get, list(name3="value3"))
+
+    set_storage_metadata(cont, keep_existing=FALSE)
+    meta4get <- get_storage_metadata(cont)
+    expect_true(is_empty(meta4get))
+})
+
+
 test_that("Blob metadata getters/setters work",
 {
     expect_is(cont, "blob_container")
@@ -58,6 +84,32 @@ test_that("Blob metadata getters/setters work",
 
     set_storage_metadata(cont, "iris.csv", keep_existing=FALSE)
     meta4get <- get_storage_metadata(cont, "iris.csv")
+    expect_true(is_empty(meta4get))
+})
+
+
+test_that("File share metadata getters/setters work",
+{
+    expect_is(share, "file_share")
+
+    meta0 <- get_storage_metadata(share)
+    expect_true(is_empty(meta0))
+
+    meta1set <- set_storage_metadata(share, name1="value1")
+    meta1get <- get_storage_metadata(share)
+    expect_identical(meta1set, meta1get)
+    expect_identical(meta1get, list(name1="value1"))
+
+    set_storage_metadata(share, name2="value2")
+    meta2get <- get_storage_metadata(share)
+    expect_identical(meta2get, c(meta1get, list(name2="value2")))
+
+    set_storage_metadata(share, name3="value3", keep_existing=FALSE)
+    meta3get <- get_storage_metadata(share)
+    expect_identical(meta3get, list(name3="value3"))
+
+    set_storage_metadata(share, keep_existing=FALSE)
+    meta4get <- get_storage_metadata(share)
     expect_true(is_empty(meta4get))
 })
 
@@ -110,6 +162,32 @@ test_that("File metadata getters/setters work for directory",
 
     set_storage_metadata(share, "dir", keep_existing=FALSE)
     meta4get <- get_storage_metadata(share, "dir")
+    expect_true(is_empty(meta4get))
+})
+
+
+test_that("ADLS filesystem metadata getters/setters work",
+{
+    expect_is(fs, "adls_filesystem")
+
+    meta0 <- get_storage_metadata(fs)
+    expect_true(is_empty(meta0))
+
+    meta1set <- set_storage_metadata(fs, name1="value1")
+    meta1get <- get_storage_metadata(fs)
+    expect_identical(meta1set, meta1get)
+    expect_identical(meta1get, list(name1="value1"))
+
+    set_storage_metadata(fs, name2="value2")
+    meta2get <- get_storage_metadata(fs)
+    expect_identical(meta2get, c(meta1get, list(name2="value2")))
+
+    set_storage_metadata(fs, name3="value3", keep_existing=FALSE)
+    meta3get <- get_storage_metadata(fs)
+    expect_identical(meta3get, list(name3="value3"))
+
+    set_storage_metadata(fs, keep_existing=FALSE)
+    meta4get <- get_storage_metadata(fs)
     expect_true(is_empty(meta4get))
 })
 
