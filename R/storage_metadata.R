@@ -160,6 +160,8 @@ get_adls_metadata_header <- function(res)
 
 set_adls_metadata_header <- function(metalist)
 {
+    if(is_empty(metalist))
+        return(metalist)
     if(is.null(names(metalist)) || any(names(metalist) == ""))
         stop("All metadata values must be named")
 
