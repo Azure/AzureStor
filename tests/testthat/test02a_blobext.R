@@ -113,6 +113,32 @@ test_that("Blob recursive wildcard multitransfer works",
 })
 
 
+test_that("Default multitransfer destination works",
+{
+    contname <- paste0(sample(letters, 10, TRUE), collapse="")
+    cont <- create_blob_container(bl, contname)
+
+    multiupload_blob(cont, file.path(srcdir, srcs))
+    multidownload_blob(cont, srcs)
+
+    expect_true(files_identical(file.path(srcdir, srcs), srcs))
+    file.remove(srcs)
+})
+
+
+test_that("Default multitransfer destination works with wildcard src",
+{
+    contname <- paste0(sample(letters, 10, TRUE), collapse="")
+    cont <- create_blob_container(bl, contname)
+
+    multiupload_blob(cont, file.path(srcdir, "subdir/*"))
+    multidownload_blob(cont, "*")
+
+    expect_true(files_identical(file.path(srcdir, "subdir", srcs_sub), srcs_sub))
+    file.remove(srcs_sub)
+})
+
+
 test_that("Blob multicopy from URL works",
 {
     contname <- paste0(sample(letters, 10, TRUE), collapse="")
@@ -132,6 +158,7 @@ test_that("Blob multicopy from URL works",
         identical(readLines(f1), readLines(f2))
     }, dests, origs)))
 })
+
 
 teardown(
 {

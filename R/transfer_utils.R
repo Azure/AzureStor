@@ -44,9 +44,14 @@ normalize_src.rawConnection <- function(src)
 multiupload_internal <- function(container, src, dest, recursive, ..., max_concurrent_transfers=10)
 {
     src <- make_upload_set(src, recursive)
+    wildcard_src <- !is.null(attr(src, "root"))
+    if(missing(dest))
+    {
+        dest <- if(wildcard_src) "/" else basename(src)
+    }
+
     n_src <- length(src)
     n_dest <- length(dest)
-    wildcard_src <- !is.null(attr(src, "root"))
 
     if(n_src == 0)
         stop("No files to transfer", call.=FALSE)
@@ -75,9 +80,14 @@ multiupload_internal <- function(container, src, dest, recursive, ..., max_concu
 multidownload_internal <- function(container, src, dest, recursive, ..., max_concurrent_transfers=10)
 {
     src <- make_download_set(container, src, recursive)
+    wildcard_src <- !is.null(attr(src, "root"))
+    if(missing(dest))
+    {
+        dest <- if(wildcard_src) "." else basename(src)
+    }
+
     n_src <- length(src)
     n_dest <- length(dest)
-    wildcard_src <- !is.null(attr(src, "root"))
 
     if(n_src == 0)
         stop("No files to transfer", call.=FALSE)

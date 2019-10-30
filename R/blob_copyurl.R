@@ -54,8 +54,11 @@ copy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE)
 
 #' @rdname blob
 #' @export
-multicopy_url_to_blob <- function(container, src, dest="/", lease=NULL, async=FALSE, max_concurrent_transfers=10)
+multicopy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE, max_concurrent_transfers=10)
 {
+    if(missing(dest))
+        dest <- basename(src)
+
     n_src <- length(src)
     n_dest <- length(dest)
 

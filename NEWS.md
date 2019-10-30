@@ -6,6 +6,7 @@
   - These can now accept a vector of pathnames as the source and destination arguments.
   - Alternatively, for a wildcard source, add the ability to recurse through subdirectories. Any directory structure in the source will be reproduced at the destination.
 - Related to the above: the file transfer methods can now create subdirectories that are specified in their destination argument. For ADLS and blob uploading this happens automatically; for Azure file uploading it requires a separate API call which can be slow, so is optional.
+- The default destination directory when transferring files (not connections) is now the (remote) root for uploading, and the (local) current directory for downloading.
 - Significant changes to file storage methods for greater consistency with the other storage types:
   - The default directory for `list_azure_files` is now the root, mirroring the behaviour for blobs and ADLSgen2.
   - The output of `list_azure_files` now includes the full path as part of the file/directory name.

@@ -263,6 +263,20 @@ test_that("chunked downloading works",
 })
 
 
+test_that("Default destination works",
+{
+    bl <- stor$get_blob_endpoint()
+    cont <- create_blob_container(bl, "defaultdest")
+
+    orig_file <- "../resources/iris.csv"
+    upload_blob(cont, orig_file)
+    download_blob(cont, basename(orig_file))
+
+    expect_true(file.exists(basename(orig_file)))
+    file.remove(basename(orig_file))
+})
+
+
 test_that("copy from url works",
 {
     bl <- stor$get_blob_endpoint()

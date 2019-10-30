@@ -255,6 +255,20 @@ test_that("chunked downloading works",
 })
 
 
+test_that("Default destination works",
+{
+    ad <- stor$get_adls_endpoint()
+    cont <- create_adls_filesystem(ad, "defaultdest")
+
+    orig_file <- "../resources/iris.csv"
+    upload_adls_file(cont, orig_file)
+    download_adls_file(cont, basename(orig_file))
+
+    expect_true(file.exists(basename(orig_file)))
+    file.remove(basename(orig_file))
+})
+
+
 teardown(
 {
     ad <- stor$get_adls_endpoint()

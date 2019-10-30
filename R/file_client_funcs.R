@@ -306,7 +306,7 @@ list_azure_files <- function(share, dir="/", info=c("all", "name"),
 
 #' @rdname file
 #' @export
-upload_azure_file <- function(share, src, dest, create_dir=FALSE, blocksize=2^22, use_azcopy=FALSE)
+upload_azure_file <- function(share, src, dest=basename(src), create_dir=FALSE, blocksize=2^22, use_azcopy=FALSE)
 {
     if(use_azcopy)
         azcopy_upload(share, src, dest, blocksize=blocksize)
@@ -315,7 +315,7 @@ upload_azure_file <- function(share, src, dest, create_dir=FALSE, blocksize=2^22
 
 #' @rdname file
 #' @export
-multiupload_azure_file <- function(share, src, dest="/", recursive=FALSE, create_dir=recursive, blocksize=2^22,
+multiupload_azure_file <- function(share, src, dest, recursive=FALSE, create_dir=recursive, blocksize=2^22,
                                    use_azcopy=FALSE,
                                    max_concurrent_transfers=10)
 {
@@ -328,7 +328,7 @@ multiupload_azure_file <- function(share, src, dest="/", recursive=FALSE, create
 
 #' @rdname file
 #' @export
-download_azure_file <- function(share, src, dest, blocksize=2^22, overwrite=FALSE, use_azcopy=FALSE)
+download_azure_file <- function(share, src, dest=basename(src), blocksize=2^22, overwrite=FALSE, use_azcopy=FALSE)
 {
     if(use_azcopy)
         azcopy_download(share, src, dest, overwrite=overwrite)

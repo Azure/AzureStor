@@ -336,7 +336,7 @@ list_adls_files <- function(filesystem, dir="/", info=c("all", "name"),
 
 #' @rdname adls
 #' @export
-multiupload_adls_file <- function(filesystem, src, dest="/", recursive=FALSE, blocksize=2^22, lease=NULL,
+multiupload_adls_file <- function(filesystem, src, dest, recursive=FALSE, blocksize=2^22, lease=NULL,
                                    use_azcopy=FALSE,
                                    max_concurrent_transfers=10)
 {
@@ -350,7 +350,7 @@ multiupload_adls_file <- function(filesystem, src, dest="/", recursive=FALSE, bl
 
 #' @rdname adls
 #' @export
-upload_adls_file <- function(filesystem, src, dest, blocksize=2^24, lease=NULL, use_azcopy=FALSE)
+upload_adls_file <- function(filesystem, src, dest=basename(src), blocksize=2^24, lease=NULL, use_azcopy=FALSE)
 {
     if(use_azcopy)
         azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease)
@@ -374,13 +374,12 @@ multidownload_adls_file <- function(filesystem, src, dest, recursive=FALSE, bloc
 
 #' @rdname adls
 #' @export
-download_adls_file <- function(filesystem, src, dest, blocksize=2^24, overwrite=FALSE, use_azcopy=FALSE)
+download_adls_file <- function(filesystem, src, dest=basename(src), blocksize=2^24, overwrite=FALSE, use_azcopy=FALSE)
 {
     if(use_azcopy)
         azcopy_download(filesystem, src, dest, overwrite=overwrite)
     else download_adls_file_internal(filesystem, src, dest, blocksize=blocksize, overwrite=overwrite)
 }
-
 
 
 #' @rdname adls
@@ -392,7 +391,6 @@ delete_adls_file <- function(filesystem, file, confirm=TRUE)
 
     invisible(do_container_op(filesystem, file, http_verb="DELETE"))
 }
-
 
 
 #' @rdname adls

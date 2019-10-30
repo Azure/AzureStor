@@ -350,7 +350,7 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
 
 #' @rdname blob
 #' @export
-upload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL,
+upload_blob <- function(container, src, dest=basename(src), type="BlockBlob", blocksize=2^24, lease=NULL,
                         use_azcopy=FALSE)
 {
     if(use_azcopy)
@@ -360,7 +360,7 @@ upload_blob <- function(container, src, dest, type="BlockBlob", blocksize=2^24, 
 
 #' @rdname blob
 #' @export
-multiupload_blob <- function(container, src, dest="/", recursive=FALSE, type="BlockBlob", blocksize=2^24, lease=NULL,
+multiupload_blob <- function(container, src, dest, recursive=FALSE, type="BlockBlob", blocksize=2^24, lease=NULL,
                              use_azcopy=FALSE,
                              max_concurrent_transfers=10)
 {
@@ -373,7 +373,7 @@ multiupload_blob <- function(container, src, dest="/", recursive=FALSE, type="Bl
 
 #' @rdname blob
 #' @export
-download_blob <- function(container, src, dest, blocksize=2^24, overwrite=FALSE, lease=NULL,
+download_blob <- function(container, src, dest=basename(src), blocksize=2^24, overwrite=FALSE, lease=NULL,
                           use_azcopy=FALSE)
 {
     if(use_azcopy)

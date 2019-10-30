@@ -248,6 +248,20 @@ test_that("chunked downloading works",
 })
 
 
+test_that("Default destination works",
+{
+    fl <- stor$get_file_endpoint()
+    cont <- create_file_share(fl, "defaultdest")
+
+    orig_file <- "../resources/iris.csv"
+    upload_azure_file(cont, orig_file)
+    download_azure_file(cont, basename(orig_file))
+
+    expect_true(file.exists(basename(orig_file)))
+    file.remove(basename(orig_file))
+})
+
+
 teardown(
 {
     fl <- stor$get_file_endpoint()

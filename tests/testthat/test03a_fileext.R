@@ -113,6 +113,32 @@ test_that("File recursive wildcard multitransfer works",
 })
 
 
+test_that("Default multitransfer destination works",
+{
+    contname <- paste0(sample(letters, 10, TRUE), collapse="")
+    cont <- create_file_share(fl, contname)
+
+    multiupload_azure_file(cont, file.path(srcdir, srcs))
+    multidownload_azure_file(cont, srcs)
+
+    expect_true(files_identical(file.path(srcdir, srcs), srcs))
+    file.remove(srcs)
+})
+
+
+test_that("Default multitransfer destination works with wildcard src",
+{
+    contname <- paste0(sample(letters, 10, TRUE), collapse="")
+    cont <- create_file_share(fl, contname)
+
+    multiupload_azure_file(cont, file.path(srcdir, "subdir/*"))
+    multidownload_azure_file(cont, "*")
+
+    expect_true(files_identical(file.path(srcdir, "subdir", srcs_sub), srcs_sub))
+    file.remove(srcs_sub)
+})
+
+
 teardown(
 {
     conts <- list_file_shares(fl)
