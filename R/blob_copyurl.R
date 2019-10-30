@@ -4,7 +4,7 @@
 #' @export
 copy_url_to_storage <- function(container, src, dest, ...)
 {
-    UseMethod("copy_from_url")
+    UseMethod("copy_url_to_storage")
 }
 
 
@@ -12,7 +12,7 @@ copy_url_to_storage <- function(container, src, dest, ...)
 #' @export
 multicopy_url_to_storage <- function(container, src, dest, ...)
 {
-    UseMethod("multicopy_from_url")
+    UseMethod("multicopy_url_to_storage")
 }
 
 #' @rdname file_transfer
@@ -54,24 +54,24 @@ copy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE)
 
 #' @rdname blob
 #' @export
-multicopy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE, max_concurrent_transfers=10)
+multicopy_url_to_blob <- function(container, src, dest="/", lease=NULL, async=FALSE, max_concurrent_transfers=10)
 {
-    if(missing(dest))
-        dest <- "/"
+    n_src <- length(src)
+    n_dest <- length(dest)
 
-    if(length(dest) > 1)
-        stop("'dest' must be a single directory", call.=FALSE)
+    if(n_src == 0)
+        stop("No files to transfer", call.=FALSE)
+
+    if(n_dest != n_src)
+        stop("'dest' must contain one name per file in 'src'", call.=FALSE)
+
+    if(n_src == 1)
+        return(copy_url_to_blob(container, src, dest, ...))
 
     init_pool(max_concurrent_transfers)
 
-    pool_export(c("container", "dest", "lease", "async"),
-        envir=environment())
-    pool_lapply(src, function(f)
-    {
-        dest <- if(dest == "/")
-            basename(httr::parse_url(f)$path)
-        else file.path(dest, basename(httr::parse_url(f)$path))
-        AzureStor::copy_url_to_blob(container, f, dest, lease=lease, async=async)
-    })
+    pool_export("container", envir=environment())
+    pool_map(function(s, d, ...) AzureStor::copy_url_to_blob(container, s, d, ...),
+             src, dest, MoreArgs=list(lease=lease, async=async))
     invisible(NULL)
 }

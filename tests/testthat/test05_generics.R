@@ -19,6 +19,9 @@ sub <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$get_subscr
 stor1 <- sub$get_resource_group(rgname)$get_storage_account(storname1)
 stor2 <- sub$get_resource_group(rgname)$get_storage_account(storname2)
 
+options(azure_storage_progress_bar=FALSE)
+
+
 test_that("Blob dispatch works",
 {
     endpname <- stor2$properties$primaryEndpoints$blob
@@ -28,7 +31,7 @@ test_that("Blob dispatch works",
     contname <- paste(sample(letters, 10, TRUE), collapse="")
     dirname <- "newdir"
     filename <- "iris.csv"
-    
+
     # working with a container
     expect_is(endp <- storage_endpoint(endpname, key=key), "blob_endpoint")
     expect_silent(cont <- storage_container(endp, contname))
@@ -58,7 +61,7 @@ test_that("File dispatch works",
     contname <- paste(sample(letters, 10, TRUE), collapse="")
     dirname <- "newdir"
     filename <- "iris.csv"
-    
+
     # working with a container
     expect_is(endp <- storage_endpoint(endpname, key=key), "file_endpoint")
     expect_silent(cont <- storage_container(endp, contname))
@@ -88,7 +91,7 @@ test_that("ADLSgen2 dispatch works",
     contname <- paste(sample(letters, 10, TRUE), collapse="")
     dirname <- "newdir"
     filename <- "iris.csv"
-    
+
     # working with a container
     expect_is(endp <- storage_endpoint(endpname, key=key), "adls_endpoint")
     expect_silent(cont <- storage_container(endp, contname))
@@ -106,6 +109,39 @@ test_that("ADLSgen2 dispatch works",
     expect_silent(delete_storage_file(cont, file.path(dirname, filename), confirm=FALSE))
     expect_silent(delete_storage_dir(cont, dirname, confirm=FALSE))
     expect_silent(delete_storage_container(cont, confirm=FALSE))
+})
+
+
+test_that("Blob copy from URL works",
+{
+    bl <- stor2$get_blob_endpoint()
+    contname <- paste0(sample(letters, 10, TRUE), collapse="")
+    cont <- create_blob_container(bl, contname)
+
+    # copy from GitHub repo
+    src_url <- "https://raw.githubusercontent.com/Azure/AzureStor/master/tests/resources/iris.csv"
+    orig_file <- "../resources/iris.csv"
+    new_file <- tempfile()
+
+    copy_url_to_storage(cont, src_url, "iris.csv", async=FALSE)
+    storage_download(cont, "iris.csv", new_file)
+
+    # use readLines to workaround GH auto-translating CRLF -> LF
+    expect_identical(readLines(orig_file), readLines(new_file))
+
+    fnames <- c("DESCRIPTION", "LICENSE", "NAMESPACE")
+    src_urls <- paste0("https://raw.githubusercontent.com/Azure/AzureStor/master/", fnames)
+    origs <- paste0("../../", fnames)
+    dests <- c(tempfile(), tempfile(), tempfile())
+
+    multicopy_url_to_storage(cont, src_urls, fnames, async=FALSE)
+    storage_multidownload(cont, fnames, dests)
+
+    # use readLines to workaround GH auto-translating CRLF -> LF
+    expect_true(all(mapply(function(f1, f2)
+    {
+        identical(readLines(f1), readLines(f2))
+    }, dests, origs)))
 })
 
 

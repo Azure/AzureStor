@@ -113,6 +113,26 @@ test_that("Blob recursive wildcard multitransfer works",
 })
 
 
+test_that("Blob multicopy from URL works",
+{
+    contname <- paste0(sample(letters, 10, TRUE), collapse="")
+    cont <- create_blob_container(bl, contname)
+
+    fnames <- c("DESCRIPTION", "LICENSE", "NAMESPACE")
+    src_urls <- paste0("https://raw.githubusercontent.com/Azure/AzureStor/master/", fnames)
+    origs <- paste0("../../", fnames)
+    dests <- c(tempfile(), tempfile(), tempfile())
+
+    multicopy_url_to_blob(cont, src_urls, fnames, async=FALSE)
+    multidownload_blob(cont, fnames, dests)
+
+    # use readLines to workaround GH auto-translating CRLF -> LF
+    expect_true(all(mapply(function(f1, f2)
+    {
+        identical(readLines(f1), readLines(f2))
+    }, dests, origs)))
+})
+
 teardown(
 {
     conts <- list_blob_containers(bl)

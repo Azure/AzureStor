@@ -21,6 +21,7 @@
 - Background process pool functionality has been moved to AzureRMR. This removes code duplication, and also makes it available for other packages that may benefit.
 - Only display the file transfer progress bar in an interactive session.
 - Export `do_container_op` and `call_storage_endpoint` to allow direct calls to the storage account endpoint.
+- Fix S3 dispatching bugs in `copy_url_to_storage` and `multicopy_url_to_storage`.
 
 # AzureStor 2.1.1
 
