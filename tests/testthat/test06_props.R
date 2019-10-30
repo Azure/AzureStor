@@ -120,7 +120,6 @@ test_that("File metadata getters/setters work",
 {
     expect_is(share, "file_share")
 
-    # file
     meta0 <- get_storage_metadata(share, "iris.csv")
     expect_true(is_empty(meta0))
 
@@ -136,8 +135,13 @@ test_that("File metadata getters/setters work",
     set_storage_metadata(share, "iris.csv", name3="value3", keep_existing=FALSE)
     meta3get <- get_storage_metadata(share, "iris.csv")
     expect_identical(meta3get, list(name3="value3"))
+})
 
-    # directory
+
+test_that("File metadata getters/setters work for directory",
+{
+    expect_is(share, "file_share")
+
     meta0 <- get_storage_metadata(share, "dir")
     expect_true(is_empty(meta0))
 
@@ -160,7 +164,6 @@ test_that("ADLS metadata getters/setters work",
 {
     expect_is(fs, "adls_filesystem")
 
-    # file
     meta0 <- get_storage_metadata(fs, "iris.csv")
     expect_true(is_empty(meta0))
 
@@ -176,8 +179,13 @@ test_that("ADLS metadata getters/setters work",
     set_storage_metadata(fs, "iris.csv", name3="value3", keep_existing=FALSE)
     meta3get <- get_storage_metadata(fs, "iris.csv")
     expect_identical(meta3get, list(name3="value3"))
+})
 
-    # directory
+
+test_that("ADLS metadata getters/setters work for directory",
+{
+    expect_is(fs, "adls_filesystem")
+
     meta0 <- get_storage_metadata(fs, "dir")
     expect_true(is_empty(meta0))
 
