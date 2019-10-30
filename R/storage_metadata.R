@@ -124,24 +124,6 @@ set_storage_metadata.adls_filesystem <- function(object, file, ..., keep_existin
 }
 
 
-# recursively tidy XML list: turn leaf nodes into scalars
-tidy_list <- function(x)
-{
-    if(is_empty(x))
-        return()
-    else if(!is.list(x[[1]]))
-    {
-        x <- unlist(x)
-        if(x %in% c("true", "false"))
-            x <- as.logical(x)
-        else if(!is.numeric(x) && !is.na(suppressWarnings(as.numeric(x))))
-            x <- as.numeric(x)
-        x
-    }
-    else lapply(x, tidy_list)
-}
-
-
 get_classic_metadata_headers <- function(res)
 {
     res <- res[grepl("^x-ms-meta-", names(res))]

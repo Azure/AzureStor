@@ -107,3 +107,20 @@ get_adls_file_status <- function(filesystem, file)
     do_container_op(filesystem, file, options=list(action="getstatus"), http_verb="HEAD")
 }
 
+
+# recursively tidy XML list: turn leaf nodes into scalars
+tidy_list <- function(x)
+{
+    if(is_empty(x))
+        return()
+    else if(!is.list(x[[1]]))
+    {
+        x <- unlist(x)
+        if(x %in% c("true", "false"))
+            x <- as.logical(x)
+        else if(!is.numeric(x) && !is.na(suppressWarnings(as.numeric(x))))
+            x <- as.numeric(x)
+        x
+    }
+    else lapply(x, tidy_list)
+}
