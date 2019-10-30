@@ -52,8 +52,32 @@ Get/set user-defined metadata for a storage object
 \details{
 These methods let you get and set user-defined properties (metadata) for storage objects.
 }
+\examples{
+\dontrun{
+
+fs <- storage_container("https://mystorage.dfs.core.windows.net/myshare", key="access_key")
+create_storage_dir("newdir")
+storage_upload(share, "iris.csv", "newdir/iris.csv")
+
+set_storage_metadata(fs, "newdir/iris.csv", name1="value1")
+# will be list(name1="value1")
+get_storage_metadata(fs, "newdir/iris.csv")
+
+set_storage_metadata(fs, "newdir/iris.csv", name2="value2")
+# will be list(name1="value1", name2="value2")
+get_storage_metadata(fs, "newdir/iris.csv")
+
+set_storage_metadata(fs, "newdir/iris.csv", name3="value3", keep_existing=FALSE)
+# will be list(name3="value3")
+get_storage_metadata(fs, "newdir/iris.csv")
+
+# deleting all metadata
+set_storage_metadata(fs, "newdir/iris.csv", keep_existing=FALSE)
+
+}
+}
 \seealso{
-\link{storage_endpoint}, \link{blob_container}, \link{file_share}, \link{adls_filesystem}
+\link{blob_container}, \link{file_share}, \link{adls_filesystem}
 
 \link{get_storage_properties} for standard properties
 }

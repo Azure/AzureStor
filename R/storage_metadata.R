@@ -12,9 +12,32 @@
 #'
 #' `set_storage_metadata` returns the same list after setting the object's metadata, invisibly.
 #' @seealso
-#' [storage_endpoint], [blob_container], [file_share], [adls_filesystem]
+#' [blob_container], [file_share], [adls_filesystem]
 #'
 #' [get_storage_properties] for standard properties
+#' @examples
+#' \dontrun{
+#'
+#' fs <- storage_container("https://mystorage.dfs.core.windows.net/myshare", key="access_key")
+#' create_storage_dir("newdir")
+#' storage_upload(share, "iris.csv", "newdir/iris.csv")
+#'
+#' set_storage_metadata(fs, "newdir/iris.csv", name1="value1")
+#' # will be list(name1="value1")
+#' get_storage_metadata(fs, "newdir/iris.csv")
+#'
+#' set_storage_metadata(fs, "newdir/iris.csv", name2="value2")
+#' # will be list(name1="value1", name2="value2")
+#' get_storage_metadata(fs, "newdir/iris.csv")
+#'
+#' set_storage_metadata(fs, "newdir/iris.csv", name3="value3", keep_existing=FALSE)
+#' # will be list(name3="value3")
+#' get_storage_metadata(fs, "newdir/iris.csv")
+#'
+#' # deleting all metadata
+#' set_storage_metadata(fs, "newdir/iris.csv", keep_existing=FALSE)
+#'
+#' }
 #' @rdname metadata
 #' @export
 get_storage_metadata <- function(object, ...)

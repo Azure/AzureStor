@@ -2,8 +2,6 @@
 % Please edit documentation in R/storage_properties.R
 \name{get_storage_properties}
 \alias{get_storage_properties}
-\alias{get_storage_properties.blob_endpoint}
-\alias{get_storage_properties.file_endpoint}
 \alias{get_storage_properties.blob_container}
 \alias{get_storage_properties.file_share}
 \alias{get_storage_properties.adls_filesystem}
@@ -12,10 +10,6 @@
 \title{Get storage properties for an object}
 \usage{
 get_storage_properties(object, ...)
-
-\method{get_storage_properties}{blob_endpoint}(object, ...)
-
-\method{get_storage_properties}{file_endpoint}(object, ...)
 
 \method{get_storage_properties}{blob_container}(object, blob, ...)
 
@@ -28,7 +22,7 @@ get_adls_file_acl(filesystem, file)
 get_adls_file_status(filesystem, file)
 }
 \arguments{
-\item{object}{A storage object: an endpoint, blob container, file share, or ADLS filesystem.}
+\item{object}{A blob container, file share, or ADLS filesystem object.}
 
 \item{...}{For compatibility with the generic.}
 
@@ -41,15 +35,32 @@ get_adls_file_status(filesystem, file)
 \value{
 \code{get_storage_properties} returns a list describing the object properties. If the \code{blob} or \code{file} argument is present for the container methods, the properties will be for the blob/file specified. If this argument is omitted, the properties will be for the container itself.
 
-\code{get_adls_file_acl} returns a string giving the ACL for the file.
+\code{get_adls_file_acl} returns a string giving the ADLSgen2 ACL for the file.
 
-\code{get_adls_file_status} returns a list of system properties for the file.
+\code{get_adls_file_status} returns a list of ADLSgen2 system properties for the file.
 }
 \description{
 Get storage properties for an object
 }
+\examples{
+\dontrun{
+
+fs <- storage_container("https://mystorage.dfs.core.windows.net/myshare", key="access_key")
+create_storage_dir("newdir")
+storage_upload(share, "iris.csv", "newdir/iris.csv")
+
+get_storage_properties(fs)
+get_storage_properties(fs, "newdir")
+get_storage_properties(fs, "newdir/iris.csv")
+
+# these are ADLS only
+get_adls_file_acl(fs, "newdir/iris.csv")
+get_adls_file_status(fs, "newdir/iris.csv")
+
+}
+}
 \seealso{
-\link{storage_endpoint}, \link{blob_container}, \link{file_share}, \link{adls_filesystem}
+\link{blob_container}, \link{file_share}, \link{adls_filesystem}
 
 \link{get_storage_metadata} for getting and setting \emph{user-defined} properties (metadata)
 }
