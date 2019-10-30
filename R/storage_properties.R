@@ -1,10 +1,9 @@
-#' Get storage properties for an endpoint or container
+#' Get storage properties for an object
 #'
-#' @param object A storage object.
-#' @param container,share,filesystem A blob container, file share, or ADLS filesystem object.
-#' @param blob,file,dir The name of an individual blob, file or directory.
-#' @param ... For the metadata setters, name-value pairs to set as metadata for a blob or file.
-#' @param keep_existing For the metadata setters, whether to retain existing metadata information.
+#' @param object A storage object: an endpoint, blob container, file share, or ADLS filesystem.
+#' @param filesystem An ADLS filesystem.
+#' @param file The name of an individual blob, file or directory within a container.
+#' @param isdir Whether the object is a file or directory.
 #'
 #' @details
 #' The `get_storage_properties` generic returns a list of properties for the given storage object. There are methods defined for objects of class `storage_endpoint`, `blob_container`, `file_share` and `adls_filesystem`. Similar functions are defined for individual blobs, files and directories.
@@ -23,7 +22,7 @@
 #'
 #' @rdname properties
 #' @export
-get_storage_properties <- function(object)
+get_storage_properties <- function(object, ...)
 {
     UseMethod("get_storage_properties")
 }
@@ -31,7 +30,7 @@ get_storage_properties <- function(object)
 
 #' @rdname properties
 #' @export
-get_storage_properties.blob_endpoint <- function(object)
+get_storage_properties.blob_endpoint <- function(object, ...)
 {
     res <- call_storage_endpoint(object, "", options=list(restype="service", comp="properties"))
     tidy_list(res)
@@ -40,7 +39,7 @@ get_storage_properties.blob_endpoint <- function(object)
 
 #' @rdname properties
 #' @export
-get_storage_properties.file_endpoint <- function(object)
+get_storage_properties.file_endpoint <- function(object, ...)
 {
     res <- call_storage_endpoint(object, "", options=list(restype="service", comp="properties"))
     tidy_list(res)
@@ -49,82 +48,61 @@ get_storage_properties.file_endpoint <- function(object)
 
 #' @rdname properties
 #' @export
-get_storage_properties.blob_container <- function(object)
+get_storage_properties.blob_container <- function(object, blob, ...)
 {
-    do_container_op(object, options=list(restype="container"), http_verb="HEAD")
+    # properties for container
+    if(missing(blob))
+        return(do_container_op(object, options=list(restype="container"), http_verb="HEAD"))
+
+    # properties for blob
+    do_container_op(object, blob, http_verb="HEAD")
 }
 
 
 #' @rdname properties
 #' @export
-get_storage_properties.file_share <- function(object)
+get_storage_properties.file_share <- function(object, file, isdir, ...)
 {
-    do_container_op(object, options=list(restype="share"), http_verb="HEAD")
+    # properties for container
+    if(missing(file))
+        return(do_container_op(object, options=list(restype="share"), http_verb="HEAD"))
+
+    # properties for file/directory
+    if(missing(isdir))
+    {
+        res <- tryCatch(Recall(object, file, FALSE), error=function(e) e)
+        if(inherits(res, "error"))
+            res <- tryCatch(Recall(object, file, TRUE), error=function(e) e)
+        if(inherits(res, "error"))
+            stop(e)
+        return(res)
+    }
+
+    options <- if(isdir) list(restype="directory") else list()
+    do_container_op(object, file, options=options, http_verb="HEAD")
 }
 
 
 #' @rdname properties
 #' @export
-get_storage_properties.adls_filesystem <- function(object)
+get_storage_properties.adls_filesystem <- function(object, file, ...)
 {
-    do_container_op(object, options=list(resource="filesystem"), http_verb="HEAD")
+    # properties for container
+    if(missing(file))
+        return(do_container_op(object, options=list(resource="filesystem"), http_verb="HEAD"))
+
+    # properties for file/directory
+    do_container_op(object, file, http_verb="HEAD")
 }
 
 
 #' @rdname properties
 #' @export
-get_blob_properties <- function(container, blob)
-{
-    do_container_op(container, blob, http_verb="HEAD")
-}
-
-
-#' @rdname properties
-#' @export
-get_azure_file_properties <- function(share, file)
-{
-    do_container_op(share, file, http_verb="HEAD")
-}
-
-
-#' @rdname properties
-#' @export
-get_azure_dir_properties <- function(share, dir)
-{
-    do_container_op(share, dir, options=list(restype="directory"), http_verb="HEAD")
-}
-
-
-#' @rdname properties
-#' @export
-get_adls_file_properties <- function(filesystem, file)
-{
-    do_container_op(filesystem, file, http_verb="HEAD")
-}
-
-
-#' @rdname properties
-#' @export
-get_adls_dir_properties <- function(filesystem, dir)
-{
-    do_container_op(filesystem, dir, http_verb="HEAD")
-}
-
-
-#' @rdname properties
-#' @export
-get_adls_file_acls <- function(filesystem, file)
+get_adls_file_acl <- function(filesystem, file)
 {
     do_container_op(filesystem, file, options=list(action="getaccesscontrol"), http_verb="HEAD")[["x-ms-acl"]]
 }
 
-
-#' @rdname properties
-#' @export
-get_adls_dir_acls <- function(filesystem, dir)
-{
-    do_container_op(filesystem, dir, options=list(action="getaccesscontrol"), http_verb="HEAD")[["x-ms-acl"]]
-}
 
 #' @rdname properties
 #' @export
@@ -134,125 +112,118 @@ get_adls_file_status <- function(filesystem, file)
 }
 
 
-#' @rdname properties
+#' Get/set user-defined metadata for a storage object
+#'
+#' @param object A blob container, file share or ADLS filesystem object.
+#' @param file The name of an individual blob, file or directory within a container.
+#' @param isdir For the file share method, whether the object is a file or directory.
+#' @param ... For the metadata setters, name-value pairs to set as metadata for a blob or file.
+#' @param keep_existing For the metadata setters, whether to retain existing metadata information.
+#' @rdname metadata
 #' @export
-get_adls_dir_status <- function(filesystem, dir)
+get_storage_metadata <- function(object, ...)
 {
-    do_container_op(filesystem, dir, options=list(action="getstatus"), http_verb="HEAD")
+    UseMethod("get_storage_metadata")
 }
 
-
-#' @rdname properties
+#' @rdname metadata
 #' @export
-get_blob_metadata <- function(container, blob)
+get_storage_metadata.blob_container <- function(object, blob, ...)
 {
-    res <- do_container_op(container, blob, options=list(comp="metadata"), http_verb="HEAD")
+    res <- do_container_op(object, blob, options=list(comp="metadata"), http_verb="HEAD")
     get_classic_metadata_headers(res)
 }
 
 
-#' @rdname properties
+#' @rdname metadata
 #' @export
-get_azure_file_metadata <- function(share, file)
+get_storage_metadata.file_share <- function(object, file, isdir, ...)
 {
-    res <- do_container_op(share, file, options=list(comp="metadata"), http_verb="HEAD")
+    if(missing(isdir))
+    {
+        res <- tryCatch(Recall(object, file, FALSE), error=function(e) e)
+        if(inherits(res, "error"))
+            res <- tryCatch(Recall(object, file, TRUE), error=function(e) e)
+        if(inherits(res, "error"))
+            stop(res)
+        return(res)
+    }
+
+    options <- if(isdir)
+        list(restype="directory", comp="metadata")
+    else list(comp="metadata")
+    res <- do_container_op(object, file, options=options, http_verb="HEAD")
     get_classic_metadata_headers(res)
 }
 
 
-#' @rdname properties
+#' @rdname metadata
 #' @export
-get_azure_dir_metadata <- function(share, dir)
+get_storage_metadata.adls_filesystem <- function(object, file, ...)
 {
-    res <- do_container_op(share, dir, options=list(restype="directory", comp="metadata"), http_verb="HEAD")
-    get_classic_metadata_headers(res)
-}
-
-
-#' @rdname properties
-#' @export
-get_adls_file_metadata <- function(filesystem, file)
-{
-    res <- get_adls_file_properties(filesystem, file)
+    res <- get_storage_properties(object, file)
     get_adls_metadata_header(res)
 }
 
 
-#' @rdname properties
+#' @rdname metadata
 #' @export
-get_adls_dir_metadata <- function(filesystem, dir)
+set_storage_metadata <- function(object, ...)
 {
-    res <- get_adls_file_properties(filesystem, dir)
-    get_adls_metadata_header(res)
+    UseMethod("set_storage_metadata")
 }
 
 
-#' @rdname properties
+#' @rdname metadata
 #' @export
-set_blob_metadata <- function(container, blob, ..., keep_existing=TRUE)
+set_storage_metadata.blob_container <- function(object, blob, ..., keep_existing=TRUE)
 {
     meta <- if(keep_existing)
-        modifyList(get_blob_metadata(container, blob), list(...))
+        modifyList(get_storage_metadata(object, blob), list(...))
     else list(...)
 
-    do_container_op(container, blob, options=list(comp="metadata"), headers=set_classic_metadata_headers(meta),
+    do_container_op(object, blob, options=list(comp="metadata"), headers=set_classic_metadata_headers(meta),
                     http_verb="PUT")
     invisible(meta)
 }
 
 
-#' @rdname properties
+#' @rdname metadata
 #' @export
-set_azure_file_metadata <- function(share, file, ..., keep_existing=TRUE)
+set_storage_metadata.file_share <- function(object, file, isdir, ..., keep_existing=TRUE)
 {
-    meta <- if(keep_existing)
-        modifyList(get_azure_file_metadata(share, file), list(...))
-    else list(...)
+    if(missing(isdir))
+    {
+        res <- tryCatch(Recall(object, file, ..., keep_existing=keep_existing, isdir=TRUE), error=function(e) e)
+        if(inherits(res, "error"))
+            res <- tryCatch(Recall(object, file, ..., keep_existing=keep_existing, isdir=FALSE), error=function(e) e)
+        if(inherits(res, "error"))
+            stop(res)
+        return(res)
+    }
 
-    do_container_op(share, file, options=list(comp="metadata"), headers=set_classic_metadata_headers(meta),
+    meta <- if(keep_existing)
+        modifyList(get_storage_metadata(object, file, isdir=isdir), list(...))
+    else list(...)
+    options <- if(isdir)
+        list(restype="directory", comp="metadata")
+    else list(comp="metadata")
+    do_container_op(object, file, options=options, headers=set_classic_metadata_headers(meta),
                     http_verb="PUT")
     invisible(meta)
 }
 
 
-#' @rdname properties
+#' @rdname metadata
 #' @export
-set_azure_dir_metadata <- function(share, dir, ..., keep_existing=TRUE)
+set_storage_metadata.adls_filesystem <- function(object, file, ..., keep_existing=TRUE)
 {
     meta <- if(keep_existing)
-        modifyList(get_azure_dir_metadata(share, dir), list(...))
+        modifyList(get_storage_metadata(object, file), list(...))
     else list(...)
 
-    do_container_op(share, dir, options=list(restype="directory", comp="metadata"),
-                    headers=set_classic_metadata_headers(meta), http_verb="PUT")
-    invisible(meta)
-}
-
-
-#' @rdname properties
-#' @export
-set_adls_file_metadata <- function(filesystem, file, ..., keep_existing=TRUE)
-{
-    meta <- if(keep_existing)
-        modifyList(get_adls_file_metadata(filesystem, file), list(...))
-    else list(...)
-
-    do_container_op(filesystem, file, options=list(action="setProperties"),
-                    headers=set_adls_metadata_header(meta), http_verb="PATCH")
-    invisible(meta)
-}
-
-
-#' @rdname properties
-#' @export
-set_adls_dir_metadata <- function(filesystem, dir, ..., keep_existing=TRUE)
-{
-    meta <- if(keep_existing)
-        modifyList(get_adls_dir_metadata(filesystem, dir), list(...))
-    else list(...)
-
-    do_container_op(filesystem, dir, options=list(action="setProperties"),
-                    headers=set_adls_metadata_header(meta), http_verb="PATCH")
+    do_container_op(object, file, options=list(action="setProperties"), headers=set_adls_metadata_header(meta),
+                    http_verb="PATCH")
     invisible(meta)
 }
 
