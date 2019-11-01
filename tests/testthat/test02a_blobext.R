@@ -144,7 +144,7 @@ test_that("Blob multicopy from URL works",
     contname <- paste0(sample(letters, 10, TRUE), collapse="")
     cont <- create_blob_container(bl, contname)
 
-    fnames <- c("DESCRIPTION", "LICENSE", "NAMESPACE")
+    fnames <- c("LICENSE", "LICENSE.md", "CONTRIBUTING.md")
     src_urls <- paste0("https://raw.githubusercontent.com/Azure/AzureStor/master/", fnames)
     origs <- paste0("../../", fnames)
     dests <- c(tempfile(), tempfile(), tempfile())

@@ -32,7 +32,7 @@ multicopy_url_to_storage.blob_container <- function(container, src, dest, ...)
 
 #' @param async For `copy_url_to_blob` and `multicopy_url_to_blob`, whether the copy operation should be asynchronous (proceed in the background).
 #' @details
-#' `copy_url_to_blob` transfers the contents of the file at the specified HTTP\[S\] URL directly to blob storage, without requiring a temporary local copy to be made. `multicopy_url_to_blob1 does the same, for multiple URLs at once. These functions have a current file size limit of 256MB.
+#' `copy_url_to_blob` transfers the contents of the file at the specified HTTP\[S\] URL directly to blob storage, without requiring a temporary local copy to be made. `multicopy_url_to_blob` does the same, for multiple URLs at once. These functions have a current file size limit of 256MB.
 #' @rdname blob
 #' @export
 copy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE)
@@ -69,12 +69,12 @@ multicopy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE,
         stop("'dest' must contain one name per file in 'src'", call.=FALSE)
 
     if(n_src == 1)
-        return(copy_url_to_blob(container, src, dest, ...))
+        return(copy_url_to_blob(container, src, dest, lease=lease, async=async))
 
     init_pool(max_concurrent_transfers)
 
     pool_export("container", envir=environment())
-    pool_map(function(s, d, ...) AzureStor::copy_url_to_blob(container, s, d, ...),
+    pool_map(function(s, d, lease, async) AzureStor::copy_url_to_blob(container, s, d, lease=lease, async=async),
              src, dest, MoreArgs=list(lease=lease, async=async))
     invisible(NULL)
 }

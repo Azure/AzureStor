@@ -1,4 +1,4 @@
-# AzureStor 2.1.1.9000
+# AzureStor 3.0.0
 
 ## Significant user-visible changes
 
@@ -10,7 +10,7 @@
 - Significant changes to file storage methods for greater consistency with the other storage types:
   - The default directory for `list_azure_files` is now the root, mirroring the behaviour for blobs and ADLSgen2.
   - The output of `list_azure_files` now includes the full path as part of the file/directory name.
-  - Add `recursive` argument to file storage methods for recursing through subdirectories. Like above, for file storage this can be slow, so try to use a non-recursive solution where possible.
+  - Add `recursive` argument to `list_azure_files`, `create_azure_dir` and `delete_azure_dir` for recursing through subdirectories. Like with file transfers, for Azure file storage this can be slow, so try to use a non-recursive solution where possible.
 - Make output format for `list_adls_files`, `list_blobs` and `list_azure_files` more consistent. The first 2 columns for a data frame output are now always `name` and `size`; the size of a directory is NA. The 3rd column for non-blobs is `isdir` which is TRUE/FALSE depending on whether the object is a directory or file. Any additional columns remain storage type-specific.
 - New `get_storage_metadata` and `set_storage_metadata` methods for managing user-specified properties (metadata) for objects.
 - Revamped methods for getting standard properties, which are now all methods for `get_storage_properties` rather than having specific functions for blobs, files and directories.

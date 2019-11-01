@@ -59,14 +59,15 @@ These functions for working with objects within a storage container:
 - `delete_storage_file`: delete a file or blob
 - `storage_upload`/`storage_download`: transfer a file to or from a storage container
 - `storage_multiupload`/`storage_multidownload`: transfer multiple files in parallel to or from a storage container
-
+- `get_storage_properties`: Get properties for a storage object
+- `get_storage_metadata`/`set_storage_metadata`: Get and set user-defined metadata for a storage object
 
 ```r
 # example of working with files and directories (ADLSgen2)
 cont <- storage_container(ad_end_tok, "myfilesystem")
 list_storage_files(cont)
 create_storage_dir(cont, "newdir")
-storage_download(cont, "/readme.txt", "~/readme.txt")
+storage_download(cont, "/readme.txt")
 storage_multiupload(cont, "N:/data/*.*", "newdir")  # uploading everything in a directory
 ```
 
@@ -76,7 +77,7 @@ AzureStor includes a number of extra features to make transferring files efficie
 
 ### Parallel connections
 
-As noted above, you can transfer multiple files in parallel using the `multiupload_*`/`multidownload_*` functions. These functions utilise a background process pool supplied by AzureRMR to do the transfers in parallel, which usually results in major speedups when transferring multiple small files. The pool is created the first time a parallel file transfer is performed, and persists for the duration of the R session; this means you don't have to wait for the pool to be (re-)created each time.
+As noted above, you can transfer multiple files in parallel using the `storage_multiupload/download` functions. These functions utilise a background process pool supplied by AzureRMR to do the transfers in parallel, which usually results in major speedups when transferring multiple small files. The pool is created the first time a parallel file transfer is performed, and persists for the duration of the R session; this means you don't have to wait for the pool to be (re-)created each time.
 
 ```r
 # uploading/downloading multiple files at once: use a wildcard to specify files to transfer
@@ -86,22 +87,7 @@ storage_multidownload(cont, src="/monthly/jan*.*", dest="~/data/january")
 # or supply a vector of file specs as the source and destination
 src <- c("file1.csv", "file2.csv", "file3.csv")
 dest <- file.path("data/", src)
-storage_multiupload(cont, src, dest)
-```
-
-You can also use the process pool to parallelise tasks for which there is no built-in function. For example, the following code will delete multiple files in parallel:
-
-```r
-files_to_delete <- list_storage_files(cont, "datadir", info="name")
-
-# initialise the background pool with 10 nodes
-AzureRMR::init_pool(10)
-
-# export the container object to the nodes
-AzureRMR::pool_export("cont")
-
-# delete the files
-AzureRMR::pool_sapply(files_to_delete, function(f) AzureStor::delete_storage_file(cont, f))
+storage_multiupload(cont, src=src, dest=dest)
 ```
 
 ### Transfer to and from connections
@@ -120,7 +106,7 @@ storage_upload(cont, src=con, dest="iris.rds")
 
 # downloading files into memory: as a raw vector with dest=NULL, and via a connection
 rawvec <- storage_download(cont, src="iris.json", dest=NULL)
-rawToChar(rawvec)
+rawToChar(rawConnectionValue(rawvec))
 
 con <- rawConnection(raw(0), "r+")
 storage_download(cont, src="iris.rds", dest=con)

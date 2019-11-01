@@ -1,6 +1,6 @@
 Package: AzureStor
 Title: Storage Management in 'Azure'
-Version: 2.1.1.9000
+Version: 3.0.0
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
     person("Microsoft", role="cph")
@@ -19,12 +19,10 @@ Imports:
     mime,
     openssl,
     xml2,
-    AzureRMR (>= 2.2.1)
+    AzureRMR (>= 2.3.0)
 Suggests:
     knitr,
     jsonlite,
     testthat
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 6.1.1
-Remotes:
-    Azure/AzureRMR

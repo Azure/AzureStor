@@ -129,7 +129,7 @@ test_that("Blob copy from URL works",
     # use readLines to workaround GH auto-translating CRLF -> LF
     expect_identical(readLines(orig_file), readLines(new_file))
 
-    fnames <- c("DESCRIPTION", "LICENSE", "NAMESPACE")
+    fnames <- c("LICENSE", "LICENSE.md", "CONTRIBUTING.md")
     src_urls <- paste0("https://raw.githubusercontent.com/Azure/AzureStor/master/", fnames)
     origs <- paste0("../../", fnames)
     dests <- c(tempfile(), tempfile(), tempfile())

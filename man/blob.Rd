@@ -83,7 +83,7 @@ Upload, download, or delete a blob; list blobs in a container.
 
 \code{upload_blob} and \code{download_blob} can display a progress bar to track the file transfer. You can control whether to display this with \code{options(azure_storage_progress_bar=TRUE|FALSE)}; the default is TRUE.
 
-\code{copy_url_to_blob} transfers the contents of the file at the specified HTTP[S] URL directly to blob storage, without requiring a temporary local copy to be made. `multicopy_url_to_blob1 does the same, for multiple URLs at once. These functions have a current file size limit of 256MB.
+\code{copy_url_to_blob} transfers the contents of the file at the specified HTTP[S] URL directly to blob storage, without requiring a temporary local copy to be made. \code{multicopy_url_to_blob} does the same, for multiple URLs at once. These functions have a current file size limit of 256MB.
 }
 \examples{
 \dontrun{
