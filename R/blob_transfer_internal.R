@@ -102,5 +102,5 @@ download_blob_internal <- function(container, src, dest, blocksize=2^24, overwri
     }
 
     bar$close()
-    if(null_dest) dest else invisible(NULL)
+    if(null_dest) rawConnectionValue(dest) else invisible(NULL)
 }

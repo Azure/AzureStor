@@ -23,6 +23,7 @@
 - Only display the file transfer progress bar in an interactive session.
 - Export `do_container_op` and `call_storage_endpoint` to allow direct calls to the storage account endpoint.
 - Fix S3 dispatching bugs in `copy_url_to_storage` and `multicopy_url_to_storage`.
+- A `NULL` download destination will now actually return a raw vector as opposed to a connection, matching what the documentation says.
 
 # AzureStor 2.1.1
 

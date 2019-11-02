@@ -81,7 +81,7 @@ As noted above, you can transfer multiple files in parallel using the `storage_m
 
 ```r
 # uploading/downloading multiple files at once: use a wildcard to specify files to transfer
-storage_multiupload(cont, src="N:/logfiles/*.zip", dest="/")
+storage_multiupload(cont, src="N:/logfiles/*.zip")
 storage_multidownload(cont, src="/monthly/jan*.*", dest="~/data/january")
 
 # or supply a vector of file specs as the source and destination
@@ -106,7 +106,7 @@ storage_upload(cont, src=con, dest="iris.rds")
 
 # downloading files into memory: as a raw vector with dest=NULL, and via a connection
 rawvec <- storage_download(cont, src="iris.json", dest=NULL)
-rawToChar(rawConnectionValue(rawvec))
+rawToChar(rawvec)
 
 con <- rawConnection(raw(0), "r+")
 storage_download(cont, src="iris.rds", dest=con)
@@ -126,8 +126,6 @@ copy_url_to_storage(cont,
 # copying files from another storage account, by appending a SAS to the URL(s)
 sas <- "?sv=...."
 files <- paste0("https://srcstorage.blob.core.windows.net/container/file", 0:9, ".csv", sas)
-
-# for blob multicopy, a missing 'dest' arg will copy to the root directory
 multicopy_url_to_storage(cont, files)
 ```
 

@@ -96,5 +96,5 @@ download_azure_file_internal <- function(share, src, dest, blocksize=2^22, overw
     }
 
     bar$close()
-    if(null_dest) dest else invisible(NULL)
+    if(null_dest) rawConnectionValue(dest) else invisible(NULL)
 }

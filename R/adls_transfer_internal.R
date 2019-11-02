@@ -91,5 +91,5 @@ download_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, o
     }
 
     bar$close()
-    if(null_dest) dest else invisible(NULL)
+    if(null_dest) rawConnectionValue(dest) else invisible(NULL)
 }
