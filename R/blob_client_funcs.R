@@ -323,14 +323,16 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
             props <- c(Name=blob$Name, blob$Properties)
             props <- data.frame(lapply(props, function(p) if(!is_empty(p)) unlist(p) else NA),
                                 stringsAsFactors=FALSE, check.names=FALSE)
+
+            # ADLS/blob interop: dir in hns-enabled acct does not have LeaseState field
+            if(is.null(props$LeaseState))
+                props$LeaseState <- NA
+            props
         })
 
         df <- do.call(rbind, rows)
         if(length(df) > 0)
         {
-            df$`Last-Modified` <- as.POSIXct(df$`Last-Modified`, format="%a, %d %b %Y %H:%M:%S", tz="GMT")
-            df$`Creation-Time` <- as.POSIXct(df$`Creation-Time`, format="%a, %d %b %Y %H:%M:%S", tz="GMT")
-            df$`Content-Length` <- as.numeric(df$`Content-Length`)
             row.names(df) <- NULL
 
             # reorder and rename first 2 columns for consistency with ADLS, file
@@ -338,10 +340,15 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
             namecol <- which(ndf == "Name")
             sizecol <- which(ndf == "Content-Length")
             names(df)[c(namecol, sizecol)] <- c("name", "size")
+            df$size <- as.numeric(df$size)
 
-            if(info == "partial")
-                df[c(namecol, sizecol)]
-            else cbind(df[c(namecol, sizecol)], df[-c(namecol, sizecol)])
+            if(info == "all")
+            {
+                df$`Last-Modified` <- as.POSIXct(df$`Last-Modified`, format="%a, %d %b %Y %H:%M:%S", tz="GMT")
+                df$`Creation-Time` <- as.POSIXct(df$`Creation-Time`, format="%a, %d %b %Y %H:%M:%S", tz="GMT")
+                cbind(df[c(namecol, sizecol)], df[-c(namecol, sizecol)])
+            }
+            else df[c(namecol, sizecol)]
         }
         else data.frame()
     }
