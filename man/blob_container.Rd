@@ -89,8 +89,6 @@ Get, list, create, or delete blob containers.
 You can call these functions in a couple of ways: by passing the full URL of the share, or by passing the endpoint object and the name of the container as a string.
 
 If authenticating via AAD, you can supply the token either as a string, or as an object of class AzureToken, created via \link[AzureRMR:get_azure_token]{AzureRMR::get_azure_token}. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.
-
-Currently (as of October 2019), if hierarchical namespaces are enabled on a storage account, the blob API for the account is disabled. The blob endpoint is still accessible, but blob operations on the endpoint will fail. Full interoperability between blobs and ADLSgen2 is planned for later in 2019.
 }
 \examples{
 \dontrun{

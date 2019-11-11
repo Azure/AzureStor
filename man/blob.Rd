@@ -40,7 +40,7 @@ multicopy_url_to_blob(container, src, dest, lease = NULL,
 
 \item{dir}{For \code{list_blobs}, A string naming the directory. Note that blob storage does not support real directories; this argument simply filters the result to return only blobs whose names start with the given value.}
 
-\item{info}{For \code{list_blobs}, level of detail about each blob to return: a vector of names only; the name, size and last-modified date (default); or all information.}
+\item{info}{For \code{list_blobs}, level of detail about each blob to return: a vector of names only; the name, size, and whether this blob represents a directory; or all information.}
 
 \item{prefix}{For \code{list_blobs}, an alternative way to specify the directory.}
 
