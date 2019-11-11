@@ -100,9 +100,6 @@ public=list(
 
     get_blob_endpoint=function(key=self$list_keys()[1], sas=NULL)
     {
-        if(!is_empty(self$properties$isHnsEnabled) && self$properties$isHnsEnabled)
-            warning("Blob endpoint not available because hierarchical namespace is enabled for this account",
-                    call.=FALSE)
         blob_endpoint(self$properties$primaryEndpoints$blob, key=key, sas=sas)
     },
 

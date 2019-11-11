@@ -3,7 +3,7 @@ upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lea
     src <- normalize_src(src)
     on.exit(close(src$con))
 
-    headers <- list(`x-ms-content-type`=src$content_type)
+    headers <- list()
     if(!is.null(lease))
         headers[["x-ms-lease-id"]] <- as.character(lease)
 
@@ -21,11 +21,8 @@ upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lea
         if(thisblock == 0)
             break
 
-        headers <- list(
-            `content-type`="application/octet-stream",
-            `content-length`=sprintf("%.0f", thisblock)
-        )
         opts <- list(action="append", position=sprintf("%.0f", pos))
+        headers <- list(`content-length`=sprintf("%.0f", thisblock))
 
         do_container_op(filesystem, dest, headers=headers, body=body, options=opts, progress=bar$update(),
                         http_verb="PATCH")
@@ -39,6 +36,7 @@ upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lea
     # flush contents
     do_container_op(filesystem, dest,
                     options=list(action="flush", position=sprintf("%.0f", pos)),
+                    headers=list(`content-type`=src$content_type),
                     http_verb="PATCH")
     invisible(NULL)
 }

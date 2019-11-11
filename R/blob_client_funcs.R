@@ -17,8 +17,6 @@
 #'
 #' If authenticating via AAD, you can supply the token either as a string, or as an object of class AzureToken, created via [AzureRMR::get_azure_token]. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.
 #'
-#' Currently (as of October 2019), if hierarchical namespaces are enabled on a storage account, the blob API for the account is disabled. The blob endpoint is still accessible, but blob operations on the endpoint will fail. Full interoperability between blobs and ADLSgen2 is planned for later in 2019.
-#'
 #' @return
 #' For `blob_container` and `create_blob_container`, an S3 object representing an existing or created container respectively.
 #'
@@ -221,7 +219,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param blob A string naming a blob.
 #' @param dir For `list_blobs`, A string naming the directory. Note that blob storage does not support real directories; this argument simply filters the result to return only blobs whose names start with the given value.
 #' @param src,dest The source and destination files for uploading and downloading. See 'Details' below.
-#' @param info For `list_blobs`, level of detail about each blob to return: a vector of names only; the name, size and last-modified date (default); or all information.
+#' @param info For `list_blobs`, level of detail about each blob to return: a vector of names only; the name, size, and whether this blob represents a directory; or all information.
 #' @param confirm Whether to ask for confirmation on deleting a blob.
 #' @param blocksize The number of bytes to upload/download per HTTP(S) request.
 #' @param lease The lease for a blob, if present.
@@ -342,13 +340,19 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
             names(df)[c(namecol, sizecol)] <- c("name", "size")
             df$size <- as.numeric(df$size)
 
+            # needed when dir was created using ADLS API
+            # this works because content-type is always set for an actual file
+            df$isdir <- is.na(df$LeaseState) | is.na(df$`Content-Type`)
+            df$size[df$isdir] <- NA
+            dircol <- which(names(df) == "isdir")
+
             if(info == "all")
             {
                 df$`Last-Modified` <- as.POSIXct(df$`Last-Modified`, format="%a, %d %b %Y %H:%M:%S", tz="GMT")
                 df$`Creation-Time` <- as.POSIXct(df$`Creation-Time`, format="%a, %d %b %Y %H:%M:%S", tz="GMT")
-                cbind(df[c(namecol, sizecol)], df[-c(namecol, sizecol)])
+                cbind(df[c(namecol, sizecol, dircol)], df[-c(namecol, sizecol, dircol)])
             }
-            else df[c(namecol, sizecol)]
+            else df[c(namecol, sizecol, dircol)]
         }
         else data.frame()
     }

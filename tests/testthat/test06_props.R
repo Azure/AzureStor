@@ -45,6 +45,7 @@ test_that("Blob property getters work",
 
     prop2 <- get_storage_properties(cont, "iris.csv")
     expect_true(is.list(prop2) && !is_empty(prop2))
+    expect_identical(prop2$`content-type`, "text/csv")
 })
 
 
@@ -57,6 +58,7 @@ test_that("File property getters work",
 
     prop2 <- get_storage_properties(share, "iris.csv")
     expect_true(is.list(prop2) && !is_empty(prop2))
+    expect_identical(prop2$`content-type`, "text/csv")
 
     prop3 <- get_storage_properties(share, "dir")
     expect_true(is.list(prop3) && !is_empty(prop3))
@@ -72,6 +74,7 @@ test_that("ADLS property getters work",
 
     prop2 <- get_storage_properties(fs, "iris.csv")
     expect_true(is.list(prop2) && !is_empty(prop2))
+    expect_identical(prop2$`content-type`, "text/csv")
 
     prop3 <- get_storage_properties(fs, "dir")
     expect_true(is.list(prop3) && !is_empty(prop3))
