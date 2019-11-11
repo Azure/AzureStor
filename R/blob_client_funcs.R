@@ -340,8 +340,9 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
             names(df)[c(namecol, sizecol)] <- c("name", "size")
             df$size <- as.numeric(df$size)
 
-            # needed when using blob API on HNS-enabled account
-            df$isdir <- is.na(df$LeaseState)
+            # needed when dir was created using ADLS API
+            # this works because content-type is always set for an actual file
+            df$isdir <- is.na(df$LeaseState) | is.na(df$`Content-Type`)
             df$size[df$isdir] <- NA
             dircol <- which(names(df) == "isdir")
 

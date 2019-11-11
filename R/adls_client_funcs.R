@@ -326,6 +326,10 @@ list_adls_files <- function(filesystem, dir="/", info=c("all", "name"),
             out$permissions <- NULL
         if(all(out$etag == ""))
             out$etag <- NULL
+
+        # needed when dir was created in a non-HNS enabled account
+        out$size[out$isdir] <- NA
+
         out
     }
     else as.character(out$name)
