@@ -269,6 +269,12 @@ retry_transfer <- function(res)
 }
 
 
+as_datetime <- function(x, format="%a, %d %b %Y %H:%M:%S", tz="GMT")
+{
+    as.POSIXct(x, format=format, tz=tz)
+}
+
+
 delete_confirmed <- function(confirm, name, type)
 {
     if(!interactive() || !confirm)

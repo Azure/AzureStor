@@ -2,6 +2,7 @@
 
 - Uploading with ADLS now sets the Content-Type property correctly.
 - Fixes to support blob/ADLS interoperability, which has just gone GA.
+- In `list_blobs` and `list_adls_files`, check that a field exists before trying to modify it (works around problem of possibly inconsistent response from the endpoint).
 
 # AzureStor 3.0.0
 

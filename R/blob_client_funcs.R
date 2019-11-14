@@ -348,8 +348,10 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
 
             if(info == "all")
             {
-                df$`Last-Modified` <- as.POSIXct(df$`Last-Modified`, format="%a, %d %b %Y %H:%M:%S", tz="GMT")
-                df$`Creation-Time` <- as.POSIXct(df$`Creation-Time`, format="%a, %d %b %Y %H:%M:%S", tz="GMT")
+                if(!is.null(df$`Last-Modified`))
+                    df$`Last-Modified` <- as_datetime(df$`Last-Modified`)
+                if(!is.null(df$`Creation-Time`))
+                    df$`Creation-Time` <- as_datetime(df$`Creation-Time`)
                 cbind(df[c(namecol, sizecol, dircol)], df[-c(namecol, sizecol, dircol)])
             }
             else df[c(namecol, sizecol, dircol)]

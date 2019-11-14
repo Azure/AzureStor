@@ -318,8 +318,10 @@ list_adls_files <- function(filesystem, dir="/", info=c("all", "name"),
         else out$permissions[is.na(out$permissions)] <- ""
 
         out <- out[c("name", "contentLength", "isDirectory", "lastModified", "permissions", "etag")]
-        out$contentLength <- as.numeric(out$contentLength)
-        out$lastModified <- as.POSIXct(out$lastModified, format="%a, %d %b %Y %H:%M:%S", tz="GMT")
+        if(!is.null(out$contentLength))
+            out$contentLength <- as.numeric(out$contentLength)
+        if(!is.null(out$lastModified))
+            out$lastModified <- as_datetime(out$lastModified)
         names(out)[c(2, 3)] <- c("size", "isdir")
 
         if(all(out$permissions == ""))
