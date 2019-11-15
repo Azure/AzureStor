@@ -115,7 +115,7 @@ add_token <- function(token, headers, api)
 add_sas <- function(sas, url)
 {
     full_url <- httr::build_url(url)
-    paste0(full_url, if(is.null(url$query)) "?" else "&", sas)
+    paste0(full_url, if(is.null(url$query)) "?" else "&", sub("^\\?", "", sas))
 }
 
 

@@ -295,6 +295,26 @@ test_that("copy from url works",
 })
 
 
+test_that("SAS works with and without leading ?",
+{
+    sas <- stor$get_account_sas(permissions="rl")
+    bl <- stor$get_blob_endpoint()
+    cont <- create_blob_container(bl, "sastesting")
+    upload_blob(cont, "../resources/iris.csv")
+
+    bl_sas <- blob_endpoint(bl$url, sas=sas)
+    cont_sas <- blob_container(bl_sas, "sastesting")
+    expect_false(is.null(cont_sas$endpoint$sas))
+    expect_is(list_blobs(cont_sas), "data.frame")
+
+    sas2 <- paste0("?", sas)
+    bl_sas2 <- blob_endpoint(bl$url, sas=sas2)
+    cont_sas2 <- blob_container(bl_sas2, "sastesting")
+    expect_false(is.null(cont_sas2$endpoint$sas) && substr(cont_sas2$endpoint$sas, 1, 1) == "?")
+    expect_is(list_blobs(cont_sas2), "data.frame")
+})
+
+
 teardown(
 {
     bl <- stor$get_blob_endpoint()
