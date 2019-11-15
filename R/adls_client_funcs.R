@@ -72,7 +72,9 @@ adls_filesystem.adls_endpoint <- function(endpoint, name, ...)
 print.adls_filesystem <- function(x, ...)
 {
     cat("Azure Data Lake Storage Gen2 filesystem '", x$name, "'\n", sep="")
-    cat(sprintf("URL: %s\n", paste0(x$endpoint$url, x$name)))
+    url <- httr::parse_url(x$endpoint$url)
+    url$path <- x$name
+    cat(sprintf("URL: %s\n", httr::build_url(url)))
 
     if(!is_empty(x$endpoint$key))
         cat("Access key: <hidden>\n")
