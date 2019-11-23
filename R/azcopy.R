@@ -19,25 +19,13 @@
 #' @aliases azcopy
 #' @rdname azcopy
 #' @export
-call_azcopy <- function(...)
+call_azcopy <- function(..., env=NULL)
 {
+    if(!requireNamespace("processx"))
+        stop("The processx package must be installed to use azcopy", call.=FALSE)
     azcopy <- get_azcopy_path()
-    args <- paste(sapply(list(...), as.character), collapse=" ")
-    cat("Command: azcopy", args, "\n")
-    system2(azcopy, args)
-}
-
-
-#' @rdname azcopy
-#' @export
-azcopy_login <- function(force=FALSE)
-{
-    if(exists("azcopy_logged_in", envir=.AzureStor) && isTRUE(.AzureStor$azcopy_logged_in) && !force)
-        return(invisible(NULL))
-    res <- call_azcopy("login")
-    if(res == 0)
-        .AzureStor$azcopy_logged_in <- TRUE
-    invisible(NULL)
+    args <- sapply(list(...), as.character)
+    invisible(processx::run(azcopy, args, echo=TRUE, echo_cmd=TRUE, env=env))
 }
 
 
@@ -92,41 +80,37 @@ azcopy_upload <- function(container, src, dest, ...)
 azcopy_upload.blob_container <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL, ...)
 {
     opts <- paste("--blobType", type, "--block-size", sprintf("%.0f", blocksize))
-    azcopy_upload_internal(container, src, dest, opts)
+    azcopy_upload_internal(container, src, dest, opts, ...)
 }
 
 azcopy_upload.file_share <- function(container, src, dest, blocksize=2^24, ...)
 {
     opts <- sprintf("--block-size %.0f", blocksize)
-    azcopy_upload_internal(container, src, dest, opts)
+    azcopy_upload_internal(container, src, dest, opts, ...)
 }
 
 azcopy_upload.adls_filesystem <- function(container, src, dest, blocksize=2^24, lease=NULL, ...)
 {
     opts <- sprintf("--block-size %.0f", blocksize)
-    azcopy_upload_internal(container, src, dest, opts)
+    azcopy_upload_internal(container, src, dest, opts, ...)
 }
 
-azcopy_upload_internal <- function(container, src, dest, opts)
+azcopy_upload_internal <- function(container, src, dest, opts, ...)
 {
-    auth <- check_azcopy_auth(container)
-
-    if(attr(auth, "method") == "key")
-    {
-        acctname <- sub("\\..*$", "", httr::parse_url(container$endpoint$url)$host)
-        Sys.setenv(ACCOUNT_NAME=acctname, ACCOUNT_KEY=auth)
-        on.exit(Sys.unsetenv(c("ACCOUNT_NAME", "ACCOUNT_KEY")))
-    }
-    else if(attr(auth, "method") == "token")
-        azcopy_login()
-    else if(attr(auth, "method") == "sas")
-        dest <- paste0(dest, "?", auth)
+    env <- character(0)
+    endp <- container$endpoint
+    if(!is.null(endp$key))
+        env <- azcopy_key_creds(endp)
+    else if(!is.null(endp$token))
+        env <- azcopy_token_creds(endp)
+    else if(!is.null(endp$sas))
+        dest <- paste0(dest, "?", sub("^\\?", "", endp$sas))
 
     dest_uri <- httr::parse_url(container$endpoint$url)
     dest_uri$path <- gsub("//", "/", file.path(container$name, dest))
     dest <- httr::build_url(dest_uri)
 
-    call_azcopy("copy", shQuote(src), shQuote(dest), opts)
+    call_azcopy("copy", src, dest, opts, ..., env=env)
 }
 
 
@@ -139,84 +123,62 @@ azcopy_download <- function(container, src, dest, ...)
 azcopy_download.blob_container <- function(container, src, dest, overwrite=FALSE, ...)
 {
     opts <- paste0("--overwrite=", tolower(as.character(overwrite)))
-    azcopy_download_internal(container, src, dest, opts)
+    azcopy_download_internal(container, src, dest, opts, ...)
 }
 
 azcopy_download.file_share  <- function(container, src, dest, overwrite=FALSE, ...)
 {
     opts <- paste0("--overwrite=", tolower(as.character(overwrite)))
-    azcopy_download_internal(container, src, dest, opts)
+    azcopy_download_internal(container, src, dest, opts, ...)
 }
 
 azcopy_download.adls_filesystem <- function(container, src, dest, overwrite=FALSE, ...)
 {
     opts <- paste0("--overwrite=", tolower(as.character(overwrite)))
-    azcopy_download_internal(container, src, dest, opts)
+    azcopy_download_internal(container, src, dest, opts, ...)
 }
 
-azcopy_download_internal <- function(container, src, dest, opts)
+azcopy_download_internal <- function(container, src, dest, opts, ...)
 {
-    auth <- check_azcopy_auth(container)
-
-    if(attr(auth, "method") == "key")
-    {
-        acctname <- sub("\\..*$", "", httr::parse_url(container$endpoint$url)$host)
-        Sys.setenv(ACCOUNT_NAME=acctname, ACCOUNT_KEY=auth)
-        on.exit(Sys.unsetenv(c("ACCOUNT_NAME", "ACCOUNT_KEY")))
-    }
-    else if(attr(auth, "method") == "token")
-        azcopy_login()
-    else if(attr(auth, "method") == "sas")
-        src <- paste0(src, "?", auth)
+    env <- character(0)
+    endp <- container$endpoint
+    if(!is.null(endp$key))
+        env <- azcopy_key_creds(endp)
+    else if(!is.null(endp$token))
+        env <- azcopy_token_creds(endp)
+    else if(!is.null(endp$sas))
+        src <- paste0(src, "?", sub("^\\?", "", endp$sas))
 
     src_uri <- httr::parse_url(container$endpoint$url)
     src_uri$path <- gsub("//", "/", file.path(container$name, src))
     src <- httr::build_url(src_uri)
 
-    call_azcopy("copy", shQuote(src), shQuote(dest), opts)
+    call_azcopy("copy", src, dest, opts, ..., env=env)
 }
 
 
-check_azcopy_auth <- function(container)
+azcopy_key_creds <- function(endpoint)
 {
-    UseMethod("check_azcopy_auth")
+    acctname <- sub("\\..*$", "", httr::parse_url(endpoint$url)$hostname)
+    c(ACCOUNT_NAME=acctname, ACCOUNT_KEY=endpoint$key)
 }
 
-check_azcopy_auth.blob_container <- function(container)
+
+azcopy_token_creds <- function(endpoint)
 {
-    endpoint <- container$endpoint
-
-    if(!is.null(endpoint$token))
-        return(structure(0, method="token"))
-    if(!is.null(endpoint$sas))
-        return(structure(endpoint$sas, method="sas"))
-
-    warning("No supported authentication method found for blob storage; defaulting to public", call.=FALSE)
-    return(structure(0, method="public"))
+    token <- endpoint$token
+    creds <- list(
+        access_token=token$credentials$access_token,
+        refresh_token=token$credentials$refresh_token,
+        token_type=token$credentials$token_type,
+        resource=token$credentials$resource,
+        scope=token$credentials$scope,
+        not_before=token$credentials$not_before,
+        expires_on=token$credentials$expires_on,
+        expires_in=token$credentials$expires_in,
+        `_tenant`=token$tenant,
+        `_ad_endpoint`=token$aad_host
+    )
+    c(AZCOPY_OAUTH_TOKEN_INFO=jsonlite::toJSON(creds[!sapply(creds, is.null)], auto_unbox=TRUE))
 }
 
-check_azcopy_auth.file_share <- function(container)
-{
-    endpoint <- container$endpoint
-
-    if(!is.null(endpoint$sas))
-        return(structure(endpoint$sas, method="sas"))
-    stop("No supported authentication method found for file storage", call.=FALSE)
-}
-
-check_azcopy_auth.adls_filesystem <- function(container)
-{
-    endpoint <- container$endpoint
-
-    if(!is.null(endpoint$key))
-        return(structure(endpoint$key, method="key"))
-    if(!is.null(endpoint$token))
-        return(structure(0, method="token"))
-
-    stop("No supported authentication method found for ADLSgen2", call.=FALSE)
-}
-
-check_azcopy_auth.default <- function(container)
-{
-    stop("Unknown or unsupported container type: ", class(container)[1], call.=FALSE)
-}
