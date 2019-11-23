@@ -3,17 +3,22 @@
 \name{call_azcopy}
 \alias{call_azcopy}
 \alias{azcopy}
-\alias{azcopy_login}
+\alias{azcopy_key_creds}
+\alias{azcopy_token_creds}
 \title{Call the azcopy file transfer utility}
 \usage{
-call_azcopy(...)
+call_azcopy(..., env = NULL)
 
-azcopy_login(force = FALSE)
+azcopy_key_creds(endpoint)
+
+azcopy_token_creds(endpoint)
 }
 \arguments{
 \item{...}{Arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.}
 
-\item{force}{For \code{azcopy_login}, whether to force AzCopy to relogin. If \code{FALSE} (the default), and AzureStor has detected that AzCopy has already logged in, this has no effect.}
+\item{env}{Environment variables to pass to AzCopy. Typically these will be for authentication.}
+
+\item{endpoint}{For \code{azcopy_key_creds} and \code{azcopy_token_creds}, an AzureStor endpoint object (of class \code{storage_endpoint}).}
 }
 \description{
 Call the azcopy file transfer utility

@@ -347,7 +347,7 @@ multiupload_adls_file <- function(filesystem, src, dest, recursive=FALSE, blocks
                                    max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        return(azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease))
+        return(azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease, recursive=recursive))
 
     multiupload_internal(filesystem, src, dest, recursive=recursive, blocksize=blocksize, lease=lease,
                          max_concurrent_transfers=max_concurrent_transfers)
@@ -371,7 +371,7 @@ multidownload_adls_file <- function(filesystem, src, dest, recursive=FALSE, bloc
                                     max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        return(azcopy_upload(filesystem, src, dest, overwrite=overwrite))
+        return(azcopy_download(filesystem, src, dest, overwrite=overwrite, recursive=recursive))
 
     multidownload_internal(filesystem, src, dest, recursive=recursive, blocksize=blocksize, overwrite=overwrite,
                            max_concurrent_transfers=max_concurrent_transfers)

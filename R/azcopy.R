@@ -1,7 +1,8 @@
 #' Call the azcopy file transfer utility
 #'
 #' @param ... Arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.
-#' @param force For `azcopy_login`, whether to force AzCopy to relogin. If `FALSE` (the default), and AzureStor has detected that AzCopy has already logged in, this has no effect.
+#' @param env Environment variables to pass to AzCopy. Typically these will be for authentication.
+#' @param endpoint For `azcopy_key_creds` and `azcopy_token_creds`, an AzureStor endpoint object (of class `storage_endpoint`).
 #'
 #' @details
 #' AzureStor has the ability to use the Microsoft AzCopy commandline utility to transfer files. To enable this, set the argument `use_azcopy=TRUE` in any call to an upload or download function; AzureStor will then call AzCopy to perform the file transfer rather than relying on its own code. You can also call AzCopy directly with the `call_azcopy` function, passing it any arguments as required.
@@ -157,6 +158,8 @@ azcopy_download_internal <- function(container, src, dest, opts, ...)
 }
 
 
+#' @export
+#' @rdname azcopy
 azcopy_key_creds <- function(endpoint)
 {
     acctname <- sub("\\..*$", "", httr::parse_url(endpoint$url)$hostname)
@@ -164,6 +167,8 @@ azcopy_key_creds <- function(endpoint)
 }
 
 
+#' @export
+#' @rdname azcopy
 azcopy_token_creds <- function(endpoint)
 {
     token <- endpoint$token
