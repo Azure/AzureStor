@@ -398,12 +398,12 @@ download_blob <- function(container, src, dest=basename(src), blocksize=2^24, ov
 
 #' @rdname blob
 #' @export
-multidownload_blob <- function(container, src, dest, recursive=recursive, blocksize=2^24, overwrite=FALSE, lease=NULL,
+multidownload_blob <- function(container, src, dest, recursive=FALSE, blocksize=2^24, overwrite=FALSE, lease=NULL,
                                use_azcopy=FALSE,
                                max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        azcopy_download(container, src, dest, overwrite=overwrite, lease=lease)
+        return(azcopy_download(container, src, dest, overwrite=overwrite, lease=lease))
 
     multidownload_internal(container, src, dest, recursive=recursive, blocksize=blocksize, overwrite=overwrite,
                            lease=lease, max_concurrent_transfers=max_concurrent_transfers)
