@@ -25,7 +25,9 @@ call_azcopy <- function(..., env=NULL)
     if(!requireNamespace("processx"))
         stop("The processx package must be installed to use azcopy", call.=FALSE)
     azcopy <- get_azcopy_path()
-    args <- sapply(list(...), as.character)
+
+    args <- as.character(unlist(list(...)))
+
     invisible(processx::run(azcopy, args, echo=TRUE, echo_cmd=TRUE, env=env))
 }
 
@@ -78,25 +80,26 @@ azcopy_upload <- function(container, src, dest, ...)
     UseMethod("azcopy_upload")
 }
 
-azcopy_upload.blob_container <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL, ...)
+azcopy_upload.blob_container <- function(container, src, dest, type="BlockBlob", blocksize=2^24, recursive=FALSE,
+                                         lease=NULL, ...)
 {
-    opts <- paste("--blobType", type, "--block-size", sprintf("%.0f", blocksize))
+    opts <- c("--blobType", type, "--block-size", sprintf("%.0f", blocksize), if(recursive) "--recursive")
     azcopy_upload_internal(container, src, dest, opts, ...)
 }
 
-azcopy_upload.file_share <- function(container, src, dest, blocksize=2^24, ...)
+azcopy_upload.file_share <- function(container, src, dest, blocksize=2^24, recursive=FALSE, ...)
 {
-    opts <- sprintf("--block-size %.0f", blocksize)
+    opts <- sprintf("--block-size %.0f", blocksize, if(recursive) "--recursive")
     azcopy_upload_internal(container, src, dest, opts, ...)
 }
 
-azcopy_upload.adls_filesystem <- function(container, src, dest, blocksize=2^24, lease=NULL, ...)
+azcopy_upload.adls_filesystem <- function(container, src, dest, blocksize=2^24, recursive=FALSE, lease=NULL, ...)
 {
-    opts <- sprintf("--block-size %.0f", blocksize)
+    opts <- sprintf("--block-size %.0f", blocksize, if(recursive) "--recursive")
     azcopy_upload_internal(container, src, dest, opts, ...)
 }
 
-azcopy_upload_internal <- function(container, src, dest, opts, ...)
+azcopy_upload_internal <- function(container, src, dest, opts, recursive=FALSE, ...)
 {
     env <- character(0)
     endp <- container$endpoint
@@ -162,8 +165,10 @@ azcopy_download_internal <- function(container, src, dest, opts, ...)
 #' @rdname azcopy
 azcopy_key_creds <- function(endpoint)
 {
+    if(is.null(endpoint$key))
+        return(NULL)
     acctname <- sub("\\..*$", "", httr::parse_url(endpoint$url)$hostname)
-    c(ACCOUNT_NAME=acctname, ACCOUNT_KEY=endpoint$key)
+    c(AZCOPY_ACCOUNT_NAME=acctname, AZCOPY_ACCOUNT_KEY=unname(endpoint$key))
 }
 
 
@@ -172,6 +177,8 @@ azcopy_key_creds <- function(endpoint)
 azcopy_token_creds <- function(endpoint)
 {
     token <- endpoint$token
+    if(is.null(token))
+        return(NULL)
     creds <- list(
         access_token=token$credentials$access_token,
         refresh_token=token$credentials$refresh_token,
