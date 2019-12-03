@@ -60,10 +60,8 @@ set_azcopy_path <- function(path="azcopy")
         return(NULL)
     }
 
-    # both stdout=TRUE and stderr=TRUE could result in jumbled output;
-    # assume only one stream will actually have data for a given invocation
-    ver <- suppressWarnings(system2(path, "--version", stdout=TRUE, stderr=TRUE))
-    if(!grepl("version 1[[:digit:]]", ver, ignore.case=TRUE))
+    ver <- suppressWarnings(processx::run(path, "--version"))
+    if(!grepl("version 1[[:digit:]]", ver$stdout, ignore.case=TRUE))
     {
         .AzureStor$azcopy <- NA
         return(NULL)
