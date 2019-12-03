@@ -98,19 +98,19 @@ public=list(
         #self$do_operation("listServiceSas", body=parms, encode="json", http_verb="POST")$serviceSasToken
     #},
 
-    get_blob_endpoint=function(key=self$list_keys()[1], sas=NULL)
+    get_blob_endpoint=function(key=self$list_keys()[1], sas=NULL, token=NULL)
     {
-        blob_endpoint(self$properties$primaryEndpoints$blob, key=key, sas=sas)
+        blob_endpoint(self$properties$primaryEndpoints$blob, key=key, sas=sas, token=token)
     },
 
-    get_file_endpoint=function(key=self$list_keys()[1], sas=NULL)
+    get_file_endpoint=function(key=self$list_keys()[1], sas=NULL, token=NULL)
     {
-        file_endpoint(self$properties$primaryEndpoints$file, key=key, sas=sas)
+        file_endpoint(self$properties$primaryEndpoints$file, key=key, sas=sas, token=token)
     },
 
-    get_adls_endpoint=function(key=self$list_keys()[1], sas=NULL)
+    get_adls_endpoint=function(key=self$list_keys()[1], sas=NULL, token=NULL)
     {
-        adls_endpoint(self$properties$primaryEndpoints$dfs, key=key, sas=sas)
+        adls_endpoint(self$properties$primaryEndpoints$dfs, key=key, sas=sas, token=token)
     },
 
     regen_key=function(key=1)
