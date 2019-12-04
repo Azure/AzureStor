@@ -1,4 +1,4 @@
-# AzureStor 3.0.0.9000
+# AzureStor 3.0.1
 
 - Uploading with ADLS now sets the Content-Type property correctly.
 - Fixes to support blob/ADLS interoperability, which has just gone GA.
