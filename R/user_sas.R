@@ -46,7 +46,7 @@ get_user_sas <- function(resource, start=NULL, expiry=NULL, permissions="r",
 }
 
 
-set_sas_dates=function(start, expiry)
+set_sas_dates <- function(start, expiry)
 {
     if(is.null(start))
         start <- Sys.time()
