@@ -430,5 +430,3 @@ check_blob <- function(container, blob)
     httr::stop_for_status(res, storage_error_message(res))
     return(TRUE)
 }
-
-

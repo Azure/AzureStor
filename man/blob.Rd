@@ -5,6 +5,7 @@
 \alias{upload_blob}
 \alias{multiupload_blob}
 \alias{download_blob}
+\alias{upload_blob}
 \alias{multidownload_blob}
 \alias{delete_blob}
 \alias{copy_url_to_blob}
