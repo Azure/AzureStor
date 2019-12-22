@@ -196,7 +196,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 
 #' Operations on a file share
 #'
-#' Upload, download, or delete a file; list files in a directory; create or delete directories.
+#' Upload, download, or delete a file; list files in a directory; create or delete directories; check file existence.
 #'
 #' @param share A file share object.
 #' @param dir,file A string naming a directory or file respectively.
@@ -224,6 +224,8 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' For `list_azure_files`, if `info="name"`, a vector of file/directory names. If `info="all"`, a data frame giving the file size and whether each object is a file or directory.
 #'
 #' For `download_azure_file`, if `dest=NULL`, the contents of the downloaded file as a raw vector.
+#'
+#' For `azure_file_exists`, either TRUE or FALSE.
 #'
 #' @seealso
 #' [file_share], [az_storage], [storage_download], [call_azcopy]
@@ -399,3 +401,14 @@ delete_azure_dir <- function(share, dir, recursive=FALSE, confirm=TRUE)
     invisible(do_container_op(share, dir, options=list(restype="directory"), http_verb="DELETE"))
 }
 
+#' @rdname file
+#' @export
+azure_file_exists <- function(share, file)
+{
+    res <- do_container_op(share, file, headers = list(), http_verb = "HEAD", http_status_handler = "pass")
+    if (httr::status_code(res) == 404L)
+        return(FALSE)
+
+    httr::stop_for_status(res, storage_error_message(res))
+    return(TRUE)
+}

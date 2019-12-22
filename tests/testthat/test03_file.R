@@ -139,6 +139,10 @@ test_that("File client interface works",
     iris3 <- as.data.frame(jsonlite::fromJSON(con))
     expect_identical(iris, iris3)
 
+    # check existence
+    expect_false(azure_file_exists(share, "nonexistent"))
+    expect_true(azure_file_exists(share, "iris.json"))
+
     # ways of deleting a share
     delete_file_share(share, confirm=FALSE)
     delete_file_share(fl, "newshare2", confirm=FALSE)

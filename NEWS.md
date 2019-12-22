@@ -1,3 +1,7 @@
+# AzureStor 3.0.1.9000
+
+- New `storage_file_exists` generic to check for file existence, which dispatches to `blob_exists`, `azure_file_exists` and `adls_file_exists` for the individual storage types.
+
 # AzureStor 3.0.1
 
 - Uploading with ADLS now sets the Content-Type property correctly.

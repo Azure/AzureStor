@@ -40,6 +40,10 @@
 \alias{delete_storage_file.blob_container}
 \alias{delete_storage_file.file_share}
 \alias{delete_storage_file.adls_filesystem}
+\alias{storage_file_exists}
+\alias{storage_file_exists.blob_container}
+\alias{storage_file_exists.file_share}
+\alias{storage_file_exists.adls_filesystem}
 \title{Storage client generics}
 \usage{
 storage_container(endpoint, ...)
@@ -123,6 +127,14 @@ delete_storage_file(container, ...)
 
 \method{delete_storage_file}{adls_filesystem}(container, file,
   confirm = TRUE, ...)
+
+storage_file_exists(container, file, ...)
+
+\method{storage_file_exists}{blob_container}(container, file, ...)
+
+\method{storage_file_exists}{file_share}(container, file, ...)
+
+\method{storage_file_exists}{adls_filesystem}(container, file, ...)
 }
 \arguments{
 \item{endpoint}{A storage endpoint object, or for the character methods, a string giving the full URL to the container.}
