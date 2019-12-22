@@ -75,32 +75,34 @@ set_azcopy_path <- function(path="azcopy")
 
 azcopy_upload <- function(container, src, dest, ...)
 {
-    UseMethod("azcopy_upload")
+    opts <- azcopy_upload_opts(container, ...)
 }
 
-azcopy_upload.blob_container <- function(container, src, dest, type="BlockBlob", blocksize=2^24, recursive=FALSE,
-                                         lease=NULL, ...)
+azcopy_upload_opts.blob_container <- function(container, src, dest, type="BlockBlob", blocksize=2^24, recursive=FALSE,
+                                              lease=NULL, ...)
 {
-    opts <- c("--blobType", type, "--block-size", sprintf("%.0f", blocksize), if(recursive) "--recursive")
-    azcopy_upload_internal(container, src, dest, opts, ...)
+    c("--blobType", type, "--block-size", sprintf("%.0f", blocksize), if(recursive) "--recursive")
 }
 
-azcopy_upload.file_share <- function(container, src, dest, blocksize=2^24, recursive=FALSE, ...)
+azcopy_upload_opts.file_share <- function(container, src, dest, blocksize=2^24, recursive=FALSE, ...)
 {
-    opts <- sprintf("--block-size %.0f", blocksize, if(recursive) "--recursive")
-    azcopy_upload_internal(container, src, dest, opts, ...)
+    sprintf("--block-size %.0f", blocksize, if(recursive) "--recursive")
 }
 
-azcopy_upload.adls_filesystem <- function(container, src, dest, blocksize=2^24, recursive=FALSE, lease=NULL, ...)
+azcopy_upload_opts.adls_filesystem <- function(container, src, dest, blocksize=2^24, recursive=FALSE, lease=NULL, ...)
 {
-    opts <- sprintf("--block-size %.0f", blocksize, if(recursive) "--recursive")
-    azcopy_upload_internal(container, src, dest, opts, ...)
+    sprintf("--block-size %.0f", blocksize, if(recursive) "--recursive")
 }
 
 azcopy_upload_internal <- function(container, src, dest, opts, recursive=FALSE, ...)
 {
-    env <- character(0)
+    env <- Sys.getenv()
     endp <- container$endpoint
+
+    opts <- azcopy_upload_opts(container, opts, recursive)
+    env <- azcopy_upload_env(container)
+
+
     if(!is.null(endp$key))
         env <- azcopy_key_creds(endp)
     else if(!is.null(endp$token))
@@ -142,7 +144,7 @@ azcopy_download.adls_filesystem <- function(container, src, dest, overwrite=FALS
 
 azcopy_download_internal <- function(container, src, dest, opts, ...)
 {
-    env <- character(0)
+    env <- Sys.getenv()
     endp <- container$endpoint
     if(!is.null(endp$key))
         env <- azcopy_key_creds(endp)
