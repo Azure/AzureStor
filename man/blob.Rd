@@ -5,6 +5,7 @@
 \alias{upload_blob}
 \alias{multiupload_blob}
 \alias{download_blob}
+\alias{check_blob}
 \alias{multidownload_blob}
 \alias{delete_blob}
 \alias{copy_url_to_blob}
@@ -29,6 +30,8 @@ multidownload_blob(container, src, dest, recursive = FALSE,
   use_azcopy = FALSE, max_concurrent_transfers = 10)
 
 delete_blob(container, blob, confirm = TRUE)
+
+check_blob(container, blob)
 
 copy_url_to_blob(container, src, dest, lease = NULL, async = FALSE)
 
@@ -67,10 +70,10 @@ multicopy_url_to_blob(container, src, dest, lease = NULL,
 \item{async}{For \code{copy_url_to_blob} and \code{multicopy_url_to_blob}, whether the copy operation should be asynchronous (proceed in the background).}
 }
 \value{
-For \code{list_blobs}, details on the blobs in the container. For \code{download_blob}, if \code{dest=NULL}, the contents of the downloaded blob as a raw vector.
+For \code{list_blobs}, details on the blobs in the container. For \code{download_blob}, if \code{dest=NULL}, the contents of the downloaded blob as a raw vector. For \code{check_blob} a flag whether the blob exists.
 }
 \description{
-Upload, download, or delete a blob; list blobs in a container.
+Upload, download, or delete a blob; list blobs in a container; check blob availability.
 }
 \details{
 \code{upload_blob} and \code{download_blob} are the workhorse file transfer functions for blobs. They each take as inputs a \emph{single} filename as the source for uploading/downloading, and a single filename as the destination. Alternatively, for uploading, \code{src} can be a \link{textConnection} or \link{rawConnection} object; and for downloading, \code{dest} can be NULL or a \code{rawConnection} object. If \code{dest} is NULL, the downloaded data is returned as a raw vector, and if a raw connection, it will be placed into the connection. See the examples below.

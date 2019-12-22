@@ -215,7 +215,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 
 #' Operations on a blob container or blob
 #'
-#' Upload, download, or delete a blob; list blobs in a container.
+#' Upload, download, or delete a blob; list blobs in a container; check blob availability.
 #'
 #' @param container A blob container object.
 #' @param blob A string naming a blob.
@@ -242,7 +242,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' `upload_blob` and `download_blob` can display a progress bar to track the file transfer. You can control whether to display this with `options(azure_storage_progress_bar=TRUE|FALSE)`; the default is TRUE.
 #'
 #' @return
-#' For `list_blobs`, details on the blobs in the container. For `download_blob`, if `dest=NULL`, the contents of the downloaded blob as a raw vector.
+#' For `list_blobs`, details on the blobs in the container. For `download_blob`, if `dest=NULL`, the contents of the downloaded blob as a raw vector. For `check_blob` a flag whether the blob exists.
 #'
 #' @seealso
 #' [blob_container], [az_storage], [storage_download], [call_azcopy]
@@ -419,4 +419,14 @@ delete_blob <- function(container, blob, confirm=TRUE)
     invisible(do_container_op(container, blob, http_verb="DELETE"))
 }
 
-
+#' @rdname blob
+#' @export
+check_blob <- function(container, blob)
+{
+    res <- do_container_op(container, blob, headers = list(), http_verb = "HEAD", http_status_handler = "pass")
+    if (httr::status_code(res) == 404L) {
+        return(FALSE)
+    }
+    httr::stop_for_status(res, storage_error_message(res))
+    return(TRUE)
+}
