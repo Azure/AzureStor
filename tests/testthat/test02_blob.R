@@ -135,8 +135,8 @@ test_that("Blob client interface works",
     expect_identical(iris, iris3)
 
     # check blob
-    expect_false(check_blob(cont, "nonexisting.blob"))
-    expect_true(check_blob(cont, "iris.json"))
+    expect_false(blob_exists(cont, "nonexistent"))
+    expect_true(blob_exists(cont, "iris.json"))
 
     # ways of deleting a container
     delete_blob_container(cont, confirm=FALSE)

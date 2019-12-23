@@ -127,6 +127,10 @@ test_that("ADLSgen2 client interface works",
     iris3 <- as.data.frame(jsonlite::fromJSON(con))
     expect_identical(iris, iris3)
 
+    # check existence
+    expect_false(adls_file_exists(fs, "nonexistent"))
+    expect_true(adls_file_exists(fs, "iris.json"))
+
     # ways of deleting a filesystem
     delete_adls_filesystem(fs, confirm=FALSE)
     delete_adls_filesystem(ad, "newfs2", confirm=FALSE)

@@ -281,3 +281,25 @@ delete_azure_file(container, file, ...)
 delete_storage_file.adls_filesystem <- function(container, file, confirm=TRUE, ...)
 delete_adls_file(container, file, confirm=confirm, ...)
 
+
+# check existence
+
+#' @rdname generics
+#' @export
+storage_file_exists <- function(container, file, ...)
+UseMethod("storage_file_exists")
+
+#' @rdname generics
+#' @export
+storage_file_exists.blob_container <- function(container, file, ...)
+blob_exists(container, file, ...)
+
+#' @rdname generics
+#' @export
+storage_file_exists.file_share <- function(container, file, ...)
+azure_file_exists(container, file, ...)
+
+#' @rdname generics
+#' @export
+storage_file_exists.adls_filesystem <- function(container, file, ...)
+adls_file_exists(container, file, ...)

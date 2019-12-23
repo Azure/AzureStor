@@ -9,6 +9,7 @@
 \alias{delete_adls_file}
 \alias{create_adls_dir}
 \alias{delete_adls_dir}
+\alias{adls_file_exists}
 \title{Operations on an Azure Data Lake Storage Gen2 filesystem}
 \usage{
 list_adls_files(filesystem, dir = "/", info = c("all", "name"),
@@ -33,6 +34,8 @@ delete_adls_file(filesystem, file, confirm = TRUE)
 create_adls_dir(filesystem, dir)
 
 delete_adls_dir(filesystem, dir, recursive = FALSE, confirm = TRUE)
+
+adls_file_exists(filesystem, file)
 }
 \arguments{
 \item{filesystem}{An ADLSgen2 filesystem object.}
@@ -61,9 +64,11 @@ delete_adls_dir(filesystem, dir, recursive = FALSE, confirm = TRUE)
 For \code{list_adls_files}, if \code{info="name"}, a vector of file/directory names. If \code{info="all"}, a data frame giving the file size and whether each object is a file or directory.
 
 For \code{download_adls_file}, if \code{dest=NULL}, the contents of the downloaded file as a raw vector.
+
+For \code{adls_file_exists}, either TRUE or FALSE.
 }
 \description{
-Upload, download, or delete a file; list files in a directory; create or delete directories.
+Upload, download, or delete a file; list files in a directory; create or delete directories; check file existence.
 }
 \details{
 \code{upload_adls_file} and \code{download_adls_file} are the workhorse file transfer functions for ADLSgen2 storage. They each take as inputs a \emph{single} filename as the source for uploading/downloading, and a single filename as the destination. Alternatively, for uploading, \code{src} can be a \link{textConnection} or \link{rawConnection} object; and for downloading, \code{dest} can be NULL or a \code{rawConnection} object. If \code{dest} is NULL, the downloaded data is returned as a raw vector, and if a raw connection, it will be placed into the connection. See the examples below.

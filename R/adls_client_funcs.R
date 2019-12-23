@@ -197,7 +197,7 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 
 #' Operations on an Azure Data Lake Storage Gen2 filesystem
 #'
-#' Upload, download, or delete a file; list files in a directory; create or delete directories.
+#' Upload, download, or delete a file; list files in a directory; create or delete directories; check file existence.
 #'
 #' @param filesystem An ADLSgen2 filesystem object.
 #' @param dir,file A string naming a directory or file respectively.
@@ -224,6 +224,8 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #' For `list_adls_files`, if `info="name"`, a vector of file/directory names. If `info="all"`, a data frame giving the file size and whether each object is a file or directory.
 #'
 #' For `download_adls_file`, if `dest=NULL`, the contents of the downloaded file as a raw vector.
+#'
+#' For `adls_file_exists`, either TRUE or FALSE.
 #'
 #' @seealso
 #' [adls_filesystem], [az_storage], [storage_download], [call_azcopy]
@@ -418,3 +420,14 @@ delete_adls_dir <- function(filesystem, dir, recursive=FALSE, confirm=TRUE)
     invisible(do_container_op(filesystem, dir, options=opts, http_verb="DELETE"))
 }
 
+#' @rdname adls
+#' @export
+adls_file_exists <- function(filesystem, file)
+{
+    res <- do_container_op(filesystem, file, headers = list(), http_verb = "HEAD", http_status_handler = "pass")
+    if (httr::status_code(res) == 404L)
+        return(FALSE)
+
+    httr::stop_for_status(res, storage_error_message(res))
+    return(TRUE)
+}

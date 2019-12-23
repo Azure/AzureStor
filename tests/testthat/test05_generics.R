@@ -45,6 +45,10 @@ test_that("Blob dispatch works",
     expect_silent(storage_upload(cont, file.path("../resources", filename), filename))
     expect_silent(storage_download(cont, filename, tempfile()))
 
+    # file existence
+    expect_false(storage_file_exists(cont, "nonexistent"))
+    expect_true(storage_file_exists(cont, filename))
+
     # delete the objects
     expect_silent(delete_storage_file(cont, filename, confirm=FALSE))
     expect_error(delete_storage_dir(cont, dirname, confirm=FALSE))
@@ -75,6 +79,10 @@ test_that("File dispatch works",
     expect_silent(storage_upload(cont, file.path("../resources", filename), file.path(dirname, filename)))
     expect_silent(storage_download(cont, file.path(dirname, filename), tempfile()))
 
+    # file existence
+    expect_false(storage_file_exists(cont, "nonexistent"))
+    expect_true(storage_file_exists(cont, file.path(dirname, filename)))
+
     # delete the objects
     expect_silent(delete_storage_file(cont, file.path(dirname, filename), confirm=FALSE))
     expect_silent(delete_storage_dir(cont, dirname, confirm=FALSE))
@@ -104,6 +112,10 @@ test_that("ADLSgen2 dispatch works",
     # file transfer
     expect_silent(storage_upload(cont, file.path("../resources", filename), file.path(dirname, filename)))
     expect_silent(storage_download(cont, file.path(dirname, filename), tempfile()))
+
+    # file existence
+    expect_false(storage_file_exists(cont, "nonexistent"))
+    expect_true(storage_file_exists(cont, file.path(dirname, filename)))
 
     # delete the objects
     expect_silent(delete_storage_file(cont, file.path(dirname, filename), confirm=FALSE))
