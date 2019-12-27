@@ -57,6 +57,7 @@ These functions for working with objects within a storage container:
 - `create_storage_dir`: for ADLSgen2 and file storage, create a directory
 - `delete_storage_dir`: for ADLSgen2 and file storage, delete a directory
 - `delete_storage_file`: delete a file or blob
+- `storage_file_exists`: check that a file or blob exists
 - `storage_upload`/`storage_download`: transfer a file to or from a storage container
 - `storage_multiupload`/`storage_multidownload`: transfer multiple files in parallel to or from a storage container
 - `get_storage_properties`: Get properties for a storage object
