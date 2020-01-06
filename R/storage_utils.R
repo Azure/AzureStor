@@ -63,18 +63,21 @@ call_storage_endpoint <- function(endpoint, path, options=list(), headers=list()
     if(!is.null(endpoint$key))
         headers <- sign_request(endpoint$key, http_verb, url, headers, endpoint$api_version)
     else if(!is.null(endpoint$token))
-        headers <- add_token(endpoint$token, headers, endpoint$api_version)
+        headers$`x-ms-version` <- endpoint$api_version
     else if(!is.null(endpoint$sas))
         url <- add_sas(endpoint$sas, url)
 
-    headers <- do.call(httr::add_headers, headers)
     retries <- as.numeric(getOption("azure_storage_retries"))
     r <- 0
     repeat
     {
         r <- r + 1
+        if(!is.null(endpoint$token))
+            headers$Authorization <- paste("Bearer", validate_token(endpoint$token))
+
         # retry on curl errors, not on httr errors
-        response <- tryCatch(httr::VERB(http_verb, url, headers, body=body, progress, ...), error=function(e) e)
+        response <- tryCatch(httr::VERB(http_verb, url, do.call(httr::add_headers, headers), body=body, progress, ...),
+                             error=function(e) e)
         if(retry_transfer(response) && r <= retries)
             message("Connection error, retrying (", r, " of ", retries, ")")
         else break
@@ -86,11 +89,8 @@ call_storage_endpoint <- function(endpoint, path, options=list(), headers=list()
 }
 
 
-add_token <- function(token, headers, api)
+validate_token <- function(token)
 {
-    if(is.null(headers$`x-ms-version`))
-        headers$`x-ms-version` <- api
-
     if(inherits(token, "AzureToken") || inherits(token, "Token2.0"))
     {
         # if token has expired, renew it
@@ -99,16 +99,14 @@ add_token <- function(token, headers, api)
             message("Access token has expired or is no longer valid; refreshing")
             token$refresh()
         }
-        type <- token$credentials$token_type
-        token <- token$credentials$access_token
+        return(token$credentials$access_token)
     }
     else
     {
         if(!is.character(token) || length(token) != 1)
             stop("Token must be a string, or an object of class AzureRMR::AzureToken", call.=FALSE)
-        type <- "Bearer"
+        return(token)
     }
-    c(headers, Authorization=paste(type, token))
 }
 
 
