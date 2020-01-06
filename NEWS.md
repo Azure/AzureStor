@@ -1,6 +1,7 @@
 # AzureStor 3.0.1.9000
 
 - New `storage_file_exists` generic to check for file existence, which dispatches to `blob_exists`, `azure_file_exists` and `adls_file_exists` for the individual storage types.
+- Move AAD token validity check inside the retry loop in `call_storage_endpoint`; this fixes a bug where the token could expire during a long transfer.
 
 # AzureStor 3.0.1
 
