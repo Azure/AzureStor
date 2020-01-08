@@ -76,121 +76,93 @@ set_azcopy_path <- function(path="azcopy")
 azcopy_upload <- function(container, src, dest, ...)
 {
     opts <- azcopy_upload_opts(container, ...)
+    dest_uri <- httr::parse_url(container$endpoint$url)
+    dest_uri$path <- gsub("//", "/", file.path(container$name, dest))
+    dest <- httr::build_url(dest_uri)
+
+    auth <- azcopy_auth(container)
+    if(!is.null(auth$sp_login))
+    {
+        azcopy_sp_login(auth)
+        on.exit(azcopy_logout())
+    }
+    else if(!is.null(auth$managed_login))
+    {
+        azcopy_managed_login()
+        on.exit(azcopy_logout())
+    }
+    else if(!is.null(auth$sas))
+        dest <- paste0(dest, "?", sub("^\\?", "", auth$sas))
+
+    call_azcopy("copy", src, dest, opts, env=auth$env)
 }
 
-azcopy_upload_opts.blob_container <- function(container, src, dest, type="BlockBlob", blocksize=2^24, recursive=FALSE,
+
+azcopy_upload_opts <- function(container, ...)
+{
+    UseMethod("azcopy_upload_opts")
+}
+
+azcopy_upload_opts.blob_container <- function(container, type="BlockBlob", blocksize=2^24, recursive=FALSE,
                                               lease=NULL, ...)
 {
     c("--blobType", type, "--block-size", sprintf("%.0f", blocksize), if(recursive) "--recursive")
 }
 
-azcopy_upload_opts.file_share <- function(container, src, dest, blocksize=2^24, recursive=FALSE, ...)
+azcopy_upload_opts.file_share <- function(container, blocksize=2^22, recursive=FALSE, ...)
 {
-    sprintf("--block-size %.0f", blocksize, if(recursive) "--recursive")
+    c("--block-size", sprintf("%.0f", blocksize), if(recursive) "--recursive")
 }
 
-azcopy_upload_opts.adls_filesystem <- function(container, src, dest, blocksize=2^24, recursive=FALSE, lease=NULL, ...)
+azcopy_upload_opts.adls_filesystem <- function(container, blocksize=2^24, recursive=FALSE, lease=NULL, ...)
 {
-    sprintf("--block-size %.0f", blocksize, if(recursive) "--recursive")
-}
-
-azcopy_upload_internal <- function(container, src, dest, opts, recursive=FALSE, ...)
-{
-    env <- Sys.getenv()
-    endp <- container$endpoint
-
-    opts <- azcopy_upload_opts(container, opts, recursive)
-    env <- azcopy_upload_env(container)
-
-
-    if(!is.null(endp$key))
-        env <- azcopy_key_creds(endp)
-    else if(!is.null(endp$token))
-        env <- azcopy_token_creds(endp)
-    else if(!is.null(endp$sas))
-        dest <- paste0(dest, "?", sub("^\\?", "", endp$sas))
-
-    dest_uri <- httr::parse_url(container$endpoint$url)
-    dest_uri$path <- gsub("//", "/", file.path(container$name, dest))
-    dest <- httr::build_url(dest_uri)
-
-    call_azcopy("copy", src, dest, opts, ..., env=env)
+    c("--block-size", sprintf("%.0f", blocksize), if(recursive) "--recursive")
 }
 
 
 azcopy_download <- function(container, src, dest, ...)
 {
-    UseMethod("azcopy_download")
-}
-
-# currently all azcopy_download methods are the same
-azcopy_download.blob_container <- function(container, src, dest, overwrite=FALSE, ...)
-{
-    opts <- paste0("--overwrite=", tolower(as.character(overwrite)))
-    azcopy_download_internal(container, src, dest, opts, ...)
-}
-
-azcopy_download.file_share  <- function(container, src, dest, overwrite=FALSE, ...)
-{
-    opts <- paste0("--overwrite=", tolower(as.character(overwrite)))
-    azcopy_download_internal(container, src, dest, opts, ...)
-}
-
-azcopy_download.adls_filesystem <- function(container, src, dest, overwrite=FALSE, ...)
-{
-    opts <- paste0("--overwrite=", tolower(as.character(overwrite)))
-    azcopy_download_internal(container, src, dest, opts, ...)
-}
-
-azcopy_download_internal <- function(container, src, dest, opts, ...)
-{
-    env <- Sys.getenv()
-    endp <- container$endpoint
-    if(!is.null(endp$key))
-        env <- azcopy_key_creds(endp)
-    else if(!is.null(endp$token))
-        env <- azcopy_token_creds(endp)
-    else if(!is.null(endp$sas))
-        src <- paste0(src, "?", sub("^\\?", "", endp$sas))
-
+    opts <- azcopy_download_opts(container, ...)
     src_uri <- httr::parse_url(container$endpoint$url)
     src_uri$path <- gsub("//", "/", file.path(container$name, src))
     src <- httr::build_url(src_uri)
 
-    call_azcopy("copy", src, dest, opts, ..., env=env)
+    auth <- azcopy_auth(container)
+    if(!is.null(auth$sp_login))
+    {
+        azcopy_sp_login(auth)
+        on.exit(azcopy_logout())
+    }
+    else if(!is.null(auth$managed_login))
+    {
+        azcopy_managed_login()
+        on.exit(azcopy_logout())
+    }
+    else if(!is.null(auth$sas))
+        src <- paste0(src, "?", sub("^\\?", "", auth$sas))
+
+    call_azcopy("copy", src, dest, opts, env=auth$env)
 }
 
 
-#' @export
-#' @rdname azcopy
-azcopy_key_creds <- function(endpoint)
+azcopy_download_opts <- function(container, ...)
 {
-    if(is.null(endpoint$key))
-        return(NULL)
-    acctname <- sub("\\..*$", "", httr::parse_url(endpoint$url)$hostname)
-    c(AZCOPY_ACCOUNT_NAME=acctname, AZCOPY_ACCOUNT_KEY=unname(endpoint$key))
+    UseMethod("azcopy_download_opts")
 }
 
-
-#' @export
-#' @rdname azcopy
-azcopy_token_creds <- function(endpoint)
+# currently all azcopy_download_opts methods are the same
+azcopy_download_opts.blob_container <- function(container, overwrite=FALSE, ...)
 {
-    token <- endpoint$token
-    if(is.null(token))
-        return(NULL)
-    creds <- list(
-        access_token=token$credentials$access_token,
-        refresh_token=token$credentials$refresh_token,
-        token_type=token$credentials$token_type,
-        resource=token$credentials$resource,
-        scope=token$credentials$scope,
-        not_before=token$credentials$not_before,
-        expires_on=token$credentials$expires_on,
-        expires_in=token$credentials$expires_in,
-        `_tenant`=token$tenant,
-        `_ad_endpoint`=token$aad_host
-    )
-    c(AZCOPY_OAUTH_TOKEN_INFO=jsonlite::toJSON(creds[!sapply(creds, is.null)], auto_unbox=TRUE))
+    paste0("--overwrite=", tolower(as.character(overwrite)))
+}
+
+azcopy_download.file_share  <- function(container, overwrite=FALSE, ...)
+{
+    paste0("--overwrite=", tolower(as.character(overwrite)))
+}
+
+azcopy_download.adls_filesystem <- function(container, overwrite=FALSE, ...)
+{
+    paste0("--overwrite=", tolower(as.character(overwrite)))
 }
 
