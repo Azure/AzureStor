@@ -2,7 +2,6 @@
 #'
 #' @param ... Arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.
 #' @param env Environment variables to pass to AzCopy. Typically these will be for authentication.
-#' @param endpoint For `azcopy_key_creds` and `azcopy_token_creds`, an AzureStor endpoint object (of class `storage_endpoint`).
 #'
 #' @details
 #' AzureStor has the ability to use the Microsoft AzCopy commandline utility to transfer files. To enable this, set the argument `use_azcopy=TRUE` in any call to an upload or download function; AzureStor will then call AzCopy to perform the file transfer rather than relying on its own code. You can also call AzCopy directly with the `call_azcopy` function, passing it any arguments as required.
@@ -24,10 +23,9 @@ call_azcopy <- function(..., env=NULL)
 {
     if(!requireNamespace("processx"))
         stop("The processx package must be installed to use azcopy", call.=FALSE)
+
     azcopy <- get_azcopy_path()
-
     args <- as.character(unlist(list(...)))
-
     invisible(processx::run(azcopy, args, echo=TRUE, echo_cmd=TRUE, env=env))
 }
 
