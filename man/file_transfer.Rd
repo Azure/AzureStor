@@ -36,35 +36,35 @@ multicopy_url_to_storage(container, src, dest, ...)
 
 storage_upload(container, ...)
 
-\method{storage_upload}{blob_container}(container, src, dest, ...)
+\method{storage_upload}{blob_container}(container, ...)
 
-\method{storage_upload}{file_share}(container, src, dest, ...)
+\method{storage_upload}{file_share}(container, ...)
 
-\method{storage_upload}{adls_filesystem}(container, src, dest, ...)
+\method{storage_upload}{adls_filesystem}(container, ...)
 
 storage_multiupload(container, ...)
 
-\method{storage_multiupload}{blob_container}(container, src, dest, ...)
+\method{storage_multiupload}{blob_container}(container, ...)
 
-\method{storage_multiupload}{file_share}(container, src, dest, ...)
+\method{storage_multiupload}{file_share}(container, ...)
 
-\method{storage_multiupload}{adls_filesystem}(container, src, dest, ...)
+\method{storage_multiupload}{adls_filesystem}(container, ...)
 
 storage_download(container, ...)
 
-\method{storage_download}{blob_container}(container, src, dest, ...)
+\method{storage_download}{blob_container}(container, ...)
 
-\method{storage_download}{file_share}(container, src, dest, ...)
+\method{storage_download}{file_share}(container, ...)
 
-\method{storage_download}{adls_filesystem}(container, src, dest, ...)
+\method{storage_download}{adls_filesystem}(container, ...)
 
 storage_multidownload(container, ...)
 
-\method{storage_multidownload}{blob_container}(container, src, dest, ...)
+\method{storage_multidownload}{blob_container}(container, ...)
 
-\method{storage_multidownload}{file_share}(container, src, dest, ...)
+\method{storage_multidownload}{file_share}(container, ...)
 
-\method{storage_multidownload}{adls_filesystem}(container, src, dest, ...)
+\method{storage_multidownload}{adls_filesystem}(container, ...)
 
 download_from_url(src, dest, key = NULL, token = NULL, sas = NULL,
   ..., overwrite = FALSE)
@@ -74,7 +74,7 @@ upload_to_url(src, dest, key = NULL, token = NULL, sas = NULL, ...)
 \arguments{
 \item{container}{A storage container object.}
 
-\item{src, dest}{The source and destination files to transfer.}
+\item{src, dest}{For \code{upload_to_url} and \code{download_from_url}, the source and destination files to transfer.}
 
 \item{...}{Further arguments to pass to lower-level functions.}
 
