@@ -11,8 +11,6 @@ call_azcopy(..., env = NULL)
 \item{...}{Arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.}
 
 \item{env}{Environment variables to pass to AzCopy. Typically these will be for authentication.}
-
-\item{endpoint}{For \code{azcopy_key_creds} and \code{azcopy_token_creds}, an AzureStor endpoint object (of class \code{storage_endpoint}).}
 }
 \description{
 Call the azcopy file transfer utility
