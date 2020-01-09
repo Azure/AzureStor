@@ -38,5 +38,3 @@ set_azcopy_path <- function(path="azcopy")
     invisible(NULL)
 }
 
-
-'azcopy copy "https://hongstor2.blob.core.windows.net/cont1/script1.R?sv=2015-04-05&ss=bqtf&srt=sco&sp=rwld&st=2020-01-09T18%3A24%3A25.0000000Z&se=2020-01-10T02%3A24%3A25.0000000Z&sig=Ila7p6Pi9mA5WN5AfiXEW5HQYbbgisorumKg8PuBDn4%3D" misc/copy'
