@@ -1,30 +1,29 @@
-# multiple code paths for authenticating, return an object with necessary info
+# multiple code paths for authenticating
 # key: set AZCOPY_ACCOUNT_NAME and AZCOPY_ACCOUNT_KEY envvars
-# sas: append sas to URL
+# sas: append sas to URL (handled separately)
 # token:
 # - client creds: run azcopy login, pass client secret in AZCOPY_SPA_CLIENT_SECRET envvar
 # - auth code: set AZCOPY_OAUTH_TOKEN_INFO envvar
-azcopy_auth <- function(container)
+# managed: run azcopy login --identity
+azcopy_auth <- function(endpoint)
 {
     env <- Sys.getenv()
-    endp <- container$endpoint
     obj <- list()
 
-    if(!is.null(endp$key))
+    if(!is.null(endpoint$key))
     {
-        env["AZCOPY_ACCOUNT_NAME"] <- sub("\\..*$", "", httr::parse_url(endp$url)$hostname)
-        env["AZCOPY_ACCOUNT_KEY"] <- unname(endp$key)
-        obj$env <- env
+        env["AZCOPY_ACCOUNT_NAME"] <- sub("\\..*$", "", httr::parse_url(endpoint$url)$hostname)
+        env["AZCOPY_ACCOUNT_KEY"] <- unname(endpoint$key)
     }
-    else if(!is.null(endp$token))
+    else if(!is.null(endpoint$token))
     {
-        token <- endp$token
+        token <- endpoint$token
         if(inherits(token, "AzureTokenClientCredentials"))
         {
             env["AZCOPY_SPA_CLIENT_SECRET"] <- token$client$client_secret
-            obj$tenant <- token$tenant
-            obj$app <- token$client$client_id
-            obj$sp_login <- TRUE
+            args <- c("login", "--service-principal", "--tenant-id", token$tenant,
+                      "--application-id", token$client$client_id)
+            call_azcopy_internal(args, env)
         }
         else if(inherits(token, c("AzureTokenAuthCode", "AzureTokenDeviceCode")))
         {
@@ -43,35 +42,23 @@ azcopy_auth <- function(container)
             env["AZCOPY_OAUTH_TOKEN_INFO"] <- jsonlite::toJSON(creds[!sapply(creds, is.null)], auto_unbox=TRUE)
         }
         else if(inherits(token, "AzureTokenManaged"))
-            obj$managed_login <- TRUE
+        {
+            args <- c("login", "--identity")
+            call_azcopy_internal(args, env)
+        }
         else stop(
             "Only client_credentials, authorization_code, device_code and managed_identity flows supported for azcopy",
             call.=FALSE
         )
-        obj$env <- env
     }
-    else if(!is.null(endp$sas))
-        obj$sas <- endp$sas
+    obj$env <- env
     obj
 }
 
 
-azcopy_login <- function(auth)
+azcopy_add_sas <- function(endpoint, url)
 {
-    if(!is.null(auth$sp_login))
-    {
-        args <- c("login", "--service-principal", "--tenant-id", auth$tenant, "--application-id", auth$app)
-        call_azcopy(args, env=auth$env)
-    }
-    else if(!is.null(auth$managed_login))
-        call_azcopy("login", "--identity")
-    else invisible(NULL)
-}
-
-
-azcopy_add_sas <- function(auth, url)
-{
-    if(!is.null(auth$sas))
-        url <- paste0(url, "?", sub("^\\?", "", auth$sas))
+    if(!is.null(endpoint$sas))
+        url <- paste0(url, "?", sub("^\\?", "", endpoint$sas))
     url
 }

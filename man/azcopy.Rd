@@ -5,12 +5,21 @@
 \alias{azcopy}
 \title{Call the azcopy file transfer utility}
 \usage{
-call_azcopy(..., env = NULL)
+call_azcopy(object, ...)
 }
 \arguments{
-\item{...}{Arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.}
+\item{object}{An AzureStor object from which to obtain authentication details. Can be either a storage endpoint or container.}
 
-\item{env}{Environment variables to pass to AzCopy. Typically these will be for authentication.}
+\item{...}{Arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.}
+}
+\value{
+A list, invisibly, with the following components:
+\itemize{
+\item \code{status}: The exit status of the AzCopy command. If this is NA, then the process was killed and had no exit status.
+\item \code{stdout}: The standard output of the command.
+\item \code{stderr}: The standard error of the command.
+\item \code{timeout}: Whether AzCopy was killed because of a timeout.
+}
 }
 \description{
 Call the azcopy file transfer utility
@@ -21,10 +30,32 @@ AzureStor has the ability to use the Microsoft AzCopy commandline utility to tra
 AzureStor requires version 10 or later of AzCopy. The first time you try to run it, AzureStor will check that the version of AzCopy is correct, and throw an error if it is version 8 or earlier.
 
 The AzCopy utility must be in your path for AzureStor to find it. Note that unlike earlier versions, Azcopy 10 is a single, self-contained binary file that can be placed in any directory.
+}
+\examples{
+\dontrun{
 
-AzCopy uses its own mechanisms for authenticating with Azure Active Directory, which is independent of the OAuth tokens used by AzureStor. AzureStor will try to ensure that AzCopy has previously authenticated before trying to transfer a file with a token, but this may not always succeed. You can run \code{azcopy_login(force=TRUE)} to force it to authenticate.
+endp <- storage_endpoint("https://mystorage.blob.core.windows.net", sas="mysas")
+cont <- storage_container(endp, "mycontainer")
+
+# print various help screens
+call_azcopy(endp, "help")
+call_azcopy(endp, "help", "copy")
+call_azcopy(endp, "help", "sync")
+
+# calling azcopy to download a blob
+storage_download(cont, "myblob.csv", use_azcopy=TRUE)
+
+# calling azcopy directly (must specify the SAS explicitly in the source URL)
+call_azcopy(endp,
+            "copy",
+            "https://mystorage.blob.core.windows.net/mycontainer/myblob.csv?mysas",
+            "myblob.csv")
+
+}
 }
 \seealso{
+\link[processx:run]{processx::run}, \link{download_blob}, \link{download_azure_file}, \link{download_adls_file}
+
 \href{https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10}{AzCopy page on Microsoft Docs}
 
 \href{https://github.com/Azure/azure-storage-azcopy}{AzCopy GitHub repo}
