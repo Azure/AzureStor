@@ -52,24 +52,26 @@ azcopy_auth <- function(container)
     }
     else if(!is.null(endp$sas))
         obj$sas <- endp$sas
-    return(structure(obj, class="azcopy_auth"))
+    obj
 }
 
 
-azcopy_sp_login <- function(auth)
+azcopy_login <- function(auth)
 {
-    args <- c("login", "--service-principal", "--tenant-id", auth$tenant, "--application-id", auth$app)
-    call_azcopy(args, env=env)
+    if(!is.null(auth$sp_login))
+    {
+        args <- c("login", "--service-principal", "--tenant-id", auth$tenant, "--application-id", auth$app)
+        call_azcopy(args, env=auth$env)
+    }
+    else if(!is.null(auth$managed_login))
+        call_azcopy("login", "--identity")
+    else invisible(NULL)
 }
 
 
-azcopy_managed_login <- function()
+azcopy_add_sas <- function(auth, url)
 {
-    call_azcopy("login", "--identity")
-}
-
-
-azcopy_logout <- function()
-{
-    call_azcopy("logout")
+    if(!is.null(auth$sas))
+        url <- paste0(url, "?", sub("^\\?", "", auth$sas))
+    url
 }

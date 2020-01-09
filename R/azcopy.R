@@ -81,18 +81,8 @@ azcopy_upload <- function(container, src, dest, ...)
     dest <- httr::build_url(dest_uri)
 
     auth <- azcopy_auth(container)
-    if(!is.null(auth$sp_login))
-    {
-        azcopy_sp_login(auth)
-        on.exit(azcopy_logout())
-    }
-    else if(!is.null(auth$managed_login))
-    {
-        azcopy_managed_login()
-        on.exit(azcopy_logout())
-    }
-    else if(!is.null(auth$sas))
-        dest <- paste0(dest, "?", sub("^\\?", "", auth$sas))
+    azcopy_login(auth)
+    dest <- azcopy_add_sas(auth, dest)
 
     call_azcopy("copy", src, dest, opts, env=auth$env)
 }
@@ -128,18 +118,8 @@ azcopy_download <- function(container, src, dest, ...)
     src <- httr::build_url(src_uri)
 
     auth <- azcopy_auth(container)
-    if(!is.null(auth$sp_login))
-    {
-        azcopy_sp_login(auth)
-        on.exit(azcopy_logout())
-    }
-    else if(!is.null(auth$managed_login))
-    {
-        azcopy_managed_login()
-        on.exit(azcopy_logout())
-    }
-    else if(!is.null(auth$sas))
-        src <- paste0(src, "?", sub("^\\?", "", auth$sas))
+    azcopy_login(auth)
+    src <- azcopy_add_sas(auth, src)
 
     call_azcopy("copy", src, dest, opts, env=auth$env)
 }
