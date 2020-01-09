@@ -4,7 +4,7 @@
 \name{az_storage}
 \alias{az_storage}
 \title{Storage account resource class}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
+\format{An object of class \code{R6ClassGenerator} of length 25.}
 \usage{
 az_storage
 }

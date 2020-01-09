@@ -3,15 +3,9 @@
 \name{call_azcopy}
 \alias{call_azcopy}
 \alias{azcopy}
-\alias{azcopy_key_creds}
-\alias{azcopy_token_creds}
 \title{Call the azcopy file transfer utility}
 \usage{
 call_azcopy(..., env = NULL)
-
-azcopy_key_creds(endpoint)
-
-azcopy_token_creds(endpoint)
 }
 \arguments{
 \item{...}{Arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.}
