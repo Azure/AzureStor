@@ -1,7 +1,7 @@
 #' Upload and download generics
 #'
 #' @param container A storage container object.
-#' @param src,dest The source and destination files to transfer.
+#' @param src,dest For `upload_to_url` and `download_from_url`, the source and destination files to transfer.
 #' @param key,token,sas Authentication arguments: an access key, Azure Active Directory (AAD) token or a shared access signature (SAS). If multiple arguments are supplied, a key takes priority over a token, which takes priority over a SAS. For `upload_to_url` and `download_to_url`, you can also provide a SAS as part of the URL itself.
 #' @param ... Further arguments to pass to lower-level functions.
 #' @param overwrite For downloading, whether to overwrite any destination files that exist.
@@ -52,18 +52,18 @@ UseMethod("storage_upload")
 
 #' @rdname file_transfer
 #' @export
-storage_upload.blob_container <- function(container, src, dest, ...)
-upload_blob(container, src, dest, ...)
+storage_upload.blob_container <- function(container, ...)
+upload_blob(container, ...)
 
 #' @rdname file_transfer
 #' @export
-storage_upload.file_share <- function(container, src, dest, ...)
-upload_azure_file(container, src, dest, ...)
+storage_upload.file_share <- function(container, ...)
+upload_azure_file(container, ...)
 
 #' @rdname file_transfer
 #' @export
-storage_upload.adls_filesystem <- function(container, src, dest, ...)
-upload_adls_file(container, src, dest, ...)
+storage_upload.adls_filesystem <- function(container, ...)
+upload_adls_file(container, ...)
 
 #' @rdname file_transfer
 #' @export
@@ -72,18 +72,18 @@ UseMethod("storage_multiupload")
 
 #' @rdname file_transfer
 #' @export
-storage_multiupload.blob_container <- function(container, src, dest, ...)
-multiupload_blob(container, src, dest, ...)
+storage_multiupload.blob_container <- function(container, ...)
+multiupload_blob(container, ...)
 
 #' @rdname file_transfer
 #' @export
-storage_multiupload.file_share <- function(container, src, dest, ...)
-multiupload_azure_file(container, src, dest, ...)
+storage_multiupload.file_share <- function(container, ...)
+multiupload_azure_file(container, ...)
 
 #' @rdname file_transfer
 #' @export
-storage_multiupload.adls_filesystem <- function(container, src, dest, ...)
-multiupload_adls_file(container, src, dest, ...)
+storage_multiupload.adls_filesystem <- function(container, ...)
+multiupload_adls_file(container, ...)
 
 
 # download
@@ -95,18 +95,18 @@ UseMethod("storage_download")
 
 #' @rdname file_transfer
 #' @export
-storage_download.blob_container <- function(container, src, dest, ...)
-download_blob(container, src, dest, ...)
+storage_download.blob_container <- function(container, ...)
+download_blob(container, ...)
 
 #' @rdname file_transfer
 #' @export
-storage_download.file_share <- function(container, src, dest, ...)
-download_azure_file(container, src, dest, ...)
+storage_download.file_share <- function(container, ...)
+download_azure_file(container, ...)
 
 #' @rdname file_transfer
 #' @export
-storage_download.adls_filesystem <- function(container, src, dest, ...)
-download_adls_file(container, src, dest, ...)
+storage_download.adls_filesystem <- function(container, ...)
+download_adls_file(container, ...)
 
 #' @rdname file_transfer
 #' @export
@@ -115,18 +115,18 @@ UseMethod("storage_multidownload")
 
 #' @rdname file_transfer
 #' @export
-storage_multidownload.blob_container <- function(container, src, dest, ...)
-multidownload_blob(container, src, dest, ...)
+storage_multidownload.blob_container <- function(container, ...)
+multidownload_blob(container, ...)
 
 #' @rdname file_transfer
 #' @export
-storage_multidownload.file_share <- function(container, src, dest, ...)
-multidownload_azure_file(container, src, dest, ...)
+storage_multidownload.file_share <- function(container, ...)
+multidownload_azure_file(container, ...)
 
 #' @rdname file_transfer
 #' @export
-storage_multidownload.adls_filesystem <- function(container, src, dest, ...)
-multidownload_adls_file(container, src, dest, ...)
+storage_multidownload.adls_filesystem <- function(container, ...)
+multidownload_adls_file(container, ...)
 
 
 #' @rdname file_transfer
