@@ -19,8 +19,7 @@ Imports:
     mime,
     openssl,
     xml2,
-    AzureRMR (>= 2.3.0),
-    AzureAuth (>= 1.2.0)
+    AzureRMR (>= 2.3.0)
 Suggests:
     knitr,
     jsonlite,

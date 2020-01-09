@@ -18,15 +18,15 @@ azcopy_auth <- function(container)
     }
     else if(!is.null(endp$token))
     {
-        tok <- endp$token
-        if(inherits(tok, "AzureTokenClientCredentials"))
+        token <- endp$token
+        if(inherits(token, "AzureTokenClientCredentials"))
         {
-            env["AZCOPY_SPA_CLIENT_SECRET"] <- tok$client$client_secret
+            env["AZCOPY_SPA_CLIENT_SECRET"] <- token$client$client_secret
             obj$tenant <- token$tenant
             obj$app <- token$client$client_id
             obj$sp_login <- TRUE
         }
-        else if(inherits(tok, c("AzureTokenAuthCode", "AzureTokenDeviceCode")))
+        else if(inherits(token, c("AzureTokenAuthCode", "AzureTokenDeviceCode")))
         {
             creds <- list(
                 access_token=token$credentials$access_token,
@@ -42,7 +42,7 @@ azcopy_auth <- function(container)
             )
             env["AZCOPY_OAUTH_TOKEN_INFO"] <- jsonlite::toJSON(creds[!sapply(creds, is.null)], auto_unbox=TRUE)
         }
-        else if(inherits(tok, "AzureTokenManaged"))
+        else if(inherits(token, "AzureTokenManaged"))
             obj$managed_login <- TRUE
         else stop(
             "Only client_credentials, authorization_code, device_code and managed_identity flows supported for azcopy",

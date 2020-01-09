@@ -38,7 +38,7 @@ get_user_sas <- function(resource, start=NULL, expiry=NULL, permissions="r",
         skv=key$SignedVersion
     )
 
-    sas_opts$sig <- sign_user_sas(key, sas_opts, resource)
+    #sas_opts$sig <- sign_user_sas(key, sas_opts, resource)
 
     dummy_url <- httr::parse_url("")
     dummy_url$query <- sas_opts
