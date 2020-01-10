@@ -12,8 +12,8 @@ azcopy_auth <- function(endpoint)
 
     if(!is.null(endpoint$key))
     {
-        env["AZCOPY_ACCOUNT_NAME"] <- sub("\\..*$", "", httr::parse_url(endpoint$url)$hostname)
-        env["AZCOPY_ACCOUNT_KEY"] <- unname(endpoint$key)
+        env["ACCOUNT_NAME"] <- endpoint$url # sub("\\..*$", "", httr::parse_url(endpoint$url)$hostname)
+        env["ACCOUNT_KEY"] <- unname(endpoint$key)
     }
     else if(!is.null(endpoint$token))
     {
@@ -30,12 +30,12 @@ azcopy_auth <- function(endpoint)
             creds <- list(
                 access_token=token$credentials$access_token,
                 refresh_token=token$credentials$refresh_token,
-                token_type=token$credentials$token_type,
-                resource=token$credentials$resource,
-                scope=token$credentials$scope,
-                not_before=token$credentials$not_before,
-                expires_on=token$credentials$expires_on,
                 expires_in=token$credentials$expires_in,
+                expires_on=token$credentials$expires_on,
+                not_before=token$credentials$not_before,
+                resource=token$credentials$resource,
+                token_type=token$credentials$token_type,
+                scope=token$credentials$scope,
                 `_tenant`=token$tenant,
                 `_ad_endpoint`=token$aad_host
             )

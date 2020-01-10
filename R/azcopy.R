@@ -58,21 +58,23 @@ call_azcopy.storage_container <- function(object, ...)
 }
 
 #' @export
-call_azcopy.storage_endpoint <- function(object, ...)
+call_azcopy.storage_endpoint <- function(object, ..., logout=TRUE)
 {
     if(!requireNamespace("processx"))
         stop("The processx package must be installed to use azcopy", call.=FALSE)
 
     auth <- azcopy_auth(object)
     args <- as.character(unlist(list(...)))
-    call_azcopy_internal(args, auth$env)
+    if(logout)
+        on.exit(call_azcopy_internal("logout", silent=TRUE))
+    invisible(call_azcopy_internal(args, auth$env))
 }
 
 
-call_azcopy_internal <- function(args, env, echo=TRUE)
+call_azcopy_internal <- function(args, env=NULL, silent=FALSE)
 {
     print(env)
-    invisible(processx::run(get_azcopy_path(), args, echo_cmd=echo, echo=echo, env=env))
+    processx::run(get_azcopy_path(), args, env=env, echo_cmd=!silent, echo=!silent, error_on_status=silent)
 }
 
 
@@ -131,12 +133,12 @@ azcopy_download_opts.blob_container <- function(container, overwrite=FALSE, ...)
     paste0("--overwrite=", tolower(as.character(overwrite)))
 }
 
-azcopy_download.file_share  <- function(container, overwrite=FALSE, ...)
+azcopy_download_opts.file_share  <- function(container, overwrite=FALSE, ...)
 {
     paste0("--overwrite=", tolower(as.character(overwrite)))
 }
 
-azcopy_download.adls_filesystem <- function(container, overwrite=FALSE, ...)
+azcopy_download_opts.adls_filesystem <- function(container, overwrite=FALSE, ...)
 {
     paste0("--overwrite=", tolower(as.character(overwrite)))
 }
