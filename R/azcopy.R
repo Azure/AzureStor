@@ -69,10 +69,10 @@ call_azcopy.storage_endpoint <- function(object, ...)
 }
 
 
-call_azcopy_internal <- function(args, env)
+call_azcopy_internal <- function(args, env, echo=TRUE)
 {
     print(env)
-    invisible(processx::run(get_azcopy_path(), args, echo_cmd=TRUE, echo=TRUE, env=env))
+    invisible(processx::run(get_azcopy_path(), args, echo_cmd=echo, echo=echo, env=env))
 }
 
 
@@ -117,7 +117,7 @@ azcopy_download <- function(container, src, dest, ...)
     src_uri$path <- gsub("//", "/", file.path(container$name, src))
     src <- azcopy_add_sas(container$endpoint, httr::build_url(src_uri))
 
-    call_azcopy("copy", src, dest, opts)
+    call_azcopy(container$endpoint, "copy", src, dest, opts)
 }
 
 azcopy_download_opts <- function(container, ...)

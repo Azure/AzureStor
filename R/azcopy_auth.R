@@ -7,7 +7,7 @@
 # managed: run azcopy login --identity
 azcopy_auth <- function(endpoint)
 {
-    env <- Sys.getenv()
+    env <- character(0)
     obj <- list()
 
     if(!is.null(endpoint$key))
@@ -18,12 +18,12 @@ azcopy_auth <- function(endpoint)
     else if(!is.null(endpoint$token))
     {
         token <- endpoint$token
-        if(inherits(token, "AzureTokenClientCredentials"))
+        if(inherits(token, "AzureTokenClientCreds"))
         {
             env["AZCOPY_SPA_CLIENT_SECRET"] <- token$client$client_secret
             args <- c("login", "--service-principal", "--tenant-id", token$tenant,
                       "--application-id", token$client$client_id)
-            call_azcopy_internal(args, env)
+            call_azcopy_internal(args, env, echo=FALSE)
         }
         else if(inherits(token, c("AzureTokenAuthCode", "AzureTokenDeviceCode")))
         {
@@ -44,7 +44,7 @@ azcopy_auth <- function(endpoint)
         else if(inherits(token, "AzureTokenManaged"))
         {
             args <- c("login", "--identity")
-            call_azcopy_internal(args, env)
+            call_azcopy_internal(args, env, echo=FALSE)
         }
         else stop(
             "Only client_credentials, authorization_code, device_code and managed_identity flows supported for azcopy",
