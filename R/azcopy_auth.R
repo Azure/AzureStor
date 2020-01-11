@@ -12,7 +12,7 @@ azcopy_auth <- function(endpoint)
 
     if(!is.null(endpoint$key))
     {
-        env["ACCOUNT_NAME"] <- endpoint$url # sub("\\..*$", "", httr::parse_url(endpoint$url)$hostname)
+        env["ACCOUNT_NAME"] <- sub("\\..*$", "", httr::parse_url(endpoint$url)$hostname)
         env["ACCOUNT_KEY"] <- unname(endpoint$key)
     }
     else if(!is.null(endpoint$token))
