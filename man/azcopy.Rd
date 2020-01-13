@@ -11,6 +11,8 @@ call_azcopy(object, ...)
 \item{object}{An AzureStor object from which to obtain authentication details. Can be either a storage endpoint or container.}
 
 \item{...}{Arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.}
+
+\item{logout}{Whether to logout from AzCopy afterwards. Only has an effect if OAuth authentication is used.}
 }
 \value{
 A list, invisibly, with the following components:
