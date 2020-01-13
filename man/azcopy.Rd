@@ -3,16 +3,27 @@
 \name{call_azcopy}
 \alias{call_azcopy}
 \alias{azcopy}
+\alias{call_azcopy_from_storage}
+\alias{call_azcopy_from_storage.storage_container}
+\alias{call_azcopy_from_storage.storage_endpoint}
 \title{Call the azcopy file transfer utility}
 \usage{
-call_azcopy(args = character(0), env = NULL, silent = FALSE)
+call_azcopy(..., env = NULL, silent = FALSE)
+
+call_azcopy_from_storage(object, ...)
+
+\method{call_azcopy_from_storage}{storage_container}(object, ...)
+
+\method{call_azcopy_from_storage}{storage_endpoint}(object, ...)
 }
 \arguments{
-\item{args}{Character vector of arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.}
+\item{...}{Arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.}
 
-\item{env}{Named character vector of environment variables to set for AzCopy.}
+\item{env}{For \code{call_azcopy}, named character vector of environment variables to set for AzCopy.}
 
-\item{silent}{Whether to print the output from AzCopy to the screen; also sets whether an error return code from AzCopy will be propagated to an R error.}
+\item{silent}{For `call_azcopy, whether to print the output from AzCopy to the screen; also sets whether an error return code from AzCopy will be propagated to an R error.}
+
+\item{object}{For \code{call_azcopy_from_storage}, an AzureStor object from which to obtain authentication details. This can be either a storage endpoint or container.}
 }
 \value{
 A list, invisibly, with the following components:
@@ -27,7 +38,7 @@ A list, invisibly, with the following components:
 Call the azcopy file transfer utility
 }
 \details{
-AzureStor has the ability to use the Microsoft AzCopy commandline utility to transfer files. To enable this, set the argument \code{use_azcopy=TRUE} in any call to an upload or download function; AzureStor will then call AzCopy to perform the file transfer rather than relying on its own code. You can also call AzCopy directly with the \code{call_azcopy} function, passing it any arguments as required.
+AzureStor has the ability to use the Microsoft AzCopy commandline utility to transfer files. To enable this, set the argument \code{use_azcopy=TRUE} in any call to an upload or download function; AzureStor will then call AzCopy to perform the file transfer rather than relying on its own code. You can also call AzCopy directly with the \code{call_azcopy} and \code{call_azcopy_from_storage} functions; the latter will obtain any necessary authentication credentials from the supplied storage object.
 
 AzureStor requires version 10 or later of AzCopy. The first time you try to run it, AzureStor will check that the version of AzCopy is correct, and throw an error if it is version 8 or earlier.
 
@@ -36,20 +47,29 @@ The AzCopy utility must be in your path for AzureStor to find it. Note that unli
 \examples{
 \dontrun{
 
-# print various help screens
-call_azcopy("help")
-call_azcopy(c("help", "copy"))
-call_azcopy(c("help", "sync"))
-
-# calling azcopy to download a blob
 endp <- storage_endpoint("https://mystorage.blob.core.windows.net", sas="mysas")
 cont <- storage_container(endp, "mycontainer")
+
+# print various help screens
+call_azcopy("help")
+call_azcopy("help", "copy")
+call_azcopy_from_storage(cont, "help", "copy")
+
+# calling azcopy to download a blob
 storage_download(cont, "myblob.csv", use_azcopy=TRUE)
 
 # calling azcopy directly (must specify the SAS explicitly in the source URL)
-call_azcopy(c("copy",
-              "https://mystorage.blob.core.windows.net/mycontainer/myblob.csv?mysas",
-              "myblob.csv"))
+call_azcopy("copy",
+            "https://mystorage.blob.core.windows.net/mycontainer/myblob.csv?mysas",
+            "myblob.csv")
+
+# authenticating with an OAuth token
+token <- AzureAuth::get_azure_token("https://storage.azure.com", "mytenant", "app_id")
+endp_tok <- storage_endpoint("https://mystorage.blob.core.windows.net", token=token)
+cont_tok <- storage_container(endp_tok, "mycontainer")
+call_azcopy_from_storage(cont_tok,
+                         "https://mystorage.blob.core.windows.net/mycontainer/myblob.csv",
+                         "myblob2.csv")
 
 }
 }

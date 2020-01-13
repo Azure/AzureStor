@@ -24,7 +24,7 @@ azcopy_auth <- function(endpoint)
             env["AZCOPY_SPA_CLIENT_SECRET"] <- token$client$client_secret
             args <- c("login", "--service-principal", "--tenant-id", token$tenant,
                       "--application-id", token$client$client_id)
-            call_azcopy(args, env, silent=TRUE)
+            call_azcopy(args, env=env, silent=TRUE)
         }
         else if(inherits(token, c("AzureTokenAuthCode", "AzureTokenDeviceCode")))
         {
