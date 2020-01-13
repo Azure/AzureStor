@@ -12,6 +12,7 @@
 ## Other changes
 
 - Move AAD token validity check inside the retry loop in `call_storage_endpoint`; this fixes a bug where the token could expire during a long transfer.
+- Default destination arguments now work for file transfer generics as well.
 
 # AzureStor 3.0.1
 
