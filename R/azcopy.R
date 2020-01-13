@@ -2,6 +2,7 @@
 #'
 #' @param object An AzureStor object from which to obtain authentication details. Can be either a storage endpoint or container.
 #' @param ... Arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.
+#' @param logout Whether to logout from AzCopy afterwards. Only has an effect if OAuth authentication is used.
 #'
 #' @details
 #' AzureStor has the ability to use the Microsoft AzCopy commandline utility to transfer files. To enable this, set the argument `use_azcopy=TRUE` in any call to an upload or download function; AzureStor will then call AzCopy to perform the file transfer rather than relying on its own code. You can also call AzCopy directly with the `call_azcopy` function, passing it any arguments as required.
@@ -65,7 +66,7 @@ call_azcopy.storage_endpoint <- function(object, ..., logout=TRUE)
 
     auth <- azcopy_auth(object)
     args <- as.character(unlist(list(...)))
-    if(logout)
+    if(logout && auth$login)
         on.exit(call_azcopy_internal("logout", silent=TRUE))
     invisible(call_azcopy_internal(args, auth$env))
 }
@@ -74,7 +75,7 @@ call_azcopy.storage_endpoint <- function(object, ..., logout=TRUE)
 call_azcopy_internal <- function(args, env=NULL, silent=FALSE)
 {
     print(env)
-    processx::run(get_azcopy_path(), args, env=env, echo_cmd=!silent, echo=!silent, error_on_status=silent)
+    processx::run(get_azcopy_path(), args, env=env, echo_cmd=!silent, echo=!silent, error_on_status=!silent)
 }
 
 

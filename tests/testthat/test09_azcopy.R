@@ -75,6 +75,16 @@ test_that("azcopy works with user token",
 })
 
 
+test_that("azcopy works with sas",
+{
+    contname <- paste0(sample(letters, 10, TRUE), collapse="")
+    cont <- create_storage_container(bl_sas, "contname")
+    expect_type(call_azcopy(bl_sas, "list"), "list")
+    storage_upload(cont, "../resources/iris.csv", "iris.csv", use_azcopy=TRUE)
+    storage_download(cont, "iris.csv", tempfile(), use_azcopy=TRUE)
+})
+
+
 teardown(
 {
     conts <- list_blob_containers(bl_svc)
