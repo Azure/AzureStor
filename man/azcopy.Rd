@@ -5,14 +5,14 @@
 \alias{azcopy}
 \title{Call the azcopy file transfer utility}
 \usage{
-call_azcopy(object, ...)
+call_azcopy(args = character(0), env = NULL, silent = FALSE)
 }
 \arguments{
-\item{object}{An AzureStor object from which to obtain authentication details. Can be either a storage endpoint or container.}
+\item{args}{Character vector of arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.}
 
-\item{...}{Arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.}
+\item{env}{Named character vector of environment variables to set for AzCopy.}
 
-\item{logout}{Whether to logout from AzCopy afterwards. Only has an effect if OAuth authentication is used.}
+\item{silent}{Whether to print the output from AzCopy to the screen; also sets whether an error return code from AzCopy will be propagated to an R error.}
 }
 \value{
 A list, invisibly, with the following components:
@@ -36,22 +36,20 @@ The AzCopy utility must be in your path for AzureStor to find it. Note that unli
 \examples{
 \dontrun{
 
-endp <- storage_endpoint("https://mystorage.blob.core.windows.net", sas="mysas")
-cont <- storage_container(endp, "mycontainer")
-
 # print various help screens
-call_azcopy(endp, "help")
-call_azcopy(endp, "help", "copy")
-call_azcopy(endp, "help", "sync")
+call_azcopy("help")
+call_azcopy(c("help", "copy"))
+call_azcopy(c("help", "sync"))
 
 # calling azcopy to download a blob
+endp <- storage_endpoint("https://mystorage.blob.core.windows.net", sas="mysas")
+cont <- storage_container(endp, "mycontainer")
 storage_download(cont, "myblob.csv", use_azcopy=TRUE)
 
 # calling azcopy directly (must specify the SAS explicitly in the source URL)
-call_azcopy(endp,
-            "copy",
-            "https://mystorage.blob.core.windows.net/mycontainer/myblob.csv?mysas",
-            "myblob.csv")
+call_azcopy(c("copy",
+              "https://mystorage.blob.core.windows.net/mycontainer/myblob.csv?mysas",
+              "myblob.csv"))
 
 }
 }

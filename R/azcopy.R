@@ -1,8 +1,8 @@
 #' Call the azcopy file transfer utility
 #'
-#' @param object An AzureStor object from which to obtain authentication details. Can be either a storage endpoint or container.
-#' @param ... Arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.
-#' @param logout Whether to logout from AzCopy afterwards. Only has an effect if OAuth authentication is used.
+#' @param args Character vector of arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.
+#' @param env Named character vector of environment variables to set for AzCopy.
+#' @param silent Whether to print the output from AzCopy to the screen; also sets whether an error return code from AzCopy will be propagated to an R error.
 #'
 #' @details
 #' AzureStor has the ability to use the Microsoft AzCopy commandline utility to transfer files. To enable this, set the argument `use_azcopy=TRUE` in any call to an upload or download function; AzureStor will then call AzCopy to perform the file transfer rather than relying on its own code. You can also call AzCopy directly with the `call_azcopy` function, passing it any arguments as required.
@@ -26,56 +26,52 @@
 #' @examples
 #' \dontrun{
 #'
-#' endp <- storage_endpoint("https://mystorage.blob.core.windows.net", sas="mysas")
-#' cont <- storage_container(endp, "mycontainer")
-#'
 #' # print various help screens
-#' call_azcopy(endp, "help")
-#' call_azcopy(endp, "help", "copy")
-#' call_azcopy(endp, "help", "sync")
+#' call_azcopy("help")
+#' call_azcopy(c("help", "copy"))
+#' call_azcopy(c("help", "sync"))
 #'
 #' # calling azcopy to download a blob
+#' endp <- storage_endpoint("https://mystorage.blob.core.windows.net", sas="mysas")
+#' cont <- storage_container(endp, "mycontainer")
 #' storage_download(cont, "myblob.csv", use_azcopy=TRUE)
 #'
 #' # calling azcopy directly (must specify the SAS explicitly in the source URL)
-#' call_azcopy(endp,
-#'             "copy",
-#'             "https://mystorage.blob.core.windows.net/mycontainer/myblob.csv?mysas",
-#'             "myblob.csv")
+#' call_azcopy(c("copy",
+#'               "https://mystorage.blob.core.windows.net/mycontainer/myblob.csv?mysas",
+#'               "myblob.csv"))
 #'
 #' }
 #' @aliases azcopy
 #' @rdname azcopy
 #' @export
-call_azcopy <- function(object, ...)
+call_azcopy <- function(args=character(0), env=NULL, silent=FALSE)
 {
-    UseMethod("call_azcopy")
+    invisible(processx::run(get_azcopy_path(), args, env=env, echo_cmd=!silent, echo=!silent, error_on_status=!silent))
+}
+
+
+call_azcopy_from_storage <- function(object, ...)
+{
+    UseMethod("call_azcopy_from_storage")
+}
+
+call_azcopy_from_storage.storage_container <- function(object, ...)
+{
+    call_azcopy_from_storage(object$endpoint, ...)
 }
 
 #' @export
-call_azcopy.storage_container <- function(object, ...)
-{
-    call_azcopy(object$endpoint, ...)
-}
-
-#' @export
-call_azcopy.storage_endpoint <- function(object, ..., logout=TRUE)
+call_azcopy_from_storage.storage_endpoint <- function(object, ...)
 {
     if(!requireNamespace("processx"))
         stop("The processx package must be installed to use azcopy", call.=FALSE)
 
     auth <- azcopy_auth(object)
     args <- as.character(unlist(list(...)))
-    if(logout && auth$login)
-        on.exit(call_azcopy_internal("logout", silent=TRUE))
-    invisible(call_azcopy_internal(args, auth$env))
-}
-
-
-call_azcopy_internal <- function(args, env=NULL, silent=FALSE)
-{
-    print(env)
-    processx::run(get_azcopy_path(), args, env=env, echo_cmd=!silent, echo=!silent, error_on_status=!silent)
+    if(auth$login)
+        on.exit(call_azcopy("logout", silent=TRUE))
+    invisible(call_azcopy(args, auth$env))
 }
 
 
@@ -87,7 +83,7 @@ azcopy_upload <- function(container, src, dest, ...)
     dest_uri$path <- gsub("//", "/", file.path(container$name, dest))
     dest <- azcopy_add_sas(container$endpoint, httr::build_url(dest_uri))
 
-    call_azcopy(container$endpoint, "copy", src, dest, opts)
+    call_azcopy_from_storage(container$endpoint, "copy", src, dest, opts)
 }
 
 azcopy_upload_opts <- function(container, ...)
@@ -98,17 +94,17 @@ azcopy_upload_opts <- function(container, ...)
 azcopy_upload_opts.blob_container <- function(container, type="BlockBlob", blocksize=2^24, recursive=FALSE,
                                               lease=NULL, ...)
 {
-    c("--blobType", type, "--block-size", sprintf("%.0f", blocksize), if(recursive) "--recursive")
+    c("--blob-type", type, "--block-size-mb", sprintf("%.0f", blocksize/1048576), if(recursive) "--recursive")
 }
 
 azcopy_upload_opts.file_share <- function(container, blocksize=2^22, recursive=FALSE, ...)
 {
-    c("--block-size", sprintf("%.0f", blocksize), if(recursive) "--recursive")
+    c("--block-size-mb", sprintf("%.0f", blocksize/1048576), if(recursive) "--recursive")
 }
 
 azcopy_upload_opts.adls_filesystem <- function(container, blocksize=2^24, recursive=FALSE, lease=NULL, ...)
 {
-    c("--block-size", sprintf("%.0f", blocksize), if(recursive) "--recursive")
+    c("--block-size-mb", sprintf("%.0f", blocksize/1048576), if(recursive) "--recursive")
 }
 
 
@@ -120,7 +116,7 @@ azcopy_download <- function(container, src, dest, ...)
     src_uri$path <- gsub("//", "/", file.path(container$name, src))
     src <- azcopy_add_sas(container$endpoint, httr::build_url(src_uri))
 
-    call_azcopy(container$endpoint, "copy", src, dest, opts)
+    call_azcopy_from_storage(container$endpoint, "copy", src, dest, opts)
 }
 
 azcopy_download_opts <- function(container, ...)
