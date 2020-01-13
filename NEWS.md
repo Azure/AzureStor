@@ -3,14 +3,13 @@
 ## Significant user-visible changes
 
 - Enhanced support for AzCopy:
-  - Calling AzCopy from the various upload/download methods can now use existing AAD authentication without needing to login separately.
-  - `call_azcopy` is now a generic, with methods for storage endpoint and container objects.
+  - New `call_azcopy_from_storage` generic, with methods for storage endpoint and container objects. This allows reusing AzCopy to reused authentication details from AzureStor. In particular, calling AzCopy from the various upload/download methods can now use existing AAD credentials without needing to login separately.
   - `call_azcopy` uses the processx package under the hood, which is a powerful and flexible framework for running external programs from R. The interface is slightly changed: rather than taking the entire commandline as a single string, `call_azcopy` now expects each AzCopy commandline option to be an individual argument. See `?call_azcopy` for examples of the new interface.
-  - Recursive file transfers using AzCopy from the upload/download methods is now supported.
-- New `storage_file_exists` generic to check for file existence, which dispatches to `blob_exists`, `azure_file_exists` and `adls_file_exists` for the individual storage types.
+  - Recursive file transfers with AzCopy is now supported.
 
 ## Other changes
 
+- New `storage_file_exists` generic to check for file existence, which dispatches to `blob_exists`, `azure_file_exists` and `adls_file_exists` for the individual storage types.
 - Move AAD token validity check inside the retry loop in `call_storage_endpoint`; this fixes a bug where the token could expire during a long transfer.
 - Default destination arguments now work for file transfer generics as well.
 
