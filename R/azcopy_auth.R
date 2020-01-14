@@ -12,8 +12,9 @@ azcopy_auth <- function(endpoint)
 
     if(!is.null(endpoint$key))
     {
-        env["ACCOUNT_NAME"] <- sub("\\..*$", "", httr::parse_url(endpoint$url)$hostname)
-        env["ACCOUNT_KEY"] <- unname(endpoint$key)
+        stop("AzCopy does not support authentication with a shared key", call.=FALSE)
+        # env["ACCOUNT_NAME"] <- sub("\\..*$", "", httr::parse_url(endpoint$url)$hostname)
+        # env["ACCOUNT_KEY"] <- unname(endpoint$key)
     }
     else if(!is.null(endpoint$token))
     {
