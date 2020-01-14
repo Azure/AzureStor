@@ -3,7 +3,7 @@
 # azcopy = path -> usable
 get_azcopy_path <- function()
 {
-    if(exists("azcopy", envir=.AzureStor))
+    if(exists("azcopy", envir=.AzureStor, inherits=FALSE))
     {
         if(!is.na(.AzureStor$azcopy))
             return(.AzureStor$azcopy)
