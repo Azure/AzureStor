@@ -3,31 +3,59 @@
 \name{call_azcopy}
 \alias{call_azcopy}
 \alias{azcopy}
-\alias{azcopy_login}
 \title{Call the azcopy file transfer utility}
 \usage{
-call_azcopy(...)
-
-azcopy_login(force = FALSE)
+call_azcopy(..., env = NULL, silent = FALSE)
 }
 \arguments{
 \item{...}{Arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.}
 
-\item{force}{For \code{azcopy_login}, whether to force AzCopy to relogin. If \code{FALSE} (the default), and AzureStor has detected that AzCopy has already logged in, this has no effect.}
+\item{env}{A named character vector of environment variables to set for AzCopy.}
+
+\item{silent}{Whether to print the output from AzCopy to the screen; also sets whether an error return code from AzCopy will be propagated to an R error.}
+}
+\value{
+A list, invisibly, with the following components:
+\itemize{
+\item \code{status}: The exit status of the AzCopy command. If this is NA, then the process was killed and had no exit status.
+\item \code{stdout}: The standard output of the command.
+\item \code{stderr}: The standard error of the command.
+\item \code{timeout}: Whether AzCopy was killed because of a timeout.
+}
 }
 \description{
 Call the azcopy file transfer utility
 }
 \details{
-AzureStor has the ability to use the Microsoft AzCopy commandline utility to transfer files. To enable this, set the argument \code{use_azcopy=TRUE} in any call to an upload or download function; AzureStor will then call AzCopy to perform the file transfer rather than relying on its own code. You can also call AzCopy directly with the \code{call_azcopy} function, passing it any arguments as required.
+AzureStor has the ability to use the Microsoft AzCopy commandline utility to transfer files. To enable this, ensure the processx package is installed and set the argument \code{use_azcopy=TRUE} in any call to an upload or download function; AzureStor will then call AzCopy to perform the file transfer rather than relying on its own code. You can also call AzCopy directly with the \code{call_azcopy} function.
 
 AzureStor requires version 10 or later of AzCopy. The first time you try to run it, AzureStor will check that the version of AzCopy is correct, and throw an error if it is version 8 or earlier.
 
 The AzCopy utility must be in your path for AzureStor to find it. Note that unlike earlier versions, Azcopy 10 is a single, self-contained binary file that can be placed in any directory.
+}
+\examples{
+\dontrun{
 
-AzCopy uses its own mechanisms for authenticating with Azure Active Directory, which is independent of the OAuth tokens used by AzureStor. AzureStor will try to ensure that AzCopy has previously authenticated before trying to transfer a file with a token, but this may not always succeed. You can run \code{azcopy_login(force=TRUE)} to force it to authenticate.
+endp <- storage_endpoint("https://mystorage.blob.core.windows.net", sas="mysas")
+cont <- storage_container(endp, "mycontainer")
+
+# print various help screens
+call_azcopy("help")
+call_azcopy("help", "copy")
+
+# calling azcopy to download a blob
+storage_download(cont, "myblob.csv", use_azcopy=TRUE)
+
+# calling azcopy directly (must specify the SAS explicitly in the source URL)
+call_azcopy("copy",
+            "https://mystorage.blob.core.windows.net/mycontainer/myblob.csv?mysas",
+            "myblob.csv")
+
+}
 }
 \seealso{
+\link[processx:run]{processx::run}, \link{download_blob}, \link{download_azure_file}, \link{download_adls_file}
+
 \href{https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10}{AzCopy page on Microsoft Docs}
 
 \href{https://github.com/Azure/azure-storage-azcopy}{AzCopy GitHub repo}

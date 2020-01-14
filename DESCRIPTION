@@ -23,6 +23,7 @@ Imports:
 Suggests:
     knitr,
     jsonlite,
-    testthat
+    testthat,
+    processx
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 6.1.1

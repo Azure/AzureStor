@@ -334,7 +334,7 @@ multiupload_azure_file <- function(share, src, dest, recursive=FALSE, create_dir
                                    max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        return(azcopy_upload(share, src, dest, blocksize=blocksize))
+        return(azcopy_upload(share, src, dest, blocksize=blocksize, recursive=recursive))
 
     multiupload_internal(share, src, dest, recursive=recursive, create_dir=create_dir, blocksize=blocksize,
                          max_concurrent_transfers=max_concurrent_transfers)
@@ -356,7 +356,7 @@ multidownload_azure_file <- function(share, src, dest, recursive=FALSE, blocksiz
                                      max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        return(azcopy_download(share, src, dest, overwrite=overwrite))
+        return(azcopy_download(share, src, dest, overwrite=overwrite, recursive=recursive))
 
     multidownload_internal(share, src, dest, recursive=recursive, blocksize=blocksize, overwrite=overwrite,
                            max_concurrent_transfers=max_concurrent_transfers)
