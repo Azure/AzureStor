@@ -3,8 +3,8 @@
 ## Significant user-visible changes
 
 - Enhanced support for AzCopy:
-  - New `call_azcopy_from_storage` generic, with methods for storage endpoint and container objects. This allows reusing AzCopy to reused authentication details from AzureStor. In particular, calling AzCopy from the various upload/download methods can now use existing AAD credentials without needing to login separately.
-  - `call_azcopy` uses the processx package under the hood, which is a powerful and flexible framework for running external programs from R. The interface is slightly changed: rather than taking the entire commandline as a single string, `call_azcopy` now expects each AzCopy commandline option to be an individual argument. See `?call_azcopy` for examples of the new interface.
+  - Calling AzCopy from the various upload/download methods can now use existing authentication credentials without needing to login separately. Note that AzCopy only supports SAS and OAuth authentication, not access key.
+  - `call_azcopy` now uses the processx package under the hood, which is a powerful and flexible framework for running external programs from R. The interface is slightly changed: rather than taking the entire commandline as a single string, `call_azcopy` now expects each AzCopy commandline option to be an individual argument. See `?call_azcopy` for examples of the new interface.
   - Recursive file transfers with AzCopy is now supported.
 
 ## Other changes
