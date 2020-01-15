@@ -1,4 +1,4 @@
-# AzureStor 3.0.1.9000
+# AzureStor 3.1.0
 
 ## Significant user-visible changes
 
