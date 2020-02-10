@@ -61,7 +61,7 @@ call_storage_endpoint <- function(endpoint, path, options=list(), headers=list()
 
     # use key if provided, otherwise AAD token if provided, otherwise sas if provided, otherwise anonymous access
     if(!is.null(endpoint$key))
-        headers <- sign_request(endpoint$key, http_verb, url, headers, endpoint$api_version)
+        headers <- sign_request(endpoint, http_verb, url, headers, endpoint$api_version)
     else if(!is.null(endpoint$token))
         headers$`x-ms-version` <- endpoint$api_version
     else if(!is.null(endpoint$sas))

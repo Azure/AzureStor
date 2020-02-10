@@ -8,7 +8,7 @@
 #' @export
 sign_request <- function(endpoint, ...)
 {
-    UseMethod("endpoint")
+    UseMethod("sign_request")
 }
 
 
