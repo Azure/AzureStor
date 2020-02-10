@@ -12,8 +12,7 @@
 \alias{print.adls_endpoint}
 \title{Create a storage endpoint object}
 \usage{
-storage_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
-  api_version)
+storage_endpoint(endpoint, key = NULL, token = NULL, sas = NULL, api_version)
 
 blob_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
   api_version = getOption("azure_storage_api_version"))
@@ -29,7 +28,7 @@ adls_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
 \method{print}{adls_endpoint}(x, ...)
 }
 \arguments{
-\item{endpoint}{The URL (hostname) for the endpoint. This must be of the form \code{http[s]://{account-name}.{type}.{core-host-name}}, where \code{type} is one of \code{"dfs"} (corresponding to ADLSgen2), \code{"blob"}, \code{"file"}, \code{"queue"} or \code{"table"}. On the public Azure cloud, endpoints will be of the form \code{https://{account-name}.{type}.core.windows.net}.}
+\item{endpoint}{The URL (hostname) for the endpoint. This must be of the form \verb{http[s]://\{account-name\}.\{type\}.\{core-host-name\}}, where \code{type} is one of \code{"dfs"} (corresponding to ADLSgen2), \code{"blob"}, \code{"file"}, \code{"queue"} or \code{"table"}. On the public Azure cloud, endpoints will be of the form \verb{https://\{account-name\}.\{type\}.core.windows.net}.}
 
 \item{key}{The access key for the storage account.}
 

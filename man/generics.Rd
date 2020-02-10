@@ -54,8 +54,7 @@ storage_container(endpoint, ...)
 
 \method{storage_container}{adls_endpoint}(endpoint, name, ...)
 
-\method{storage_container}{character}(endpoint, key = NULL,
-  token = NULL, sas = NULL, ...)
+\method{storage_container}{character}(endpoint, key = NULL, token = NULL, sas = NULL, ...)
 
 create_storage_container(endpoint, ...)
 
@@ -67,8 +66,7 @@ create_storage_container(endpoint, ...)
 
 \method{create_storage_container}{storage_container}(endpoint, ...)
 
-\method{create_storage_container}{character}(endpoint, key = NULL,
-  token = NULL, sas = NULL, ...)
+\method{create_storage_container}{character}(endpoint, key = NULL, token = NULL, sas = NULL, ...)
 
 delete_storage_container(endpoint, ...)
 
@@ -91,8 +89,7 @@ list_storage_containers(endpoint, ...)
 
 \method{list_storage_containers}{adls_endpoint}(endpoint, ...)
 
-\method{list_storage_containers}{character}(endpoint, key = NULL,
-  token = NULL, sas = NULL, ...)
+\method{list_storage_containers}{character}(endpoint, key = NULL, token = NULL, sas = NULL, ...)
 
 list_storage_files(container, ...)
 
@@ -116,8 +113,7 @@ delete_storage_dir(container, ...)
 
 \method{delete_storage_dir}{file_share}(container, dir, ...)
 
-\method{delete_storage_dir}{adls_filesystem}(container, dir,
-  confirm = TRUE, ...)
+\method{delete_storage_dir}{adls_filesystem}(container, dir, confirm = TRUE, ...)
 
 delete_storage_file(container, ...)
 
@@ -125,8 +121,7 @@ delete_storage_file(container, ...)
 
 \method{delete_storage_file}{file_share}(container, file, ...)
 
-\method{delete_storage_file}{adls_filesystem}(container, file,
-  confirm = TRUE, ...)
+\method{delete_storage_file}{adls_filesystem}(container, file, confirm = TRUE, ...)
 
 storage_file_exists(container, file, ...)
 

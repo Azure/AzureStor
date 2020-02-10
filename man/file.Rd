@@ -12,8 +12,8 @@
 \alias{azure_file_exists}
 \title{Operations on a file share}
 \usage{
-list_azure_files(share, dir = "/", info = c("all", "name"),
-  prefix = NULL, recursive = FALSE)
+list_azure_files(share, dir = "/", info = c("all", "name"), prefix = NULL,
+  recursive = FALSE)
 
 upload_azure_file(share, src, dest = basename(src), create_dir = FALSE,
   blocksize = 2^22, use_azcopy = FALSE)

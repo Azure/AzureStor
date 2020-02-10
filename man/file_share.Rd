@@ -21,8 +21,7 @@
 file_share(endpoint, ...)
 
 \method{file_share}{character}(endpoint, key = NULL, token = NULL,
-  sas = NULL, api_version = getOption("azure_storage_api_version"),
-  ...)
+  sas = NULL, api_version = getOption("azure_storage_api_version"), ...)
 
 \method{file_share}{file_endpoint}(endpoint, name, ...)
 
@@ -30,17 +29,15 @@ file_share(endpoint, ...)
 
 list_file_shares(endpoint, ...)
 
-\method{list_file_shares}{character}(endpoint, key = NULL,
-  token = NULL, sas = NULL,
-  api_version = getOption("azure_storage_api_version"), ...)
+\method{list_file_shares}{character}(endpoint, key = NULL, token = NULL,
+  sas = NULL, api_version = getOption("azure_storage_api_version"), ...)
 
 \method{list_file_shares}{file_endpoint}(endpoint, ...)
 
 create_file_share(endpoint, ...)
 
-\method{create_file_share}{character}(endpoint, key = NULL,
-  token = NULL, sas = NULL,
-  api_version = getOption("azure_storage_api_version"), ...)
+\method{create_file_share}{character}(endpoint, key = NULL, token = NULL,
+  sas = NULL, api_version = getOption("azure_storage_api_version"), ...)
 
 \method{create_file_share}{file_share}(endpoint, ...)
 
@@ -48,14 +45,12 @@ create_file_share(endpoint, ...)
 
 delete_file_share(endpoint, ...)
 
-\method{delete_file_share}{character}(endpoint, key = NULL,
-  token = NULL, sas = NULL,
-  api_version = getOption("azure_storage_api_version"), ...)
+\method{delete_file_share}{character}(endpoint, key = NULL, token = NULL,
+  sas = NULL, api_version = getOption("azure_storage_api_version"), ...)
 
 \method{delete_file_share}{file_share}(endpoint, ...)
 
-\method{delete_file_share}{file_endpoint}(endpoint, name, confirm = TRUE,
-  ...)
+\method{delete_file_share}{file_endpoint}(endpoint, name, confirm = TRUE, ...)
 }
 \arguments{
 \item{endpoint}{Either a file endpoint object as created by \link{storage_endpoint}, or a character string giving the URL of the endpoint.}

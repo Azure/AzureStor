@@ -21,8 +21,7 @@
 adls_filesystem(endpoint, ...)
 
 \method{adls_filesystem}{character}(endpoint, key = NULL, token = NULL,
-  sas = NULL, api_version = getOption("azure_storage_api_version"),
-  ...)
+  sas = NULL, api_version = getOption("azure_storage_api_version"), ...)
 
 \method{adls_filesystem}{adls_endpoint}(endpoint, name, ...)
 
@@ -54,8 +53,7 @@ delete_adls_filesystem(endpoint, ...)
 
 \method{delete_adls_filesystem}{adls_filesystem}(endpoint, ...)
 
-\method{delete_adls_filesystem}{adls_endpoint}(endpoint, name,
-  confirm = TRUE, ...)
+\method{delete_adls_filesystem}{adls_endpoint}(endpoint, name, confirm = TRUE, ...)
 }
 \arguments{
 \item{endpoint}{Either an ADLSgen2 endpoint object as created by \link{storage_endpoint} or \link{adls_endpoint}, or a character string giving the URL of the endpoint.}
