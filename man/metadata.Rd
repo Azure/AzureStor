@@ -21,14 +21,11 @@ get_storage_metadata(object, ...)
 
 set_storage_metadata(object, ...)
 
-\method{set_storage_metadata}{blob_container}(object, blob, ...,
-  keep_existing = TRUE)
+\method{set_storage_metadata}{blob_container}(object, blob, ..., keep_existing = TRUE)
 
-\method{set_storage_metadata}{file_share}(object, file, isdir, ...,
-  keep_existing = TRUE)
+\method{set_storage_metadata}{file_share}(object, file, isdir, ..., keep_existing = TRUE)
 
-\method{set_storage_metadata}{adls_filesystem}(object, file, ...,
-  keep_existing = TRUE)
+\method{set_storage_metadata}{adls_filesystem}(object, file, ..., keep_existing = TRUE)
 }
 \arguments{
 \item{object}{A blob container, file share or ADLS filesystem object.}

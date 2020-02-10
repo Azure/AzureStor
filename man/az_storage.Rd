@@ -4,10 +4,6 @@
 \name{az_storage}
 \alias{az_storage}
 \title{Storage account resource class}
-\format{An object of class \code{R6ClassGenerator} of length 25.}
-\usage{
-az_storage
-}
 \description{
 Class representing a storage account, exposing methods for working with it.
 }
@@ -85,4 +81,3 @@ stor$get_file_endpoint()
 \href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference},
 \href{https://docs.microsoft.com/en-us/rest/api/storageservices/}{Azure Storage Services API reference}
 }
-\keyword{datasets}

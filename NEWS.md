@@ -1,3 +1,7 @@
+# AzureStor 3.1.0.9000
+
+- Expose `sign_request` as a generic, dispatching on the endpoint class. This is to allow for the fact that table storage uses a different signing scheme to the other storage services.
+
 # AzureStor 3.1.0
 
 ## Significant user-visible changes

@@ -19,15 +19,15 @@ multiupload_adls_file(filesystem, src, dest, recursive = FALSE,
   blocksize = 2^22, lease = NULL, use_azcopy = FALSE,
   max_concurrent_transfers = 10)
 
-upload_adls_file(filesystem, src, dest = basename(src),
-  blocksize = 2^24, lease = NULL, use_azcopy = FALSE)
+upload_adls_file(filesystem, src, dest = basename(src), blocksize = 2^24,
+  lease = NULL, use_azcopy = FALSE)
 
 multidownload_adls_file(filesystem, src, dest, recursive = FALSE,
   blocksize = 2^24, overwrite = FALSE, use_azcopy = FALSE,
   max_concurrent_transfers = 10)
 
-download_adls_file(filesystem, src, dest = basename(src),
-  blocksize = 2^24, overwrite = FALSE, use_azcopy = FALSE)
+download_adls_file(filesystem, src, dest = basename(src), blocksize = 2^24,
+  overwrite = FALSE, use_azcopy = FALSE)
 
 delete_adls_file(filesystem, file, confirm = TRUE)
 

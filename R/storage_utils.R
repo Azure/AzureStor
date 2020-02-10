@@ -61,7 +61,7 @@ call_storage_endpoint <- function(endpoint, path, options=list(), headers=list()
 
     # use key if provided, otherwise AAD token if provided, otherwise sas if provided, otherwise anonymous access
     if(!is.null(endpoint$key))
-        headers <- sign_request(endpoint$key, http_verb, url, headers, endpoint$api_version)
+        headers <- sign_request(endpoint, http_verb, url, headers, endpoint$api_version)
     else if(!is.null(endpoint$token))
         headers$`x-ms-version` <- endpoint$api_version
     else if(!is.null(endpoint$sas))
@@ -114,55 +114,6 @@ add_sas <- function(sas, url)
 {
     full_url <- httr::build_url(url)
     paste0(full_url, if(is.null(url$query)) "?" else "&", sub("^\\?", "", sas))
-}
-
-
-sign_request <- function(key, verb, url, headers, api)
-{
-    acct_name <- sub("\\..+$", "", url$host)
-    resource <- paste0("/", acct_name, "/", url$path) # don't use file.path because it strips trailing / on Windows
-    # sanity check
-    resource <- gsub("//", "/", resource)
-
-    if(is.null(headers$date) || is.null(headers$Date))
-        headers$date <- httr::http_date(Sys.time())
-    if(is.null(headers$`x-ms-version`))
-        headers$`x-ms-version` <- api
-
-    sig <- make_signature(key, verb, acct_name, resource, url$query, headers)
-
-    c(Host=url$host, Authorization=sig, headers)
-}
-
-
-make_signature <- function(key, verb, acct_name, resource, options, headers)
-{
-    names(headers) <- tolower(names(headers))
-
-    ms_headers <- headers[grepl("^x-ms", names(headers))]
-    ms_headers <- ms_headers[order(names(ms_headers))]
-    ms_headers <- paste(names(ms_headers), ms_headers, sep=":", collapse="\n")
-    options <- paste(names(options), options, sep=":", collapse="\n")
-
-    sig <- paste(verb,
-                 as.character(headers[["content-encoding"]]),
-                 as.character(headers[["content-language"]]),
-                 as.character(headers[["content-length"]]),
-                 as.character(headers[["content-md5"]]),
-                 as.character(headers[["content-type"]]),
-                 as.character(headers[["date"]]),
-                 as.character(headers[["if-modified-since"]]),
-                 as.character(headers[["if-match"]]),
-                 as.character(headers[["if-none-match"]]),
-                 as.character(headers[["if-unmodified-since"]]),
-                 as.character(headers[["range"]]),
-                 ms_headers,
-                 resource,
-                 options, sep="\n")
-    sig <- sub("\n$", "", sig) # undocumented, found thanks to Tsuyoshi Matsuzaki's blog post
-
-    hash <- openssl::sha256(charToRaw(sig), openssl::base64_decode(key))
-    paste0("SharedKey ", acct_name, ":", openssl::base64_encode(hash))
 }
 
 

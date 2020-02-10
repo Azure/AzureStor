@@ -26,8 +26,8 @@ download_blob(container, src, dest = basename(src), blocksize = 2^24,
   overwrite = FALSE, lease = NULL, use_azcopy = FALSE)
 
 multidownload_blob(container, src, dest, recursive = FALSE,
-  blocksize = 2^24, overwrite = FALSE, lease = NULL,
-  use_azcopy = FALSE, max_concurrent_transfers = 10)
+  blocksize = 2^24, overwrite = FALSE, lease = NULL, use_azcopy = FALSE,
+  max_concurrent_transfers = 10)
 
 delete_blob(container, blob, confirm = TRUE)
 
@@ -35,8 +35,8 @@ blob_exists(container, blob)
 
 copy_url_to_blob(container, src, dest, lease = NULL, async = FALSE)
 
-multicopy_url_to_blob(container, src, dest, lease = NULL,
-  async = FALSE, max_concurrent_transfers = 10)
+multicopy_url_to_blob(container, src, dest, lease = NULL, async = FALSE,
+  max_concurrent_transfers = 10)
 }
 \arguments{
 \item{container}{A blob container object.}

@@ -8,11 +8,10 @@
 do_container_op(container, operation = "", options = list(),
   headers = list(), http_verb = "GET", ...)
 
-call_storage_endpoint(endpoint, path, options = list(),
-  headers = list(), body = NULL, ..., http_verb = c("GET", "DELETE",
-  "PUT", "POST", "HEAD", "PATCH"), http_status_handler = c("stop",
-  "warn", "message", "pass"), progress = NULL,
-  return_headers = (http_verb == "HEAD"))
+call_storage_endpoint(endpoint, path, options = list(), headers = list(),
+  body = NULL, ..., http_verb = c("GET", "DELETE", "PUT", "POST", "HEAD",
+  "PATCH"), http_status_handler = c("stop", "warn", "message", "pass"),
+  progress = NULL, return_headers = (http_verb == "HEAD"))
 }
 \arguments{
 \item{container, endpoint}{For \code{do_container_op}, a storage container object (inheriting from \code{storage_container}). For \code{call_storage_endpoint}, a  storage endpoint object (inheriting from \code{storage_endpoint}).}

@@ -31,8 +31,7 @@ multicopy_url_to_storage(container, src, dest, ...)
 
 \method{copy_url_to_storage}{blob_container}(container, src, dest, ...)
 
-\method{multicopy_url_to_storage}{blob_container}(container, src, dest,
-  ...)
+\method{multicopy_url_to_storage}{blob_container}(container, src, dest, ...)
 
 storage_upload(container, ...)
 
@@ -66,8 +65,8 @@ storage_multidownload(container, ...)
 
 \method{storage_multidownload}{adls_filesystem}(container, ...)
 
-download_from_url(src, dest, key = NULL, token = NULL, sas = NULL,
-  ..., overwrite = FALSE)
+download_from_url(src, dest, key = NULL, token = NULL, sas = NULL, ...,
+  overwrite = FALSE)
 
 upload_to_url(src, dest, key = NULL, token = NULL, sas = NULL, ...)
 }
