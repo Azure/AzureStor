@@ -1,6 +1,8 @@
 # AzureStor 3.1.0.9000
 
 - Expose `sign_request` as a generic, dispatching on the endpoint class. This is to allow for the fact that table storage uses a different signing scheme to the other storage services.
+- Fix a bug in `list_adls_files` that could result in an error with large numbers of files.
+- Add a `timeout` argument to `call_storage_endpoint` that sets the number of seconds to wait for an API call.
 
 # AzureStor 3.1.0
 

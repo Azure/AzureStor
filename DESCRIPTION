@@ -26,4 +26,4 @@ Suggests:
     testthat,
     processx
 Roxygen: list(markdown=TRUE, r6=FALSE, old_usage=TRUE)
-RoxygenNote: 7.0.2
+RoxygenNote: 7.0.2.9000

@@ -295,7 +295,38 @@ list_adls_files <- function(filesystem, dir="/", info=c("all", "name"),
     {
         res <- do_container_op(filesystem, "", options=opts, http_status_handler="pass")
         httr::stop_for_status(res, storage_error_message(res))
-        out <- rbind(out, httr::content(res, simplifyVector=TRUE)$paths)
+        dfchunk <- httr::content(res, simplifyVector=TRUE)$paths
+
+        # normalise output
+        if(is.null(dfchunk$isDirectory))
+            dfchunk$isDirectory <- FALSE
+        else dfchunk$isDirectory <- !is.na(dfchunk$isDirectory)
+        if(is.null(dfchunk$contentLength))
+            dfchunk$contentLength <- NA_real_
+        else dfchunk$contentLength[is.na(dfchunk$contentLength)] <- NA_real_
+        if(is.null(dfchunk$etag))
+            dfchunk$etag <- ""
+        else dfchunk$etag[is.na(dfchunk$etag)] <- ""
+        if(is.null(dfchunk$permissions))
+            dfchunk$permissions <- ""
+        else dfchunk$permissions[is.na(dfchunk$permissions)] <- ""
+
+        dfchunk <- dfchunk[c("name", "contentLength", "isDirectory", "lastModified", "permissions", "etag")]
+        if(!is.null(dfchunk$contentLength))
+            dfchunk$contentLength <- as.numeric(dfchunk$contentLength)
+        if(!is.null(dfchunk$lastModified))
+            dfchunk$lastModified <- as_datetime(dfchunk$lastModified)
+        names(dfchunk)[c(2, 3)] <- c("size", "isdir")
+
+        if(all(dfchunk$permissions == ""))
+            dfchunk$permissions <- NULL
+        if(all(dfchunk$etag == ""))
+            dfchunk$etag <- NULL
+
+        # needed when dir was created in a non-HNS enabled account
+        dfchunk$size[dfchunk$isdir] <- NA
+
+        out <- rbind(out, dfchunk)
         headers <- httr::headers(res)
         if(is_empty(headers$`x-ms-continuation`))
             break
@@ -308,38 +339,11 @@ list_adls_files <- function(filesystem, dir="/", info=c("all", "name"),
         if(is_empty(out))
             return(data.frame(
                 name=character(0),
-                contentLength=numeric(0),
-                isDirectory=logical(0),
-                lastModified=numeric(0)))
-
-        # normalise output
-        if(is.null(out$isDirectory))
-            out$isDirectory <- FALSE
-        else out$isDirectory <- !is.na(out$isDirectory)
-        if(is.null(out$contentLength))
-            out$contentLength <- NA_real_
-        else out$contentLength[is.na(out$contentLength)] <- NA_real_
-        if(is.null(out$etag))
-            out$etag <- ""
-        else out$etag[is.na(out$etag)] <- ""
-        if(is.null(out$permissions))
-            out$permissions <- ""
-        else out$permissions[is.na(out$permissions)] <- ""
-
-        out <- out[c("name", "contentLength", "isDirectory", "lastModified", "permissions", "etag")]
-        if(!is.null(out$contentLength))
-            out$contentLength <- as.numeric(out$contentLength)
-        if(!is.null(out$lastModified))
-            out$lastModified <- as_datetime(out$lastModified)
-        names(out)[c(2, 3)] <- c("size", "isdir")
-
-        if(all(out$permissions == ""))
-            out$permissions <- NULL
-        if(all(out$etag == ""))
-            out$etag <- NULL
-
-        # needed when dir was created in a non-HNS enabled account
-        out$size[out$isdir] <- NA
+                size=numeric(0),
+                isdir=logical(0),
+                lastModified=structure(numeric(0), class=c("POSIXct", "POSIXt"), tzone="GMT"),
+                permissions=character(0),
+                etag=character(0)))
 
         out
     }

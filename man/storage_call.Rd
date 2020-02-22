@@ -11,7 +11,8 @@ do_container_op(container, operation = "", options = list(),
 call_storage_endpoint(endpoint, path, options = list(), headers = list(),
   body = NULL, ..., http_verb = c("GET", "DELETE", "PUT", "POST", "HEAD",
   "PATCH"), http_status_handler = c("stop", "warn", "message", "pass"),
-  progress = NULL, return_headers = (http_verb == "HEAD"))
+  timeout = getOption("azure_storage_timeout"), progress = NULL,
+  return_headers = (http_verb == "HEAD"))
 }
 \arguments{
 \item{container, endpoint}{For \code{do_container_op}, a storage container object (inheriting from \code{storage_container}). For \code{call_storage_endpoint}, a  storage endpoint object (inheriting from \code{storage_endpoint}).}
@@ -31,6 +32,8 @@ call_storage_endpoint(endpoint, path, options = list(), headers = list(),
 \item{body}{The request body for a \code{PUT/POST/PATCH} call.}
 
 \item{http_status_handler}{The R handler for the HTTP status code of the response. \code{"stop"}, \code{"warn"} or \code{"message"} will call the corresponding handlers in httr, while \code{"pass"} ignores the status code. The latter is primarily useful for debugging purposes.}
+
+\item{timeout}{Optionally, the number of seconds to wait for a result. If the timeout interval elapses before the storage service has finished processing the operation, it returns an error. The default timeout is taken from the system option \code{azure_storage_timeout}; if this is \code{NULL} it means to use the service default.}
 
 \item{progress}{Used by the file transfer functions, to display a progress bar.}
 
