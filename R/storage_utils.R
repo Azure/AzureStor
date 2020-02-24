@@ -9,6 +9,7 @@
 #' @param ... Any additional arguments to pass to `httr::VERB`.
 #' @param http_verb The HTTP verb as a string, one of `GET`, `DELETE`, `PUT`, `POST`, `HEAD` or `PATCH`.
 #' @param http_status_handler The R handler for the HTTP status code of the response. `"stop"`, `"warn"` or `"message"` will call the corresponding handlers in httr, while `"pass"` ignores the status code. The latter is primarily useful for debugging purposes.
+#' @param timeout Optionally, the number of seconds to wait for a result. If the timeout interval elapses before the storage service has finished processing the operation, it returns an error. The default timeout is taken from the system option `azure_storage_timeout`; if this is `NULL` it means to use the service default.
 #' @param progress Used by the file transfer functions, to display a progress bar.
 #' @param return_headers Whether to return the (parsed) response headers, rather than the body. Ignored if `http_status_handler="pass"`.
 #' @details
@@ -51,6 +52,7 @@ do_container_op <- function(container, operation="", options=list(), headers=lis
 call_storage_endpoint <- function(endpoint, path, options=list(), headers=list(), body=NULL, ...,
                                   http_verb=c("GET", "DELETE", "PUT", "POST", "HEAD", "PATCH"),
                                   http_status_handler=c("stop", "warn", "message", "pass"),
+                                  timeout=getOption("azure_storage_timeout"),
                                   progress=NULL, return_headers=(http_verb == "HEAD"))
 {
     http_verb <- match.arg(http_verb)
@@ -58,6 +60,8 @@ call_storage_endpoint <- function(endpoint, path, options=list(), headers=list()
     url$path <- URLencode(path)
     if(!is_empty(options))
         url$query <- options[order(names(options))] # must be sorted for access key signing
+
+    options$timeout <- timeout
 
     # use key if provided, otherwise AAD token if provided, otherwise sas if provided, otherwise anonymous access
     if(!is.null(endpoint$key))
