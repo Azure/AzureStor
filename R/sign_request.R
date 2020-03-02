@@ -26,7 +26,7 @@ sign_request.default <- function(endpoint, verb, url, headers, api, ...)
 
     sig <- make_signature(endpoint$key, verb, acct_name, resource, url$query, headers)
 
-    c(Host=url$host, Authorization=sig, headers)
+    modifyList(headers, list(Host=url$host, Authorization=sig))
 }
 
 

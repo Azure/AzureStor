@@ -62,22 +62,19 @@ call_storage_endpoint <- function(endpoint, path, options=list(), headers=list()
         url$query <- options[order(names(options))] # must be sorted for access key signing
 
     options$timeout <- timeout
-
-    # use key if provided, otherwise AAD token if provided, otherwise sas if provided, otherwise anonymous access
-    if(!is.null(endpoint$key))
-        headers <- sign_request(endpoint, http_verb, url, headers, endpoint$api_version)
-    else if(!is.null(endpoint$token))
-        headers$`x-ms-version` <- endpoint$api_version
-    else if(!is.null(endpoint$sas))
-        url <- add_sas(endpoint$sas, url)
-
+    headers$`x-ms-version` <- endpoint$api_version
     retries <- as.numeric(getOption("azure_storage_retries"))
     r <- 0
     repeat
     {
         r <- r + 1
-        if(!is.null(endpoint$token))
+        # use key if provided, otherwise AAD token if provided, otherwise sas if provided, otherwise anonymous access
+        if(!is.null(endpoint$key))
+            headers <- sign_request(endpoint, http_verb, url, headers, endpoint$api_version)
+        else if(!is.null(endpoint$token))
             headers$Authorization <- paste("Bearer", validate_token(endpoint$token))
+        else if(!is.null(endpoint$sas) && r == 1)
+            url <- add_sas(endpoint$sas, url)
 
         # retry on curl errors, not on httr errors
         response <- tryCatch(httr::VERB(http_verb, url, do.call(httr::add_headers, headers), body=body, progress, ...),
