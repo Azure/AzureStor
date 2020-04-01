@@ -125,9 +125,14 @@ list_blob_containers.character <- function(endpoint, key=NULL, token=NULL, sas=N
 #' @export
 list_blob_containers.blob_endpoint <- function(endpoint, ...)
 {
-    lst <- call_storage_endpoint(endpoint, "/", options=list(comp="list"))
+    res <- call_storage_endpoint(endpoint, "/", options=list(comp="list"))
+    lst <- lapply(res$Containers, function(cont) blob_container(endpoint, cont$Name[[1]]))
 
-    lst <- lapply(lst$Containers, function(cont) blob_container(endpoint, cont$Name[[1]]))
+    while(!is_empty(res$NextMarker))
+    {
+        res <- call_storage_endpoint(endpoint, "/", options=list(comp="list", marker=res$NextMarker[[1]]))
+        lst <- c(lst, lapply(res$Containers, function(cont) blob_container(endpoint, cont$Name[[1]])))
+    }
     named_list(lst)
 }
 

@@ -115,9 +115,14 @@ list_file_shares.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
 #' @export
 list_file_shares.file_endpoint <- function(endpoint, ...)
 {
-    lst <- call_storage_endpoint(endpoint, "/", options=list(comp="list"))
+    res <- call_storage_endpoint(endpoint, "/", options=list(comp="list"))
+    lst <- lapply(res$Shares, function(cont) file_share(endpoint, cont$Name[[1]]))
 
-    lst <- lapply(lst$Shares, function(cont) file_share(endpoint, cont$Name[[1]]))
+    while(!is_empty(res$NextMarker))
+    {
+        res <- call_storage_endpoint(endpoint, "/", options=list(comp="list", marker=res$NextMarker[[1]]))
+        lst <- c(lst, lapply(res$Shares, function(cont) file_share(endpoint, cont$Name[[1]])))
+    }
     named_list(lst)
 }
 

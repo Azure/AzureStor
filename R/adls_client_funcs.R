@@ -117,9 +117,27 @@ list_adls_filesystems.character <- function(endpoint, key=NULL, token=NULL, sas=
 #' @export
 list_adls_filesystems.adls_endpoint <- function(endpoint, ...)
 {
-    lst <- call_storage_endpoint(endpoint, "/", options=list(resource="account"))
+    res <- call_storage_endpoint(endpoint, "/", options=list(resource="account"), http_status_handler="pass")
+    httr::stop_for_status(res, storage_error_message((res)))
+    continue <- httr::headers(res)$`x-ms-continuation`
+    res <- httr::content(res, simplifyVector=TRUE)
+    lst <- sapply(res$filesystems$name,
+                  function(fs) adls_filesystem(endpoint, fs), simplify=FALSE)
 
-    sapply(lst$filesystems$name, function(fs) adls_filesystem(endpoint, fs), simplify=FALSE)
+    while(!is_empty(continue) && nchar(continue) > 0)
+    {
+        res <- call_storage_endpoint(
+            endpoint, "/",
+            options=list(resource="account", continuation=continue),
+            http_status_handler="pass"
+        )
+        httr::stop_for_status(res, storage_error_message((res)))
+        continue <- httr::headers(res)$`x-ms-continuation`
+        res <- httr::content(res, simplifyVector=TRUE)
+        lst <- c(lst, sapply(res$filesystems$name,
+                             function(fs) adls_filesystem(endpoint, fs), simplify=FALSE))
+    }
+    lst
 }
 
 

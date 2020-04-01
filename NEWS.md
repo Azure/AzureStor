@@ -1,3 +1,7 @@
+# AzureStor 3.1.1.9000
+
+- `list_storage_containers` and related methods will now check for a continuation marker to avoid returning prematurely (thanks to @StatKalli for reporting and providing a fix).
+
 # AzureStor 3.1.1
 
 - Expose `sign_request` as a generic, dispatching on the endpoint class. This is to allow for the fact that table storage uses a different signing scheme to the other storage services.
