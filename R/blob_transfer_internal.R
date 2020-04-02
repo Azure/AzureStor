@@ -6,8 +6,7 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
     src <- normalize_src(src)
     on.exit(close(src$con))
 
-    headers <- list("x-ms-blob-type"=type,
-                    "x-ms-content-type"=src$content_type)
+    headers <- list("x-ms-blob-type"=type)
     if(!is.null(lease))
         headers[["x-ms-lease-id"]] <- as.character(lease)
 
@@ -41,7 +40,8 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
 
     # update block list
     body <- as.character(xml2::as_xml_document(list(BlockList=blocklist)))
-    headers <- list("content-length"=sprintf("%.0f", nchar(body)))
+    headers <- list("content-length"=sprintf("%.0f", nchar(body)),
+                    "x-ms-blob-content-type"=src$content_type)
     do_container_op(container, dest, headers=headers, body=body, options=list(comp="blocklist"),
                     http_verb="PUT")
 
