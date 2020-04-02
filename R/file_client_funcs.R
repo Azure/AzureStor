@@ -118,7 +118,7 @@ list_file_shares.file_endpoint <- function(endpoint, ...)
     res <- call_storage_endpoint(endpoint, "/", options=list(comp="list"))
     lst <- lapply(res$Shares, function(cont) file_share(endpoint, cont$Name[[1]]))
 
-    while(!is_empty(res$NextMarker))
+    while(length(res$NextMarker) > 0)
     {
         res <- call_storage_endpoint(endpoint, "/", options=list(comp="list", marker=res$NextMarker[[1]]))
         lst <- c(lst, lapply(res$Shares, function(cont) file_share(endpoint, cont$Name[[1]])))

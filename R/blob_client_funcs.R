@@ -128,7 +128,7 @@ list_blob_containers.blob_endpoint <- function(endpoint, ...)
     res <- call_storage_endpoint(endpoint, "/", options=list(comp="list"))
     lst <- lapply(res$Containers, function(cont) blob_container(endpoint, cont$Name[[1]]))
 
-    while(!is_empty(res$NextMarker))
+    while(length(res$NextMarker) > 0)
     {
         res <- call_storage_endpoint(endpoint, "/", options=list(comp="list", marker=res$NextMarker[[1]]))
         lst <- c(lst, lapply(res$Containers, function(cont) blob_container(endpoint, cont$Name[[1]])))
