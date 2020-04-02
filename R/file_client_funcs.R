@@ -392,7 +392,8 @@ create_azure_dir <- function(share, dir, recursive=FALSE)
     if(recursive)
         try(create_azure_dir(share, dirname(dir), recursive=TRUE), silent=TRUE)
 
-    invisible(do_container_op(share, dir, options=list(restype="directory"), http_verb="PUT"))
+    invisible(do_container_op(share, dir, options=list(restype="directory"),
+        headers=dir_default_perms, http_verb="PUT"))
 }
 
 #' @rdname file

@@ -10,7 +10,9 @@ upload_azure_file_internal <- function(share, src, dest, create_dir=FALSE, block
     # first, create the file
     # ensure content-length is never exponential notation
     headers <- list("x-ms-type"="file",
+                    "x-ms-content-type"=src$content_type,
                     "x-ms-content-length"=sprintf("%.0f", src$size))
+    headers <- c(headers, file_default_perms)
     do_container_op(share, dest, headers=headers, http_verb="PUT")
 
     # then write the bytes into it, one block at a time
@@ -42,9 +44,6 @@ upload_azure_file_internal <- function(share, src, dest, create_dir=FALSE, block
 
     bar$close()
 
-    do_container_op(share, dest, headers=list("x-ms-content-type"=src$content_type),
-                    options=list(comp="properties"),
-                    http_verb="PUT")
     invisible(NULL)
 }
 
