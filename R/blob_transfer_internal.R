@@ -40,14 +40,11 @@ upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksi
 
     # update block list
     body <- as.character(xml2::as_xml_document(list(BlockList=blocklist)))
-    headers <- list("content-length"=sprintf("%.0f", nchar(body)))
+    headers <- list("content-length"=sprintf("%.0f", nchar(body)),
+                    "x-ms-blob-content-type"=src$content_type)
     do_container_op(container, dest, headers=headers, body=body, options=list(comp="blocklist"),
                     http_verb="PUT")
 
-    # set content type
-    do_container_op(container, dest, headers=list("x-ms-blob-content-type"=src$content_type),
-                    options=list(comp="properties"),
-                    http_verb="PUT")
     invisible(NULL)
 }
 
