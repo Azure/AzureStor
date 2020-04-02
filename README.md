@@ -137,7 +137,7 @@ AzureStor includes an interface to [AzCopy](https://docs.microsoft.com/en-us/azu
 ```r
 # use azcopy to download
 myfs <- storage_container(ad_endp, "myfilesystem")
-storage_download(adlsfs, "/incoming/bigfile.tar.gz", "/data")
+storage_download(myfs, "/incoming/bigfile.tar.gz", "/data", use_azcopy=TRUE)
 
 # use azcopy to sync a local and remote dir
 call_azcopy("sync", "c:/local/path", "https://mystorage.blob.core.windows.net/mycontainer", "--recursive=true')
