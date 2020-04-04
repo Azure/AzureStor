@@ -6,7 +6,7 @@
 #' @param key The access key for the storage account.
 #' @param token An Azure Active Directory (AAD) authentication token. This can be either a string, or an object of class AzureToken created by [AzureRMR::get_azure_token]. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.
 #' @param sas A shared access signature (SAS) for the account.
-#' @param api_version The storage API version to use when interacting with the host. Defaults to `"2018-11-09"`.
+#' @param api_version The storage API version to use when interacting with the host. Defaults to `"2019-07-07"`.
 #' @param x For the print method, a storage endpoint object.
 #' @param ... For the print method, further arguments passed to lower-level functions.
 #'

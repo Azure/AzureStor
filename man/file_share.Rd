@@ -59,7 +59,7 @@ delete_file_share(endpoint, ...)
 
 \item{key, token, sas}{If an endpoint object is not supplied, authentication credentials: either an access key, an Azure Active Directory (AAD) token, or a SAS, in that order of priority.}
 
-\item{api_version}{If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to \code{"2018-11-09"}.}
+\item{api_version}{If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to \code{"2019-07-07"}.}
 
 \item{name}{The name of the file share to get, create, or delete.}
 

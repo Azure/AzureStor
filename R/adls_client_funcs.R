@@ -4,7 +4,7 @@
 #'
 #' @param endpoint Either an ADLSgen2 endpoint object as created by [storage_endpoint] or [adls_endpoint], or a character string giving the URL of the endpoint.
 #' @param key,token,sas If an endpoint object is not supplied, authentication credentials: either an access key, an Azure Active Directory (AAD) token, or a SAS, in that order of priority. Currently the `sas` argument is unused.
-#' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2018-11-09"`.
+#' @param api_version If an endpoint object is not supplied, the storage API version to use when interacting with the host. Currently defaults to `"2019-07-07"`.
 #' @param name The name of the filesystem to get, create, or delete.
 #' @param confirm For deleting a filesystem, whether to ask for confirmation.
 #' @param x For the print method, a filesystem object.
