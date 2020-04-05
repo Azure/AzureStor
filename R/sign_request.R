@@ -37,6 +37,7 @@ make_signature <- function(key, verb, acct_name, resource, options, headers)
     ms_headers <- headers[grepl("^x-ms", names(headers))]
     ms_headers <- ms_headers[order(names(ms_headers))]
     ms_headers <- paste(names(ms_headers), ms_headers, sep=":", collapse="\n")
+    options <- options[!sapply(options, is.null)]
     options <- paste(names(options), options, sep=":", collapse="\n")
 
     sig <- paste(verb,

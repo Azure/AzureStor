@@ -4,6 +4,7 @@
 - Basic support for the new file storage permissions API. When uploading files, they will be created with default filesystem parameters: "inherit" permissions, "now" creation/modified datetimes, and unset attributes. (This has no impact on blob and ADLSgen2.)
 - Remove a redundant API call to set the Content-Type after a blob or file storage upload.
 - `list_storage_containers` and related methods will now check for a continuation marker to avoid returning prematurely (thanks to @StatKalli for reporting and providing a fix).
+- Bug fixes for internal functions.
 
 # AzureStor 3.1.1
 

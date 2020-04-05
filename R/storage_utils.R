@@ -170,7 +170,7 @@ parse_storage_url <- function(url)
     url <- httr::parse_url(url)
     endpoint <- paste0(url$scheme, "://", url$host, "/")
     store <- sub("/.*$", "", url$path)
-    path <- sub("^[^/]+/", "", url$path)
+    path <- if(url$path == store) "" else sub("^[^/]+/", "", url$path)
     c(endpoint, store, path)
 }
 
