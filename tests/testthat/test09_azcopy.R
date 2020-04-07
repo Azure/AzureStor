@@ -11,9 +11,8 @@ if(tenant == "" || app == "" || password == "" || subscription == "")
 
 rgname <- Sys.getenv("AZ_TEST_STORAGE_RG")
 storname <- Sys.getenv("AZ_TEST_STORAGE_NOHNS")
-sas <- Sys.getenv("AZ_TEST_STORAGE_AZCOPY_SAS")
 
-if(rgname == "" || storname == "" || sas == "")
+if(rgname == "" || storname == "")
     skip("Azcopy client tests skipped: resource names not set")
 
 set_azcopy_path()
@@ -28,6 +27,7 @@ stor <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$
 token_svc <- AzureRMR::get_azure_token("https://storage.azure.com/", tenant=tenant, app=app, password=password)
 token_usr <- AzureRMR::get_azure_token("https://storage.azure.com/", tenant=tenant, app=cli_app)
 key <- stor$list_keys()[1]
+sas <- stor$get_account_sas(permissions="rwdla")
 
 bl_svc <- stor$get_blob_endpoint(key=NULL, sas=NULL, token=token_svc)
 bl_usr <- stor$get_blob_endpoint(key=NULL, sas=NULL, token=token_usr)
