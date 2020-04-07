@@ -76,27 +76,11 @@ public=list(
     },
 
     get_account_sas=function(start=NULL, expiry=NULL, services="bqtf", permissions="r",
-                             resource_types="sco", ip=NULL, protocol=NULL, key=NULL)
+                             resource_types="sco", ip=NULL, protocol=NULL, key=self$list_keys()[1])
     {
         dates <- private$set_sas_dates(start, expiry)
-        parms <- list(keyToSign=key,
-                      signedExpiry=dates$expiry, signedIp=ip, signedPermission=permissions, signedProtocol=protocol,
-                      signedResourceTypes=resource_types, signedServices=services, signedStart=dates$start)
-
-        self$do_operation("listAccountSas", body=parms, encode="json", http_verb="POST")$accountSasToken
+        make_account_sas(self$name, dates, permissions, resource_types, services, ip, protocol, key)
     },
-
-    # hide for now
-    #get_service_sas=function(start=NULL, expiry=NULL, path=NULL, service=NULL, permissions="r",
-                             #ip=NULL, protocol=NULL, key=NULL)
-    #{
-        #dates <- private$set_sas_dates(start, expiry)
-        #parms <- list(keyToSign=key, canonicalizedResource=path,
-                      #signedExpiry=dates$expiry, signedIp=ip, signedPermission=permissions, signedProtocol=protocol,
-                      #signedResource=service, signedStart=dates$start)
-
-        #self$do_operation("listServiceSas", body=parms, encode="json", http_verb="POST")$serviceSasToken
-    #},
 
     get_blob_endpoint=function(key=self$list_keys()[1], sas=NULL, token=NULL)
     {
