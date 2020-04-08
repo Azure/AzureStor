@@ -7,7 +7,9 @@
 #' The following methods are available, in addition to those provided by the [AzureRMR::az_resource] class:
 #' - `new(...)`: Initialize a new storage object. See 'Initialization'.
 #' - `list_keys()`: Return the access keys for this account.
-#' - `get_account_sas(...)`: Return an account shared access signature (SAS). See 'Shared access signatures' for more details.
+#' - `get_account_sas(...)`: Return an account shared access signature (SAS). See 'Shared access signatures' below.
+#' - `get_user_delegation_key(...)`: Returns a key that can be used to construct a user delegation SAS.
+#' - `revoke_user_delegation_keys()`: Revokes all user delegation keys for the account. This also renders all SAS's obtained via such keys invalid.
 #' - `get_blob_endpoint(key, sas)`: Return the account's blob storage endpoint, along with an access key and/or a SAS. See 'Endpoints' for more details
 #' - `get_file_endpoint(key, sas)`: Return the account's file storage endpoint.
 #' - `regen_key(key)`: Regenerates (creates a new value for) an access key. The argument `key` can be 1 or 2.
@@ -18,15 +20,27 @@
 #' @section Shared access signatures:
 #' The simplest way for a user to access files and data in a storage account is to give them the account's access key. This gives them full control of the account, and so may be a security risk. An alternative is to provide the user with a _shared access signature_ (SAS), which limits access to specific resources and only for a set length of time.
 #'
-#' To create an account SAS, call the `get_account_sas()` method with the following arguments:
-#' - `start`: The starting access date/time, as a `Date` or `POSIXct` value. Defaults to the current time.
-#' - `expiry`: The ending access date/time, as a `Date` or `POSIXct` value.  Defaults to 8 hours after the start time.
-#' - `services`: Which services to allow access to. A string containing a combination of the letters `b`, `f`, `q`, `t` for blob, file, queue and table access. Defaults to `bfqt`.
-#' - `permissions`: Which permissions to grant. A string containing a combination of the letters `r` (read), `w` (write), `d` (delete), `l` (list), `a` (add), `c` (create), `u` (update) , `p` (process). Defaults to `r`.
-#' - `resource_types`: Which levels of the resource type hierarchy to allow access to. A string containing a combination of the letters `s` (service), `c` (container), `o` (object). Defaults to `sco`.
-#' - ip: An IP address or range to grant access to.
-#' - `protocol`: Which protocol to allow, either `"http"`, `"http,https"` or `"https"`. Defaults to NULL, which is the same as `"http,https"`.
-#' - `key`: the access key used to sign (authorise) the SAS.
+#' AzureStor supports two kinds of SAS: account and user delegation, with the latter applying only to blob and ADLS2 storage. To create an account SAS, call the `get_account_sas()` method. This has the following signature:
+#'
+#' ```
+#' get_account_sas(key=self$list_keys()[1], start=NULL, expiry=NULL, services="bqtf", permissions="rl",
+#'                 resource_types="sco", ip=NULL, protocol=NULL)
+#' ```
+#'
+#' To create a user delegation SAS, you must first create a user delegation _key_. This takes the place of the account's access key in generating the SAS. The `get_user_delegation_key()` method has the following signature:
+#'
+#' ```
+#' get_user_delegation_key(token=self$token, key_start=NULL, key_expiry=NULL)
+#' ```
+#'
+#' Once you have a user delegation key, you can use it to obtain a user delegation sas. The `get_user_delegation_sas()` method has the following signature:
+#'
+#' ```
+#' get_user_delegation_sas(key, resource, start=NULL, expiry=NULL, permissions="rl",
+#'                         resource_types="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
+#' ```
+#'
+#' See the [Shared access signatures][sas] page for more information about SAS.
 #'
 #' @section Endpoints:
 #' The client-side interaction with a storage account is via an _endpoint_. A storage account can have several endpoints, one for each type of storage supported: blob, file, queue and table.
@@ -41,7 +55,9 @@
 #' [blob_endpoint], [file_endpoint],
 #' [create_storage_account], [get_storage_account], [delete_storage_account], [Date], [POSIXt],
 #' [Azure Storage Provider API reference](https://docs.microsoft.com/en-us/rest/api/storagerp/),
-#' [Azure Storage Services API reference](https://docs.microsoft.com/en-us/rest/api/storageservices/)
+#' [Azure Storage Services API reference](https://docs.microsoft.com/en-us/rest/api/storageservices/),
+#' [Create an account SAS](https://docs.microsoft.com/en-us/rest/api/storageservices/create-account-sas),
+#' [Create a user delegation SAS](https://docs.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas)
 #'
 #' @examples
 #' \dontrun{
@@ -54,10 +70,6 @@
 #'
 #' # regenerate a key
 #' stor$regen_key(1)
-#'
-#' # generate a shared access signature for blob storage, expiring in 7 days time
-#' today <- Sys.time()
-#' stor$get_account_sas(expiry=today + 7*24*60*60, services="b", permissions="rw")
 #'
 #' # storage endpoints
 #' stor$get_blob_endpoint()
@@ -75,14 +87,14 @@ public=list(
         sapply(keys, `[[`, "value")
     },
 
-    get_account_sas=function(start=NULL, expiry=NULL, services="bqtf", permissions="rl",
-                             resource_types="sco", ip=NULL, protocol=NULL, key=self$list_keys()[1])
+    get_account_sas=function(key=self$list_keys()[1], start=NULL, expiry=NULL, services="bqtf", permissions="rl",
+                             resource_types="sco", ip=NULL, protocol=NULL)
     {
-        get_account_sas(self, key, start=start, expiry=expiry, services=services, permissions=permissions,
+        get_account_sas(self, key=key, start=start, expiry=expiry, services=services, permissions=permissions,
                         resource_types=resource_types, ip=ip, protocol=protocol)
     },
 
-    get_user_delegation_key=function(key_start=NULL, key_expiry=NULL, token=self$token)
+    get_user_delegation_key=function(token=self$token, key_start=NULL, key_expiry=NULL)
     {
         get_user_delegation_key(self, token=token, key_start=key_start, key_expiry=key_expiry)
     },
@@ -90,6 +102,13 @@ public=list(
     revoke_user_delegation_keys=function()
     {
         revoke_user_delegation_keys(self)
+    },
+
+    get_user_delegation_sas=function(key, resource, start=NULL, expiry=NULL, permissions="rl",
+                                     resource_types="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
+    {
+        get_user_delegation_sas(self, key=key, resource=resource, start=start, expiry=expiry, permissions=permissions,
+                                resource_types=resource_types, ip=ip, protocol=protocol, snapshot_time=snapshot_time)
     },
 
     get_blob_endpoint=function(key=self$list_keys()[1], sas=NULL, token=NULL)

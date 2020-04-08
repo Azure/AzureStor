@@ -2,11 +2,11 @@ context("Account and user SAS")
 
 tenant <- Sys.getenv("AZ_TEST_TENANT_ID")
 app <- Sys.getenv("AZ_TEST_APP_ID")
-cliapp <- Sys.getenv("AZ_TEST_NATIVE_APP_ID")
+#cliapp <- Sys.getenv("AZ_TEST_NATIVE_APP_ID")
 password <- Sys.getenv("AZ_TEST_PASSWORD")
 subscription <- Sys.getenv("AZ_TEST_SUBSCRIPTION")
 
-if(tenant == "" || app == "" || password == "" || subscription == "" || cliapp == "")
+if(tenant == "" || app == "" || password == "" || subscription == "")
     skip("SAS tests skipped: ARM credentials not set")
 
 rgname <- Sys.getenv("AZ_TEST_STORAGE_RG")
@@ -20,7 +20,7 @@ stor <- sub$get_resource_group(rgname)$get_storage_account(storname)
 options(azure_storage_progress_bar=FALSE)
 
 dates <- c(Sys.Date() - 1, Sys.Date() + 5)
-token <- AzureAuth::get_azure_token("https://storage.azure.com", tenant, app=cliapp)
+token <- AzureRMR::get_azure_token("https://storage.azure.com", tenant, app=app, password=password)
 
 test_that("Account SAS works 0",
 {
@@ -60,7 +60,7 @@ test_that("Account SAS works 2",
 
 test_that("User delegation key works 1",
 {
-    ukey <- stor$get_user_delegation_key(key_start=dates[1], key_expiry=dates[2], token=token)
+    ukey <- stor$get_user_delegation_key(token=token, key_start=dates[1], key_expiry=dates[2])
     expect_is(ukey, "user_delegation_key")
     expect_type(ukey$Value, "character")
 })
@@ -89,6 +89,7 @@ test_that("User delegation SAS works 1",
 
     bl <- stor$get_blob_endpoint(key=NULL, sas=usas)
     cont <- storage_container(bl, contname)
+    expect_silent(list_storage_files(cont))
     expect_silent(storage_upload(cont, "../resources/iris.csv"))
 })
 
@@ -108,6 +109,7 @@ test_that("User delegation SAS works 2",
 
     bl <- stor$get_blob_endpoint(key=NULL, sas=usas)
     cont <- storage_container(bl, contname)
+    expect_silent(list_storage_files(cont))
     expect_silent(storage_upload(cont, "../resources/iris.csv"))
 })
 
