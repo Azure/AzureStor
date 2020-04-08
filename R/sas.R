@@ -8,12 +8,12 @@ get_account_sas.az_storage <- function(account, key=account$list_keys()[1], ...)
     get_account_sas(account$name, key, ...)
 }
 
-get_account_sas.storage_endpoint <- function(account, ...)
+get_account_sas.storage_endpoint <- function(account, key=account$key, ...)
 {
-    if(is.null(account$key))
+    if(is.null(key))
         stop("Must have access key to generate SAS", call.=FALSE)
-    acctname <- sub("\\..*)", "", httr::parse_url(account$url)$hostname)
-    get_account_sas(acctname, account$key, ...)
+    acctname <- sub("\\..*", "", httr::parse_url(account$url)$hostname)
+    get_account_sas(acctname, key=key, ...)
 }
 
 get_account_sas.default <- function(account, key, start=NULL, expiry=NULL, services="bqtf", permissions="rl",
@@ -103,8 +103,8 @@ get_user_delegation_sas <- function(account, ...)
 
 get_user_delegation_sas.blob_endpoint <- function(account, key, ...)
 {
-    acctname <- sub("\\..*)", "", httr::parse_url(account$url)$hostname)
-    get_account_sas(acctname, key, ...)
+    acctname <- sub("\\..*", "", httr::parse_url(account$url)$hostname)
+    get_user_delegation_sas(acctname, key, ...)
 }
 
 get_user_delegation_sas.default <- function(account, key, resource, start=NULL, expiry=NULL, permissions="rl",
