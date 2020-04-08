@@ -86,7 +86,7 @@ get_user_delegation_key.blob_endpoint <- function(account, key_start, key_expiry
 
 revoke_user_delegation_keys <- function(account)
 {
-    UseMethod("revoke_user_delegation_key")
+    UseMethod("revoke_user_delegation_keys")
 }
 
 revoke_user_delegation_keys.az_storage <- function(account)
@@ -112,7 +112,7 @@ get_user_delegation_sas.default <- function(account, key, resource, start=NULL, 
                                             auth_api_version=getOption("azure_storage_api_version"), ...)
 {
     dates <- make_sas_dates(start, expiry)
-    resource <- file.path("blob", account, resource)
+    resource <- file.path("/blob", account, resource)
     sig_str <- paste(
         permissions,
         dates$start,
@@ -134,12 +134,8 @@ get_user_delegation_sas.default <- function(account, key, resource, start=NULL, 
         "",
         "",
         "Application/octet-stream",
-        "",
         sep="\n"
     )
-    cat(sig_str, ".\n")
-    print(key$Value)
-    #sig <- openssl::base64_encode(openssl::sha256(charToRaw(sig_str), openssl::base64_decode(key$Value)))
     sig <- sign_sha256(sig_str, key$Value)
 
     parts <- list(
