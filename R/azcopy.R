@@ -2,7 +2,7 @@
 #'
 #' @param ... Arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.
 #' @param env A named character vector of environment variables to set for AzCopy.
-#' @param silent Whether to print the output from AzCopy to the screen; also sets whether an error return code from AzCopy will be propagated to an R error.
+#' @param silent Whether to print the output from AzCopy to the screen; also sets whether an error return code from AzCopy will be propagated to an R error. Defaults to the value of the `azure_storage_azcopy_silent` option, or FALSE if this is unset.
 #'
 #' @details
 #' AzureStor has the ability to use the Microsoft AzCopy commandline utility to transfer files. To enable this, ensure the processx package is installed and set the argument `use_azcopy=TRUE` in any call to an upload or download function; AzureStor will then call AzCopy to perform the file transfer rather than relying on its own code. You can also call AzCopy directly with the `call_azcopy` function.
@@ -45,8 +45,9 @@
 #' @aliases azcopy
 #' @rdname azcopy
 #' @export
-call_azcopy <- function(..., env=NULL, silent=FALSE)
+call_azcopy <- function(..., env=NULL, silent=getOption("azure_storage_azcopy_silent", FALSE))
 {
+    silent <- as.logical(silent)
     args <- as.character(unlist(list(...)))
     invisible(processx::run(get_azcopy_path(), args, env=env, echo_cmd=!silent, echo=!silent, error_on_status=!silent))
 }

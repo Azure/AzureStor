@@ -5,14 +5,15 @@
 \alias{azcopy}
 \title{Call the azcopy file transfer utility}
 \usage{
-call_azcopy(..., env = NULL, silent = FALSE)
+call_azcopy(..., env = NULL,
+  silent = getOption("azure_storage_azcopy_silent", FALSE))
 }
 \arguments{
 \item{...}{Arguments to pass to AzCopy on the commandline. If no arguments are supplied, a help screen is printed.}
 
 \item{env}{A named character vector of environment variables to set for AzCopy.}
 
-\item{silent}{Whether to print the output from AzCopy to the screen; also sets whether an error return code from AzCopy will be propagated to an R error.}
+\item{silent}{Whether to print the output from AzCopy to the screen; also sets whether an error return code from AzCopy will be propagated to an R error. Defaults to the value of the \code{azure_storage_azcopy_silent} option, or FALSE if this is unset.}
 }
 \value{
 A list, invisibly, with the following components:
