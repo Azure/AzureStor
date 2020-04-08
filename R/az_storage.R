@@ -75,7 +75,7 @@ public=list(
         sapply(keys, `[[`, "value")
     },
 
-    get_account_sas=function(start=NULL, expiry=NULL, services="bqtf", permissions="r",
+    get_account_sas=function(start=NULL, expiry=NULL, services="bqtf", permissions="rl",
                              resource_types="sco", ip=NULL, protocol=NULL, key=self$list_keys()[1])
     {
         get_account_sas(self, key, start=start, expiry=expiry, services=services, permissions=permissions,

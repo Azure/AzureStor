@@ -16,7 +16,7 @@ get_account_sas.storage_endpoint <- function(account, ...)
     get_account_sas(acctname, account$key, ...)
 }
 
-get_account_sas.default <- function(account, key, start=NULL, expiry=NULL, services="bqtf", permissions="r",
+get_account_sas.default <- function(account, key, start=NULL, expiry=NULL, services="bqtf", permissions="rl",
                                     resource_types="sco", ip=NULL, protocol=NULL,
                                     auth_api_version=getOption("azure_storage_api_version"), ...)
 {
@@ -61,7 +61,7 @@ get_user_delegation_key <- function(account, ...)
 get_user_delegation_key.az_resource <- function(account, token=account$token, ...)
 {
     endp <- account$get_blob_endpoint(key=NULL, token=token)
-    get_user_delegation_key(endpoint, ...)
+    get_user_delegation_key(endp, ...)
 }
 
 get_user_delegation_key.blob_endpoint <- function(account, key_start, key_expiry)
@@ -101,16 +101,18 @@ get_user_delegation_sas <- function(account, ...)
     UseMethod("get_user_delegation_sas")
 }
 
-get_user_delegation_sas.adls_endpoint <- get_user_delegation_sas.blob_endpoint <- function(account, ...)
+get_user_delegation_sas.blob_endpoint <- function(account, key, ...)
 {
-
+    acctname <- sub("\\..*)", "", httr::parse_url(account$url)$hostname)
+    get_account_sas(acctname, key, ...)
 }
 
-get_user_delegation_sas.default <- function(account, key, resource, start=NULL, expiry=NULL, permissions="r",
+get_user_delegation_sas.default <- function(account, key, resource, start=NULL, expiry=NULL, permissions="rl",
                                             resource_types="c", ip=NULL, protocol=NULL, snapshot_time=NULL,
                                             auth_api_version=getOption("azure_storage_api_version"), ...)
 {
     dates <- make_sas_dates(start, expiry)
+    resource <- file.path("blob", account, resource)
     sig_str <- paste(
         permissions,
         dates$start,
@@ -131,14 +133,18 @@ get_user_delegation_sas.default <- function(account, key, resource, start=NULL, 
         "",
         "",
         "",
+        "Application/octet-stream",
         "",
         sep="\n"
     )
-    sig <- sign_sha256(sig_str, key)
+    cat(sig_str, ".\n")
+    print(key$Value)
+    #sig <- openssl::base64_encode(openssl::sha256(charToRaw(sig_str), openssl::base64_decode(key$Value)))
+    sig <- sign_sha256(sig_str, key$Value)
 
     parts <- list(
         sv=auth_api_version,
-        srt=resource_types,
+        sr=resource_types,
         st=dates$start,
         se=dates$expiry,
         sp=permissions,
@@ -150,6 +156,7 @@ get_user_delegation_sas.default <- function(account, key, resource, start=NULL, 
         ske=key$SignedExpiry,
         sks=key$SignedService,
         skv=key$SignedVersion,
+        rsct="Application/octet-stream",
         sig=sig
     )
     parts <- parts[!sapply(parts, is_empty)]
