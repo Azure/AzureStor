@@ -78,8 +78,18 @@ public=list(
     get_account_sas=function(start=NULL, expiry=NULL, services="bqtf", permissions="r",
                              resource_types="sco", ip=NULL, protocol=NULL, key=self$list_keys()[1])
     {
-        dates <- private$set_sas_dates(start, expiry)
-        make_account_sas(self$name, dates, permissions, resource_types, services, ip, protocol, key)
+        get_account_sas(self, key, start=start, expiry=expiry, services=services, permissions=permissions,
+                        resource_types=resource_types, ip=ip, protocol=protocol)
+    },
+
+    get_user_delegation_key=function(key_start=NULL, key_expiry=NULL, token=self$token)
+    {
+        get_user_delegation_key(self, token=token, key_start=key_start, key_expiry=key_expiry)
+    },
+
+    revoke_user_delegation_keys=function()
+    {
+        revoke_user_delegation_keys(self)
     },
 
     get_blob_endpoint=function(key=self$list_keys()[1], sas=NULL, token=NULL)
@@ -123,28 +133,5 @@ public=list(
                                            "type", "name", "kind", "sku")))
         cat(AzureRMR::format_public_methods(self))
         invisible(NULL)
-    }
-),
-
-private=list(
-
-    set_sas_dates=function(start, expiry)
-    {
-        if(is.null(start))
-            start <- Sys.time()
-        else if(!inherits(start, "POSIXt"))
-            start <- as.POSIXct(start, origin="1970-01-01")
-
-        if(is.null(expiry)) # by default, 8 hours after start
-            expiry <- start + 8 * 60 * 60
-        else if(!inherits(expiry, "POSIXt"))
-            expiry <- as.POSIXct(expiry, origin="1970-01-01")
-
-        if(inherits(start, c("POSIXt", "Date")))
-            start <- strftime(start, "%Y-%m-%dT%H:%M:%SZ", tz="UTC")
-        if(inherits(expiry, c("POSIXt", "Date")))
-            expiry <- strftime(expiry, "%Y-%m-%dT%H:%M:%SZ", tz="UTC")
-
-        list(start=start, expiry=expiry)
     }
 ))

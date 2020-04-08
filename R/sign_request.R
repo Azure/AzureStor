@@ -57,8 +57,7 @@ make_signature <- function(key, verb, acct_name, resource, options, headers)
                  options, sep="\n")
     sig <- sub("\n$", "", sig) # undocumented, found thanks to Tsuyoshi Matsuzaki's blog post
 
-    hash <- openssl::sha256(charToRaw(sig), openssl::base64_decode(key))
-    paste0("SharedKey ", acct_name, ":", openssl::base64_encode(hash))
+    paste0("SharedKey ", acct_name, ":", sign_sha256(sig, key))
 }
 
 
