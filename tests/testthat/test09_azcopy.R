@@ -1,4 +1,4 @@
-context("Blob client interface, extra")
+context("Azcopy")
 
 tenant <- Sys.getenv("AZ_TEST_TENANT_ID")
 app <- Sys.getenv("AZ_TEST_APP_ID")
@@ -11,14 +11,19 @@ if(tenant == "" || app == "" || password == "" || subscription == "")
 
 rgname <- Sys.getenv("AZ_TEST_STORAGE_RG")
 storname <- Sys.getenv("AZ_TEST_STORAGE_NOHNS")
-sas <- Sys.getenv("AZ_TEST_STORAGE_AZCOPY_SAS")
 
-if(rgname == "" || storname == "" || sas == "")
+if(rgname == "" || storname == "")
     skip("Azcopy client tests skipped: resource names not set")
 
 set_azcopy_path()
 if(is.null(.AzureStor$azcopy) || is.na(.AzureStor$azcopy))
     skip("Azcopy tests skipped: not detected")
+
+if(Sys.getenv("_R_CHECK_CRAN_INCOMING_") != "")
+    skip("Azcopy tests skipped: tests being run from devtools::check")
+
+opt_sil <- getOption("azure_storage_azcopy_silent")
+options(azure_storage_azcopy_silent="TRUE")
 
 stor <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$
     get_subscription(subscription)$
@@ -28,6 +33,7 @@ stor <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$
 token_svc <- AzureRMR::get_azure_token("https://storage.azure.com/", tenant=tenant, app=app, password=password)
 token_usr <- AzureRMR::get_azure_token("https://storage.azure.com/", tenant=tenant, app=cli_app)
 key <- stor$list_keys()[1]
+sas <- stor$get_account_sas(permissions="rwdla")
 
 bl_svc <- stor$get_blob_endpoint(key=NULL, sas=NULL, token=token_svc)
 bl_usr <- stor$get_blob_endpoint(key=NULL, sas=NULL, token=token_usr)
@@ -49,8 +55,8 @@ files_identical <- function(set1, set2)
 
 test_that("call_azcopy works",
 {
-    expect_output(azc1 <- call_azcopy())
-    expect_output(azc2 <- call_azcopy("help"))
+    expect_output(azc1 <- call_azcopy(silent=FALSE))
+    expect_output(azc2 <- call_azcopy("help", silent=FALSE))
     expect_identical(substr(azc1$stdout, 1, 200), substr(azc2$stdout, 1, 200))
 })
 
@@ -101,6 +107,7 @@ test_that("azcopy works with sas",
 
 teardown(
 {
+    options(azure_storage_azcopy_silent=opt_sil)
     conts <- list_blob_containers(bl_svc)
     lapply(conts, delete_blob_container, confirm=FALSE)
     conts <- list_adls_filesystems(ad_key)

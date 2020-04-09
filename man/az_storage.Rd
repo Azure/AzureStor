@@ -13,7 +13,9 @@ The following methods are available, in addition to those provided by the \link[
 \itemize{
 \item \code{new(...)}: Initialize a new storage object. See 'Initialization'.
 \item \code{list_keys()}: Return the access keys for this account.
-\item \code{get_account_sas(...)}: Return an account shared access signature (SAS). See 'Shared access signatures' for more details.
+\item \code{get_account_sas(...)}: Return an account shared access signature (SAS). See 'Shared access signatures' below.
+\item \code{get_user_delegation_key(...)}: Returns a key that can be used to construct a user delegation SAS.
+\item \code{revoke_user_delegation_keys()}: Revokes all user delegation keys for the account. This also renders all SAS's obtained via such keys invalid.
 \item \code{get_blob_endpoint(key, sas)}: Return the account's blob storage endpoint, along with an access key and/or a SAS. See 'Endpoints' for more details
 \item \code{get_file_endpoint(key, sas)}: Return the account's file storage endpoint.
 \item \code{regen_key(key)}: Regenerates (creates a new value for) an access key. The argument \code{key} can be 1 or 2.
@@ -29,17 +31,18 @@ Initializing a new object of this class can either retrieve an existing storage 
 
 The simplest way for a user to access files and data in a storage account is to give them the account's access key. This gives them full control of the account, and so may be a security risk. An alternative is to provide the user with a \emph{shared access signature} (SAS), which limits access to specific resources and only for a set length of time.
 
-To create an account SAS, call the \code{get_account_sas()} method with the following arguments:
-\itemize{
-\item \code{start}: The starting access date/time, as a \code{Date} or \code{POSIXct} value. Defaults to the current time.
-\item \code{expiry}: The ending access date/time, as a \code{Date} or \code{POSIXct} value.  Defaults to 8 hours after the start time.
-\item \code{services}: Which services to allow access to. A string containing a combination of the letters \code{b}, \code{f}, \code{q}, \code{t} for blob, file, queue and table access. Defaults to \code{bfqt}.
-\item \code{permissions}: Which permissions to grant. A string containing a combination of the letters \code{r} (read), \code{w} (write), \code{d} (delete), \code{l} (list), \code{a} (add), \code{c} (create), \code{u} (update) , \code{p} (process). Defaults to \code{r}.
-\item \code{resource_types}: Which levels of the resource type hierarchy to allow access to. A string containing a combination of the letters \code{s} (service), \code{c} (container), \code{o} (object). Defaults to \code{sco}.
-\item ip: An IP address or range to grant access to.
-\item \code{protocol}: Which protocol to allow, either \code{"http"}, \code{"http,https"} or \code{"https"}. Defaults to NULL, which is the same as \code{"http,https"}.
-\item \code{key}: the access key used to sign (authorise) the SAS.
+AzureStor supports two kinds of SAS: account and user delegation, with the latter applying only to blob and ADLS2 storage. To create an account SAS, call the \code{get_account_sas()} method. This has the following signature:\preformatted{get_account_sas(key=self$list_keys()[1], start=NULL, expiry=NULL, services="bqtf", permissions="rl",
+                resource_types="sco", ip=NULL, protocol=NULL)
 }
+
+To create a user delegation SAS, you must first create a user delegation \emph{key}. This takes the place of the account's access key in generating the SAS. The \code{get_user_delegation_key()} method has the following signature:\preformatted{get_user_delegation_key(token=self$token, key_start=NULL, key_expiry=NULL)
+}
+
+Once you have a user delegation key, you can use it to obtain a user delegation sas. The \code{get_user_delegation_sas()} method has the following signature:\preformatted{get_user_delegation_sas(key, resource, start=NULL, expiry=NULL, permissions="rl",
+                        resource_types="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
+}
+
+See the \link[=sas]{Shared access signatures} page for more information about SAS.
 }
 
 \section{Endpoints}{
@@ -65,10 +68,6 @@ stor$list_keys()
 # regenerate a key
 stor$regen_key(1)
 
-# generate a shared access signature for blob storage, expiring in 7 days time
-today <- Sys.time()
-stor$get_account_sas(expiry=today + 7*24*60*60, services="b", permissions="rw")
-
 # storage endpoints
 stor$get_blob_endpoint()
 stor$get_file_endpoint()
@@ -79,5 +78,7 @@ stor$get_file_endpoint()
 \link{blob_endpoint}, \link{file_endpoint},
 \link{create_storage_account}, \link{get_storage_account}, \link{delete_storage_account}, \link{Date}, \link{POSIXt},
 \href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference},
-\href{https://docs.microsoft.com/en-us/rest/api/storageservices/}{Azure Storage Services API reference}
+\href{https://docs.microsoft.com/en-us/rest/api/storageservices/}{Azure Storage Services API reference},
+\href{https://docs.microsoft.com/en-us/rest/api/storageservices/create-account-sas}{Create an account SAS},
+\href{https://docs.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas}{Create a user delegation SAS}
 }
