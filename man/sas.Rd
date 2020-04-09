@@ -83,18 +83,20 @@ get_user_delegation_sas(account, ...)
 \item{snapshot_time}{For \code{get_user_delegation_sas}, the blob snapshot for which the SAS is valid. Only required if \code{resource_types="bs"}.}
 }
 \description{
-The simplest way for a user to access files and data in a storage account is to give them the account's access key. This gives them full control of the account, and so may be a security risk. An alternative is to provide the user with a \emph{shared access signature} (SAS), which limits access to specific resources and only for a set length of time. AzureStor supports two kinds of SAS: account and user delegation, with the latter applying only to blob and ADLS2 storage.
+The simplest way for a user to access files and data in a storage account is to give them the account's access key. This gives them full control of the account, and so may be a security risk. An alternative is to provide the user with a \emph{shared access signature} (SAS), which limits access to specific resources and only for a set length of time. AzureStor supports generating two kinds of SAS: account and user delegation, with the latter applying only to blob and ADLS2 storage.
 }
 \details{
 Listed here are S3 generics and methods to obtain a SAS for accessing storage; in addition, the \code{\link{az_storage}} resource class has R6 methods for \code{get_account_sas}, \code{get_user_delegation_key} and \code{revoke_user_delegation_keys} which simply call the corresponding S3 method.
 
-An \strong{account SAS} is secured with the storage account key. An account SAS delegates access to resources in one or more of the storage services. All of the operations available via a user delegation SAS are also available via an account SAS. Additionally, with the account SAS, you can delegate access to operations that apply at the level of the service, such as Get/Set Service Properties and Get Service Stats operations. You can also delegate access to read, write, and delete operations on blob containers, tables, queues, and file shares.
+Note that you don't need to worry about these methods if you have been \emph{given} a SAS, and only want to use it to access a storage account.
+
+An \strong{account SAS} is secured with the storage account key. An account SAS delegates access to resources in one or more of the storage services. All of the operations available via a user delegation SAS are also available via an account SAS. You can also delegate access to read, write, and delete operations on blob containers, tables, queues, and file shares.
 
 A \strong{user delegation SAS} is a SAS secured with Azure AD credentials. It's recommended that you use Azure AD credentials when possible as a security best practice, rather than using the account key, which can be more easily compromised. When your application design requires shared access signatures, use Azure AD credentials to create a user delegation SAS for superior security.
 
 Every SAS is signed with a key. To create a user delegation SAS, you must first request a \strong{user delegation key}, which is then used to sign the SAS. The user delegation key is analogous to the account key used to sign a service SAS or an account SAS, except that it relies on your Azure AD credentials. To request the user delegation key, call \code{get_user_delegation_key}. With the user delegation key, you can then create the SAS with \code{get_user_delegation_sas}.
 
-See the examples and Microsoft Docs pages below for how to specify arguments like the services, permissions, and resource types. Also, note that while not explicitly mentioned in the documentation, ADLSgen2 storage can also use any SAS that is valid for blob storage.
+See the examples and Microsoft Docs pages below for how to specify arguments like the services, permissions, and resource types. Also, while not explicitly mentioned in the documentation, ADLSgen2 storage can use any SAS that is valid for blob storage.
 }
 \examples{
 # account SAS valid for 7 days
@@ -115,14 +117,16 @@ get_account_sas(endp, permissions="rwcd")
 
 \dontrun{
 
+# user delegation key valid for 24 hours
 token <- AzureRMR::get_azure_token("https://storage.azure.com", "mytenant", "app_id")
-
-# getting a user delegation SAS for a container
 endp <- storage_endpoint("https://mystorage.blob.core.windows.net", token=token)
-userkey <- get_user_delegation_key(endp, start=Sys.Date(), expiry=Sys.Date() + 7)
+userkey <- get_user_delegation_key(endp, start=Sys.Date(), expiry=Sys.Date() + 1)
+
+# user delegation SAS for a container
 get_user_delegation_sas(endp, userkey, resource="mycontainer")
 
 # user delegation SAS for a specific file, read/write/create/delete access
+# (order of permissions is important!)
 get_user_delegation_sas(endp, userkey, resource="mycontainer/myfile",
                         resource_types="b", permissions="rcwd")
 

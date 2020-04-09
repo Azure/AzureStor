@@ -9,6 +9,7 @@
   - Generating the SAS now uses internal R code, rather than making an API call. The resulting SAS should also work with azcopy.
 - Add support for generating a user delegation SAS. Note that _using_ a user delegation SAS has always worked.
   - New S3 generics `get_user_delegation_key` and `get_user_delegation_sas`, with methods for `az_storage` objects and blob endpoints. Similar R6 methods added for `az_storage` objects.
+  - New `revoke_user_delegation_keys` generic and methods to invalidate all user delegation keys for a storage account (and all SAS's generated with those keys).
   - See `?sas` for more information.
 - The `silent` argument for `call_azcopy` now uses the `azure_storage_azcopy_silent` system option for its default value, falling back to FALSE if this is unset.
 - Bug fixes for internal functions.
