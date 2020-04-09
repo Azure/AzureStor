@@ -22,6 +22,7 @@ Imports:
     AzureRMR (>= 2.3.0)
 Suggests:
     knitr,
+    rmarkdown,
     jsonlite,
     testthat,
     processx
