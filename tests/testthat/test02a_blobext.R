@@ -19,24 +19,6 @@ stor <- sub$get_resource_group(rgname)$get_storage_account(storname)
 bl <- stor$get_blob_endpoint()
 options(azure_storage_progress_bar=FALSE)
 
-write_file <- function(dir, size=1000)
-{
-    fname <- tempfile(tmpdir=dir)
-    bytes <- openssl::rand_bytes(size)
-    writeBin(bytes, fname)
-    basename(fname)
-}
-
-files_identical <- function(set1, set2)
-{
-    all(mapply(function(f1, f2)
-    {
-        s1 <- file.size(f1)
-        s2 <- file.size(f2)
-        s1 == s2 && identical(readBin(f1, "raw", s1), readBin(f2, "raw", s2))
-    }, set1, set2))
-}
-
 srcdir <- tempfile(pattern="ul")
 destdir <- tempfile(pattern="dl")
 destdir2 <- tempfile(pattern="dl")
@@ -144,20 +126,16 @@ test_that("Blob multicopy from URL works",
     contname <- paste0(sample(letters, 10, TRUE), collapse="")
     cont <- create_blob_container(bl, contname)
 
-    fnames <- c("LICENSE", "LICENSE.md", "CONTRIBUTING.md")
+    fnames <- c("LICENSE", "DESCRIPTION", "NAMESPACE")
     src_urls <- paste0("https://raw.githubusercontent.com/Azure/AzureStor/master/", fnames)
-    origs <- normalizePath(paste0("../../", fnames))
+    origs <- replicate(3, tempfile())
     dests <- replicate(3, tempfile())
 
     multicopy_url_to_blob(cont, src_urls, fnames, async=FALSE)
     multidownload_blob(cont, fnames, dests)
+    pool_map(download.file, src_urls, origs, mode="wb")
 
-    # use readLines to workaround GH auto-translating CRLF -> LF
-    expect_true(file.exists(dests))
-    expect_true(all(mapply(function(f1, f2)
-    {
-        identical(readLines(f1), readLines(f2))
-    }, dests, origs)))
+    expect_true(files_identical(origs, dests))
 })
 
 

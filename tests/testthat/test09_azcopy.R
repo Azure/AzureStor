@@ -42,16 +42,6 @@ ad_key <- stor$get_adls_endpoint(key=key, sas=NULL, token=NULL)
 
 options(azure_storage_progress_bar=FALSE)
 
-files_identical <- function(set1, set2)
-{
-    all(mapply(function(f1, f2)
-    {
-        s1 <- file.size(f1)
-        s2 <- file.size(f2)
-        s1 == s2 && identical(readBin(f1, "raw", s1), readBin(f2, "raw", s2))
-    }, set1, set2))
-}
-
 
 test_that("call_azcopy works",
 {

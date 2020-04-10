@@ -19,24 +19,6 @@ stor <- sub$get_resource_group(rgname)$get_storage_account(storname)
 fl <- stor$get_file_endpoint()
 options(azure_storage_progress_bar=FALSE)
 
-write_file <- function(dir, size=1000)
-{
-    fname <- tempfile(tmpdir=dir)
-    bytes <- openssl::rand_bytes(size)
-    writeBin(bytes, fname)
-    basename(fname)
-}
-
-files_identical <- function(set1, set2)
-{
-    all(mapply(function(f1, f2)
-    {
-        s1 <- file.size(f1)
-        s2 <- file.size(f2)
-        s1 == s2 && identical(readBin(f1, "raw", s1), readBin(f2, "raw", s2))
-    }, set1, set2))
-}
-
 srcdir <- tempfile(pattern="ul")
 destdir <- tempfile(pattern="dl")
 destdir2 <- tempfile(pattern="dl")

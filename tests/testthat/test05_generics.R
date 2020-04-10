@@ -132,29 +132,25 @@ test_that("Blob copy from URL works",
 
     # copy from GitHub repo
     src_url <- "https://raw.githubusercontent.com/Azure/AzureStor/master/tests/resources/iris.csv"
-    orig_file <- "../resources/iris.csv"
+    orig_file <- tempfile()
     new_file <- tempfile()
 
     copy_url_to_storage(cont, src_url, "iris.csv", async=FALSE)
     storage_download(cont, "iris.csv", new_file)
+    download.file(src_url, orig_file, mode="wb", quiet=TRUE)
 
-    # use readLines to workaround GH auto-translating CRLF -> LF
-    expect_identical(readLines(orig_file), readLines(new_file))
+    expect_true(files_identical(orig_file, new_file))
 
-    fnames <- c("LICENSE", "LICENSE.md", "CONTRIBUTING.md")
+    fnames <- c("LICENSE", "DESCRIPTION", "NAMESPACE")
     src_urls <- paste0("https://raw.githubusercontent.com/Azure/AzureStor/master/", fnames)
-    origs <- paste0("../../", fnames)
-    dests <- c(tempfile(), tempfile(), tempfile())
+    origs <- replicate(3, tempfile())
+    dests <- replicate(3, tempfile())
 
     multicopy_url_to_storage(cont, src_urls, fnames, async=FALSE)
     storage_multidownload(cont, fnames, dests)
+    pool_map(download.file, src_urls, origs, mode="wb")
 
-    # use readLines to workaround GH auto-translating CRLF -> LF
-    expect_true(file.exists(dests))
-    expect_true(all(mapply(function(f1, f2)
-    {
-        identical(readLines(f1), readLines(f2))
-    }, dests, origs)))
+    expect_true(files_identical(origs, dests))
 })
 
 
