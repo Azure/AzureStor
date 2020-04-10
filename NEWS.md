@@ -1,10 +1,10 @@
-# AzureStor 3.1.1.9000
+# AzureStor 3.2.0
 
 - Update client API versions to "2019-07-07".
-- Basic support for the new file storage permissions API. When uploading files, they will be created with default filesystem parameters: "inherit" permissions, "now" creation/modified datetimes, and unset attributes. (This has no impact on blob and ADLSgen2.)
+- Basic support for the new file storage permissions API. When uploading files, they will be created with default filesystem parameters: "inherit" permissions, "now" creation/modified datetimes, and unset attributes. This has no impact on blob and ADLSgen2.
 - Remove a redundant API call to set the Content-Type after a blob or file storage upload.
 - `list_storage_containers` and related methods will now check for a continuation marker to avoid returning prematurely (thanks to @StatKalli for reporting and providing a fix).
-- Extended support for generating an account SAS:
+- Extended support for generating an account SAS (which should not be confused with _using_ one):
   - Add `get_account_sas` S3 generic, with methods for `az_storage` resource objects and client endpoints. The `az_storage$get_account_sas` R6 method now simply calls the S3 method.
   - Generating the SAS now uses internal R code, rather than making an API call. The resulting SAS should also work with azcopy.
 - Add support for generating a user delegation SAS. Note that _using_ a user delegation SAS has always worked.
