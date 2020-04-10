@@ -7,8 +7,9 @@
 #' The following methods are available, in addition to those provided by the [AzureRMR::az_resource] class:
 #' - `new(...)`: Initialize a new storage object. See 'Initialization'.
 #' - `list_keys()`: Return the access keys for this account.
-#' - `get_account_sas(...)`: Return an account shared access signature (SAS). See 'Shared access signatures' below.
+#' - `get_account_sas(...)`: Return an account shared access signature (SAS). See 'Creating a shared access signature' below.
 #' - `get_user_delegation_key(...)`: Returns a key that can be used to construct a user delegation SAS.
+#' - `get_user_delegation_sas(...)`: Return a user delegation SAS.
 #' - `revoke_user_delegation_keys()`: Revokes all user delegation keys for the account. This also renders all SAS's obtained via such keys invalid.
 #' - `get_blob_endpoint(key, sas)`: Return the account's blob storage endpoint, along with an access key and/or a SAS. See 'Endpoints' for more details
 #' - `get_file_endpoint(key, sas)`: Return the account's file storage endpoint.
@@ -17,10 +18,10 @@
 #' @section Initialization:
 #' Initializing a new object of this class can either retrieve an existing storage account, or create a account on the host. Generally, the best way to initialize an object is via the `get_storage_account`, `create_storage_account` or `list_storage_accounts` methods of the [az_resource_group] class, which handle the details automatically.
 #'
-#' @section Shared access signatures:
-#' The simplest way for a user to access files and data in a storage account is to give them the account's access key. This gives them full control of the account, and so may be a security risk. An alternative is to provide the user with a _shared access signature_ (SAS), which limits access to specific resources and only for a set length of time.
+#' @section Creating a shared access signature:
+#' Note that you don't need to worry about this section if you have been _given_ a SAS, and only want to use it to access storage.
 #'
-#' AzureStor supports two kinds of SAS: account and user delegation, with the latter applying only to blob and ADLS2 storage. To create an account SAS, call the `get_account_sas()` method. This has the following signature:
+#' AzureStor supports generating two kinds of SAS: account and user delegation, with the latter applying only to blob and ADLS2 storage. To create an account SAS, call the `get_account_sas()` method. This has the following signature:
 #'
 #' ```
 #' get_account_sas(key=self$list_keys()[1], start=NULL, expiry=NULL, services="bqtf", permissions="rl",
@@ -40,7 +41,13 @@
 #'                         resource_types="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
 #' ```
 #'
-#' See the [Shared access signatures][sas] page for more information about SAS.
+#' To invalidate all user delegation keys, as well as the SAS's generated with them, call the `revoke_user_delegation_keys()` method. This has the following signature:
+#'
+#' ```
+#' revoke_user_delegation_keys()
+#' ```
+#'
+#' See the [Shared access signatures][sas] page for more information about this topic.
 #'
 #' @section Endpoints:
 #' The client-side interaction with a storage account is via an _endpoint_. A storage account can have several endpoints, one for each type of storage supported: blob, file, queue and table.

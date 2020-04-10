@@ -13,8 +13,9 @@ The following methods are available, in addition to those provided by the \link[
 \itemize{
 \item \code{new(...)}: Initialize a new storage object. See 'Initialization'.
 \item \code{list_keys()}: Return the access keys for this account.
-\item \code{get_account_sas(...)}: Return an account shared access signature (SAS). See 'Shared access signatures' below.
+\item \code{get_account_sas(...)}: Return an account shared access signature (SAS). See 'Creating a shared access signature' below.
 \item \code{get_user_delegation_key(...)}: Returns a key that can be used to construct a user delegation SAS.
+\item \code{get_user_delegation_sas(...)}: Return a user delegation SAS.
 \item \code{revoke_user_delegation_keys()}: Revokes all user delegation keys for the account. This also renders all SAS's obtained via such keys invalid.
 \item \code{get_blob_endpoint(key, sas)}: Return the account's blob storage endpoint, along with an access key and/or a SAS. See 'Endpoints' for more details
 \item \code{get_file_endpoint(key, sas)}: Return the account's file storage endpoint.
@@ -27,11 +28,11 @@ The following methods are available, in addition to those provided by the \link[
 Initializing a new object of this class can either retrieve an existing storage account, or create a account on the host. Generally, the best way to initialize an object is via the \code{get_storage_account}, \code{create_storage_account} or \code{list_storage_accounts} methods of the \link{az_resource_group} class, which handle the details automatically.
 }
 
-\section{Shared access signatures}{
+\section{Creating a shared access signature}{
 
-The simplest way for a user to access files and data in a storage account is to give them the account's access key. This gives them full control of the account, and so may be a security risk. An alternative is to provide the user with a \emph{shared access signature} (SAS), which limits access to specific resources and only for a set length of time.
+Note that you don't need to worry about this section if you have been \emph{given} a SAS, and only want to use it to access storage.
 
-AzureStor supports two kinds of SAS: account and user delegation, with the latter applying only to blob and ADLS2 storage. To create an account SAS, call the \code{get_account_sas()} method. This has the following signature:\preformatted{get_account_sas(key=self$list_keys()[1], start=NULL, expiry=NULL, services="bqtf", permissions="rl",
+AzureStor supports generating two kinds of SAS: account and user delegation, with the latter applying only to blob and ADLS2 storage. To create an account SAS, call the \code{get_account_sas()} method. This has the following signature:\preformatted{get_account_sas(key=self$list_keys()[1], start=NULL, expiry=NULL, services="bqtf", permissions="rl",
                 resource_types="sco", ip=NULL, protocol=NULL)
 }
 
@@ -42,7 +43,10 @@ Once you have a user delegation key, you can use it to obtain a user delegation 
                         resource_types="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
 }
 
-See the \link[=sas]{Shared access signatures} page for more information about SAS.
+To invalidate all user delegation keys, as well as the SAS's generated with them, call the \code{revoke_user_delegation_keys()} method. This has the following signature:\preformatted{revoke_user_delegation_keys()
+}
+
+See the \link[=sas]{Shared access signatures} page for more information about this topic.
 }
 
 \section{Endpoints}{

@@ -22,11 +22,13 @@
 #' @param ... Arguments passed to lower-level functions.
 #'
 #' @details
-#' An **account SAS** is secured with the storage account key. An account SAS delegates access to resources in one or more of the storage services. All of the operations available via a user delegation SAS are also available via an account SAS. You can also delegate access to read, write, and delete operations on blob containers, tables, queues, and file shares.
+#' An **account SAS** is secured with the storage account key. An account SAS delegates access to resources in one or more of the storage services. All of the operations available via a user delegation SAS are also available via an account SAS. You can also delegate access to read, write, and delete operations on blob containers, tables, queues, and file shares. To obtain an account SAS, call `get_account_sas`.
 #'
 #' A **user delegation SAS** is a SAS secured with Azure AD credentials. It's recommended that you use Azure AD credentials when possible as a security best practice, rather than using the account key, which can be more easily compromised. When your application design requires shared access signatures, use Azure AD credentials to create a user delegation SAS for superior security.
 #'
 #' Every SAS is signed with a key. To create a user delegation SAS, you must first request a **user delegation key**, which is then used to sign the SAS. The user delegation key is analogous to the account key used to sign a service SAS or an account SAS, except that it relies on your Azure AD credentials. To request the user delegation key, call `get_user_delegation_key`. With the user delegation key, you can then create the SAS with `get_user_delegation_sas`.
+#'
+#' To invalidate all user delegation keys, as well as the SAS's generated with them, call `revoke_user_delegation_keys`.
 #'
 #' See the examples and Microsoft Docs pages below for how to specify arguments like the services, permissions, and resource types. Also, while not explicitly mentioned in the documentation, ADLSgen2 storage can use any SAS that is valid for blob storage.
 #' @seealso
