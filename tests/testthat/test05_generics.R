@@ -150,6 +150,7 @@ test_that("Blob copy from URL works",
     storage_multidownload(cont, fnames, dests)
 
     # use readLines to workaround GH auto-translating CRLF -> LF
+    expect_true(file.exists(dests))
     expect_true(all(mapply(function(f1, f2)
     {
         identical(readLines(f1), readLines(f2))

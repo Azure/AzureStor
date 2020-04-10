@@ -60,7 +60,7 @@ test_that("Blob vector multitransfer works",
     multiupload_blob(cont, file.path(srcdir, srcs), srcs)
     multidownload_blob(cont, srcs, file.path(destdir, srcs))
 
-    expect_identical(AzureRMR::pool_size(), 10L)
+    expect_identical(AzureRMR::pool_size(), 2L)
     expect_true(files_identical(file.path(srcdir, srcs), file.path(destdir, srcs)))
 
     # vector src needs vector dest
@@ -146,13 +146,14 @@ test_that("Blob multicopy from URL works",
 
     fnames <- c("LICENSE", "LICENSE.md", "CONTRIBUTING.md")
     src_urls <- paste0("https://raw.githubusercontent.com/Azure/AzureStor/master/", fnames)
-    origs <- paste0("../../", fnames)
-    dests <- c(tempfile(), tempfile(), tempfile())
+    origs <- normalizePath(paste0("../../", fnames))
+    dests <- replicate(3, tempfile())
 
     multicopy_url_to_blob(cont, src_urls, fnames, async=FALSE)
     multidownload_blob(cont, fnames, dests)
 
     # use readLines to workaround GH auto-translating CRLF -> LF
+    expect_true(file.exists(dests))
     expect_true(all(mapply(function(f1, f2)
     {
         identical(readLines(f1), readLines(f2))
