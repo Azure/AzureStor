@@ -124,7 +124,7 @@ test_that("ADLSgen2 client interface works",
 
     con <- rawConnection(raw(0), open="r+")
     download_adls_file(fs, "iris.json", con)
-    iris3 <- as.data.frame(jsonlite::fromJSON(con))
+    iris3 <- as.data.frame(jsonlite::fromJSON(con), stringsAsFactors=TRUE)
     expect_identical(iris, iris3)
 
     # check existence

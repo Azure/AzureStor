@@ -131,7 +131,7 @@ test_that("Blob client interface works",
 
     con <- rawConnection(raw(0), open="r+")
     download_blob(cont, "iris.json", con)
-    iris3 <- as.data.frame(jsonlite::fromJSON(con))
+    iris3 <- as.data.frame(jsonlite::fromJSON(con), stringsAsFactors=TRUE)
     expect_identical(iris, iris3)
 
     # check blob

@@ -1,3 +1,8 @@
+# AzureStor 3.2.1
+
+- Internal changes to handle differences in how table storage returns error messages.
+- Update tests for R 4.0.
+
 # AzureStor 3.2.0
 
 - Update client API versions to "2019-07-07".
