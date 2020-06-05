@@ -157,6 +157,8 @@ storage_error_message <- function(response, for_httr=TRUE)
         cont$message
     else if(is.list(cont) && is.list(cont$error) && is.character(cont$error$message))
         cont$error$message
+    else if(is.list(cont) && is.list(cont$odata.error) && is.character(cont$odata.error$message$value))
+        cont$odata.error$message$value
     else ""
 
     if(for_httr)
