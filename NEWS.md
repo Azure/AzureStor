@@ -1,3 +1,7 @@
+# AzureStor 3.2.1.9000
+
+- Fix bug where `list_blobs()` returns incorrect `isdir` field for files uploaded with azcopy.
+
 # AzureStor 3.2.1
 
 - Internal changes to handle differences in how table storage returns error messages.

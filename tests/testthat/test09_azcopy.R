@@ -70,6 +70,8 @@ test_that("azcopy works with service token",
     storage_upload(cont, "../resources/iris.csv", "iris.csv", use_azcopy=TRUE)
     storage_download(cont, "iris.csv", destname, use_azcopy=TRUE)
     expect_true(files_identical("../resources/iris.csv", destname))
+    flist <- list_storage_files(cont)
+    expect_false(flist$isdir[1])
 })
 
 
@@ -81,6 +83,8 @@ test_that("azcopy works with user token",
     storage_upload(cont, "../resources/iris.csv", "iris.csv", use_azcopy=TRUE)
     storage_download(cont, "iris.csv", destname, use_azcopy=TRUE)
     expect_true(files_identical("../resources/iris.csv", destname))
+    flist <- list_storage_files(cont)
+    expect_false(flist$isdir[1])
 })
 
 
@@ -92,6 +96,8 @@ test_that("azcopy works with sas",
     storage_upload(cont, "../resources/iris.csv", "iris.csv", use_azcopy=TRUE)
     storage_download(cont, "iris.csv", destname, use_azcopy=TRUE)
     expect_true(files_identical("../resources/iris.csv", destname))
+    flist <- list_storage_files(cont)
+    expect_false(flist$isdir[1])
 })
 
 
