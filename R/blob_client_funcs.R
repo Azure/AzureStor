@@ -236,6 +236,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param max_concurrent_transfers For `multiupload_blob` and `multidownload_blob`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
 #' @param prefix For `list_blobs`, an alternative way to specify the directory.
 #' @param recursive This argument is for consistency with the methods for the other storage types. It is not used for blob storage.
+#' @param by_hierarchy For `list_blobs`, to determine if the call should traverse a virtual hierarchy of blobs as though it were a file system. Defaults to `FALSE`
 #'
 #' @details
 #' `upload_blob` and `download_blob` are the workhorse file transfer functions for blobs. They each take as inputs a _single_ filename as the source for uploading/downloading, and a single filename as the destination. Alternatively, for uploading, `src` can be a [textConnection] or [rawConnection] object; and for downloading, `dest` can be NULL or a `rawConnection` object. If `dest` is NULL, the downloaded data is returned as a raw vector, and if a raw connection, it will be placed into the connection. See the examples below.
