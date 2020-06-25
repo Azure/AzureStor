@@ -307,7 +307,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @rdname blob
 #' @export
 list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
-                       prefix=NULL, recursive=TRUE)
+                       prefix=NULL, recursive=TRUE, by_hierarchy=FALSE)
 {
     info <- match.arg(info)
 
@@ -317,6 +317,9 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
 
     if(!is_empty(prefix))
         opts <- c(opts, prefix=as.character(prefix))
+    
+    if(by_hierarchy)
+        opts <- c(opts, delimiter="/")
 
     res <- do_container_op(container, options=opts)
     lst <- res$Blobs
@@ -328,9 +331,20 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
 
     if(info != "name")
     {
-        rows <- lapply(lst, function(blob)
+        prefixes <- lst[names(lst) == "BlobPrefix"]
+        blobs <- lst[names(lst) == "Blob"]
+        
+        prefix_rows <- lapply(prefixes, function(prefix) {
+            data.frame(Type="BlobPrefix", 
+                       Name=unlist(prefix$Name), 
+                       "Content-Length"=NA, 
+                       stringsAsFactors = FALSE,
+                       check.names = FALSE)
+        })
+        
+        blob_rows <- lapply(blobs, function(blob)
         {
-            props <- c(Name=blob$Name, blob$Properties)
+            props <- c(Type="Blob", Name=blob$Name, blob$Properties)
             props <- data.frame(lapply(props, function(p) if(!is_empty(p)) unlist(p) else NA),
                                 stringsAsFactors=FALSE, check.names=FALSE)
 
@@ -339,8 +353,25 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
                 props$LeaseState <- NA
             props
         })
-
-        df <- do.call(rbind, rows)
+        
+        
+        df_prefixes <- do.call(rbind, prefix_rows)
+        df_blobs <- do.call(rbind, blob_rows)
+        
+        if (is.null(df_prefixes) & is.null(df_blobs)) 
+            return(data.frame())
+        else if (is.null(df_prefixes))
+            df <- df_blobs
+        else if (is.null(df_blobs))
+            df <- df_prefixes
+        else {
+            missing_cols <- setdiff(colnames(df_blobs), intersect(colnames(df_prefixes), colnames(df_blobs)))
+            df_prefixes[,missing_cols] <- NA
+            
+            df <- rbind(df_prefixes, df_blobs)
+        }
+        
+        
         if(length(df) > 0)
         {
             row.names(df) <- NULL
@@ -350,11 +381,11 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
             namecol <- which(ndf == "Name")
             sizecol <- which(ndf == "Content-Length")
             names(df)[c(namecol, sizecol)] <- c("name", "size")
-            df$size <- as.numeric(df$size)
+            df$size <- if (!is.null(df$size)) as.numeric(df$size) else NA
 
             # needed when dir was created using ADLS API
             # this works because content-type is always set for an actual file
-            df$isdir <- is.na(df$`Content-Type`)
+            df$isdir <- if (!is.null(df$`Content-Type`)) is.na(df$`Content-Type`) else T
             df$size[df$isdir] <- NA
             dircol <- which(names(df) == "isdir")
 
