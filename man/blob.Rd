@@ -13,7 +13,7 @@
 \title{Operations on a blob container or blob}
 \usage{
 list_blobs(container, dir = "/", info = c("partial", "name", "all"),
-  prefix = NULL, recursive = TRUE)
+  prefix = NULL, recursive = TRUE, by_hierarchy = FALSE)
 
 upload_blob(container, src, dest = basename(src), type = "BlockBlob",
   blocksize = 2^24, lease = NULL, use_azcopy = FALSE)
@@ -48,6 +48,8 @@ multicopy_url_to_blob(container, src, dest, lease = NULL, async = FALSE,
 \item{prefix}{For \code{list_blobs}, an alternative way to specify the directory.}
 
 \item{recursive}{This argument is for consistency with the methods for the other storage types. It is not used for blob storage.}
+
+\item{by_hierarchy}{For \code{list_blobs}, to determine if the call should traverse a virtual hierarchy of blobs as though it were a file system. Defaults to \code{FALSE}}
 
 \item{src, dest}{The source and destination files for uploading and downloading. See 'Details' below.}
 
