@@ -318,7 +318,7 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
 
     if(!is_empty(prefix))
         opts <- c(opts, prefix=as.character(prefix))
-    
+
     if(by_hierarchy)
         opts <- c(opts, delimiter="/")
 
@@ -334,16 +334,16 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
     {
         prefixes <- lst[names(lst) == "BlobPrefix"]
         blobs <- lst[names(lst) == "Blob"]
-        
-        prefix_rows <- lapply(prefixes, function(prefix) 
+
+        prefix_rows <- lapply(prefixes, function(prefix)
         {
-            data.frame(Type="BlobPrefix", 
-                       Name=unlist(prefix$Name), 
-                       "Content-Length"=NA, 
+            data.frame(Type="BlobPrefix",
+                       Name=unlist(prefix$Name),
+                       "Content-Length"=NA,
                        stringsAsFactors = FALSE,
                        check.names = FALSE)
         })
-        
+
         blob_rows <- lapply(blobs, function(blob)
         {
             props <- c(Type="Blob", Name=blob$Name, blob$Properties)
@@ -355,26 +355,23 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
                 props$LeaseState <- NA
             props
         })
-        
-        
+
         df_prefixes <- do.call(rbind, prefix_rows)
         df_blobs <- do.call(rbind, blob_rows)
-        
-        if (is.null(df_prefixes) & is.null(df_blobs)) 
+
+        if (is.null(df_prefixes) & is.null(df_blobs))
             return(data.frame())
         else if (is.null(df_prefixes))
             df <- df_blobs
         else if (is.null(df_blobs))
             df <- df_prefixes
-        else 
+        else
         {
             missing_cols <- setdiff(colnames(df_blobs), intersect(colnames(df_prefixes), colnames(df_blobs)))
-            df_prefixes[,missing_cols] <- NA
-            
+            df_prefixes[, missing_cols] <- NA
             df <- rbind(df_prefixes, df_blobs)
         }
-        
-        
+
         if(length(df) > 0)
         {
             row.names(df) <- NULL
