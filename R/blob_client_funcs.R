@@ -340,8 +340,8 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
             data.frame(Type="BlobPrefix",
                        Name=unlist(prefix$Name),
                        "Content-Length"=NA,
-                       stringsAsFactors = FALSE,
-                       check.names = FALSE)
+                       stringsAsFactors=FALSE,
+                       check.names=FALSE)
         })
 
         blob_rows <- lapply(blobs, function(blob)
@@ -359,11 +359,11 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
         df_prefixes <- do.call(rbind, prefix_rows)
         df_blobs <- do.call(rbind, blob_rows)
 
-        if (is.null(df_prefixes) & is.null(df_blobs))
+        if(is.null(df_prefixes) & is.null(df_blobs))
             return(data.frame())
-        else if (is.null(df_prefixes))
+        else if(is.null(df_prefixes))
             df <- df_blobs
-        else if (is.null(df_blobs))
+        else if(is.null(df_blobs))
             df <- df_prefixes
         else
         {
@@ -381,11 +381,11 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
             namecol <- which(ndf == "Name")
             sizecol <- which(ndf == "Content-Length")
             names(df)[c(namecol, sizecol)] <- c("name", "size")
-            df$size <- if (!is.null(df$size)) as.numeric(df$size) else NA
+            df$size <- if(!is.null(df$size)) as.numeric(df$size) else NA
 
             # needed when dir was created using ADLS API
             # this works because content-type is always set for an actual file
-            df$isdir <- if (!is.null(df$`Content-Type`)) is.na(df$`Content-Type`) else TRUE
+            df$isdir <- if(!is.null(df$`Content-Type`)) is.na(df$`Content-Type`) else TRUE
             df$size[df$isdir] <- NA
             dircol <- which(names(df) == "isdir")
 
@@ -465,7 +465,7 @@ delete_blob <- function(container, blob, confirm=TRUE)
 blob_exists <- function(container, blob)
 {
     res <- do_container_op(container, blob, headers = list(), http_verb = "HEAD", http_status_handler = "pass")
-    if (httr::status_code(res) == 404L)
+    if(httr::status_code(res) == 404L)
         return(FALSE)
 
     httr::stop_for_status(res, storage_error_message(res))
