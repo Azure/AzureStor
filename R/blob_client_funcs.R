@@ -335,7 +335,8 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
         prefixes <- lst[names(lst) == "BlobPrefix"]
         blobs <- lst[names(lst) == "Blob"]
         
-        prefix_rows <- lapply(prefixes, function(prefix) {
+        prefix_rows <- lapply(prefixes, function(prefix) 
+        {
             data.frame(Type="BlobPrefix", 
                        Name=unlist(prefix$Name), 
                        "Content-Length"=NA, 
@@ -365,7 +366,8 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
             df <- df_blobs
         else if (is.null(df_blobs))
             df <- df_prefixes
-        else {
+        else 
+        {
             missing_cols <- setdiff(colnames(df_blobs), intersect(colnames(df_prefixes), colnames(df_blobs)))
             df_prefixes[,missing_cols] <- NA
             
@@ -386,7 +388,7 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
 
             # needed when dir was created using ADLS API
             # this works because content-type is always set for an actual file
-            df$isdir <- if (!is.null(df$`Content-Type`)) is.na(df$`Content-Type`) else T
+            df$isdir <- if (!is.null(df$`Content-Type`)) is.na(df$`Content-Type`) else TRUE
             df$size[df$isdir] <- NA
             dircol <- which(names(df) == "isdir")
 
