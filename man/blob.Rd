@@ -95,6 +95,17 @@ Upload, download, or delete a blob; list blobs in a container; check blob availa
 Note that AzCopy only supports SAS and AAD (OAuth) token as authentication methods. AzCopy also expects a single filename or wildcard spec as its source/destination argument, not a vector of filenames or a connection.
 }
 
+\section{Directories}{
+
+
+Blob storage does not have true directories, instead using filenames containing a separator character (typically '/') to mimic a directory structure. This has some consequences:
+\itemize{
+\item The \code{isdir} column in the data frame output of \code{list_blobs} is a best guess as to whether an object represents a file or directory, and may not always be correct.
+\item \code{create_storage_dir} and \code{delete_storage_dir} currently do not have methods for blob containers.
+\item Zero-length files can cause problems for the blob storage service as a whole (not just AzureStor). Try to avoid uploading such files.
+}
+}
+
 \examples{
 \dontrun{
 
