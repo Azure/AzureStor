@@ -252,6 +252,14 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #'
 #' Note that AzCopy only supports SAS and AAD (OAuth) token as authentication methods. AzCopy also expects a single filename or wildcard spec as its source/destination argument, not a vector of filenames or a connection.
 #'
+#' @section Directories:
+#'
+#' Blob storage does not have true directories, instead using filenames containing a separator character (typically '/') to mimic a directory structure. This has some consequences:
+#'
+#' - The `isdir` column in the data frame output of `list_blobs` is a best guess as to whether an object represents a file or directory, and may not always be correct.
+#' - `create_storage_dir` and `delete_storage_dir` currently do not have methods for blob containers.
+#' - Zero-length files can cause problems for the blob storage service as a whole (not just AzureStor). Try to avoid uploading such files.
+#'
 #' @return
 #' For `list_blobs`, details on the blobs in the container. For `download_blob`, if `dest=NULL`, the contents of the downloaded blob as a raw vector. For `blob_exists` a flag whether the blob exists.
 #'
@@ -385,7 +393,7 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
 
             # needed when dir was created using ADLS API
             # this works because content-type is always set for an actual file
-            df$isdir <- if(!is.null(df$`Content-Type`)) is.na(df$`Content-Type`) else TRUE
+            df$isdir <- if(!is.null(df$`Content-Type`)) df$size == 0 else TRUE
             df$size[df$isdir] <- NA
             dircol <- which(names(df) == "isdir")
 
