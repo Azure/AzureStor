@@ -1,6 +1,6 @@
 # AzureStor 3.2.2
 
-- Fix bug where `list_blobs()` returns incorrect `isdir` field for files uploaded with azcopy.
+- Fixes to the directory detection logic of `list_blobs`. Note that since blob storage doesn't have true directories, the `isdir` column of the `list_blobs` output should be treated as a best guess. For best results, avoid uploading zero-length files to blob storage, as this can cause problems for the service as a whole (not just AzureStor).
 
 # AzureStor 3.2.1
 
