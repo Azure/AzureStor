@@ -13,7 +13,7 @@
 \title{Operations on a blob container or blob}
 \usage{
 list_blobs(container, dir = "/", info = c("partial", "name", "all"),
-  prefix = NULL, recursive = TRUE, by_hierarchy = FALSE)
+  prefix = NULL, recursive = TRUE)
 
 upload_blob(container, src, dest = basename(src), type = "BlockBlob",
   blocksize = 2^24, lease = NULL, use_azcopy = FALSE)
@@ -47,9 +47,7 @@ multicopy_url_to_blob(container, src, dest, lease = NULL, async = FALSE,
 
 \item{prefix}{For \code{list_blobs}, an alternative way to specify the directory.}
 
-\item{recursive}{This argument is for consistency with the methods for the other storage types. It is not used for blob storage.}
-
-\item{by_hierarchy}{For \code{list_blobs}, to determine if the call should traverse a virtual hierarchy of blobs as though it were a file system. Defaults to \code{FALSE}}
+\item{recursive}{For the multiupload/download functions, whether to recursively transfer files in subdirectories. For \code{list_blobs}, whether to include the contents of any subdirectories in the listing.}
 
 \item{src, dest}{The source and destination files for uploading and downloading. See 'Details' below.}
 
@@ -103,8 +101,9 @@ Note that AzCopy only supports SAS and AAD (OAuth) token as authentication metho
 Blob storage does not have true directories, instead using filenames containing a separator character (typically '/') to mimic a directory structure. This has some consequences:
 \itemize{
 \item The \code{isdir} column in the data frame output of \code{list_blobs} is a best guess as to whether an object represents a file or directory, and may not always be correct.
-\item \code{create_storage_dir} and \code{delete_storage_dir} currently do not have methods for blob containers.
+\item For \verb{list_blobs(dir=*)}, there is a difference between specifying \code{dir="dirname"} and \code{dir="dirname/"} (with a trailing slash). The former refers to the \emph{subdirectory entry itself} (a single zero-length object), while the latter refers to the contents of the subdirectory. The latter is usually what you want, especially with non-recursive listings.
 \item Zero-length files can cause problems for the blob storage service as a whole (not just AzureStor). Try to avoid uploading such files.
+\item \code{create_storage_dir} and \code{delete_storage_dir} currently do not have methods for blob containers.
 }
 }
 
