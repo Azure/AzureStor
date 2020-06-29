@@ -235,8 +235,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_blob` and `multidownload_blob`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
 #' @param prefix For `list_blobs`, an alternative way to specify the directory.
-#' @param recursive This argument is for consistency with the methods for the other storage types. It is not used for blob storage.
-#' @param by_hierarchy For `list_blobs`, to determine if the call should traverse a virtual hierarchy of blobs as though it were a file system. Defaults to `FALSE`
+#' @param recursive For the multiupload/download functions, whether to recursively transfer files in subdirectories. For `list_blobs`, whether to include the contents of any subdirectories in the listing.
 #'
 #' @details
 #' `upload_blob` and `download_blob` are the workhorse file transfer functions for blobs. They each take as inputs a _single_ filename as the source for uploading/downloading, and a single filename as the destination. Alternatively, for uploading, `src` can be a [textConnection] or [rawConnection] object; and for downloading, `dest` can be NULL or a `rawConnection` object. If `dest` is NULL, the downloaded data is returned as a raw vector, and if a raw connection, it will be placed into the connection. See the examples below.
@@ -257,8 +256,9 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' Blob storage does not have true directories, instead using filenames containing a separator character (typically '/') to mimic a directory structure. This has some consequences:
 #'
 #' - The `isdir` column in the data frame output of `list_blobs` is a best guess as to whether an object represents a file or directory, and may not always be correct.
-#' - `create_storage_dir` and `delete_storage_dir` currently do not have methods for blob containers.
+#' - For `list_blobs(recursive=FALSE)`, there is a difference between specifying `dir="dirname"` and `dir="dirname/"` (with a trailing slash). The former returns the subdirectory entry itself (a single zero-length object), while the latter returns the contents of the subdirectory. The latter is usually what you want.
 #' - Zero-length files can cause problems for the blob storage service as a whole (not just AzureStor). Try to avoid uploading such files.
+#' - `create_storage_dir` and `delete_storage_dir` currently do not have methods for blob containers.
 #'
 #' @return
 #' For `list_blobs`, details on the blobs in the container. For `download_blob`, if `dest=NULL`, the contents of the downloaded blob as a raw vector. For `blob_exists` a flag whether the blob exists.
@@ -316,7 +316,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @rdname blob
 #' @export
 list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
-                       prefix=NULL, recursive=TRUE, by_hierarchy=FALSE)
+                       prefix=NULL, recursive=TRUE)
 {
     info <- match.arg(info)
 
@@ -327,7 +327,7 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
     if(!is_empty(prefix))
         opts <- c(opts, prefix=as.character(prefix))
 
-    if(by_hierarchy)
+    if(recursive)
         opts <- c(opts, delimiter="/")
 
     res <- do_container_op(container, options=opts)
