@@ -394,12 +394,11 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
             namecol <- which(ndf == "Name")
             sizecol <- which(ndf == "Content-Length")
             names(df)[c(namecol, sizecol)] <- c("name", "size")
-            df$size <- if(!is.null(df$size)) as.numeric(df$size) else NA
 
-            # needed when dir was created using ADLS API
-            # this works because content-type is always set for an actual file
-            df$isdir <- if(!is.null(df$`Content-Type`)) df$size == 0 else TRUE
-            df$size[df$isdir] <- NA
+            df$size <- if(!is.null(df$size)) as.numeric(df$size) else NA
+            df$size[df$size == 0] <- NA
+            df$isdir <- is.na(df$size)
+
             dircol <- which(names(df) == "isdir")
 
             if(info == "all")

@@ -42,6 +42,8 @@ test_that("Blob recursive file listing works",
     l0 <- list_blobs(cont, recursive=FALSE)
     expect_is(l0, "data.frame")
     expect_identical(nrow(l0), 1L)
+    expect_true(all(is.na(l0$size[l0$isdir])))
+    expect_false(any(is.na(l0$size[!l0$isdir])))
 
     l0n <- list_blobs(cont, recursive=FALSE, info="name")
     expect_is(l0n, "character")
@@ -50,6 +52,8 @@ test_that("Blob recursive file listing works",
     l1 <- list_blobs(cont, "dir1/", recursive=FALSE)
     expect_identical(nrow(l1), 2L)
     expect_identical(l1$name, c("dir1/dir2/", "dir1/file1"))
+    expect_true(all(is.na(l1$size[l1$isdir])))
+    expect_false(any(is.na(l1$size[!l1$isdir])))
 
     l1n <- list_blobs(cont, "dir1/", recursive=FALSE, info="name")
     expect_identical(l1n, c("dir1/dir2/", "dir1/file1"))
