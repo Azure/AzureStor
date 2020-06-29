@@ -327,7 +327,7 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
     if(!is_empty(prefix))
         opts <- c(opts, prefix=as.character(prefix))
 
-    if(recursive)
+    if(!recursive)
         opts <- c(opts, delimiter="/")
 
     res <- do_container_op(container, options=opts)
