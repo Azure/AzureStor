@@ -1,4 +1,4 @@
-context("Blob client interface, recursive file listing")
+context("Blob client interface, directories")
 
 tenant <- Sys.getenv("AZ_TEST_TENANT_ID")
 app <- Sys.getenv("AZ_TEST_APP_ID")
@@ -17,6 +17,7 @@ if(rgname == "" || storname == "")
 sub <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$get_subscription(subscription)
 stor <- sub$get_resource_group(rgname)$get_storage_account(storname)
 options(azure_storage_progress_bar=FALSE)
+
 
 test_that("Blob recursive file listing works",
 {
@@ -57,10 +58,10 @@ test_that("Blob recursive file listing works",
     expect_identical(nrow(l1rec), 5L)
 
     l1noslash <- list_blobs(cont, "dir1", recursive=FALSE)
-    expect_identical(nrow(l1noslash), 1L)
-    expect_identical(l1noslash$name, "dir1/")
-    expect_true(is.na(l1noslash$size))
+    expect_identical(nrow(l1noslash), 2L)
+    expect_identical(l1noslash$name, c("dir1/dir2/", "dir1/file1"))
 })
+
 
 teardown(
 {

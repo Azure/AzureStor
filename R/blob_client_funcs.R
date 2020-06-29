@@ -252,12 +252,11 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' Note that AzCopy only supports SAS and AAD (OAuth) token as authentication methods. AzCopy also expects a single filename or wildcard spec as its source/destination argument, not a vector of filenames or a connection.
 #'
 #' @section Directories:
-#'
 #' Blob storage does not have true directories, instead using filenames containing a separator character (typically '/') to mimic a directory structure. This has some consequences:
 #'
-#' - The `isdir` column in the data frame output of `list_blobs` is a best guess as to whether an object represents a file or directory, and may not always be correct.
-#' - For `list_blobs(dir=*)`, there is a difference between specifying `dir="dirname"` and `dir="dirname/"` (with a trailing slash). The former refers to the _subdirectory entry itself_ (a single zero-length object), while the latter refers to the contents of the subdirectory. The latter is usually what you want, especially with non-recursive listings.
+#' - The `isdir` column in the data frame output of `list_blobs` is a best guess as to whether an object represents a file or directory, and may not always be correct. Currently, `list_blobs` assumes that any object with a file size of zero is a directory.
 #' - Zero-length files can cause problems for the blob storage service as a whole (not just AzureStor). Try to avoid uploading such files.
+#' - The output of `list_blobs(recursive=TRUE)` can vary based on whether the storage account has hierarchical namespaces enabled.
 #' - `create_storage_dir` and `delete_storage_dir` currently do not have methods for blob containers.
 #'
 #' @return
@@ -321,8 +320,14 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
     info <- match.arg(info)
 
     opts <- list(comp="list", restype="container")
+
+    # ensure last char is always '/', to get list of blobs in a subdir
     if(dir != "/")
+    {
+        if(!grepl("/$", dir))
+            dir <- paste0(dir, "/")
         prefix <- dir
+    }
 
     if(!is_empty(prefix))
         opts <- c(opts, prefix=as.character(prefix))

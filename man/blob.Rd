@@ -97,12 +97,11 @@ Note that AzCopy only supports SAS and AAD (OAuth) token as authentication metho
 
 \section{Directories}{
 
-
 Blob storage does not have true directories, instead using filenames containing a separator character (typically '/') to mimic a directory structure. This has some consequences:
 \itemize{
-\item The \code{isdir} column in the data frame output of \code{list_blobs} is a best guess as to whether an object represents a file or directory, and may not always be correct.
-\item For \verb{list_blobs(dir=*)}, there is a difference between specifying \code{dir="dirname"} and \code{dir="dirname/"} (with a trailing slash). The former refers to the \emph{subdirectory entry itself} (a single zero-length object), while the latter refers to the contents of the subdirectory. The latter is usually what you want, especially with non-recursive listings.
+\item The \code{isdir} column in the data frame output of \code{list_blobs} is a best guess as to whether an object represents a file or directory, and may not always be correct. Currently, \code{list_blobs} assumes that any object with a file size of zero is a directory.
 \item Zero-length files can cause problems for the blob storage service as a whole (not just AzureStor). Try to avoid uploading such files.
+\item The output of \code{list_blobs(recursive=TRUE)} can vary based on whether the storage account has hierarchical namespaces enabled.
 \item \code{create_storage_dir} and \code{delete_storage_dir} currently do not have methods for blob containers.
 }
 }
