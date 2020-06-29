@@ -256,7 +256,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' Blob storage does not have true directories, instead using filenames containing a separator character (typically '/') to mimic a directory structure. This has some consequences:
 #'
 #' - The `isdir` column in the data frame output of `list_blobs` is a best guess as to whether an object represents a file or directory, and may not always be correct.
-#' - For `list_blobs(recursive=FALSE)`, there is a difference between specifying `dir="dirname"` and `dir="dirname/"` (with a trailing slash). The former returns the subdirectory entry itself (a single zero-length object), while the latter returns the contents of the subdirectory. The latter is usually what you want.
+#' - For `list_blobs(dir=*)`, there is a difference between specifying `dir="dirname"` and `dir="dirname/"` (with a trailing slash). The former refers to the _subdirectory entry itself_ (a single zero-length object), while the latter refers to the contents of the subdirectory. The latter is usually what you want, especially with non-recursive listings.
 #' - Zero-length files can cause problems for the blob storage service as a whole (not just AzureStor). Try to avoid uploading such files.
 #' - `create_storage_dir` and `delete_storage_dir` currently do not have methods for blob containers.
 #'
