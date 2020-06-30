@@ -2,6 +2,7 @@
 
 - Implement recursive/non-recursive directory listings for `list_blobs`, thanks to @cantpitch. Note that since blob storage doesn't have true directories, there are some warts to be aware of; see the help for `list_blobs` for more details.
 - Fixes to the directory detection logic of `list_blobs`. Again, since blob storage doesn't have true directories, the `isdir` column of the `list_blobs` output should be treated as a best guess.
+- Remove broken implementation for recursive deleting of subdirectory contents for file storage.
 
 # AzureStor 3.2.1
 
