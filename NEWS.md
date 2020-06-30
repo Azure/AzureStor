@@ -1,6 +1,7 @@
 # AzureStor 3.2.2
 
-- Fixes to the directory detection logic of `list_blobs`. Note that since blob storage doesn't have true directories, the `isdir` column of the `list_blobs` output should be treated as a best guess. For best results, avoid uploading zero-length files to blob storage, as this can cause problems for the service as a whole (not just AzureStor).
+- Implement recursive/non-recursive directory listings for `list_blobs`, thanks to @cantpitch. Note that since blob storage doesn't have true directories, there are some warts to be aware of; see the help for `list_blobs` for more details.
+- Fixes to the directory detection logic of `list_blobs`. Again, since blob storage doesn't have true directories, the `isdir` column of the `list_blobs` output should be treated as a best guess.
 
 # AzureStor 3.2.1
 
