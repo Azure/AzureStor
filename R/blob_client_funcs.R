@@ -220,7 +220,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 
 #' Operations on a blob container or blob
 #'
-#' Upload, download, or delete a blob; list blobs in a container; check blob availability.
+#' Upload, download, or delete a blob; list blobs in a container; create or delete directories; check blob availability.
 #'
 #' @param container A blob container object.
 #' @param blob A string naming a blob.
@@ -256,7 +256,8 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #'
 #' - The `isdir` column in the data frame output of `list_blobs` is a best guess as to whether an object represents a file or directory, and may not always be correct. Currently, `list_blobs` assumes that any object with a file size of zero is a directory.
 #' - Zero-length files can cause problems for the blob storage service as a whole (not just AzureStor). Try to avoid uploading such files.
-#' - The output of `list_blobs(recursive=TRUE)` can vary based on whether the storage account has hierarchical namespaces enabled.
+#' - `create_blob_dir` and `delete_blob_dir` function as expected only for accounts with hierarchical namespaces enabled. When this feature is disabled, directories do not exist as objects in their own right: to create a directory, simply upload a blob to that directory. To delete a directory, delete all the blobs within it; as far as the blob storage service is concerned, the directory then no longer exists.
+#' - Similarly, the output of `list_blobs(recursive=TRUE)` can vary based on whether the storage account has hierarchical namespaces enabled.
 #'
 #' @return
 #' For `list_blobs`, details on the blobs in the container. For `download_blob`, if `dest=NULL`, the contents of the downloaded blob as a raw vector. For `blob_exists` a flag whether the blob exists.
@@ -499,8 +500,11 @@ delete_blob_dir <- function(container, dir, recursive=FALSE, confirm=TRUE)
     if(recursive)
         stop("Recursive deleting of subdirectory contents not yet supported", call.=FALSE)
 
-    lst <- list_blobs(container, dir, recursive=FALSE)
-    whichrow <- which(lst$name == dir)
+    parent <- dirname(dir)
+    if(parent == ".")
+        parent <- "/"
+    lst <- list_blobs(container, parent, recursive=FALSE)
+    whichrow <- which(lst$name == paste0(dir, "/"))
     if(is_empty(whichrow) || !lst$isdir[whichrow])
         stop("Not a directory", call.=FALSE)
 
