@@ -54,8 +54,7 @@ delete_storage_container(newcont)
 These functions for working with objects within a storage container:
 
 - `list_storage_files`: list files/blobs in a directory (for ADLSgen2 and file storage) or blob container
-- `create_storage_dir`: for ADLSgen2 and file storage, create a directory
-- `delete_storage_dir`: for ADLSgen2 and file storage, delete a directory
+- `create_storage_dir`/`delete_storage_dir`: create or delete a directory
 - `delete_storage_file`: delete a file or blob
 - `storage_file_exists`: check that a file or blob exists
 - `storage_upload`/`storage_download`: transfer a file to or from a storage container
@@ -65,7 +64,7 @@ These functions for working with objects within a storage container:
 
 ```r
 # example of working with files and directories (ADLSgen2)
-cont <- storage_container(ad_end_tok, "myfilesystem")
+cont <- storage_container(ad_endp_tok, "myfilesystem")
 list_storage_files(cont)
 create_storage_dir(cont, "newdir")
 storage_download(cont, "/readme.txt")
