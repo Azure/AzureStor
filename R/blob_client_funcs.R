@@ -447,3 +447,33 @@ blob_exists <- function(container, blob)
     httr::stop_for_status(res, storage_error_message(res))
     return(TRUE)
 }
+
+
+create_blob_dir <- function(container, dir, recursive=TRUE)
+{
+    opts <- options(azure_storage_progress_bar=FALSE)
+    on.exit(options(opts))
+
+    # workaround: upload a zero-length file to the desired dir, then delete the file
+    destfile <- file.path(dir, basename(tempfile()))
+    upload_blob(container, rawConnection(raw(0)), destfile)
+    delete_blob(container, destfile, confirm=FALSE)
+    invisible(NULL)
+}
+
+
+delete_blob_dir <- function(container, dir, recursive=FALSE, confirm=TRUE)
+{
+    if(dir %in% c("/", "."))
+        return(invisible(NULL))
+
+    if(!delete_confirmed(confirm, paste0(container$endpoint$url, container$name, "/", dir), "directory"))
+        return(invisible(NULL))
+
+    lst <- list_blobs(container, dir, recursive=FALSE)
+    whichrow <- which(lst$name == dir)
+    if(is_empty(whichrow) || !lst$isdir[whichrow])
+        stop("Not a directory", call.=FALSE)
+
+    delete_blob(container, dir, confirm=FALSE)
+}
