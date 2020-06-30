@@ -53,7 +53,7 @@ delete_storage_container(newcont)
 
 These functions for working with objects within a storage container:
 
-- `list_storage_files`: list files/blobs in a directory (for ADLSgen2 and file storage) or blob container
+- `list_storage_files`: list files/blobs in a directory (defaults to the root directory)
 - `create_storage_dir`/`delete_storage_dir`: create or delete a directory
 - `delete_storage_file`: delete a file or blob
 - `storage_file_exists`: check that a file or blob exists
