@@ -81,7 +81,7 @@ Get, list, create, or delete ADLSgen2 filesystems.
 \details{
 You can call these functions in a couple of ways: by passing the full URL of the filesystem, or by passing the endpoint object and the name of the filesystem as a string.
 
-If authenticating via AAD, you can supply the token either as a string, or as an object of class AzureToken, created via \link[AzureRMR:get_azure_token]{AzureRMR::get_azure_token}. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.
+If authenticating via AAD, you can supply the token either as a string, or as an object of class AzureToken, created via \link[AzureRMR:reexports]{AzureRMR::get_azure_token}. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.
 }
 \examples{
 \dontrun{

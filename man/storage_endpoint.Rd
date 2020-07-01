@@ -32,7 +32,7 @@ adls_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
 
 \item{key}{The access key for the storage account.}
 
-\item{token}{An Azure Active Directory (AAD) authentication token. This can be either a string, or an object of class AzureToken created by \link[AzureRMR:get_azure_token]{AzureRMR::get_azure_token}. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.}
+\item{token}{An Azure Active Directory (AAD) authentication token. This can be either a string, or an object of class AzureToken created by \link[AzureRMR:reexports]{AzureRMR::get_azure_token}. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.}
 
 \item{sas}{A shared access signature (SAS) for the account.}
 
