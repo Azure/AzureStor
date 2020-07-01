@@ -22,7 +22,41 @@ stor2 <- sub$get_resource_group(rgname)$get_storage_account(storname2)
 options(azure_storage_progress_bar=FALSE)
 
 
-test_that("Blob dispatch works",
+test_that("Blob dispatch works, HNS",
+{
+    endpname <- stor1$properties$primaryEndpoints$blob
+    expect_type(endpname, "character")
+    key <- stor1$list_keys()[[1]]
+
+    contname <- paste(sample(letters, 10, TRUE), collapse="")
+    dirname <- "newdir"
+    filename <- "iris.csv"
+
+    # working with a container
+    expect_is(endp <- storage_endpoint(endpname, key=key), "blob_endpoint")
+    expect_silent(cont <- storage_container(endp, contname))
+    expect_silent(create_storage_container(cont))
+
+    # working with objects within container
+    expect_silent(list_storage_files(cont))
+    expect_silent(create_storage_dir(cont, dirname))
+
+    # file transfer
+    expect_silent(storage_upload(cont, file.path("../resources", filename), filename))
+    expect_silent(storage_download(cont, filename, tempfile()))
+
+    # file existence
+    expect_false(storage_file_exists(cont, "nonexistent"))
+    expect_true(storage_file_exists(cont, filename))
+
+    # delete the objects
+    expect_silent(delete_storage_file(cont, filename, confirm=FALSE))
+    expect_silent(delete_storage_dir(cont, dirname, confirm=FALSE))
+    expect_silent(delete_storage_container(cont, confirm=FALSE))
+})
+
+
+test_that("Blob dispatch works, no HNS",
 {
     endpname <- stor2$properties$primaryEndpoints$blob
     expect_type(endpname, "character")
@@ -39,7 +73,7 @@ test_that("Blob dispatch works",
 
     # working with objects within container
     expect_silent(list_storage_files(cont))
-    expect_error(create_storage_dir(cont, dirname))
+    expect_silent(create_storage_dir(cont, dirname))
 
     # file transfer
     expect_silent(storage_upload(cont, file.path("../resources", filename), filename))
@@ -51,7 +85,7 @@ test_that("Blob dispatch works",
 
     # delete the objects
     expect_silent(delete_storage_file(cont, filename, confirm=FALSE))
-    expect_error(delete_storage_dir(cont, dirname, confirm=FALSE))
+    expect_error(delete_storage_dir(cont, dirname, confirm=FALSE)) # deleting object also deletes dir
     expect_silent(delete_storage_container(cont, confirm=FALSE))
 })
 

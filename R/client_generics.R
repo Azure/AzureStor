@@ -222,8 +222,8 @@ UseMethod("create_storage_dir")
 
 #' @rdname generics
 #' @export
-create_storage_dir.blob_container <- function(container, ...)
-stop("Blob storage does not support directories")
+create_storage_dir.blob_container <- function(container, dir, ...)
+create_blob_dir(container, dir, ...)
 
 #' @rdname generics
 #' @export
@@ -245,8 +245,8 @@ UseMethod("delete_storage_dir")
 
 #' @rdname generics
 #' @export
-delete_storage_dir.blob_container <- function(container, ...)
-stop("Blob storage does not support directories")
+delete_storage_dir.blob_container <- function(container, dir, ...)
+delete_blob_dir(container, dir, ...)
 
 #' @rdname generics
 #' @export

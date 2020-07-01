@@ -101,7 +101,7 @@ list_storage_files(container, ...)
 
 create_storage_dir(container, ...)
 
-\method{create_storage_dir}{blob_container}(container, ...)
+\method{create_storage_dir}{blob_container}(container, dir, ...)
 
 \method{create_storage_dir}{file_share}(container, dir, ...)
 
@@ -109,7 +109,7 @@ create_storage_dir(container, ...)
 
 delete_storage_dir(container, ...)
 
-\method{delete_storage_dir}{blob_container}(container, ...)
+\method{delete_storage_dir}{blob_container}(container, dir, ...)
 
 \method{delete_storage_dir}{file_share}(container, dir, ...)
 
