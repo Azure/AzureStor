@@ -265,5 +265,5 @@ sign_sha256 <- function(string, key)
 
 url_encode <- function(string, reserved=FALSE)
 {
-    URLencode(enc2utf8(string, reserved=reserved))
+    URLencode(enc2utf8(string), reserved=reserved)
 }
