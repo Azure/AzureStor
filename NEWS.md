@@ -1,3 +1,7 @@
+# AzureStor 3.2.2.9000
+
+- Fix file transfers with filenames containing non-ASCII characters on Windows.
+
 # AzureStor 3.2.2
 
 - Extended support for directories in blob storage. Note that since blob storage doesn't have true directories, there are some warts to be aware of; see `?blob` for more details.
