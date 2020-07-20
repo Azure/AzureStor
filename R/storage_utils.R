@@ -57,7 +57,7 @@ call_storage_endpoint <- function(endpoint, path, options=list(), headers=list()
 {
     http_verb <- match.arg(http_verb)
     url <- httr::parse_url(endpoint$url)
-    url$path <- URLencode(path)
+    url$path <- url_encode(path)
     if(!is_empty(options))
         url$query <- options[order(names(options))] # must be sorted for access key signing
 
@@ -262,3 +262,8 @@ sign_sha256 <- function(string, key)
     openssl::base64_encode(openssl::sha256(charToRaw(string), openssl::base64_decode(key)))
 }
 
+
+url_encode <- function(string, reserved=FALSE)
+{
+    URLencode(enc2utf8(string), reserved=reserved)
+}

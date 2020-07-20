@@ -131,7 +131,7 @@ get_account_sas.default <- function(account, key, start=NULL, expiry=NULL, servi
         sig=sig
     )
     parts <- parts[!sapply(parts, is_empty)]
-    parts <- sapply(parts, utils::URLencode, reserved=TRUE)
+    parts <- sapply(parts, url_encode, reserved=TRUE)
     paste(names(parts), parts, sep="=", collapse="&")
 }
 
@@ -264,7 +264,7 @@ get_user_delegation_sas.default <- function(account, key, resource, start=NULL, 
         sig=sig
     )
     parts <- parts[!sapply(parts, is_empty)]
-    parts <- sapply(parts, utils::URLencode, reserved=TRUE)
+    parts <- sapply(parts, url_encode, reserved=TRUE)
     paste(names(parts), parts, sep="=", collapse="&")
 }
 
