@@ -135,7 +135,7 @@ AzureStor includes an interface to [AzCopy](https://docs.microsoft.com/en-us/azu
 
 ```r
 # use azcopy to download
-myfs <- storage_container(ad_endp, "myfilesystem")
+myfs <- storage_container(ad_endp_tok, "myfilesystem")
 storage_download(myfs, "/incoming/bigfile.tar.gz", "/data", use_azcopy=TRUE)
 
 # use azcopy to sync a local and remote dir
@@ -161,7 +161,7 @@ rg <- sub1$get_resource_group("resgroup")
 
 
 # get an existing storage account
-rdevstor1 <- rg$get_storage("rdevstor1")
+rdevstor1 <- rg$get_storage_account("rdevstor1")
 rdevstor1
 #<Azure resource Microsoft.Storage/storageAccounts/rdevstor1>
 #  Account type: Storage 
@@ -183,10 +183,7 @@ rdevstor1$get_account_sas(permissions="rw")
 rdevstor1$get_blob_endpoint()
 #Azure blob storage endpoint
 #URL: https://rdevstor1.blob.core.windows.net/
-#Access key: <hidden>
-#Azure Active Directory token: <none supplied>
-#Account shared access signature: <none supplied>
-#Storage API version: 2018-03-28
+# ...
 
 # create a new storage account
 blobstor2 <- rg$create_storage_account("blobstor2", location="australiaeast", kind="BlobStorage")
