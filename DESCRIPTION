@@ -15,7 +15,7 @@ Depends:
 Imports: 
     utils,
     R6,
-    httr,
+    httr (>= 1.4.0),
     mime,
     openssl,
     xml2,
