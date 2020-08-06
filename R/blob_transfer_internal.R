@@ -1,7 +1,7 @@
 upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL)
 {
-    if(type != "BlockBlob")
-        stop("Only block blobs currently supported")
+    # if(type != "BlockBlob")
+    #     stop("Only block blobs currently supported")
 
     src <- normalize_src(src)
     on.exit(close(src$con))
