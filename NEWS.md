@@ -1,4 +1,4 @@
-# AzureStor 3.2.2.9000
+# AzureStor 3.2.3
 
 - Fix file transfers with filenames containing non-ASCII characters on Windows.
 - Require httr >= 1.4.0 for proper support of HEAD requests (reported by @scottporter).
