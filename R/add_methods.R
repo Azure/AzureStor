@@ -44,7 +44,7 @@
 #'
 #' [Azure Storage documentation](https://docs.microsoft.com/en-us/azure/storage/),
 #' [Azure Storage Provider API reference](https://docs.microsoft.com/en-us/rest/api/storagerp/),
-#' [Azure Data Lake Storage hierarchical namespaces](https://docs.microsoft.com/en-us/azure/storage/data-lake-storage/namespace)
+#' [Azure Data Lake Storage hierarchical namespaces](https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-namespace)
 #'
 #' @examples
 #' \dontrun{
