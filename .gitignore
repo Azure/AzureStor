@@ -262,4 +262,5 @@ __pycache__/
 
 misc/
 .Rhistory
+__azurite*
 

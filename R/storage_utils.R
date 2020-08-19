@@ -57,7 +57,7 @@ call_storage_endpoint <- function(endpoint, path, options=list(), headers=list()
 {
     http_verb <- match.arg(http_verb)
     url <- httr::parse_url(endpoint$url)
-    url$path <- url_encode(path)
+    url$path <- url_encode(file.path(url$path, path))
     if(!is_empty(options))
         url$query <- options[order(names(options))] # must be sorted for access key signing
 
