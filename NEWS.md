@@ -1,7 +1,12 @@
+# AzureStor 3.2.3.9000
+
+- Add support for the Azurite and Azure SDK storage emulators. To connect to the endpoint, use the service-specific functions `blob_endpoint` and `queue_endpoint` (the latter from the AzureQstor package), passing the full URL including the account name: `blob_endpoint("http://127.0.0.1:10000/myaccount", key="mykey")`. The warning can be ignored. Methods for working with blob containers and blobs should work the same as for actual storage accounts.
+
 # AzureStor 3.2.3
 
 - Fix file transfers with filenames containing non-ASCII characters on Windows.
 - Require httr >= 1.4.0 for proper support of HEAD requests (reported by @scottporter).
+
 
 # AzureStor 3.2.2
 
