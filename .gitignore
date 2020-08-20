@@ -263,4 +263,5 @@ __pycache__/
 misc/
 .Rhistory
 __azurite*
-
+__blobstorage__
+__queuestorage__
