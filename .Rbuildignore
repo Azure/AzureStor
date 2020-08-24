@@ -9,6 +9,6 @@ drat.sh
 .travis.yml
 ^LICENSE\.md$
 azure-pipelines.yml
-\__azurite
-\__blobstorage__
-\__queuestorage__
+^__azurite
+^__blobstorage__
+^__queuestorage__
