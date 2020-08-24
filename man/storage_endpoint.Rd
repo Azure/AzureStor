@@ -85,7 +85,8 @@ adls_endpoint("https://myadlsstorage.dfs.core.windows.net/", token=token)
 
 # connecting to Azurite with the default account and key (these also work for the Azure SDK)
 azurite_account <- "devstoreaccount1"
-azurite_key <- "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=="
+azurite_key <-
+   "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=="
 blob_endpoint(paste0("http://127.0.0.1:10000/", azurite_account), key=azurite_key)
 
 # to use a custom account name and key, set the AZURITE_ACCOUNTS env var before starting Azurite
