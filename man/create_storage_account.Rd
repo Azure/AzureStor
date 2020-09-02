@@ -72,5 +72,5 @@ rg$create_storage_account("myblobstorage",
 
 \href{https://docs.microsoft.com/en-us/azure/storage/}{Azure Storage documentation},
 \href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference},
-\href{https://docs.microsoft.com/en-us/azure/storage/data-lake-storage/namespace}{Azure Data Lake Storage hierarchical namespaces}
+\href{https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-namespace}{Azure Data Lake Storage hierarchical namespaces}
 }

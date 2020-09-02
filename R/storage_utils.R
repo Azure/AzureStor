@@ -38,9 +38,8 @@
 #' @export
 do_container_op <- function(container, operation="", options=list(), headers=list(), http_verb="GET", ...)
 {
-    # don't add trailing / if no within-container path supplied: ADLS will complain
     operation <- if(nchar(operation) > 0)
-        sub("//", "/", paste0(container$name, "/", operation))
+        paste0(container$name, "/", operation)
     else container$name
 
     call_storage_endpoint(container$endpoint, operation, options=options, headers=headers, http_verb=http_verb, ...)
@@ -57,7 +56,8 @@ call_storage_endpoint <- function(endpoint, path, options=list(), headers=list()
 {
     http_verb <- match.arg(http_verb)
     url <- httr::parse_url(endpoint$url)
-    url$path <- url_encode(path)
+    # fix doubled-up /'s which can result from file.path snafus etc
+    url$path <- gsub("/{2,}", "/", url_encode(file.path(url$path, path)))
     if(!is_empty(options))
         url$query <- options[order(names(options))] # must be sorted for access key signing
 

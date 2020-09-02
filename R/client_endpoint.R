@@ -15,6 +15,11 @@
 #'
 #' If multiple authentication objects are supplied, they are used in this order of priority: first an access key, then an AAD token, then a SAS. If no authentication objects are supplied, only public (anonymous) access to the endpoint is possible.
 #'
+#' @section Storage emulators:
+#' AzureStor supports connecting to the [Azure SDK](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator) and [Azurite](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azurite) emulators for blob and queue storage. To connect, pass the full URL of the endpoint, including the account name, to the `blob_endpoint` and `queue_endpoint` methods (the latter from the AzureQstor package). The warning about an unrecognised endpoint can be ignored. See the linked pages, and the examples below, for details on how to authenticate with the emulator.
+#'
+#' Note that the Azure SDK emulator is no longer being actively developed; it's recommended to use Azurite for development work.
+#'
 #' @return
 #' `storage_endpoint` returns an object of S3 class `"adls_endpoint"`, `"blob_endpoint"`, `"file_endpoint"`, `"queue_endpoint"` or `"table_endpoint"` depending on the type of endpoint. All of these also inherit from class `"storage_endpoint"`. `adls_endpoint`, `blob_endpoint` and `file_endpoint` return an object of the respective class.
 #'
@@ -40,6 +45,19 @@
 #' token <- AzureAuth::get_azure_token("https://storage.azure.com",
 #'                                     "myaadtenant", "app_id", "password")
 #' adls_endpoint("https://myadlsstorage.dfs.core.windows.net/", token=token)
+#'
+#'
+#' ## Azurite storage emulator:
+#'
+#' # connecting to Azurite with the default account and key (these also work for the Azure SDK)
+#' azurite_account <- "devstoreaccount1"
+#' azurite_key <-
+#'    "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=="
+#' blob_endpoint(paste0("http://127.0.0.1:10000/", azurite_account), key=azurite_key)
+#'
+#' # to use a custom account name and key, set the AZURITE_ACCOUNTS env var before starting Azurite
+#' Sys.setenv(AZURITE_ACCOUNTS="account1:key1")
+#' blob_endpoint("http://127.0.0.1:10000/account1", key="key1")
 #'
 #' }
 #' @aliases endpoint blob_endpoint file_endpoint queue_endpoint table_endpoint
