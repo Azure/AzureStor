@@ -418,13 +418,14 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
 
 #' @rdname blob
 #' @export
-upload_blob <- function(container, src, dest=basename(src), type=c("BlockBlob", "AppendBlob"), blocksize=2^24,
-                        lease=NULL, use_azcopy=FALSE, append=FALSE)
+upload_blob <- function(container, src, dest=basename(src), type=c("BlockBlob", "AppendBlob"),
+                        blocksize=if(type == "BlockBlob") 2^24 else 2^22,
+                        lease=NULL, use_azcopy=FALSE, append=TRUE)
 {
     type <- match.arg(type)
     if(use_azcopy)
-        azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease)
-    else upload_blob_internal(container, src, dest, type=type, blocksize=blocksize, lease=lease)
+        azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease, append=append)
+    else upload_blob_internal(container, src, dest, type=type, blocksize=blocksize, lease=lease, append=append)
 }
 
 #' @rdname blob
