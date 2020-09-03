@@ -138,10 +138,10 @@ To upload to an append blob, specify `type="AppendBlob"` in the `storage_upload`
 
 ```r
 # create a new append blob
-storage_upload(cont, src="logfile1.csv", type="AppendBlob")
+storage_upload(cont, src="logfile1.csv", dest="logfile.csv", type="AppendBlob")
 
 # appending to an existing blob
-storage_upload(cont, src="logfile2.csv", type="AppendBlob", append=TRUE)
+storage_upload(cont, src="logfile2.csv", dest="logfile.csv", type="AppendBlob", append=TRUE)
 ```
 
 ### Interface to AzCopy
