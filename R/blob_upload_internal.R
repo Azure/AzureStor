@@ -49,8 +49,9 @@ upload_append_blob <- function(container, src, dest, blocksize, lease, append)
     if(!is.null(lease))
         headers[["x-ms-lease-id"]] <- as.character(lease)
 
-    # initialise the blob
-    do_container_op(container, dest, headers=headers, http_verb="PUT")
+    # create the blob if necessary
+    if(!append)
+        do_container_op(container, dest, headers=headers, http_verb="PUT")
 
     # upload each block
     blocklist <- list()

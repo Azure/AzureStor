@@ -230,12 +230,12 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param confirm Whether to ask for confirmation on deleting a blob.
 #' @param blocksize The number of bytes to upload/download per HTTP(S) request.
 #' @param lease The lease for a blob, if present.
-#' @param type When uploading, the type of blob to create. Currently only block blobs are supported.
+#' @param type When uploading, the type of blob to create. Currently only block and append blobs are supported.
+#' @param append When uploading, whether to append the uploaded data to the destination blob. Only has an effect if `type="AppendBlob"`. If this is FALSE (the default) and the destination blob exists, it is overwritten. If this is TRUE and the destination does not exist or is not an append blob, an error is thrown.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_blob` and `multidownload_blob`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
 #' @param prefix For `list_blobs`, an alternative way to specify the directory.
-#' @param append
 #' @param recursive For the multiupload/download functions, whether to recursively transfer files in subdirectories. For `list_blobs`, whether to include the contents of any subdirectories in the listing. For `delete_blob_dir`, whether to recursively delete subdirectory contents as well (not yet supported).
 #'
 #' @details
@@ -246,6 +246,8 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' - The `src` argument can be a wildcard pattern expanding to one or more files, with `dest` naming a destination directory. In this case, if `recursive` is true, the file transfer will replicate the source directory structure at the destination.
 #'
 #' `upload_blob` and `download_blob` can display a progress bar to track the file transfer. You can control whether to display this with `options(azure_storage_progress_bar=TRUE|FALSE)`; the default is TRUE.
+#'
+#' `multiupload_blob` can upload files either as all block blobs or all append blobs, but not a mix of both.
 #'
 #' @section AzCopy:
 #' `upload_blob` and `download_blob` have the ability to use the AzCopy commandline utility to transfer files, instead of native R code. This can be useful if you want to take advantage of AzCopy's logging and recovery features; it may also be faster in the case of transferring a very large number of small files. To enable this, set the `use_azcopy` argument to TRUE.
