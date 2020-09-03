@@ -342,7 +342,8 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
     lst <- res$Blobs
     while(length(res$NextMarker) > 0)
     {
-        res <- do_container_op(container, options=list(comp="list", restype="container", marker=res$NextMarker[[1]]))
+        opts$marker <- res$NextMarker[[1]]
+        res <- do_container_op(container, options=opts)
         lst <- c(lst, res$Blobs)
     }
 
