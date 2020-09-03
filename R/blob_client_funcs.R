@@ -231,7 +231,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param blocksize The number of bytes to upload/download per HTTP(S) request.
 #' @param lease The lease for a blob, if present.
 #' @param type When uploading, the type of blob to create. Currently only block and append blobs are supported.
-#' @param append When uploading, whether to append the uploaded data to the destination blob. Only has an effect if `type="AppendBlob"`. If this is FALSE (the default) and the destination blob exists, it is overwritten. If this is TRUE and the destination does not exist or is not an append blob, an error is thrown.
+#' @param append When uploading, whether to append the uploaded data to the destination blob. Only has an effect if `type="AppendBlob"`. If this is FALSE (the default) and the destination append blob exists, it is overwritten. If this is TRUE and the destination does not exist or is not an append blob, an error is thrown.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_blob` and `multidownload_blob`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.

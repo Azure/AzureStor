@@ -65,7 +65,7 @@ multicopy_url_to_blob(container, src, dest, lease = NULL, async = FALSE,
 
 \item{lease}{The lease for a blob, if present.}
 
-\item{append}{When uploading, whether to append the uploaded data to the destination blob. Only has an effect if \code{type="AppendBlob"}. If this is FALSE (the default) and the destination blob exists, it is overwritten. If this is TRUE and the destination does not exist or is not an append blob, an error is thrown.}
+\item{append}{When uploading, whether to append the uploaded data to the destination blob. Only has an effect if \code{type="AppendBlob"}. If this is FALSE (the default) and the destination append blob exists, it is overwritten. If this is TRUE and the destination does not exist or is not an append blob, an error is thrown.}
 
 \item{use_azcopy}{Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.}
 
