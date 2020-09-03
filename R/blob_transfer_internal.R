@@ -3,16 +3,11 @@ upload_blob_internal <- function(container, src, dest, type, blocksize, lease=NU
     src <- normalize_src(src)
     on.exit(close(src$con))
 
-    headers <- list("x-ms-blob-type"=type)
-    if(!is.null(lease))
-        headers[["x-ms-lease-id"]] <- as.character(lease)
-
-    uploadfunc <- switch(type,
-        "BlockBlob"=upload_block_blob,
-        "AppendBlob"=upload_append_blob,
+    switch(type,
+        "BlockBlob"=upload_block_blob(container, src, dest, blocksize, lease),
+        "AppendBlob"=upload_append_blob(container, src, dest, blocksize, lease, append),
         stop("Unknown blob type: ", type, call.=FALSE)
     )
-    uploadfunc(container, src, dest, headers, blocksize)
 
     invisible(NULL)
 }

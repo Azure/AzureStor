@@ -226,7 +226,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param blob A string naming a blob.
 #' @param dir For `list_blobs`, A string naming the directory. Note that blob storage does not support real directories; this argument simply filters the result to return only blobs whose names start with the given value.
 #' @param src,dest The source and destination files for uploading and downloading. See 'Details' below.
-#' @param info For `list_blobs`, level of detail about each blob to return: a vector of names only; the name, size, and whether this blob represents a directory; or all information.
+#' @param info For `list_blobs`, level of detail about each blob to return: a vector of names only; the name, size, blob type, and whether this blob represents a directory; or all information.
 #' @param confirm Whether to ask for confirmation on deleting a blob.
 #' @param blocksize The number of bytes to upload/download per HTTP(S) request.
 #' @param lease The lease for a blob, if present.
@@ -235,6 +235,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_blob` and `multidownload_blob`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
 #' @param prefix For `list_blobs`, an alternative way to specify the directory.
+#' @param append
 #' @param recursive For the multiupload/download functions, whether to recursively transfer files in subdirectories. For `list_blobs`, whether to include the contents of any subdirectories in the listing. For `delete_blob_dir`, whether to recursively delete subdirectory contents as well (not yet supported).
 #'
 #' @details
@@ -359,14 +360,35 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
 
         blob_rows <- lapply(blobs, function(blob)
         {
-            props <- c(Type="Blob", Name=blob$Name, blob$Properties)
-            props <- data.frame(lapply(props, function(p) if(!is_empty(p)) unlist(p) else NA),
-                                stringsAsFactors=FALSE, check.names=FALSE)
+            # properties returned can vary for block/append/whatever blobs, and whether HNS is enabled
+            normalize_blob_properties <- function(props)
+            {
+                all_props <- c(
+                    "Creation-Time",
+                    "Last-Modified",
+                    "Etag",
+                    "Content-Length",
+                    "Content-Type",
+                    "Content-Encoding",
+                    "Content-Language",
+                    "Content-CRC64",
+                    "Content-MD5",
+                    "Cache-Control",
+                    "Content-Disposition",
+                    "BlobType",
+                    "AccessTier",
+                    "AccessTierInferred",
+                    "LeaseStatus",
+                    "LeaseState",
+                    "ServerEncrypted"
+                )
+                props[all_props[!all_props %in% names(props)]] <- NA
+                props
+            }
 
-            # ADLS/blob interop: dir in hns-enabled acct does not have LeaseState field
-            if(is.null(props$LeaseState))
-                props$LeaseState <- NA
-            props
+            props <- c(Type="Blob", Name=blob$Name, normalize_blob_properties(blob$Properties))
+            data.frame(lapply(props, function(p) if(!is_empty(p)) unlist(p) else NA),
+                                stringsAsFactors=FALSE, check.names=FALSE)
         })
 
         df_prefixes <- do.call(rbind, prefix_rows)
@@ -393,7 +415,8 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
             ndf <- names(df)
             namecol <- which(ndf == "Name")
             sizecol <- which(ndf == "Content-Length")
-            names(df)[c(namecol, sizecol)] <- c("name", "size")
+            typecol <- which(names(df) == "BlobType")
+            names(df)[c(namecol, sizecol, typecol)] <- c("name", "size", "blobtype")
 
             df$size <- if(!is.null(df$size)) as.numeric(df$size) else NA
             df$size[df$size == 0] <- NA
@@ -407,9 +430,9 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
                     df$`Last-Modified` <- as_datetime(df$`Last-Modified`)
                 if(!is.null(df$`Creation-Time`))
                     df$`Creation-Time` <- as_datetime(df$`Creation-Time`)
-                cbind(df[c(namecol, sizecol, dircol)], df[-c(namecol, sizecol, dircol)])
+                cbind(df[c(namecol, sizecol, dircol, typecol)], df[-c(namecol, sizecol, dircol, typecol)])
             }
-            else df[c(namecol, sizecol, dircol)]
+            else df[c(namecol, sizecol, dircol, typecol)]
         }
         else data.frame()
     }
@@ -420,7 +443,7 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
 #' @export
 upload_blob <- function(container, src, dest=basename(src), type=c("BlockBlob", "AppendBlob"),
                         blocksize=if(type == "BlockBlob") 2^24 else 2^22,
-                        lease=NULL, use_azcopy=FALSE, append=TRUE)
+                        lease=NULL, append=FALSE, use_azcopy=FALSE)
 {
     type <- match.arg(type)
     if(use_azcopy)
@@ -430,15 +453,17 @@ upload_blob <- function(container, src, dest=basename(src), type=c("BlockBlob", 
 
 #' @rdname blob
 #' @export
-multiupload_blob <- function(container, src, dest, recursive=FALSE, type="BlockBlob", blocksize=2^24, lease=NULL,
-                             use_azcopy=FALSE,
+multiupload_blob <- function(container, src, dest, recursive=FALSE, type=c("BlockBlob", "AppendBlob"),
+                             blocksize=if(type == "BlockBlob") 2^24 else 2^22,
+                             lease=NULL, append=FALSE, use_azcopy=FALSE,
                              max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        return(azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease, recursive=recursive))
+        return(azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease, append=append,
+                             recursive=recursive))
 
     multiupload_internal(container, src, dest, recursive=recursive, type=type, blocksize=blocksize, lease=lease,
-                         max_concurrent_transfers=max_concurrent_transfers)
+                         append=append, max_concurrent_transfers=max_concurrent_transfers)
 }
 
 #' @rdname blob

@@ -1,6 +1,10 @@
-upload_block_blob <- function(container, src, dest, headers, blocksize)
+upload_block_blob <- function(container, src, dest, blocksize, lease)
 {
     bar <- storage_progress_bar$new(src$size, "up")
+
+    headers <- list("x-ms-blob-type"="BlockBlob")
+    if(!is.null(lease))
+        headers[["x-ms-lease-id"]] <- as.character(lease)
 
     # upload each block
     blocklist <- list()
@@ -37,9 +41,13 @@ upload_block_blob <- function(container, src, dest, headers, blocksize)
 }
 
 
-upload_append_blob <- function(container, src, dest, headers, blocksize)
+upload_append_blob <- function(container, src, dest, blocksize, lease, append)
 {
     bar <- storage_progress_bar$new(src$size, "up")
+
+    headers <- list("x-ms-blob-type"="AppendBlob")
+    if(!is.null(lease))
+        headers[["x-ms-lease-id"]] <- as.character(lease)
 
     # initialise the blob
     do_container_op(container, dest, headers=headers, http_verb="PUT")
