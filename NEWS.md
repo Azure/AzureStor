@@ -3,6 +3,8 @@
 - Add support for the [Azurite](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azurite) and [Azure SDK](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator) storage emulators. To connect to the endpoint, use the service-specific functions `blob_endpoint` and `queue_endpoint` (the latter from the AzureQstor package), passing the full URL including the account name: `blob_endpoint("http://127.0.0.1:10000/myaccount", key="mykey")`. The warning about an unrecognised endpoint can be ignored. See the linked pages for full details on how to authenticate to the emulator.
 
   Note that the Azure SDK emulator is no longer being actively developed; it's recommended to use Azurite.
+- Add a 10-second fuzz factor to the default starting datetime for a generated SAS, to allow for differences in clocks.
+- More fixes for the directory handling of `list_blobs()`.
 
 # AzureStor 3.2.3
 
