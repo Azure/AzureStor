@@ -461,6 +461,7 @@ multiupload_blob <- function(container, src, dest, recursive=FALSE, type=c("Bloc
                              lease=NULL, append=FALSE, use_azcopy=FALSE,
                              max_concurrent_transfers=10)
 {
+    type <- match.arg(type)
     if(use_azcopy)
         return(azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease, append=append,
                              recursive=recursive))
