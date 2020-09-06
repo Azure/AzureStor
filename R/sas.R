@@ -272,7 +272,7 @@ get_user_delegation_sas.default <- function(account, key, resource, start=NULL, 
 make_sas_dates <- function(start=NULL, expiry=NULL)
 {
     if(is.null(start))
-        start <- Sys.time()
+        start <- Sys.time() - 10
     else if(!inherits(start, "POSIXt"))
         start <- as.POSIXct(start, origin="1970-01-01")
 
