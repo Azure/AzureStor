@@ -135,6 +135,11 @@ multiupload_blob(cont, "/data/logfiles/*.zip", "/uploaded_data")
 multiupload_blob(cont, "myproj/*")  # no dest directory uploads to root
 multidownload_blob(cont, "jan*.*", "/data/january")
 
+# append blob: concatenating multiple files into one
+upload_blob(cont, "logfile1", "logfile", type="AppendBlob", append=FALSE)
+upload_blob(cont, "logfile2", "logfile", type="AppendBlob", append=TRUE)
+upload_blob(cont, "logfile3", "logfile", type="AppendBlob", append=TRUE)
+
 # you can also pass a vector of file/pathnames as the source and destination
 src <- c("file1.csv", "file2.csv", "file3.csv")
 dest <- paste0("uploaded_", src)
@@ -168,4 +173,5 @@ copy_url_to_blob(cont,
 \link{blob_container}, \link{az_storage}, \link{storage_download}, \link{call_azcopy}
 
 \href{https://github.com/Azure/azure-storage-azcopy}{AzCopy version 10 on GitHub}
+\href{https://docs.microsoft.com/en-us/rest/api/storageservices/understanding-block-blobs--append-blobs--and-page-blobs}{Guide to the different blob types}
 }

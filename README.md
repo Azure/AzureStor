@@ -131,7 +131,7 @@ multicopy_url_to_storage(cont, files)
 
 ### Appending (blob storage only)
 
-AzureStor supports uploading to append blobs. An append blob is comprised of blocks and is optimized for append operations; it is well suited for data that will be written once but read many times, such as server logs.
+AzureStor supports uploading to append blobs. An append blob is comprised of blocks and is optimized for append operations; it is well suited for data that is constantly growing, but should not be modified once written, such as server logs.
 
 To upload to an append blob, specify `type="AppendBlob"` in the `storage_upload` call. To append data (rather than overwriting an existing blob), include the argument `append=TRUE`. See `?upload_blob` for more details.
 
