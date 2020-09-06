@@ -391,7 +391,7 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
 
             props <- c(Type="Blob", Name=blob$Name, normalize_blob_properties(blob$Properties))
             data.frame(lapply(props, function(p) if(!is_empty(p)) unlist(p) else NA),
-                                stringsAsFactors=FALSE, check.names=FALSE)
+                              stringsAsFactors=FALSE, check.names=FALSE)
         })
 
         df_prefixes <- do.call(rbind, prefix_rows)
