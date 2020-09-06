@@ -357,6 +357,7 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
             data.frame(Type="BlobPrefix",
                        Name=unlist(prefix$Name),
                        "Content-Length"=NA,
+                       BlobType=NA,
                        stringsAsFactors=FALSE,
                        check.names=FALSE)
         })
