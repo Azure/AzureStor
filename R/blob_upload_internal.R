@@ -19,6 +19,7 @@ upload_block_blob <- function(container, src, dest, blocksize, lease)
 
         # ensure content-length is never exponential notation
         headers[["content-length"]] <- sprintf("%.0f", thisblock)
+        headers[["content-md5"]] <- openssl::base64_encode(openssl::md5(body))
         id <- openssl::base64_encode(sprintf("%s-%010d", base_id, i))
         opts <- list(comp="block", blockid=id)
 
@@ -66,6 +67,7 @@ upload_append_blob <- function(container, src, dest, blocksize, lease, append)
 
         # ensure content-length is never exponential notation
         headers[["content-length"]] <- sprintf("%.0f", thisblock)
+        headers[["content-md5"]] <- openssl::base64_encode(openssl::md5(body))
         id <- openssl::base64_encode(sprintf("%s-%010d", base_id, i))
         opts <- list(comp="appendblock")
 
