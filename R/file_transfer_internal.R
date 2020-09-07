@@ -34,6 +34,7 @@ upload_azure_file_internal <- function(share, src, dest, create_dir=FALSE, block
         # ensure content-length and range are never exponential notation
         headers[["content-length"]] <- sprintf("%.0f", thisblock)
         headers[["range"]] <- sprintf("bytes=%.0f-%.0f", range_begin, range_begin + thisblock - 1)
+        headers[["content-md5"]] <- openssl::base64_encode(openssl::md5(body))
 
         do_container_op(share, dest, headers=headers, body=body, options=options, progress=bar$update(),
                         http_verb="PUT")

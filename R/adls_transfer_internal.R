@@ -22,8 +22,10 @@ upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lea
             break
 
         opts <- list(action="append", position=sprintf("%.0f", pos))
-        headers <- list(`content-length`=sprintf("%.0f", thisblock))
-
+        headers <- list(
+            `content-length`=sprintf("%.0f", thisblock),
+            `content-md5`=openssl::base64_encode(openssl::md5(body))
+        )
         do_container_op(filesystem, dest, headers=headers, body=body, options=opts, progress=bar$update(),
                         http_verb="PATCH")
 
