@@ -6,6 +6,7 @@
   Note that the Azure SDK emulator is no longer being actively developed; it's recommended to use Azurite.
 - Add a 10-second fuzz factor to the default starting datetime for a generated SAS, to allow for differences in clocks.
 - More fixes to the directory handling of `list_blobs()`.
+- All uploads now compute the MD5 hash of the data and pass it to Azure, as an error-checking mechanism.
 
 # AzureStor 3.2.3
 
