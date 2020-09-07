@@ -37,7 +37,7 @@ test_that("Blob vector multitransfer works",
     cont <- create_blob_container(bl, contname)
 
     # test that extra args passed to nodes
-    expect_error(multiupload_blob(cont, file.path(srcdir, srcs), type="AppendBlob"))
+    expect_error(multiupload_blob(cont, file.path(srcdir, srcs), type="foo"))
 
     multiupload_blob(cont, file.path(srcdir, srcs), srcs)
     multidownload_blob(cont, srcs, file.path(destdir, srcs))

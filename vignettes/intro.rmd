@@ -130,6 +130,20 @@ files <- paste0("https://srcstorage.blob.core.windows.net/container/file", 0:9, 
 multicopy_url_to_storage(cont, files)
 ```
 
+### Appending (blob storage only)
+
+AzureStor supports uploading to append blobs. An append blob is comprised of blocks and is optimized for append operations; it is well suited for data that is constantly growing, but should not be modified once written, such as server logs.
+
+To upload to an append blob, specify `type="AppendBlob"` in the `storage_upload` call. To append data (rather than overwriting an existing blob), include the argument `append=TRUE`. See `?upload_blob` for more details.
+
+```r
+# create a new append blob
+storage_upload(cont, src="logfile1.csv", dest="logfile.csv", type="AppendBlob")
+
+# appending to an existing blob
+storage_upload(cont, src="logfile2.csv", dest="logfile.csv", type="AppendBlob", append=TRUE)
+```
+
 ### Interface to AzCopy
 
 AzureStor includes an interface to [AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10), Microsoft's high-performance commandline utility for copying files to and from storage. To take advantage of this, simply include the argument `use_azcopy=TRUE` on any upload or download function. AzureStor will then call AzCopy to perform the file transfer, rather than using its own internal code. In addition, a `call_azcopy` function is provided to let you use AzCopy for any task.

@@ -1,49 +1,13 @@
-upload_blob_internal <- function(container, src, dest, type="BlockBlob", blocksize=2^24, lease=NULL)
+upload_blob_internal <- function(container, src, dest, type, blocksize, lease=NULL, append=TRUE)
 {
-    if(type != "BlockBlob")
-        stop("Only block blobs currently supported")
-
     src <- normalize_src(src)
     on.exit(close(src$con))
 
-    headers <- list("x-ms-blob-type"=type)
-    if(!is.null(lease))
-        headers[["x-ms-lease-id"]] <- as.character(lease)
-
-    bar <- storage_progress_bar$new(src$size, "up")
-
-    # upload each block
-    blocklist <- list()
-    base_id <- openssl::md5(dest)
-    i <- 1
-    repeat
-    {
-        body <- readBin(src$con, "raw", blocksize)
-        thisblock <- length(body)
-        if(thisblock == 0)
-            break
-
-        # ensure content-length is never exponential notation
-        headers[["content-length"]] <- sprintf("%.0f", thisblock)
-        id <- openssl::base64_encode(sprintf("%s-%010d", base_id, i))
-        opts <- list(comp="block", blockid=id)
-
-        do_container_op(container, dest, headers=headers, body=body, options=opts, progress=bar$update(),
-                        http_verb="PUT")
-
-        blocklist <- c(blocklist, list(Latest=list(id)))
-        bar$offset <- bar$offset + blocksize
-        i <- i + 1
-    }
-
-    bar$close()
-
-    # update block list
-    body <- as.character(xml2::as_xml_document(list(BlockList=blocklist)))
-    headers <- list("content-length"=sprintf("%.0f", nchar(body)),
-                    "x-ms-blob-content-type"=src$content_type)
-    do_container_op(container, dest, headers=headers, body=body, options=list(comp="blocklist"),
-                    http_verb="PUT")
+    switch(type,
+        "BlockBlob"=upload_block_blob(container, src, dest, blocksize, lease),
+        "AppendBlob"=upload_append_blob(container, src, dest, blocksize, lease, append),
+        stop("Unknown blob type: ", type, call.=FALSE)
+    )
 
     invisible(NULL)
 }

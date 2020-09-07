@@ -226,11 +226,12 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param blob A string naming a blob.
 #' @param dir For `list_blobs`, A string naming the directory. Note that blob storage does not support real directories; this argument simply filters the result to return only blobs whose names start with the given value.
 #' @param src,dest The source and destination files for uploading and downloading. See 'Details' below.
-#' @param info For `list_blobs`, level of detail about each blob to return: a vector of names only; the name, size, and whether this blob represents a directory; or all information.
+#' @param info For `list_blobs`, level of detail about each blob to return: a vector of names only; the name, size, blob type, and whether this blob represents a directory; or all information.
 #' @param confirm Whether to ask for confirmation on deleting a blob.
 #' @param blocksize The number of bytes to upload/download per HTTP(S) request.
 #' @param lease The lease for a blob, if present.
-#' @param type When uploading, the type of blob to create. Currently only block blobs are supported.
+#' @param type When uploading, the type of blob to create. Currently only block and append blobs are supported.
+#' @param append When uploading, whether to append the uploaded data to the destination blob. Only has an effect if `type="AppendBlob"`. If this is FALSE (the default) and the destination append blob exists, it is overwritten. If this is TRUE and the destination does not exist or is not an append blob, an error is thrown.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_blob` and `multidownload_blob`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
@@ -245,6 +246,8 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' - The `src` argument can be a wildcard pattern expanding to one or more files, with `dest` naming a destination directory. In this case, if `recursive` is true, the file transfer will replicate the source directory structure at the destination.
 #'
 #' `upload_blob` and `download_blob` can display a progress bar to track the file transfer. You can control whether to display this with `options(azure_storage_progress_bar=TRUE|FALSE)`; the default is TRUE.
+#'
+#' `multiupload_blob` can upload files either as all block blobs or all append blobs, but not a mix of both.
 #'
 #' @section AzCopy:
 #' `upload_blob` and `download_blob` have the ability to use the AzCopy commandline utility to transfer files, instead of native R code. This can be useful if you want to take advantage of AzCopy's logging and recovery features; it may also be faster in the case of transferring a very large number of small files. To enable this, set the `use_azcopy` argument to TRUE.
@@ -266,6 +269,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' [blob_container], [az_storage], [storage_download], [call_azcopy]
 #'
 #' [AzCopy version 10 on GitHub](https://github.com/Azure/azure-storage-azcopy)
+#' [Guide to the different blob types](https://docs.microsoft.com/en-us/rest/api/storageservices/understanding-block-blobs--append-blobs--and-page-blobs)
 #'
 #' @examples
 #' \dontrun{
@@ -283,6 +287,11 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' multiupload_blob(cont, "/data/logfiles/*.zip", "/uploaded_data")
 #' multiupload_blob(cont, "myproj/*")  # no dest directory uploads to root
 #' multidownload_blob(cont, "jan*.*", "/data/january")
+#'
+#' # append blob: concatenating multiple files into one
+#' upload_blob(cont, "logfile1", "logfile", type="AppendBlob", append=FALSE)
+#' upload_blob(cont, "logfile2", "logfile", type="AppendBlob", append=TRUE)
+#' upload_blob(cont, "logfile3", "logfile", type="AppendBlob", append=TRUE)
 #'
 #' # you can also pass a vector of file/pathnames as the source and destination
 #' src <- c("file1.csv", "file2.csv", "file3.csv")
@@ -354,20 +363,42 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
             data.frame(Type="BlobPrefix",
                        Name=unlist(prefix$Name),
                        "Content-Length"=NA,
+                       BlobType=NA,
                        stringsAsFactors=FALSE,
                        check.names=FALSE)
         })
 
         blob_rows <- lapply(blobs, function(blob)
         {
-            props <- c(Type="Blob", Name=blob$Name, blob$Properties)
-            props <- data.frame(lapply(props, function(p) if(!is_empty(p)) unlist(p) else NA),
-                                stringsAsFactors=FALSE, check.names=FALSE)
+            # properties returned can vary for block/append/whatever blobs, and whether HNS is enabled
+            normalize_blob_properties <- function(props)
+            {
+                all_props <- c(
+                    "Creation-Time",
+                    "Last-Modified",
+                    "Etag",
+                    "Content-Length",
+                    "Content-Type",
+                    "Content-Encoding",
+                    "Content-Language",
+                    "Content-CRC64",
+                    "Content-MD5",
+                    "Cache-Control",
+                    "Content-Disposition",
+                    "BlobType",
+                    "AccessTier",
+                    "AccessTierInferred",
+                    "LeaseStatus",
+                    "LeaseState",
+                    "ServerEncrypted"
+                )
+                props[all_props[!all_props %in% names(props)]] <- NA
+                props
+            }
 
-            # ADLS/blob interop: dir in hns-enabled acct does not have LeaseState field
-            if(is.null(props$LeaseState))
-                props$LeaseState <- NA
-            props
+            props <- c(Type="Blob", Name=blob$Name, normalize_blob_properties(blob$Properties))
+            data.frame(lapply(props, function(p) if(!is_empty(p)) unlist(p) else NA),
+                              stringsAsFactors=FALSE, check.names=FALSE)
         })
 
         df_prefixes <- do.call(rbind, prefix_rows)
@@ -394,7 +425,8 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
             ndf <- names(df)
             namecol <- which(ndf == "Name")
             sizecol <- which(ndf == "Content-Length")
-            names(df)[c(namecol, sizecol)] <- c("name", "size")
+            typecol <- which(names(df) == "BlobType")
+            names(df)[c(namecol, sizecol, typecol)] <- c("name", "size", "blobtype")
 
             df$size <- if(!is.null(df$size)) as.numeric(df$size) else NA
             df$size[df$size == 0] <- NA
@@ -408,9 +440,9 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
                     df$`Last-Modified` <- as_datetime(df$`Last-Modified`)
                 if(!is.null(df$`Creation-Time`))
                     df$`Creation-Time` <- as_datetime(df$`Creation-Time`)
-                cbind(df[c(namecol, sizecol, dircol)], df[-c(namecol, sizecol, dircol)])
+                cbind(df[c(namecol, sizecol, dircol, typecol)], df[-c(namecol, sizecol, dircol, typecol)])
             }
-            else df[c(namecol, sizecol, dircol)]
+            else df[c(namecol, sizecol, dircol, typecol)]
         }
         else data.frame()
     }
@@ -419,25 +451,30 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
 
 #' @rdname blob
 #' @export
-upload_blob <- function(container, src, dest=basename(src), type="BlockBlob", blocksize=2^24, lease=NULL,
-                        use_azcopy=FALSE)
+upload_blob <- function(container, src, dest=basename(src), type=c("BlockBlob", "AppendBlob"),
+                        blocksize=if(type == "BlockBlob") 2^24 else 2^22,
+                        lease=NULL, append=FALSE, use_azcopy=FALSE)
 {
+    type <- match.arg(type)
     if(use_azcopy)
-        azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease)
-    else upload_blob_internal(container, src, dest, type=type, blocksize=blocksize, lease=lease)
+        azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease, append=append)
+    else upload_blob_internal(container, src, dest, type=type, blocksize=blocksize, lease=lease, append=append)
 }
 
 #' @rdname blob
 #' @export
-multiupload_blob <- function(container, src, dest, recursive=FALSE, type="BlockBlob", blocksize=2^24, lease=NULL,
-                             use_azcopy=FALSE,
+multiupload_blob <- function(container, src, dest, recursive=FALSE, type=c("BlockBlob", "AppendBlob"),
+                             blocksize=if(type == "BlockBlob") 2^24 else 2^22,
+                             lease=NULL, append=FALSE, use_azcopy=FALSE,
                              max_concurrent_transfers=10)
 {
+    type <- match.arg(type)
     if(use_azcopy)
-        return(azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease, recursive=recursive))
+        return(azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease, append=append,
+                             recursive=recursive))
 
     multiupload_internal(container, src, dest, recursive=recursive, type=type, blocksize=blocksize, lease=lease,
-                         max_concurrent_transfers=max_concurrent_transfers)
+                         append=append, max_concurrent_transfers=max_concurrent_transfers)
 }
 
 #' @rdname blob
