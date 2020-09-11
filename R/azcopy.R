@@ -82,10 +82,9 @@ azcopy_upload_opts <- function(container, ...)
 }
 
 azcopy_upload_opts.blob_container <- function(container, type="BlockBlob", blocksize=2^24, recursive=FALSE,
-                                              lease=NULL, append=FALSE, ...)
+                                              lease=NULL, ...)
 {
-    c("--blob-type", type, "--block-size-mb", sprintf("%.0f", blocksize/1048576), if(recursive) "--recursive",
-      if(append) "--append")
+    c("--blob-type", type, "--block-size-mb", sprintf("%.0f", blocksize/1048576), if(recursive) "--recursive")
 }
 
 azcopy_upload_opts.file_share <- function(container, blocksize=2^22, recursive=FALSE, ...)
