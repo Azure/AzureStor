@@ -104,7 +104,11 @@ Upload, download, or delete a blob; list blobs in a container; create or delete 
 
 \code{upload_blob} and \code{download_blob} have the ability to use the AzCopy commandline utility to transfer files, instead of native R code. This can be useful if you want to take advantage of AzCopy's logging and recovery features; it may also be faster in the case of transferring a very large number of small files. To enable this, set the \code{use_azcopy} argument to TRUE.
 
-Note that AzCopy only supports SAS and AAD (OAuth) token as authentication methods. AzCopy also expects a single filename or wildcard spec as its source/destination argument, not a vector of filenames or a connection.
+The following points should be noted about AzCopy:
+\itemize{
+\item It only supports SAS and AAD (OAuth) token as authentication methods. AzCopy also expects a single filename or wildcard spec as its source/destination argument, not a vector of filenames or a connection.
+\item Currently, it does \emph{not} support appending data to existing blobs.
+}
 }
 
 \section{Directories}{

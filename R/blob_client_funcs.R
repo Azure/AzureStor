@@ -252,7 +252,9 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @section AzCopy:
 #' `upload_blob` and `download_blob` have the ability to use the AzCopy commandline utility to transfer files, instead of native R code. This can be useful if you want to take advantage of AzCopy's logging and recovery features; it may also be faster in the case of transferring a very large number of small files. To enable this, set the `use_azcopy` argument to TRUE.
 #'
-#' Note that AzCopy only supports SAS and AAD (OAuth) token as authentication methods. AzCopy also expects a single filename or wildcard spec as its source/destination argument, not a vector of filenames or a connection.
+#' The following points should be noted about AzCopy:
+#' - It only supports SAS and AAD (OAuth) token as authentication methods. AzCopy also expects a single filename or wildcard spec as its source/destination argument, not a vector of filenames or a connection.
+#' - Currently, it does _not_ support appending data to existing blobs.
 #'
 #' @section Directories:
 #' Blob storage does not have true directories, instead using filenames containing a separator character (typically '/') to mimic a directory structure. This has some consequences:
@@ -457,7 +459,7 @@ upload_blob <- function(container, src, dest=basename(src), type=c("BlockBlob", 
 {
     type <- match.arg(type)
     if(use_azcopy)
-        azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease, append=append)
+        azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease)
     else upload_blob_internal(container, src, dest, type=type, blocksize=blocksize, lease=lease, append=append)
 }
 
@@ -470,7 +472,7 @@ multiupload_blob <- function(container, src, dest, recursive=FALSE, type=c("Bloc
 {
     type <- match.arg(type)
     if(use_azcopy)
-        return(azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease, append=append,
+        return(azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease,
                              recursive=recursive))
 
     multiupload_internal(container, src, dest, recursive=recursive, type=type, blocksize=blocksize, lease=lease,
