@@ -1,12 +1,13 @@
 # AzureStor 3.2.3.9000
 
+- ADLS and block blob uploads gain the option to compute and store the MD5 hash of the uploaded file, via the `put_md5` argument to `upload_adls_file` and `upload_blob`.
 - Add support for uploading to [append blobs](https://docs.microsoft.com/en-us/rest/api/storageservices/understanding-block-blobs--append-blobs--and-page-blobs), which are a type of blob optimized for append operations. They are useful for data that is constantly growing, but should not be modified once written, such as server logs. See `?upload_blob` for more details.
 - Add support for the [Azurite](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azurite) and [Azure SDK](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator) storage emulators. To connect to the endpoint, use the service-specific functions `blob_endpoint` and `queue_endpoint` (the latter from the AzureQstor package), passing the full URL including the account name: `blob_endpoint("http://127.0.0.1:10000/myaccount", key="mykey")`. The warning about an unrecognised endpoint can be ignored. See the linked pages for full details on how to authenticate to the emulator.
 
   Note that the Azure SDK emulator is no longer being actively developed; it's recommended to use Azurite.
 - Add a 10-second fuzz factor to the default starting datetime for a generated SAS, to allow for differences in clocks.
 - More fixes to the directory handling of `list_blobs()`.
-- All uploads now compute the MD5 hash of the data and pass it to Azure, as an error-checking mechanism.
+- All uploads now include the `Content-MD5` header in the HTTP requests, as an error-checking mechanism.
 
 # AzureStor 3.2.3
 
