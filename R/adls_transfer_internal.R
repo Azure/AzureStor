@@ -1,6 +1,6 @@
-upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lease=NULL)
+upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lease=NULL, put_md5=FALSE)
 {
-    src <- normalize_src(src)
+    src <- normalize_src(src, put_md5)
     on.exit(close(src$con))
 
     headers <- list()
@@ -24,7 +24,7 @@ upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lea
         opts <- list(action="append", position=sprintf("%.0f", pos))
         headers <- list(
             `content-length`=sprintf("%.0f", thisblock),
-            `content-md5`=openssl::base64_encode(openssl::md5(body))
+            `content-md5`=encode_md5(body)
         )
         do_container_op(filesystem, dest, headers=headers, body=body, options=opts, progress=bar$update(),
                         http_verb="PATCH")
@@ -36,9 +36,12 @@ upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lea
     bar$close()
 
     # flush contents
+    headers <- list(`content-type`=src$content_type)
+    if(!is.null(src$md5))
+        headers$`x-ms-content-md5` <- src$md5
     do_container_op(filesystem, dest,
                     options=list(action="flush", position=sprintf("%.0f", pos)),
-                    headers=list(`content-type`=src$content_type),
+                    headers=headers,
                     http_verb="PATCH")
     invisible(NULL)
 }

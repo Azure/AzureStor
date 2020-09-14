@@ -1,6 +1,6 @@
-upload_blob_internal <- function(container, src, dest, type, blocksize, lease=NULL, append=TRUE)
+upload_blob_internal <- function(container, src, dest, type, blocksize, lease=NULL, put_md5=FALSE, append=FALSE)
 {
-    src <- normalize_src(src)
+    src <- normalize_src(src, put_md5)
     on.exit(close(src$con))
 
     switch(type,

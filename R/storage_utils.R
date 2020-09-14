@@ -278,3 +278,9 @@ url_encode <- function(string, reserved=FALSE)
 {
     URLencode(enc2utf8(string), reserved=reserved)
 }
+
+
+encode_md5 <- function(x, ...)
+{
+    openssl::base64_encode(openssl::md5(x, ...))
+}
