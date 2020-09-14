@@ -18,7 +18,7 @@ sub <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$get_subscr
 stor <- sub$get_resource_group(rgname)$get_storage_account(storname)
 bl <- stor$get_blob_endpoint()
 ad <- stor$get_adls_endpoint()
-options(azure_storage_progress_bar=FALSE)
+opts <- options(azure_storage_progress_bar=FALSE)
 
 
 test_that("Blob upload works with MD5 hash",
@@ -59,4 +59,5 @@ teardown(
     lapply(conts, delete_blob_container, confirm=FALSE)
     fss <- list_adls_filesystems(ad)
     lapply(fss, delete_adls_filesystem, confirm=FALSE)
+    options(opts)
 })
