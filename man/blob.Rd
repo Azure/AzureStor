@@ -19,12 +19,12 @@ list_blobs(container, dir = "/", info = c("partial", "name", "all"),
 
 upload_blob(container, src, dest = basename(src), type = c("BlockBlob",
   "AppendBlob"), blocksize = if (type == "BlockBlob") 2^24 else 2^22,
-  lease = NULL, append = FALSE, use_azcopy = FALSE)
+  lease = NULL, put_md5 = FALSE, append = FALSE, use_azcopy = FALSE)
 
 multiupload_blob(container, src, dest, recursive = FALSE,
   type = c("BlockBlob", "AppendBlob"), blocksize = if (type == "BlockBlob")
-  2^24 else 2^22, lease = NULL, append = FALSE, use_azcopy = FALSE,
-  max_concurrent_transfers = 10)
+  2^24 else 2^22, lease = NULL, put_md5 = FALSE, append = FALSE,
+  use_azcopy = FALSE, max_concurrent_transfers = 10)
 
 download_blob(container, src, dest = basename(src), blocksize = 2^24,
   overwrite = FALSE, lease = NULL, use_azcopy = FALSE)
@@ -64,6 +64,8 @@ multicopy_url_to_blob(container, src, dest, lease = NULL, async = FALSE,
 \item{blocksize}{The number of bytes to upload/download per HTTP(S) request.}
 
 \item{lease}{The lease for a blob, if present.}
+
+\item{put_md5}{For uploading, whether to compute the MD5 hash of the blob(s). This will be stored as part of the blob's properties. Only used for block blobs.}
 
 \item{append}{When uploading, whether to append the uploaded data to the destination blob. Only has an effect if \code{type="AppendBlob"}. If this is FALSE (the default) and the destination append blob exists, it is overwritten. If this is TRUE and the destination does not exist or is not an append blob, an error is thrown.}
 

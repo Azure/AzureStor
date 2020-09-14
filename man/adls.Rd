@@ -16,11 +16,11 @@ list_adls_files(filesystem, dir = "/", info = c("all", "name"),
   recursive = FALSE)
 
 multiupload_adls_file(filesystem, src, dest, recursive = FALSE,
-  blocksize = 2^22, lease = NULL, use_azcopy = FALSE,
+  blocksize = 2^22, lease = NULL, put_md5 = FALSE, use_azcopy = FALSE,
   max_concurrent_transfers = 10)
 
 upload_adls_file(filesystem, src, dest = basename(src), blocksize = 2^24,
-  lease = NULL, use_azcopy = FALSE)
+  lease = NULL, put_md5 = FALSE, use_azcopy = FALSE)
 
 multidownload_adls_file(filesystem, src, dest, recursive = FALSE,
   blocksize = 2^24, overwrite = FALSE, use_azcopy = FALSE,
@@ -51,6 +51,8 @@ adls_file_exists(filesystem, file)
 \item{blocksize}{The number of bytes to upload/download per HTTP(S) request.}
 
 \item{lease}{The lease for a file, if present.}
+
+\item{put_md5}{For uploading, whether to compute the MD5 hash of the file(s). This will be stored as part of the blob's properties.}
 
 \item{use_azcopy}{Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.}
 
