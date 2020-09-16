@@ -71,15 +71,14 @@ download_azure_file_internal <- function(share, src, dest, blocksize=2^22, overw
     if(null_dest)
     {
         dest <- rawConnection(raw(0), "w+b")
-        on.exit(seek(dest, 0))
+        on.exit(close(dest))
     }
     if(conn_dest)
         on.exit(seek(dest, 0))
 
     # get file size (for progress bar)
-    res <- do_container_op(share, src, headers=headers, http_verb="HEAD", http_status_handler="pass")
-    httr::stop_for_status(res, storage_error_message(res))
-    size <- as.numeric(httr::headers(res)[["Content-Length"]])
+    props <- get_storage_properties(share, src)
+    size <- as.numeric(props[["content-length"]])
 
     bar <- storage_progress_bar$new(size, "down")
     offset <- 0
