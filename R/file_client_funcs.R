@@ -336,7 +336,7 @@ upload_azure_file <- function(share, src, dest=basename(src), create_dir=FALSE, 
                               use_azcopy=FALSE)
 {
     if(use_azcopy)
-        azcopy_upload(share, src, dest, blocksize=blocksize)
+        azcopy_upload(share, src, dest, blocksize=blocksize, put_md5=put_md5)
     else upload_azure_file_internal(share, src, dest, create_dir=create_dir, blocksize=blocksize, put_md5=put_md5)
 }
 
@@ -347,7 +347,7 @@ multiupload_azure_file <- function(share, src, dest, recursive=FALSE, create_dir
                                    max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        return(azcopy_upload(share, src, dest, blocksize=blocksize, recursive=recursive))
+        return(azcopy_upload(share, src, dest, blocksize=blocksize, recursive=recursive, put_md5=put_md5))
 
     multiupload_internal(share, src, dest, recursive=recursive, create_dir=create_dir, blocksize=blocksize,
                          put_md5=put_md5, max_concurrent_transfers=max_concurrent_transfers)
@@ -359,7 +359,7 @@ download_azure_file <- function(share, src, dest=basename(src), blocksize=2^22, 
                                 check_md5=FALSE, use_azcopy=FALSE)
 {
     if(use_azcopy)
-        azcopy_download(share, src, dest, overwrite=overwrite)
+        azcopy_download(share, src, dest, overwrite=overwrite, check_md5=check_md5)
     else download_azure_file_internal(share, src, dest, blocksize=blocksize, overwrite=overwrite,
                                       check_md5=check_md5)
 }
@@ -371,7 +371,7 @@ multidownload_azure_file <- function(share, src, dest, recursive=FALSE, blocksiz
                                      max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        return(azcopy_download(share, src, dest, overwrite=overwrite, recursive=recursive))
+        return(azcopy_download(share, src, dest, overwrite=overwrite, recursive=recursive, check_md5=check_md5))
 
     multidownload_internal(share, src, dest, recursive=recursive, blocksize=blocksize, overwrite=overwrite,
                            check_md5=check_md5, max_concurrent_transfers=max_concurrent_transfers)

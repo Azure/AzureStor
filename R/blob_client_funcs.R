@@ -461,7 +461,7 @@ upload_blob <- function(container, src, dest=basename(src), type=c("BlockBlob", 
 {
     type <- match.arg(type)
     if(use_azcopy)
-        azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease)
+        azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease, put_md5=put_md5)
     else upload_blob_internal(container, src, dest, type=type, blocksize=blocksize, lease=lease,
                               put_md5=put_md5, append=append)
 }
@@ -475,7 +475,7 @@ multiupload_blob <- function(container, src, dest, recursive=FALSE, type=c("Bloc
 {
     type <- match.arg(type)
     if(use_azcopy)
-        return(azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease,
+        return(azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease, put_md5=put_md5,
                              recursive=recursive))
 
     multiupload_internal(container, src, dest, recursive=recursive, type=type, blocksize=blocksize, lease=lease,
@@ -488,7 +488,7 @@ download_blob <- function(container, src, dest=basename(src), blocksize=2^24, ov
                           check_md5=FALSE, use_azcopy=FALSE)
 {
     if(use_azcopy)
-        azcopy_download(container, src, dest, overwrite=overwrite, lease=lease)
+        azcopy_download(container, src, dest, overwrite=overwrite, lease=lease, check_md5=check_md5)
     else download_blob_internal(container, src, dest, blocksize=blocksize, overwrite=overwrite, lease=lease,
                                 check_md5=check_md5)
 }
@@ -500,7 +500,8 @@ multidownload_blob <- function(container, src, dest, recursive=FALSE, blocksize=
                                max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        return(azcopy_download(container, src, dest, overwrite=overwrite, lease=lease, recursive=recursive))
+        return(azcopy_download(container, src, dest, overwrite=overwrite, lease=lease, recursive=recursive,
+                               check_md5=check_md5))
 
     multidownload_internal(container, src, dest, recursive=recursive, blocksize=blocksize, overwrite=overwrite,
                            lease=lease, check_md5=check_md5, max_concurrent_transfers=max_concurrent_transfers)

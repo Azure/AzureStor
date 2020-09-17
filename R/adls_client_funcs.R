@@ -378,7 +378,8 @@ multiupload_adls_file <- function(filesystem, src, dest, recursive=FALSE, blocks
                                   max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        return(azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease, recursive=recursive))
+        return(azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease, recursive=recursive,
+                             put_md5=put_md5))
 
     multiupload_internal(filesystem, src, dest, recursive=recursive, blocksize=blocksize, lease=lease,
                          put_md5=put_md5, max_concurrent_transfers=max_concurrent_transfers)
@@ -391,7 +392,7 @@ upload_adls_file <- function(filesystem, src, dest=basename(src), blocksize=2^24
                              put_md5=FALSE, use_azcopy=FALSE)
 {
     if(use_azcopy)
-        azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease)
+        azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease, put_md5=put_md5)
     else upload_adls_file_internal(filesystem, src, dest, blocksize=blocksize, lease=lease, put_md5=put_md5)
 }
 
@@ -403,7 +404,7 @@ multidownload_adls_file <- function(filesystem, src, dest, recursive=FALSE, bloc
                                     max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        return(azcopy_download(filesystem, src, dest, overwrite=overwrite, recursive=recursive))
+        return(azcopy_download(filesystem, src, dest, overwrite=overwrite, recursive=recursive, check_md5=check_md5))
 
     multidownload_internal(filesystem, src, dest, recursive=recursive, blocksize=blocksize, overwrite=overwrite,
                            check_md5=check_md5, max_concurrent_transfers=max_concurrent_transfers)
@@ -416,7 +417,7 @@ download_adls_file <- function(filesystem, src, dest=basename(src), blocksize=2^
                                check_md5=FALSE, use_azcopy=FALSE)
 {
     if(use_azcopy)
-        azcopy_download(filesystem, src, dest, overwrite=overwrite)
+        azcopy_download(filesystem, src, dest, overwrite=overwrite, check_md5=check_md5)
     else download_adls_file_internal(filesystem, src, dest, blocksize=blocksize, overwrite=overwrite,
                                      check_md5=check_md5)
 }
