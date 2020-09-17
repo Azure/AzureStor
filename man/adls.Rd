@@ -52,7 +52,7 @@ adls_file_exists(filesystem, file)
 
 \item{lease}{The lease for a file, if present.}
 
-\item{put_md5}{For uploading, whether to compute the MD5 hash of the file(s). This will be stored as part of the blob's properties.}
+\item{put_md5}{For uploading, whether to compute the MD5 hash of the file(s). This will be stored as part of the file's properties.}
 
 \item{use_azcopy}{Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.}
 

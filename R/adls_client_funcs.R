@@ -228,7 +228,7 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_adls_file` and `multidownload_adls_file`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
-#' @param put_md5 For uploading, whether to compute the MD5 hash of the file(s). This will be stored as part of the blob's properties.
+#' @param put_md5 For uploading, whether to compute the MD5 hash of the file(s). This will be stored as part of the file's properties.
 #' @param check_md5 For downloading, whether to verify the MD5 hash of the downloaded file(s). This requires that the file's `Content-MD5` property is set. If this is TRUE and the `Content-MD5` property is missing, a warning is generated.
 #'
 #' @details

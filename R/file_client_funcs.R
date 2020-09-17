@@ -215,6 +215,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_azure_file` and `multidownload_azure_file`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
 #' @param prefix For `list_azure_files`, filters the result to return only files and directories whose name begins with this prefix.
+#' @param put_md5 For uploading, whether to compute the MD5 hash of the file(s). This will be stored as part of the file's properties.
 #' @param check_md5 For downloading, whether to verify the MD5 hash of the downloaded file(s). This requires that the file's `Content-MD5` property is set. If this is TRUE and the `Content-MD5` property is missing, a warning is generated.
 #'
 #' @details

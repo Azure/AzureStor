@@ -54,6 +54,8 @@ azure_file_exists(share, file)
 
 \item{blocksize}{The number of bytes to upload/download per HTTP(S) request.}
 
+\item{put_md5}{For uploading, whether to compute the MD5 hash of the file(s). This will be stored as part of the file's properties.}
+
 \item{use_azcopy}{Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.}
 
 \item{max_concurrent_transfers}{For \code{multiupload_azure_file} and \code{multidownload_azure_file}, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.}
