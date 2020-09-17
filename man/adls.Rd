@@ -23,11 +23,11 @@ upload_adls_file(filesystem, src, dest = basename(src), blocksize = 2^24,
   lease = NULL, put_md5 = FALSE, use_azcopy = FALSE)
 
 multidownload_adls_file(filesystem, src, dest, recursive = FALSE,
-  blocksize = 2^24, overwrite = FALSE, use_azcopy = FALSE,
-  max_concurrent_transfers = 10)
+  blocksize = 2^24, overwrite = FALSE, check_md5 = FALSE,
+  use_azcopy = FALSE, max_concurrent_transfers = 10)
 
 download_adls_file(filesystem, src, dest = basename(src), blocksize = 2^24,
-  overwrite = FALSE, use_azcopy = FALSE)
+  overwrite = FALSE, check_md5 = FALSE, use_azcopy = FALSE)
 
 delete_adls_file(filesystem, file, confirm = TRUE)
 
@@ -59,6 +59,8 @@ adls_file_exists(filesystem, file)
 \item{max_concurrent_transfers}{For \code{multiupload_adls_file} and \code{multidownload_adls_file}, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.}
 
 \item{overwrite}{When downloading, whether to overwrite an existing destination file.}
+
+\item{check_md5}{For downloading, whether to verify the MD5 hash of the downloaded file(s). This requires that the file's \code{Content-MD5} property is set. If this is TRUE and the \code{Content-MD5} property is missing, a warning is generated.}
 
 \item{confirm}{Whether to ask for confirmation on deleting a file or directory.}
 }

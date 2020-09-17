@@ -27,10 +27,11 @@ multiupload_blob(container, src, dest, recursive = FALSE,
   use_azcopy = FALSE, max_concurrent_transfers = 10)
 
 download_blob(container, src, dest = basename(src), blocksize = 2^24,
-  overwrite = FALSE, lease = NULL, use_azcopy = FALSE)
+  overwrite = FALSE, lease = NULL, check_md5 = FALSE,
+  use_azcopy = FALSE)
 
 multidownload_blob(container, src, dest, recursive = FALSE,
-  blocksize = 2^24, overwrite = FALSE, lease = NULL,
+  blocksize = 2^24, overwrite = FALSE, lease = NULL, check_md5 = FALSE,
   use_azcopy = FALSE, max_concurrent_transfers = 10)
 
 delete_blob(container, blob, confirm = TRUE)
@@ -74,6 +75,8 @@ multicopy_url_to_blob(container, src, dest, lease = NULL, async = FALSE,
 \item{max_concurrent_transfers}{For \code{multiupload_blob} and \code{multidownload_blob}, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.}
 
 \item{overwrite}{When downloading, whether to overwrite an existing destination file.}
+
+\item{check_md5}{For downloading, whether to verify the MD5 hash of the downloaded blob(s). This requires that the blob's \code{Content-MD5} property is set. If this is TRUE and the \code{Content-MD5} property is missing, a warning is generated.}
 
 \item{blob}{A string naming a blob.}
 

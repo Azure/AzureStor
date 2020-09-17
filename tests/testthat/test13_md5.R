@@ -18,10 +18,11 @@ sub <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$get_subscr
 stor <- sub$get_resource_group(rgname)$get_storage_account(storname)
 bl <- stor$get_blob_endpoint()
 ad <- stor$get_adls_endpoint()
+fl <- stor$get_file_endpoint()
 opts <- options(azure_storage_progress_bar=FALSE)
 
 
-test_that("Blob upload works with MD5 hash",
+test_that("Blob upload/download works with MD5 hash",
 {
     contname <- make_name()
     cont <- create_blob_container(bl, contname)
@@ -34,10 +35,15 @@ test_that("Blob upload works with MD5 hash",
     md5 <- encode_md5(file("../resources/iris.csv"))
     lst <- list_blobs(cont, info="all")
     expect_identical(lst[["Content-MD5"]], md5)
+
+    dl_file <- file.path(tempdir(), make_name())
+    expect_silent(download_blob(cont, "iris.csv", dl_file, check_md5=TRUE))
+    dl_md5 <- encode_md5(file(dl_file))
+    expect_identical(md5, dl_md5)
 })
 
 
-test_that("ADLS upload works with MD5 hash",
+test_that("ADLS upload/download works with MD5 hash",
 {
     contname <- make_name()
     fs <- create_adls_filesystem(ad, contname)
@@ -50,6 +56,32 @@ test_that("ADLS upload works with MD5 hash",
     md5 <- encode_md5(file("../resources/iris.csv"))
     props <- get_storage_properties(fs, "iris.csv")
     expect_identical(props$`content-md5`, md5)
+
+    dl_file <- file.path(tempdir(), make_name())
+    expect_silent(download_adls_file(fs, "iris.csv", dl_file, check_md5=TRUE))
+    dl_md5 <- encode_md5(file(dl_file))
+    expect_identical(md5, dl_md5)
+})
+
+
+test_that("File upload/download works with MD5 hash",
+{
+    contname <- make_name()
+    share <- create_file_share(fl, contname)
+
+    expect_silent(upload_azure_file(share, "../resources/iris.csv"))
+    props <- get_storage_properties(share, "iris.csv")
+    expect_null(props$`content-md5`)
+
+    expect_silent(upload_azure_file(share, "../resources/iris.csv", put_md5=TRUE))
+    md5 <- encode_md5(file("../resources/iris.csv"))
+    props <- get_storage_properties(share, "iris.csv")
+    expect_identical(props$`content-md5`, md5)
+
+    dl_file <- file.path(tempdir(), make_name())
+    expect_silent(download_azure_file(share, "iris.csv", dl_file, check_md5=TRUE))
+    dl_md5 <- encode_md5(file(dl_file))
+    expect_identical(md5, dl_md5)
 })
 
 
@@ -59,5 +91,7 @@ teardown(
     lapply(conts, delete_blob_container, confirm=FALSE)
     fss <- list_adls_filesystems(ad)
     lapply(fss, delete_adls_filesystem, confirm=FALSE)
+    fls <- list_file_shares(fl)
+    lapply(fls, delete_file_share, confirm=FALSE)
     options(opts)
 })

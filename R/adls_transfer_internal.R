@@ -47,36 +47,16 @@ upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lea
 }
 
 
-download_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, overwrite=FALSE)
+download_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, overwrite=FALSE, check_md5=FALSE)
 {
-    file_dest <- is.character(dest)
-    null_dest <- is.null(dest)
-    conn_dest <- inherits(dest, "rawConnection")
-
-    if(!file_dest && !null_dest && !conn_dest)
-        stop("Unrecognised dest argument", call.=FALSE)
-
     headers <- list()
-    if(file_dest)
-    {
-        if(!overwrite && file.exists(dest))
-            stop("Destination file exists and overwrite is FALSE", call.=FALSE)
-        if(!dir.exists(dirname(dest)))
-            dir.create(dirname(dest), recursive=TRUE)
-        dest <- file(dest, "w+b")
-        on.exit(close(dest))
-    }
-    if(null_dest)
-    {
-        dest <- rawConnection(raw(0), "w+b")
-        on.exit(close(dest))
-    }
-    if(conn_dest)
-        on.exit(seek(dest, 0))
+    dest <- init_download_dest(dest, overwrite)
+    on.exit(dispose_download_dest(dest))
 
-    # get file size (for progress bar)
+    # get file size (for progress bar) and MD5 hash
     props <- get_storage_properties(filesystem, src)
     size <- as.numeric(props[["content-length"]])
+    src_md5 <- props[["content-md5"]]
 
     bar <- storage_progress_bar$new(size, "down")
     offset <- 0
@@ -93,5 +73,7 @@ download_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, o
     }
 
     bar$close()
-    if(null_dest) rawConnectionValue(dest) else invisible(NULL)
+    if(check_md5)
+        do_md5_check(dest, src_md5)
+    if(inherits(dest, "null_dest")) rawConnectionValue(dest) else invisible(NULL)
 }
