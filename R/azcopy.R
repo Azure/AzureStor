@@ -122,18 +122,18 @@ azcopy_download_opts <- function(container, ...)
 azcopy_download_opts.blob_container <- function(container, overwrite=FALSE, recursive=FALSE, check_md5=FALSE, ...)
 {
     c(paste0("--overwrite=", tolower(as.character(overwrite))), if(recursive) "--recursive",
-      if(check_md5) "--check-md5")
+      if(check_md5) c("--check-md5", "FailIfDifferent"))
 }
 
 azcopy_download_opts.file_share  <- function(container, overwrite=FALSE, recursive=FALSE, ...)
 {
     c(paste0("--overwrite=", tolower(as.character(overwrite))), if(recursive) "--recursive",
-      if(check_md5) "--check-md5")
+      if(check_md5) c("--check-md5", "FailIfDifferent"))
 }
 
 azcopy_download_opts.adls_filesystem <- function(container, overwrite=FALSE, recursive=FALSE, ...)
 {
     c(paste0("--overwrite=", tolower(as.character(overwrite))), if(recursive) "--recursive",
-      if(check_md5) "--check-md5")
+      if(check_md5) c("--check-md5", "FailIfDifferent"))
 }
 
