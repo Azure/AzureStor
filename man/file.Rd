@@ -16,18 +16,18 @@ list_azure_files(share, dir = "/", info = c("all", "name"),
   prefix = NULL, recursive = FALSE)
 
 upload_azure_file(share, src, dest = basename(src), create_dir = FALSE,
-  blocksize = 2^22, use_azcopy = FALSE)
+  blocksize = 2^22, put_md5 = FALSE, use_azcopy = FALSE)
 
 multiupload_azure_file(share, src, dest, recursive = FALSE,
-  create_dir = recursive, blocksize = 2^22, use_azcopy = FALSE,
-  max_concurrent_transfers = 10)
+  create_dir = recursive, blocksize = 2^22, put_md5 = FALSE,
+  use_azcopy = FALSE, max_concurrent_transfers = 10)
 
 download_azure_file(share, src, dest = basename(src), blocksize = 2^22,
-  overwrite = FALSE, use_azcopy = FALSE)
+  overwrite = FALSE, check_md5 = FALSE, use_azcopy = FALSE)
 
 multidownload_azure_file(share, src, dest, recursive = FALSE,
-  blocksize = 2^22, overwrite = FALSE, use_azcopy = FALSE,
-  max_concurrent_transfers = 10)
+  blocksize = 2^22, overwrite = FALSE, check_md5 = FALSE,
+  use_azcopy = FALSE, max_concurrent_transfers = 10)
 
 delete_azure_file(share, file, confirm = TRUE)
 
@@ -54,11 +54,15 @@ azure_file_exists(share, file)
 
 \item{blocksize}{The number of bytes to upload/download per HTTP(S) request.}
 
+\item{put_md5}{For uploading, whether to compute the MD5 hash of the file(s). This will be stored as part of the file's properties.}
+
 \item{use_azcopy}{Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.}
 
 \item{max_concurrent_transfers}{For \code{multiupload_azure_file} and \code{multidownload_azure_file}, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.}
 
 \item{overwrite}{When downloading, whether to overwrite an existing destination file.}
+
+\item{check_md5}{For downloading, whether to verify the MD5 hash of the downloaded file(s). This requires that the file's \code{Content-MD5} property is set. If this is TRUE and the \code{Content-MD5} property is missing, a warning is generated.}
 
 \item{confirm}{Whether to ask for confirmation on deleting a file or directory.}
 }

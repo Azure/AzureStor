@@ -228,6 +228,8 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_adls_file` and `multidownload_adls_file`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
+#' @param put_md5 For uploading, whether to compute the MD5 hash of the file(s). This will be stored as part of the file's properties.
+#' @param check_md5 For downloading, whether to verify the MD5 hash of the downloaded file(s). This requires that the file's `Content-MD5` property is set. If this is TRUE and the `Content-MD5` property is missing, a warning is generated.
 #'
 #' @details
 #' `upload_adls_file` and `download_adls_file` are the workhorse file transfer functions for ADLSgen2 storage. They each take as inputs a _single_ filename as the source for uploading/downloading, and a single filename as the destination. Alternatively, for uploading, `src` can be a [textConnection] or [rawConnection] object; and for downloading, `dest` can be NULL or a `rawConnection` object. If `dest` is NULL, the downloaded data is returned as a raw vector, and if a raw connection, it will be placed into the connection. See the examples below.
@@ -372,48 +374,52 @@ list_adls_files <- function(filesystem, dir="/", info=c("all", "name"),
 #' @rdname adls
 #' @export
 multiupload_adls_file <- function(filesystem, src, dest, recursive=FALSE, blocksize=2^22, lease=NULL,
-                                   use_azcopy=FALSE,
-                                   max_concurrent_transfers=10)
+                                  put_md5=FALSE, use_azcopy=FALSE,
+                                  max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        return(azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease, recursive=recursive))
+        return(azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease, recursive=recursive,
+                             put_md5=put_md5))
 
     multiupload_internal(filesystem, src, dest, recursive=recursive, blocksize=blocksize, lease=lease,
-                         max_concurrent_transfers=max_concurrent_transfers)
+                         put_md5=put_md5, max_concurrent_transfers=max_concurrent_transfers)
 }
 
 
 #' @rdname adls
 #' @export
-upload_adls_file <- function(filesystem, src, dest=basename(src), blocksize=2^24, lease=NULL, use_azcopy=FALSE)
+upload_adls_file <- function(filesystem, src, dest=basename(src), blocksize=2^24, lease=NULL,
+                             put_md5=FALSE, use_azcopy=FALSE)
 {
     if(use_azcopy)
-        azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease)
-    else upload_adls_file_internal(filesystem, src, dest, blocksize=blocksize, lease=lease)
+        azcopy_upload(filesystem, src, dest, blocksize=blocksize, lease=lease, put_md5=put_md5)
+    else upload_adls_file_internal(filesystem, src, dest, blocksize=blocksize, lease=lease, put_md5=put_md5)
 }
 
 
 #' @rdname adls
 #' @export
 multidownload_adls_file <- function(filesystem, src, dest, recursive=FALSE, blocksize=2^24, overwrite=FALSE,
-                                    use_azcopy=FALSE,
+                                    check_md5=FALSE, use_azcopy=FALSE,
                                     max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        return(azcopy_download(filesystem, src, dest, overwrite=overwrite, recursive=recursive))
+        return(azcopy_download(filesystem, src, dest, overwrite=overwrite, recursive=recursive, check_md5=check_md5))
 
     multidownload_internal(filesystem, src, dest, recursive=recursive, blocksize=blocksize, overwrite=overwrite,
-                           max_concurrent_transfers=max_concurrent_transfers)
+                           check_md5=check_md5, max_concurrent_transfers=max_concurrent_transfers)
 }
 
 
 #' @rdname adls
 #' @export
-download_adls_file <- function(filesystem, src, dest=basename(src), blocksize=2^24, overwrite=FALSE, use_azcopy=FALSE)
+download_adls_file <- function(filesystem, src, dest=basename(src), blocksize=2^24, overwrite=FALSE,
+                               check_md5=FALSE, use_azcopy=FALSE)
 {
     if(use_azcopy)
-        azcopy_download(filesystem, src, dest, overwrite=overwrite)
-    else download_adls_file_internal(filesystem, src, dest, blocksize=blocksize, overwrite=overwrite)
+        azcopy_download(filesystem, src, dest, overwrite=overwrite, check_md5=check_md5)
+    else download_adls_file_internal(filesystem, src, dest, blocksize=blocksize, overwrite=overwrite,
+                                     check_md5=check_md5)
 }
 
 

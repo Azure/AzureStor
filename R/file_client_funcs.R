@@ -215,6 +215,8 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_azure_file` and `multidownload_azure_file`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
 #' @param prefix For `list_azure_files`, filters the result to return only files and directories whose name begins with this prefix.
+#' @param put_md5 For uploading, whether to compute the MD5 hash of the file(s). This will be stored as part of the file's properties.
+#' @param check_md5 For downloading, whether to verify the MD5 hash of the downloaded file(s). This requires that the file's `Content-MD5` property is set. If this is TRUE and the `Content-MD5` property is missing, a warning is generated.
 #'
 #' @details
 #' `upload_azure_file` and `download_azure_file` are the workhorse file transfer functions for file storage. They each take as inputs a _single_ filename as the source for uploading/downloading, and a single filename as the destination. Alternatively, for uploading, `src` can be a [textConnection] or [rawConnection] object; and for downloading, `dest` can be NULL or a `rawConnection` object. If `dest` is NULL, the downloaded data is returned as a raw vector, and if a raw connection, it will be placed into the connection. See the examples below.
@@ -330,46 +332,49 @@ list_azure_files <- function(share, dir="/", info=c("all", "name"),
 
 #' @rdname file
 #' @export
-upload_azure_file <- function(share, src, dest=basename(src), create_dir=FALSE, blocksize=2^22, use_azcopy=FALSE)
+upload_azure_file <- function(share, src, dest=basename(src), create_dir=FALSE, blocksize=2^22, put_md5=FALSE,
+                              use_azcopy=FALSE)
 {
     if(use_azcopy)
-        azcopy_upload(share, src, dest, blocksize=blocksize)
-    else upload_azure_file_internal(share, src, dest, create_dir=create_dir, blocksize=blocksize)
+        azcopy_upload(share, src, dest, blocksize=blocksize, put_md5=put_md5)
+    else upload_azure_file_internal(share, src, dest, create_dir=create_dir, blocksize=blocksize, put_md5=put_md5)
 }
 
 #' @rdname file
 #' @export
 multiupload_azure_file <- function(share, src, dest, recursive=FALSE, create_dir=recursive, blocksize=2^22,
-                                   use_azcopy=FALSE,
+                                   put_md5=FALSE, use_azcopy=FALSE,
                                    max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        return(azcopy_upload(share, src, dest, blocksize=blocksize, recursive=recursive))
+        return(azcopy_upload(share, src, dest, blocksize=blocksize, recursive=recursive, put_md5=put_md5))
 
     multiupload_internal(share, src, dest, recursive=recursive, create_dir=create_dir, blocksize=blocksize,
-                         max_concurrent_transfers=max_concurrent_transfers)
+                         put_md5=put_md5, max_concurrent_transfers=max_concurrent_transfers)
 }
 
 #' @rdname file
 #' @export
-download_azure_file <- function(share, src, dest=basename(src), blocksize=2^22, overwrite=FALSE, use_azcopy=FALSE)
+download_azure_file <- function(share, src, dest=basename(src), blocksize=2^22, overwrite=FALSE,
+                                check_md5=FALSE, use_azcopy=FALSE)
 {
     if(use_azcopy)
-        azcopy_download(share, src, dest, overwrite=overwrite)
-    else download_azure_file_internal(share, src, dest, blocksize=blocksize, overwrite=overwrite)
+        azcopy_download(share, src, dest, overwrite=overwrite, check_md5=check_md5)
+    else download_azure_file_internal(share, src, dest, blocksize=blocksize, overwrite=overwrite,
+                                      check_md5=check_md5)
 }
 
 #' @rdname file
 #' @export
 multidownload_azure_file <- function(share, src, dest, recursive=FALSE, blocksize=2^22, overwrite=FALSE,
-                                     use_azcopy=FALSE,
+                                     check_md5=FALSE, use_azcopy=FALSE,
                                      max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        return(azcopy_download(share, src, dest, overwrite=overwrite, recursive=recursive))
+        return(azcopy_download(share, src, dest, overwrite=overwrite, recursive=recursive, check_md5=check_md5))
 
     multidownload_internal(share, src, dest, recursive=recursive, blocksize=blocksize, overwrite=overwrite,
-                           max_concurrent_transfers=max_concurrent_transfers)
+                           check_md5=check_md5, max_concurrent_transfers=max_concurrent_transfers)
 }
 
 #' @rdname file

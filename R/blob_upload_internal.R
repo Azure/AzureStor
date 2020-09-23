@@ -19,6 +19,7 @@ upload_block_blob <- function(container, src, dest, blocksize, lease)
 
         # ensure content-length is never exponential notation
         headers[["content-length"]] <- sprintf("%.0f", thisblock)
+        headers[["content-md5"]] <- encode_md5(body)
         id <- openssl::base64_encode(sprintf("%s-%010d", base_id, i))
         opts <- list(comp="block", blockid=id)
 
@@ -34,8 +35,14 @@ upload_block_blob <- function(container, src, dest, blocksize, lease)
 
     # update block list
     body <- as.character(xml2::as_xml_document(list(BlockList=blocklist)))
-    headers <- list("content-length"=sprintf("%.0f", nchar(body)),
-                    "x-ms-blob-content-type"=src$content_type)
+    headers <- list(
+        "content-length"=sprintf("%.0f", nchar(body)),
+        "x-ms-blob-content-type"=src$content_type,
+        "content-md5"=encode_md5(charToRaw(body))
+    )
+    if(!is.null(src$md5))
+        headers[["x-ms-blob-content-md5"]] <- src$md5
+
     do_container_op(container, dest, headers=headers, body=body, options=list(comp="blocklist"),
                     http_verb="PUT")
 }
@@ -66,6 +73,7 @@ upload_append_blob <- function(container, src, dest, blocksize, lease, append)
 
         # ensure content-length is never exponential notation
         headers[["content-length"]] <- sprintf("%.0f", thisblock)
+        headers[["content-md5"]] <- encode_md5(body)
         id <- openssl::base64_encode(sprintf("%s-%010d", base_id, i))
         opts <- list(comp="appendblock")
 

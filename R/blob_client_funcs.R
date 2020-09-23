@@ -237,6 +237,8 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param max_concurrent_transfers For `multiupload_blob` and `multidownload_blob`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
 #' @param prefix For `list_blobs`, an alternative way to specify the directory.
 #' @param recursive For the multiupload/download functions, whether to recursively transfer files in subdirectories. For `list_blobs`, whether to include the contents of any subdirectories in the listing. For `delete_blob_dir`, whether to recursively delete subdirectory contents as well (not yet supported).
+#' @param put_md5 For uploading, whether to compute the MD5 hash of the blob(s). This will be stored as part of the blob's properties. Only used for block blobs.
+#' @param check_md5 For downloading, whether to verify the MD5 hash of the downloaded blob(s). This requires that the blob's `Content-MD5` property is set. If this is TRUE and the `Content-MD5` property is missing, a warning is generated.
 #'
 #' @details
 #' `upload_blob` and `download_blob` are the workhorse file transfer functions for blobs. They each take as inputs a _single_ filename as the source for uploading/downloading, and a single filename as the destination. Alternatively, for uploading, `src` can be a [textConnection] or [rawConnection] object; and for downloading, `dest` can be NULL or a `rawConnection` object. If `dest` is NULL, the downloaded data is returned as a raw vector, and if a raw connection, it will be placed into the connection. See the examples below.
@@ -455,51 +457,54 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
 #' @export
 upload_blob <- function(container, src, dest=basename(src), type=c("BlockBlob", "AppendBlob"),
                         blocksize=if(type == "BlockBlob") 2^24 else 2^22,
-                        lease=NULL, append=FALSE, use_azcopy=FALSE)
+                        lease=NULL, put_md5=FALSE, append=FALSE, use_azcopy=FALSE)
 {
     type <- match.arg(type)
     if(use_azcopy)
-        azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease)
-    else upload_blob_internal(container, src, dest, type=type, blocksize=blocksize, lease=lease, append=append)
+        azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease, put_md5=put_md5)
+    else upload_blob_internal(container, src, dest, type=type, blocksize=blocksize, lease=lease,
+                              put_md5=put_md5, append=append)
 }
 
 #' @rdname blob
 #' @export
 multiupload_blob <- function(container, src, dest, recursive=FALSE, type=c("BlockBlob", "AppendBlob"),
                              blocksize=if(type == "BlockBlob") 2^24 else 2^22,
-                             lease=NULL, append=FALSE, use_azcopy=FALSE,
+                             lease=NULL, put_md5=FALSE, append=FALSE, use_azcopy=FALSE,
                              max_concurrent_transfers=10)
 {
     type <- match.arg(type)
     if(use_azcopy)
-        return(azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease,
+        return(azcopy_upload(container, src, dest, type=type, blocksize=blocksize, lease=lease, put_md5=put_md5,
                              recursive=recursive))
 
     multiupload_internal(container, src, dest, recursive=recursive, type=type, blocksize=blocksize, lease=lease,
-                         append=append, max_concurrent_transfers=max_concurrent_transfers)
+                         put_md5=put_md5, append=append, max_concurrent_transfers=max_concurrent_transfers)
 }
 
 #' @rdname blob
 #' @export
 download_blob <- function(container, src, dest=basename(src), blocksize=2^24, overwrite=FALSE, lease=NULL,
-                          use_azcopy=FALSE)
+                          check_md5=FALSE, use_azcopy=FALSE)
 {
     if(use_azcopy)
-        azcopy_download(container, src, dest, overwrite=overwrite, lease=lease)
-    else download_blob_internal(container, src, dest, blocksize=blocksize, overwrite=overwrite, lease=lease)
+        azcopy_download(container, src, dest, overwrite=overwrite, lease=lease, check_md5=check_md5)
+    else download_blob_internal(container, src, dest, blocksize=blocksize, overwrite=overwrite, lease=lease,
+                                check_md5=check_md5)
 }
 
 #' @rdname blob
 #' @export
 multidownload_blob <- function(container, src, dest, recursive=FALSE, blocksize=2^24, overwrite=FALSE, lease=NULL,
-                               use_azcopy=FALSE,
+                               check_md5=FALSE, use_azcopy=FALSE,
                                max_concurrent_transfers=10)
 {
     if(use_azcopy)
-        return(azcopy_download(container, src, dest, overwrite=overwrite, lease=lease, recursive=recursive))
+        return(azcopy_download(container, src, dest, overwrite=overwrite, lease=lease, recursive=recursive,
+                               check_md5=check_md5))
 
     multidownload_internal(container, src, dest, recursive=recursive, blocksize=blocksize, overwrite=overwrite,
-                           lease=lease, max_concurrent_transfers=max_concurrent_transfers)
+                           lease=lease, check_md5=check_md5, max_concurrent_transfers=max_concurrent_transfers)
 }
 
 #' @rdname blob

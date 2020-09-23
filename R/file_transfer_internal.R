@@ -1,6 +1,6 @@
-upload_azure_file_internal <- function(share, src, dest, create_dir=FALSE, blocksize=2^22)
+upload_azure_file_internal <- function(share, src, dest, create_dir=FALSE, blocksize=2^22, put_md5=FALSE)
 {
-    src <- normalize_src(src)
+    src <- normalize_src(src, put_md5)
     on.exit(close(src$con))
 
     # file API needs separate call(s) to create destination dir
@@ -12,6 +12,8 @@ upload_azure_file_internal <- function(share, src, dest, create_dir=FALSE, block
     headers <- list("x-ms-type"="file",
                     "x-ms-content-type"=src$content_type,
                     "x-ms-content-length"=sprintf("%.0f", src$size))
+    if(!is.null(src$md5))
+        headers <- c(headers, "x-ms-content-md5"=src$md5)
     headers <- c(headers, file_default_perms)
     do_container_op(share, dest, headers=headers, http_verb="PUT")
 
@@ -34,6 +36,7 @@ upload_azure_file_internal <- function(share, src, dest, create_dir=FALSE, block
         # ensure content-length and range are never exponential notation
         headers[["content-length"]] <- sprintf("%.0f", thisblock)
         headers[["range"]] <- sprintf("bytes=%.0f-%.0f", range_begin, range_begin + thisblock - 1)
+        headers[["content-md5"]] <- encode_md5(body)
 
         do_container_op(share, dest, headers=headers, body=body, options=options, progress=bar$update(),
                         http_verb="PUT")
@@ -48,37 +51,16 @@ upload_azure_file_internal <- function(share, src, dest, create_dir=FALSE, block
 }
 
 
-download_azure_file_internal <- function(share, src, dest, blocksize=2^22, overwrite=FALSE)
+download_azure_file_internal <- function(share, src, dest, blocksize=2^22, overwrite=FALSE, check_md5=FALSE)
 {
-    file_dest <- is.character(dest)
-    null_dest <- is.null(dest)
-    conn_dest <- inherits(dest, "rawConnection")
-
-    if(!file_dest && !null_dest && !conn_dest)
-        stop("Unrecognised dest argument", call.=FALSE)
-
     headers <- list()
-    if(file_dest)
-    {
-        if(!overwrite && file.exists(dest))
-            stop("Destination file exists and overwrite is FALSE", call.=FALSE)
-        if(!dir.exists(dirname(dest)))
-            dir.create(dirname(dest), recursive=TRUE)
-        dest <- file(dest, "w+b")
-        on.exit(close(dest))
-    }
-    if(null_dest)
-    {
-        dest <- rawConnection(raw(0), "w+b")
-        on.exit(seek(dest, 0))
-    }
-    if(conn_dest)
-        on.exit(seek(dest, 0))
+    dest <- init_download_dest(dest, overwrite)
+    on.exit(dispose_download_dest(dest))
 
-    # get file size (for progress bar)
-    res <- do_container_op(share, src, headers=headers, http_verb="HEAD", http_status_handler="pass")
-    httr::stop_for_status(res, storage_error_message(res))
-    size <- as.numeric(httr::headers(res)[["Content-Length"]])
+    # get file size (for progress bar) and MD5 hash
+    props <- get_storage_properties(share, src)
+    size <- as.numeric(props[["content-length"]])
+    src_md5 <- props[["content-md5"]]
 
     bar <- storage_progress_bar$new(size, "down")
     offset <- 0
@@ -95,5 +77,7 @@ download_azure_file_internal <- function(share, src, dest, blocksize=2^22, overw
     }
 
     bar$close()
-    if(null_dest) rawConnectionValue(dest) else invisible(NULL)
+    if(check_md5)
+        do_md5_check(dest, src_md5)
+    if(inherits(dest, "null_dest")) rawConnectionValue(dest) else invisible(NULL)
 }
