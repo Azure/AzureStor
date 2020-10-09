@@ -2,7 +2,7 @@
 
 [![CRAN](https://www.r-pkg.org/badges/version/AzureStor)](https://cran.r-project.org/package=AzureStor)
 ![Downloads](https://cranlogs.r-pkg.org/badges/AzureStor)
-![Build Status](https://asiadatascience.visualstudio.com/AzureR/_apis/build/status/Azure.AzureStor?branchName=master)
+![R-CMD-check](https://github.com/Azure/AzureStor/workflows/R-CMD-check/badge.svg)
 
 This package implements both an admin- and client-side interface to [Azure Storage Services](https://docs.microsoft.com/en-us/rest/api/storageservices/). The admin interface uses R6 classes and extends the framework provided by [AzureRMR](https://github.com/Azure/AzureRMR). The client interface provides several S3 methods for efficiently managing storage and performing file transfers.
 
