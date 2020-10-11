@@ -1,4 +1,4 @@
-# AzureStor 3.2.3.9000
+# AzureStor 3.3.0
 
 - ADLS, file and block blob uploads gain the option to compute and store the MD5 hash of the uploaded file, via the `put_md5` argument to `upload_adls_file`, `upload_azure_file` and `upload_blob`.
 - Similarly, downloads gain the option to verify the integrity of the downloaded file using the MD5 hash, via the `check_md5` argument to `download_adls_file`, `download_azure_file` and `download_blob`. This requires that the file's `Content-MD5` property is set.
@@ -9,6 +9,7 @@
 - Add a 10-second fuzz factor to the default starting datetime for a generated SAS, to allow for differences in clocks.
 - More fixes to the directory handling of `list_blobs()`.
 - All uploads now include the `Content-MD5` header in the HTTP requests, as an error-checking mechanism.
+- Change maintainer email address.
 
 # AzureStor 3.2.3
 

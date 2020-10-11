@@ -1,8 +1,8 @@
 Package: AzureStor
 Title: Storage Management in 'Azure'
-Version: 3.2.3.9000
+Version: 3.3.0
 Authors@R: c(
-    person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
+    person("Hong", "Ooi", , "hongooi73@gmail.com", role = c("aut", "cre")),
     person("Microsoft", role="cph")
     )
 Description: Manage storage in Microsoft's 'Azure' cloud: <https://azure.microsoft.com/services/storage>. On the admin side, 'AzureStor' includes features to create, modify and delete storage accounts. On the client side, it includes an interface to blob storage, file storage, and 'Azure Data Lake Storage Gen2': upload and download files and blobs; list containers and files/blobs; create containers; and so on. Authenticated access to storage is supported, via either a shared access key or a shared access signature (SAS). Part of the 'AzureR' family of packages.
