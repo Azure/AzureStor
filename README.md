@@ -2,11 +2,11 @@
 
 [![CRAN](https://www.r-pkg.org/badges/version/AzureStor)](https://cran.r-project.org/package=AzureStor)
 ![Downloads](https://cranlogs.r-pkg.org/badges/AzureStor)
-![R-CMD-check](https://github.com/Azure/AzureStor/workflows/R-CMD-check/badge.svg)
+![R-CMD-check](https://github.com/AzureRSDK/AzureStor/workflows/R-CMD-check/badge.svg)
 
-This package implements both an admin- and client-side interface to [Azure Storage Services](https://docs.microsoft.com/en-us/rest/api/storageservices/). The admin interface uses R6 classes and extends the framework provided by [AzureRMR](https://github.com/Azure/AzureRMR). The client interface provides several S3 methods for efficiently managing storage and performing file transfers.
+This package implements both an admin- and client-side interface to [Azure Storage Services](https://docs.microsoft.com/en-us/rest/api/storageservices/). The admin interface uses R6 classes and extends the framework provided by [AzureRMR](https://github.com/AzureRSDK/AzureRMR). The client interface provides several S3 methods for efficiently managing storage and performing file transfers.
 
-The primary repo for this package is at https://github.com/Azure/AzureStor; please submit issues and PRs there. It is also mirrored at the Cloudyr org at https://github.com/cloudyr/AzureStor. You can install the development version of the package with `devtools::install_github("Azure/AzureStor")`.
+The primary repo for this package is at https://github.com/AzureRSDK/AzureStor; please submit issues and PRs there. It is also mirrored at the Cloudyr org at https://github.com/cloudyr/AzureStor. You can install the development version of the package with `devtools::install_github("AzureRSDK/AzureStor")`.
 
 ## Storage endpoints
 
@@ -207,4 +207,4 @@ blobstor2$delete()
 ```
 
 ---
-<p align="center"><a href="https://github.com/Azure/AzureR"><img src="https://github.com/Azure/AzureR/raw/master/images/logo2.png" width=800 /></a></p>
+<p align="center"><a href="https://github.com/AzureRSDK/AzureR"><img src="https://github.com/AzureRSDK/AzureR/raw/master/images/logo2.png" width=800 /></a></p>

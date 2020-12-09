@@ -287,7 +287,7 @@ test_that("copy from url works",
     cont <- create_blob_container(bl, "urltransfer")
 
     # copy from GitHub repo
-    src_url <- "https://raw.githubusercontent.com/Azure/AzureStor/master/tests/resources/iris.csv"
+    src_url <- "https://raw.githubusercontent.com/AzureRSDK/AzureStor/master/tests/resources/iris.csv"
     orig_file <- "../resources/iris.csv"
     new_file <- tempfile()
 
