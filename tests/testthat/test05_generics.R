@@ -165,7 +165,7 @@ test_that("Blob copy from URL works",
     cont <- create_blob_container(bl, contname)
 
     # copy from GitHub repo
-    src_url <- "https://raw.githubusercontent.com/AzureRSDK/AzureStor/master/tests/resources/iris.csv"
+    src_url <- "https://raw.githubusercontent.com/Azure/AzureStor/master/tests/resources/iris.csv"
     orig_file <- tempfile()
     new_file <- tempfile()
 
@@ -176,7 +176,7 @@ test_that("Blob copy from URL works",
     expect_true(files_identical(orig_file, new_file))
 
     fnames <- c("LICENSE", "DESCRIPTION", "NAMESPACE")
-    src_urls <- paste0("https://raw.githubusercontent.com/AzureRSDK/AzureStor/master/", fnames)
+    src_urls <- paste0("https://raw.githubusercontent.com/Azure/AzureStor/master/", fnames)
     origs <- replicate(3, tempfile())
     dests <- replicate(3, tempfile())
 
