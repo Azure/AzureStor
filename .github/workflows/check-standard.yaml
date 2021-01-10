@@ -6,7 +6,7 @@ name: R-CMD-check
           
 jobs:
   R-CMD-check:
-    if: github.repository_owner == 'Azure'
+    if: github.repository_owner != 'cloudyr'
     runs-on: ${{ matrix.config.os }}
 
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
@@ -29,7 +29,7 @@ jobs:
           fetch-depth: 0  # required for mirroring, see https://stackoverflow.com/a/64272409/474349
 
       - name: Copy to Cloudyr
-        if: runner.os == 'Linux' && github.ref == 'refs/heads/master'
+        if: runner.os == 'Linux' && github.ref == 'refs/heads/master' && github.repository_owner == 'Azure'
         env:
           token: "${{ secrets.ghPat }}"
         # git config hack required, see https://stackoverflow.com/q/64270867/474349
@@ -91,7 +91,7 @@ jobs:
           path: check
 
       - name: Update Cloudyr drat
-        if: success() && runner.os == 'Linux' && github.ref == 'refs/heads/master' 
+        if: success() && runner.os == 'Linux' && github.ref == 'refs/heads/master' && github.repository_owner == 'Azure'
         env:
           token: "${{ secrets.ghPat }}"
         run: |
