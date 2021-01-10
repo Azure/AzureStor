@@ -91,6 +91,23 @@ dest <- file.path("data/", src)
 storage_multiupload(cont, src, dest)
 ```
 
+### File format helpers
+
+AzureStor includes convenience functions to transfer data in a number of commonly used formats: RDS, RData, TSV (tab-delimited), CSV, and CSV2 (semicolon-delimited). These work via connections and so don't create temporary files on disk.
+
+```r
+# save an R object to storage and read it back again
+obj <- list(n=42L, x=pi, c="foo")
+storage_save_rds(obj, cont, "obj.rds")
+objnew <- storage_load_rds(cont, "obj.rds")
+identical(obj, objnew)  # TRUE
+
+# reading/writing data to CSV format
+storage_write_csv(mtcars, cont, "mtcars.csv")
+mtnew <- storage_read_csv(cont, "mtcars.csv")
+all(mapply(identical, mtcars, mtnew))  # TRUE
+```
+
 ### Transfer to and from connections
 
 You can upload a (single) in-memory R object via a _connection_, and similarly, you can download a file to a connection, or return it as a raw vector. This lets you transfer an object without having to create a temporary file as an intermediate step.
