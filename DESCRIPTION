@@ -1,6 +1,6 @@
 Package: AzureStor
 Title: Storage Management in 'Azure'
-Version: 3.3.0
+Version: 3.3.0.9000
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi73@gmail.com", role = c("aut", "cre")),
     person("Microsoft", role="cph")
@@ -21,6 +21,7 @@ Imports:
     xml2,
     AzureRMR (>= 2.3.0)
 Suggests:
+    readr,
     knitr,
     rmarkdown,
     jsonlite,

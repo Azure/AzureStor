@@ -1,10 +1,18 @@
+# AzureStor 3.3.0.9000
+
+- Add helper functions to transfer data in commonly-used formats. These work via connections and so do not create temporary files on disk.
+  - `storage_save_rds`/`storage_load_rds`
+  - `storage_save_rdata`/`storage_load_rdata`
+  - `storage_write_delim`/`storage_read_delim` (for tab-delimited files)
+  - `storage_write_csv`/`storage_read_csv`
+  - `storage_write_csv2`/`storage_read_csv2`
+
 # AzureStor 3.3.0
 
 - ADLS, file and block blob uploads gain the option to compute and store the MD5 hash of the uploaded file, via the `put_md5` argument to `upload_adls_file`, `upload_azure_file` and `upload_blob`.
 - Similarly, downloads gain the option to verify the integrity of the downloaded file using the MD5 hash, via the `check_md5` argument to `download_adls_file`, `download_azure_file` and `download_blob`. This requires that the file's `Content-MD5` property is set.
 - Add support for uploading to [append blobs](https://docs.microsoft.com/en-us/rest/api/storageservices/understanding-block-blobs--append-blobs--and-page-blobs), which are a type of blob optimized for append operations. They are useful for data that is constantly growing, but should not be modified once written, such as server logs. See `?upload_blob` for more details.
-- Add support for the [Azurite](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azurite) and [Azure SDK](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator) storage emulators. To connect to the endpoint, use the service-specific functions `blob_endpoint` and `queue_endpoint` (the latter from the AzureQstor package), passing the full URL including the account name: `blob_endpoint("http://127.0.0.1:10000/myaccount", key="mykey")`. The warning about an unrecognised endpoint can be ignored. See the linked pages for full details on how to authenticate to the emulator.
-
+- Add support for the [Azurite](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azurite) and [Azure SDK](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator) storage emulators. To connect to the endpoint, use the service-specific functions `blob_endpoint` and `queue_endpoint` (the latter from the AzureQstor package), passing the full URL including the account name: `blob_endpoint("http://127.0.0.1:10000/myaccount", key="mykey")`. The warning about an unrecognised endpoint can be ignored. See the linked pages for full details on how to authenticate to the emulator.<br/>
   Note that the Azure SDK emulator is no longer being actively developed; it's recommended to use Azurite.
 - Add a 10-second fuzz factor to the default starting datetime for a generated SAS, to allow for differences in clocks.
 - More fixes to the directory handling of `list_blobs()`.
