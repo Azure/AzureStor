@@ -109,7 +109,7 @@ all(mapply(identical, mtcars, mtnew))  # TRUE
 
 ### Transfer to and from connections
 
-You can upload a (single) in-memory R object via a _connection_, and similarly, you can download a file to a connection, or return it as a raw vector. This lets you transfer an object without having to create a temporary file as an intermediate step.
+You can upload a (single) in-memory R object via a connection, and similarly, you can download a file to a connection, or return it as a raw vector. This lets you transfer an object without having to create a temporary file as an intermediate step.
 
 ```r
 # uploading serialized R objects via connections
