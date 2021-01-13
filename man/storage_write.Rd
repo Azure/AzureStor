@@ -9,7 +9,7 @@
 \alias{storage_read_csv2}
 \title{Read and write a data frame to/from a storage account}
 \usage{
-storage_write_delim(object, container, file, delim = "\\t ", ...)
+storage_write_delim(object, container, file, delim = "\\t", ...)
 
 storage_write_csv(object, container, file, ...)
 

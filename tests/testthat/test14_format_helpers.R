@@ -81,7 +81,6 @@ test_that("read/write delim works",
 
 test_that("read/write CSV works",
 {
-    # readr
     fname0 <- paste0(make_name(), ".csv")
     expect_silent(storage_write_csv(iris, cont, fname0))
     irisnew0 <- storage_read_csv(cont, fname0)
@@ -104,7 +103,6 @@ test_that("read/write CSV works",
 
 test_that("read/write CSV2 works",
 {
-    # readr
     fname0 <- paste0(make_name(), ".csv2")
     expect_silent(storage_write_csv2(iris, cont, fname0))
     irisnew0 <- storage_read_csv2(cont, fname0)

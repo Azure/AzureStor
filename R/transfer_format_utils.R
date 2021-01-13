@@ -94,7 +94,7 @@ storage_load_rdata <- function(container, file, envir=parent.frame(), ...)
 #' }
 #' @rdname storage_write
 #' @export
-storage_write_delim <- function(object, container, file, delim="\t ", ...)
+storage_write_delim <- function(object, container, file, delim="\t", ...)
 {
     func <- if(requireNamespace("readr"))
         storage_write_delim_readr
@@ -103,7 +103,7 @@ storage_write_delim <- function(object, container, file, delim="\t ", ...)
 }
 
 
-storage_write_delim_readr <- function(object, container, file, delim="\t ", ...)
+storage_write_delim_readr <- function(object, container, file, delim="\t", ...)
 {
     conn <- rawConnection(raw(0), open="r+b")
     readr::write_delim(object, conn, delim=delim, ...)
