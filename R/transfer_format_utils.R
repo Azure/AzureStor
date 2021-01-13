@@ -115,7 +115,7 @@ storage_write_delim_readr <- function(object, container, file, delim="\t", ...)
 storage_write_delim_base <- function(object, container, file, delim="\t", ...)
 {
     conn <- rawConnection(raw(0), open="r+b")
-    write.table(object, conn, sep=delim, ...)
+    utils::write.table(object, conn, sep=delim, ...)
     seek(conn, 0)
     storage_upload(container, conn, file)
 }
@@ -191,7 +191,7 @@ storage_read_delim_readr <- function(container, file, delim="\t", ...)
 storage_read_delim_base <- function(container, file, delim="\t", ...)
 {
     txt <- storage_download(container, file, NULL)
-    read.delim(text=rawToChar(txt), sep=delim, ...)
+    utils::read.delim(text=rawToChar(txt), sep=delim, ...)
 }
 
 
