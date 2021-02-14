@@ -27,7 +27,10 @@ acquire_lease <- function(container, blob="", duration=60, lease=NULL)
     headers <- list("x-ms-lease-action"="acquire", "x-ms-lease-duration"=duration)
     if(!is_empty(lease))
         headers <- c(headers, list("x-ms-proposed-lease-id"=lease))
-    res <- do_container_op(container, blob, options=list(comp="lease", restype="container"), headers=headers,
+    options <- list(comp="lease")
+    if(blob == "")
+        options$restype <- "container"
+    res <- do_container_op(container, blob, options=options, headers=headers,
                            http_verb="PUT", return_headers=TRUE)
     res[["x-ms-lease-id"]]
 }
@@ -40,7 +43,10 @@ break_lease <- function(container, blob="", period=NULL)
     headers <- list("x-ms-lease-action"="break")
     if(!is_empty(period))
         headers <- c(headers, list("x-ms-lease-break-period"=period))
-    invisible(do_container_op(container, blob, options=list(comp="lease", restype="container"), headers=headers,
+    options <- list(comp="lease")
+    if(blob == "")
+        options$restype <- "container"
+    invisible(do_container_op(container, blob, options=options, headers=headers,
                               http_verb="PUT"))
 }
 
@@ -50,7 +56,10 @@ break_lease <- function(container, blob="", period=NULL)
 release_lease <- function(container, blob="", lease)
 {
     headers <- list("x-ms-lease-id"=lease, "x-ms-lease-action"="release")
-    invisible(do_container_op(container, blob, options=list(comp="lease", restype="container"), headers=headers,
+    options <- list(comp="lease")
+    if(blob == "")
+        options$restype <- "container"
+    invisible(do_container_op(container, blob, options=options, headers=headers,
                               http_verb="PUT"))
 }
 
@@ -60,7 +69,10 @@ release_lease <- function(container, blob="", lease)
 renew_lease <- function(container, blob="", lease)
 {
     headers <- list("x-ms-lease-id"=lease, "x-ms-lease-action"="renew")
-    invisible(do_container_op(container, blob, options=list(comp="lease", restype="container"), headers=headers,
+    options <- list(comp="lease")
+    if(blob == "")
+        options$restype <- "container"
+    invisible(do_container_op(container, blob, options=options, headers=headers,
                               http_verb="PUT"))
 }
 
@@ -70,7 +82,10 @@ renew_lease <- function(container, blob="", lease)
 change_lease <- function(container, blob="", lease, new_lease)
 {
     headers <- list("x-ms-lease-id"=lease, "x-ms-lease-action"="change", "x-ms-proposed-lease-id"=new_lease)
-    res <- do_container_op(container, blob, options=list(comp="lease", restype="container"), headers=headers,
+    options <- list(comp="lease")
+    if(blob == "")
+        options$restype <- "container"
+    res <- do_container_op(container, blob, options=options, headers=headers,
                            http_verb="PUT", return_headers=TRUE)
     res[["x-ms-lease-id"]]
 }

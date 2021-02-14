@@ -1,3 +1,7 @@
+# AzureStor 3.4.0.9000
+
+- Fix blob lease functions to work with blobs as well as containers (#77).
+
 # AzureStor 3.4.0
 
 - Add helper functions to transfer data in commonly-used formats. These work via connections and so do not create temporary files on disk.

@@ -26,6 +26,7 @@ Suggests:
     rmarkdown,
     jsonlite,
     testthat,
-    processx
+    processx,
+    uuid
 Roxygen: list(markdown=TRUE, r6=FALSE, old_usage=TRUE)
 RoxygenNote: 7.1.1
