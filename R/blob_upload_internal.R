@@ -42,6 +42,8 @@ upload_block_blob <- function(container, src, dest, blocksize, lease)
     )
     if(!is.null(src$md5))
         headers[["x-ms-blob-content-md5"]] <- src$md5
+    if(!is.null(lease))
+        headers[["x-ms-lease-id"]] <- as.character(lease)
 
     do_container_op(container, dest, headers=headers, body=body, options=list(comp="blocklist"),
                     http_verb="PUT")
