@@ -62,11 +62,13 @@ test_that("Blob leasing works",
     expect_type(lease1, "character")
 
     Sys.sleep(1)
+    expect_error(upload_blob(cont, "../resources/iris.csv"))
 
     lease2 <- change_lease(cont, blname, lease=lease1, new_lease=uuid::UUIDgenerate())
     expect_type(lease2, "character")
 
     Sys.sleep(1)
+    expect_silent(upload_blob(cont, "../resources/iris.csv", lease=lease2))
     expect_silent(renew_lease(cont, blname, lease=lease2))
     expect_error(delete_blob(cont, blname, confirm=FALSE))
     expect_silent(break_lease(cont, blname))
