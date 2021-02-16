@@ -55,7 +55,7 @@ call_azcopy <- function(..., env=NULL, silent=getOption("azure_storage_azcopy_si
 
 call_azcopy_from_storage <- function(object, ...)
 {
-    if(!requireNamespace("processx"))
+    if(!requireNamespace("processx", quietly=TRUE))
         stop("The processx package must be installed to use azcopy", call.=FALSE)
 
     auth <- azcopy_auth(object)
