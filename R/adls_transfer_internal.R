@@ -26,6 +26,8 @@ upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lea
             `content-length`=sprintf("%.0f", thisblock),
             `content-md5`=encode_md5(body)
         )
+        if(!is.null(lease))
+            headers$`x-ms-lease-id` <- as.character(lease)
         do_container_op(filesystem, dest, headers=headers, body=body, options=opts, progress=bar$update(),
                         http_verb="PATCH")
 
@@ -39,6 +41,8 @@ upload_adls_file_internal <- function(filesystem, src, dest, blocksize=2^24, lea
     headers <- list(`content-type`=src$content_type)
     if(!is.null(src$md5))
         headers$`x-ms-content-md5` <- src$md5
+    if(!is.null(lease))
+        headers$`x-ms-lease-id` <- as.character(lease)
     do_container_op(filesystem, dest,
                     options=list(action="flush", position=sprintf("%.0f", pos)),
                     headers=headers,

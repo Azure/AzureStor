@@ -96,7 +96,7 @@ storage_load_rdata <- function(container, file, envir=parent.frame(), ...)
 #' @export
 storage_write_delim <- function(object, container, file, delim="\t", ...)
 {
-    func <- if(requireNamespace("readr"))
+    func <- if(requireNamespace("readr", quietly=TRUE))
         storage_write_delim_readr
     else storage_write_delim_base
     func(object, container, file, delim=delim, ...)
@@ -125,7 +125,7 @@ storage_write_delim_base <- function(object, container, file, delim="\t", ...)
 #' @export
 storage_write_csv <- function(object, container, file, ...)
 {
-    func <- if(requireNamespace("readr"))
+    func <- if(requireNamespace("readr", quietly=TRUE))
         storage_write_csv_readr
     else storage_write_csv_base
     func(object, container, file, ...)
@@ -148,7 +148,7 @@ storage_write_csv_base <- function(object, container, file, ...)
 #' @export
 storage_write_csv2 <- function(object, container, file, ...)
 {
-    func <- if(requireNamespace("readr"))
+    func <- if(requireNamespace("readr", quietly=TRUE))
         storage_write_csv2_readr
     else storage_write_csv2_base
     func(object, container, file, ...)
@@ -174,7 +174,7 @@ storage_write_csv2_base <- function(object, container, file, ...)
 #' @export
 storage_read_delim <- function(container, file, delim="\t", ...)
 {
-    func <- if(requireNamespace("readr"))
+    func <- if(requireNamespace("readr", quietly=TRUE))
         storage_read_delim_readr
     else storage_read_delim_base
     func(container, file, delim=delim, ...)
@@ -199,7 +199,7 @@ storage_read_delim_base <- function(container, file, delim="\t", ...)
 #' @export
 storage_read_csv <- function(container, file, ...)
 {
-    func <- if(requireNamespace("readr"))
+    func <- if(requireNamespace("readr", quietly=TRUE))
         storage_read_csv_readr
     else storage_read_csv_base
     func(container, file, ...)
@@ -222,7 +222,7 @@ storage_read_csv_base <- function(container, file, ...)
 #' @export
 storage_read_csv2 <- function(container, file, ...)
 {
-    func <- if(requireNamespace("readr"))
+    func <- if(requireNamespace("readr", quietly=TRUE))
         storage_read_csv2_readr
     else storage_read_csv2_base
     func(container, file, ...)

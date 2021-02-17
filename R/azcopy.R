@@ -55,7 +55,7 @@ call_azcopy <- function(..., env=NULL, silent=getOption("azure_storage_azcopy_si
 
 call_azcopy_from_storage <- function(object, ...)
 {
-    if(!requireNamespace("processx"))
+    if(!requireNamespace("processx", quietly=TRUE))
         stop("The processx package must be installed to use azcopy", call.=FALSE)
 
     auth <- azcopy_auth(object)
@@ -84,6 +84,8 @@ azcopy_upload_opts <- function(container, ...)
 azcopy_upload_opts.blob_container <- function(container, type="BlockBlob", blocksize=2^24, recursive=FALSE,
                                               lease=NULL, put_md5=FALSE, ...)
 {
+    if(!is.null(lease))
+        warning("azcopy does not support blob leasing at this time", call.=FALSE)
     c("--blob-type", type, "--block-size-mb", sprintf("%.0f", blocksize/1048576), if(recursive) "--recursive",
       if(put_md5) "--put-md5")
 }
@@ -97,6 +99,8 @@ azcopy_upload_opts.file_share <- function(container, blocksize=2^22, recursive=F
 azcopy_upload_opts.adls_filesystem <- function(container, blocksize=2^24, recursive=FALSE, lease=NULL,
                                                put_md5=FALSE, ...)
 {
+    if(!is.null(lease))
+        warning("azcopy does not support blob leasing at this time", call.=FALSE)
     c("--block-size-mb", sprintf("%.0f", blocksize/1048576), if(recursive) "--recursive",
       if(put_md5) "--put-md5")
 }
