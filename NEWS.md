@@ -1,6 +1,6 @@
 # AzureStor 3.4.0.9000
 
-- Fix blob lease functions to work with blobs as well as containers (#77).
+- Fix blob lease code that has been broken since launch (#77, #78).
 
 # AzureStor 3.4.0
 
