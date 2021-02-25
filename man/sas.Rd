@@ -35,7 +35,7 @@ get_user_delegation_key(account, ...)
 \method{get_user_delegation_key}{az_resource}(account, token = account$token, ...)
 
 \method{get_user_delegation_key}{blob_endpoint}(account,
-  token = account$token, key_start, key_expiry, ...)
+  token = account$token, key_start = NULL, key_expiry = NULL, ...)
 
 revoke_user_delegation_keys(account)
 
@@ -60,7 +60,7 @@ get_user_delegation_sas(account, ...)
 
 \item{key}{For \code{get_account_sas}, the \emph{account} key, which controls full access to the storage account. For \code{get_user_delegation_sas}, a \emph{user delegation} key, as obtained from \code{get_user_delegation_key}.}
 
-\item{start, expiry}{The start and end dates for the account or user delegation SAS. These should be \code{Date} or \code{POSIXct} values, or strings coercible to such. If not supplied, the default is to generate start and expiry values for a period of 8 hours, starting from the current time.}
+\item{start, expiry}{The start and end dates for the account or user delegation SAS. These should be \code{Date} or \code{POSIXct} values, or strings coercible to such. If not supplied, the default is to generate start and expiry values for a period of 8 hours, starting from 15 minutes before the current time.}
 
 \item{services}{For \code{get_account_sas}, the storage service(s) for which the SAS is valid. Defaults to \code{bqtf}, meaning blob (including ADLS2), queue, table and file storage.}
 

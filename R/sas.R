@@ -10,7 +10,7 @@
 #' @param key For `get_account_sas`, the _account_ key, which controls full access to the storage account. For `get_user_delegation_sas`, a _user delegation_ key, as obtained from `get_user_delegation_key`.
 #' @param token For `get_user_delegation_key`, an AAD token from which to obtain user details. The token must have `https://storage.azure.com` as its audience.
 #' @param resource For `get_user_delegation_sas`, the resource for which the SAS is valid. This can be either the name of a blob container, or a blob. If the latter, it should include the container as well (`containername/blobname`).
-#' @param start,expiry The start and end dates for the account or user delegation SAS. These should be `Date` or `POSIXct` values, or strings coercible to such. If not supplied, the default is to generate start and expiry values for a period of 8 hours, starting from the current time.
+#' @param start,expiry The start and end dates for the account or user delegation SAS. These should be `Date` or `POSIXct` values, or strings coercible to such. If not supplied, the default is to generate start and expiry values for a period of 8 hours, starting from 15 minutes before the current time.
 #' @param key_start,key_expiry For `get_user_delegation_key`, the start and end dates for the user delegation key.
 #' @param services For `get_account_sas`, the storage service(s) for which the SAS is valid. Defaults to `bqtf`, meaning blob (including ADLS2), queue, table and file storage.
 #' @param permissions For `get_account_sas` and `get_user_delegation_sas`, the permissions that the SAS grants. The default `rl` (read and list) essentially means read-only access.
@@ -153,7 +153,7 @@ get_user_delegation_key.az_resource <- function(account, token=account$token, ..
 
 #' @rdname sas
 #' @export
-get_user_delegation_key.blob_endpoint <- function(account, token=account$token, key_start, key_expiry, ...)
+get_user_delegation_key.blob_endpoint <- function(account, token=account$token, key_start=NULL, key_expiry=NULL, ...)
 {
     if(is.null(token))
         stop("Must have AAD token to get user delegation key", call.=FALSE)
@@ -272,7 +272,7 @@ get_user_delegation_sas.default <- function(account, key, resource, start=NULL, 
 make_sas_dates <- function(start=NULL, expiry=NULL)
 {
     if(is.null(start))
-        start <- Sys.time() - 10
+        start <- Sys.time() - 15*60
     else if(!inherits(start, "POSIXt"))
         start <- as.POSIXct(start, origin="1970-01-01")
 

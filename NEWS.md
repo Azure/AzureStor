@@ -1,6 +1,7 @@
 # AzureStor 3.4.0.9000
 
 - Fix blob lease code that has been broken since launch (#77, #78).
+- Set the default starting time for a generated SAS to the recommended 15 minutes before the current time, to allow for clock skew.
 
 # AzureStor 3.4.0
 
