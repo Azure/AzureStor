@@ -330,6 +330,8 @@ list_adls_files <- function(filesystem, dir="/", info=c("all", "name"),
         if(is.null(dfchunk$permissions))
             dfchunk$permissions <- ""
         else dfchunk$permissions[is.na(dfchunk$permissions)] <- ""
+        if(is.null(dfchunk$lastModified))
+            dfchunk$lastModified <- ""
 
         dfchunk <- dfchunk[c("name", "contentLength", "isDirectory", "lastModified", "permissions", "etag")]
         if(!is.null(dfchunk$contentLength))
