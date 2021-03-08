@@ -3,6 +3,7 @@
 - Fix blob lease code that has been broken since launch (#77, #78).
 - Set the default starting time for a generated SAS to the recommended 15 minutes before the current time, to allow for clock skew.
 - Fix `list_adls_files` to allow for a missing last-modified-date column (#82).
+- Add a vignette "How to enable AAD authentication for a storage account" that describes the steps involved in this task. Note that this vignette is meant mostly for administrators, not regular users.
 
 # AzureStor 3.4.0
 

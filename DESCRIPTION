@@ -21,6 +21,7 @@ Imports:
     xml2,
     AzureRMR (>= 2.3.0)
 Suggests:
+    AzureAuth,
     readr,
     knitr,
     rmarkdown,

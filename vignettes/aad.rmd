@@ -1,0 +1,103 @@
+---
+title: "How to enable AAD authentication for a storage account"
+author: Hong Ooi
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{AAD authentication setup}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{utf8}
+---
+
+It's possible to authenticate to a storage account using an OAuth token obtained via Azure Active Directory (AAD). This has several advantages:
+
+- You don't need to pass around the storage account's access key, which is like a master password: it controls all access to the account. If it gets compromised, the account is no longer secure.
+- You can use role-based access control to limit which users are allowed to use the account, and what actions they can perform.
+- Unlike a shared access signature (SAS), AAD authentication doesn't have a hard expiry date. As long as an AAD identity (user, service principal, etc) has the correct permissions, it can always connect to the storage account. Similarly, you can easily revoke access by removing the necessary permissions from the identity.
+
+Here, we'll take you through the steps involved to configure a storage account for AAD authentication. The assumption here is that you're an administrator for your AAD tenant, or have the appropriate rights to create AAD app registrations and set role assignments on resources---if you don't know what these terms mean, you probably don't have such rights!
+
+## Authenticate as a user
+
+Authenticating as a user is relatively straightforward: you can think of it as "logging into" the storage account with your username. This involves the following:
+
+- Create an app registration; this essentially tells Azure that the AzureStor package is allowed to access storage in your tenant
+- Give the app the "user_impersonation" delegated permission for storage
+- Assign your users the appropriate roles in the storage account
+
+### Create an app registration
+
+You can create a new app registration using any of the usual methods. For example to create an app registration in the Azure Portal (`https://portal.azure.com/`), click on "Azure Active Directory" in the menu bar down the left, go to "App registrations" and click on "New registration". Name the app something suitable, eg "AzureStor R interface to storage".
+
+- If you want your users to be able to login with the authorization code flow, add a **public client/native redirect URI** of `http://localhost:1410`. This is appropriate if your users will be running R on their local PCs, with an Internet browser available.
+- If you want your users to be able to login with the device code flow, once the app registration has been created, go to the "Authentication" pane, and **enable the "Allow public client flows" setting**. This is appropriate if your users are running R in a remote session, for example in RStudio Server, Databricks, or a VM terminal window over ssh.
+
+Once the app registration has been created, note the app ID.
+
+### Set the app permissions
+
+To enable users to login to storage with this app, go to the "API permissions" pane and click on "Add a permission". In the pane that pops up, click on "Azure Storage". There is only one defined permission, "user_impersonation"; select it and click on "Add permissions".
+
+### Give users a role assignment in the storage account
+
+Having registered an app ID for AzureStor, you must tell the storage account which users are allowed to login. Go to your storage account resource in the portal, and click on "Access Control (IAM)". Click on "Add", and select "Add role assignment". In the pane, select the users that will be able to access storage, and select an appropriate role assignment for them.
+
+The main role assignments to be aware of are:
+
+- **Storage blob data reader**: read (but not write) blob containers and blobs. Because blob storage and ADLS2 storage are interoperable, this role also lets users read ADLS2 filesystems and files.
+- **Storage blob data contributor**: read and write blob/ADLS2 containers and files.
+- **Storage blob data owner**: read and write blob/ADLS2 containers and files; in addition, allow setting POSIX ACLs for ADLS2.
+- **Storage queue data reader**: read (but now write or delete) queues and queue messages.
+- **Storage queue data contributor**: read, write and delete queues and queue messages.
+- **Storage queue data message sender**: send (write) queue messages.
+- **Storage queue data message processor**: read and delete queue messages.
+
+Note that AzureStor does not provide an R interface to queue storage; for that, you can use the AzureQstor package.
+
+### Authenticating
+
+Once this is done, your users can authenticate to storage as follows:
+
+```r
+# obtaining a token from an R session on the local machine
+token <- AzureAuth::get_azure_token("https://storage.azure.com", tenant="yourtenant", app="app_id")
+
+# obtaining a token from a remote R session: RStudio Server/Databricks
+token <- AzureAuth::get_azure_token("https://storage.azure.com", tenant="yourtenant", app="app_id",
+    auth_type="device_code")
+
+# use the token to login to storage (blob in this case)
+endp <- storage_endpoint("https://yourstorageacct.blob.core.windows.net", token=token)
+```
+
+## Authenticate as the application
+
+In the previous section, we described how users can authenticate as themselves with AzureStor. Here, we'll describe how to authenticate as the _application_, that is, without a signed-in user. This is useful in a scenario such as a CI/CD or deployment pipeline that needs to run without user intervention.
+
+The process is as follows:
+
+- Create an app registration as before
+- Give the app a client secret
+- Assign the app's service principal the appropriate role in the storage account
+
+### Create the app registration and give it a client secret
+
+Creating the app registration is much the same as before, except that you don't need to set a redirect URI or enable public client flows. Instead you give the app a **client secret**, which is much the same as a password (and should similarly be kept secure).
+
+In the Azure Portal, go to your app registration, click on "Certificates and secrets" and then "New client secret". Set the desired duration for the secret: 1 year, 2 years, or indefinite. Click on "Add" to create the secret. **You won't be able to see it again once you navigate away from this page,** so make sure you note it down.
+
+### Give the app's service principal a role assignment in the storage account
+
+This is again similar to assigning a user a role, except now you assign it to the service principal for your app. In the "Add role assignment" pane, find your app by typing its name into the "Search" box. Select the appropriate role assignment for it, and click "Save".
+
+### Authenticating
+
+To authenticate as the app, use the following code:
+
+```r
+# use the app ID and client secret you noted before
+token <- AzureAuth::get_azure_token("https://storage.azure.com", tenant="yourtenant", app="app_id",
+    password="client_secret")
+
+endp <- storage_endpoint("https://yourstorageacct.blob.core.windows.net", token=token)
+```
+
