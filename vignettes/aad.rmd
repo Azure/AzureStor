@@ -28,18 +28,18 @@ Authenticating as a user is relatively straightforward: you can think of it as "
 
 You can create a new app registration using any of the usual methods. For example to create an app registration in the Azure Portal (`https://portal.azure.com/`), click on "Azure Active Directory" in the menu bar down the left, go to "App registrations" and click on "New registration". Name the app something suitable, eg "AzureStor R interface to storage".
 
-- If you want your users to be able to login with the authorization code flow, add a **public client/native redirect URI** of `http://localhost:1410`. This is appropriate if your users will be running R on their local PCs, with an Internet browser available.
-- If you want your users to be able to login with the device code flow, once the app registration has been created, go to the "Authentication" pane, and **enable the "Allow public client flows" setting**. This is appropriate if your users are running R in a remote session, for example in RStudio Server, Databricks, or a VM terminal window over ssh.
+- If you want your users to be able to login with the authorization code flow, you must add a **public client/native redirect URI** of `http://localhost:1410`. This is appropriate if your users will be running R on their local PCs, with an Internet browser available.
+- If you want your users to be able to login with the device code flow, you must **enable the "Allow public client flows" setting** for your app. In the Portal, you can find this setting in the "Authentication" pane once the app registration is complete. This is appropriate if your users are running R in a remote session, for example in RStudio Server, Databricks, or a VM terminal window over ssh.
 
 Once the app registration has been created, note the app ID.
 
 ### Set the app permissions
 
-To enable users to login to storage with this app, go to the "API permissions" pane and click on "Add a permission". In the pane that pops up, click on "Azure Storage". There is only one defined permission, "user_impersonation"; select it and click on "Add permissions".
+To enable users to authenticate to storage with this app, add the "user_impersonation" delegated permission for the Azure Storage API. In the Portal, you can set this by going to the "API permissions" pane for your app reigstration, then clicking on "Add a permission".
 
 ### Give users a role assignment in the storage account
 
-Having registered an app ID for AzureStor, you must tell the storage account which users are allowed to login. Go to your storage account resource in the portal, and click on "Access Control (IAM)". Click on "Add", and select "Add role assignment". In the pane, select the users that will be able to access storage, and select an appropriate role assignment for them.
+Having registered an app ID for AzureStor, you then add the appropriate role assignments for your users. These role assignments are set for the resource, _not_ the app registration. In the Portal, you can set these by going to your storage account resource, then clicking on "Access Control (IAM)".
 
 The main role assignments to be aware of are:
 
@@ -55,7 +55,7 @@ Note that AzureStor does not provide an R interface to queue storage; for that, 
 
 ### Authenticating
 
-Once this is done, your users can authenticate to storage as follows:
+Once this is done, your users can authenticate to storage as follows. Here. `app_id` is the ID of the app registration you've just created.
 
 ```r
 # obtaining a token from an R session on the local machine
@@ -81,13 +81,13 @@ The process is as follows:
 
 ### Create the app registration and give it a client secret
 
-Creating the app registration is much the same as before, except that you don't need to set a redirect URI or enable public client flows. Instead you give the app a **client secret**, which is much the same as a password (and should similarly be kept secure).
+Creating the app registration is much the same as before, except that you don't need to set a redirect URI or enable public client flows. Instead you give the app a **client secret**, which is much the same as a password (and should similarly be kept secure). In the Portal, you can set this in the "Certificates and Secrets" pane for your app registration.
 
-In the Azure Portal, go to your app registration, click on "Certificates and secrets" and then "New client secret". Set the desired duration for the secret: 1 year, 2 years, or indefinite. Click on "Add" to create the secret. **You won't be able to see it again once you navigate away from this page,** so make sure you note it down.
+It's also possible to authenticate with a **client certificate (public key)**, but this is more complex and we won't go into it here. For more details, see the [Azure Active Directory documentation](https://docs.microsoft.com/en-au/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow) and the [AzureAuth intro vignette](https://cran.r-project.org/web/packages/AzureAuth/vignettes/token.html).
 
 ### Give the app's service principal a role assignment in the storage account
 
-This is again similar to assigning a user a role, except now you assign it to the service principal for your app. In the "Add role assignment" pane, find your app by typing its name into the "Search" box. Select the appropriate role assignment for it, and click "Save".
+This is again similar to assigning a user a role, except now you assign it to the service principal for your app. The same roles assignments as before can be used.
 
 ### Authenticating
 
