@@ -4,9 +4,9 @@
 #' @param container An Azure storage container object.
 #' @param file The name of a file in storage.
 #' @param envir For `storage_save_rdata` and `storage_load_rdata`, the environment from which to get objects to save, or in which to restore objects, respectively.
-#' @param ... Further arguments passed to `serialize`, `unserialize`, `save` and `load` as appropriate.
+#' @param ... Further arguments passed to `saveRDS`, `memDecompress`, `save` and `load` as appropriate.
 #' @details
-#' These are equivalents to `saveRDS`, `readRDS`, `save` and `load` for saving and loading R objects to a storage account. With the exception of `storage_save_rdata`, they work via connections and so do not create temporary files. `storage_save_rdata` uses a temporary file so that compression of the resulting image is enabled.
+#' These are equivalents to `saveRDS`, `readRDS`, `save` and `load` for saving and loading R objects to a storage account. They allow datasets and objects to be easily transferred to and from an R session, without having to manually create and delete temporary files.
 #'
 #' @seealso
 #' [storage_download], [download_blob], [download_azure_file], [download_adls_file], [save], [load], [saveRDS]
@@ -28,8 +28,11 @@
 #' @export
 storage_save_rds <- function(object, container, file, ...)
 {
-    conn <- rawConnection(serialize(object, NULL, ...), open="rb")
-    storage_upload(container, conn, file)
+    # save to a temporary file to avoid dealing with memCompress/memDecompress hassles
+    tmpsave <- tempfile(fileext=".rdata")
+    on.exit(unlink(tmpsave))
+    saveRDS(object, tmpsave, ...)
+    storage_upload(container, tmpsave, file)
 }
 
 
@@ -38,7 +41,7 @@ storage_save_rds <- function(object, container, file, ...)
 storage_load_rds <- function(container, file, ...)
 {
     conn <- storage_download(container, file, NULL)
-    unserialize(conn, ...)
+    unserialize(memDecompress(conn, ...))
 }
 
 
