@@ -34,11 +34,25 @@ dfs_identical <- function(df1, df2)
 
 test_that("read/write RDS works",
 {
+    # test save_rds -> load_rds
     obj <- list(c="foo", f=ls, n=42L, x=pi)
     fname <- paste0(make_name(), ".rds")
     expect_silent(storage_save_rds(obj, cont, fname))
     objnew <- storage_load_rds(cont, fname)
     expect_identical(obj, objnew)
+
+    # test save_rds -> download
+    tmprds1 <- tempfile(fileext=".rds")
+    storage_download(cont, fname, tmprds1)
+    objnew1 <- readRDS(tmprds1)
+    expect_identical(obj, objnew1)
+
+    # test upload -> load_rds
+    tmprds2 <- tempfile(fileext=".rds")
+    saveRDS(obj, tmprds2)
+    storage_upload(cont, tmprds2)
+    objnew2 <- storage_load_rds(cont, basename(tmprds2))
+    expect_identical(obj, objnew2)
 })
 
 

@@ -22,7 +22,7 @@ storage_load_rdata(container, file, envir = parent.frame(), ...)
 
 \item{file}{The name of a file in storage.}
 
-\item{...}{Further arguments passed to \code{serialize}, \code{unserialize}, \code{save} and \code{load} as appropriate.}
+\item{...}{Further arguments passed to \code{saveRDS}, \code{memDecompress}, \code{save} and \code{load} as appropriate.}
 
 \item{envir}{For \code{storage_save_rdata} and \code{storage_load_rdata}, the environment from which to get objects to save, or in which to restore objects, respectively.}
 }
@@ -30,7 +30,7 @@ storage_load_rdata(container, file, envir = parent.frame(), ...)
 Save and load R objects to/from a storage account
 }
 \details{
-These are equivalents to \code{saveRDS}, \code{readRDS}, \code{save} and \code{load} for saving and loading R objects to a storage account. With the exception of \code{storage_save_rdata}, they work via connections and so do not create temporary files. \code{storage_save_rdata} uses a temporary file so that compression of the resulting image is enabled.
+These are equivalents to \code{saveRDS}, \code{readRDS}, \code{save} and \code{load} for saving and loading R objects to a storage account. They allow datasets and objects to be easily transferred to and from an R session, without having to manually create and delete temporary files.
 }
 \examples{
 \dontrun{
