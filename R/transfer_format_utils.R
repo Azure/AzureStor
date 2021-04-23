@@ -187,11 +187,8 @@ storage_read_delim <- function(container, file, delim="\t", ...)
 storage_read_delim_readr <- function(container, file, delim="\t", ...)
 {
     con <- rawConnection(raw(0), "r+")
-    
     on.exit(close(con))
-    
     storage_download(container, file, con)
-    
     readr::read_delim(con, delim=delim, ...)
 }
 
