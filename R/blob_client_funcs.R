@@ -394,6 +394,7 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
                     "AccessTierInferred",
                     "LeaseStatus",
                     "LeaseState",
+                    "LeaseDuration",
                     "ServerEncrypted"
                 )
                 props[all_props[!all_props %in% names(props)]] <- NA
@@ -405,26 +406,21 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
                               stringsAsFactors=FALSE, check.names=FALSE)
         })
 
-        df_prefixes <- do.call(rbind, prefix_rows)
-        df_blobs <- do.call(rbind, blob_rows)
+        df_prefixes <- do.call(vctrs::vec_rbind, prefix_rows)
+        df_blobs <- do.call(vctrs::vec_rbind, blob_rows)
 
-        if(is.null(df_prefixes) & is.null(df_blobs))
+        no_prefixes <- nrow(df_prefixes) == 0
+        no_blobs <- nrow(df_blobs) == 0
+        if(no_prefixes && no_blobs)
             return(data.frame())
-        else if(is.null(df_prefixes))
+        else if(no_prefixes)
             df <- df_blobs
-        else if(is.null(df_blobs))
+        else if(no_blobs)
             df <- df_prefixes
-        else
-        {
-            missing_cols <- setdiff(colnames(df_blobs), intersect(colnames(df_prefixes), colnames(df_blobs)))
-            df_prefixes[, missing_cols] <- NA
-            df <- rbind(df_prefixes, df_blobs)
-        }
+        else df <- vctrs::vec_rbind(df_prefixes, df_blobs)
 
         if(length(df) > 0)
         {
-            row.names(df) <- NULL
-
             # reorder and rename first 2 columns for consistency with ADLS, file
             ndf <- names(df)
             namecol <- which(ndf == "Name")
@@ -444,7 +440,7 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
                     df$`Last-Modified` <- as_datetime(df$`Last-Modified`)
                 if(!is.null(df$`Creation-Time`))
                     df$`Creation-Time` <- as_datetime(df$`Creation-Time`)
-                cbind(df[c(namecol, sizecol, dircol, typecol)], df[-c(namecol, sizecol, dircol, typecol)])
+                vctrs::vec_cbind(df[c(namecol, sizecol, dircol, typecol)], df[-c(namecol, sizecol, dircol, typecol)])
             }
             else df[c(namecol, sizecol, dircol, typecol)]
         }
