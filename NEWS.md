@@ -1,6 +1,7 @@
 # AzureStor 3.4.1.9000
 
 - Fix `storage_save_rds` and `storage_load_rds` to handle compression correctly. In particular, `storage_load_rds` should now correctly load files saved with `saveRDS`.
+- Fix a bug that caused `list_blobs` to fail when leases were present.
 
 # AzureStor 3.4.1
 
