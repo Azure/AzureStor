@@ -394,6 +394,7 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
                     "AccessTierInferred",
                     "LeaseStatus",
                     "LeaseState",
+                    "LeaseDuration",
                     "ServerEncrypted"
                 )
                 props[all_props[!all_props %in% names(props)]] <- NA
