@@ -364,46 +364,14 @@ list_blobs <- function(container, dir="/", info=c("partial", "name", "all"),
 
         prefix_rows <- lapply(prefixes, function(prefix)
         {
-            data.frame(Type="BlobPrefix",
-                       Name=unlist(prefix$Name),
-                       "Content-Length"=NA,
-                       BlobType=NA,
-                       stringsAsFactors=FALSE,
-                       check.names=FALSE)
+            structure(list(Type="BlobPrefix", Name=unlist(prefix$Name), `Content-Length`=NA, BlobType=NA),
+                      class="data.frame", row.names=c(NA_integer_, -1L))
         })
 
         blob_rows <- lapply(blobs, function(blob)
         {
-            # properties returned can vary for block/append/whatever blobs, and whether HNS is enabled
-            normalize_blob_properties <- function(props)
-            {
-                all_props <- c(
-                    "Creation-Time",
-                    "Last-Modified",
-                    "Etag",
-                    "Content-Length",
-                    "Content-Type",
-                    "Content-Encoding",
-                    "Content-Language",
-                    "Content-CRC64",
-                    "Content-MD5",
-                    "Cache-Control",
-                    "Content-Disposition",
-                    "BlobType",
-                    "AccessTier",
-                    "AccessTierInferred",
-                    "LeaseStatus",
-                    "LeaseState",
-                    "LeaseDuration",
-                    "ServerEncrypted"
-                )
-                props[all_props[!all_props %in% names(props)]] <- NA
-                props
-            }
-
-            props <- c(Type="Blob", Name=blob$Name, normalize_blob_properties(blob$Properties))
-            data.frame(lapply(props, function(p) if(!is_empty(p)) unlist(p) else NA),
-                              stringsAsFactors=FALSE, check.names=FALSE)
+            structure(c(Type="Blob", Name=blob$Name, unlist(blob$Properties)),
+                      class="data.frame", row.names=c(NA_integer_, -1L))
         })
 
         df_prefixes <- do.call(vctrs::vec_rbind, prefix_rows)
