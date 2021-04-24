@@ -1,7 +1,8 @@
 # AzureStor 3.4.1.9000
 
-- Fix `storage_save_rds` and `storage_load_rds` to handle compression correctly. In particular, `storage_load_rds` should now correctly load files saved with `saveRDS`.
+- Fix `storage_save_rds` and `storage_load_rds` to handle compression correctly. In particular, `storage_load_rds` should now correctly load files saved with `saveRDS` (#83).
 - Fix a bug that caused `list_blobs` to fail when leases were present.
+- Use a raw connection instead of a raw vector when calling `readr::read_delim` and `read_csv2`. This works around an issue introduced in readr 1.4.0 (#85, #86).
 
 # AzureStor 3.4.1
 
