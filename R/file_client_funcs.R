@@ -308,7 +308,7 @@ list_azure_files <- function(share, dir="/", info=c("all", "name"),
     }
 
     name <- vapply(out, function(ent) ent$Name[[1]], FUN.VALUE=character(1))
-    isdir <- if(is_empty(name)) character(0) else names(name) == "Directory"
+    isdir <- if(is_empty(name)) logical(0) else names(name) == "Directory"
     size <- vapply(out,
                    function(ent) if(is_empty(ent$Properties)) NA_character_
                                  else ent$Properties$`Content-Length`[[1]],
@@ -322,7 +322,7 @@ list_azure_files <- function(share, dir="/", info=c("all", "name"),
         dirs <- df$name[df$isdir]
 
         nextlevel <- lapply(dirs, function(d) list_azure_files(share, d, info="all", prefix=prefix, recursive=TRUE))
-        df <- do.call(rbind, c(list(df), nextlevel))
+        df <- do.call(vctrs::vec_rbind, c(list(df), nextlevel))
     }
 
     if(info == "name")
