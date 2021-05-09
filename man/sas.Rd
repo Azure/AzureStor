@@ -62,12 +62,12 @@ get_service_sas(account, ...)
 \method{get_service_sas}{az_storage}(account, resource,
   service_type = c("blob", "file"), key = account$list_keys()[1], ...)
 
-\method{get_service_sas}{storage_endpoint}(account, resource,
-  key = account$key, resource_type = NULL, ...)
+\method{get_service_sas}{storage_endpoint}(account, resource, key = account$key, ...)
 
 \method{get_service_sas}{default}(account, resource, key, service_type,
-  resource_type, start = NULL, expiry = NULL, permissions = "rl",
-  ip = NULL, protocol = NULL, policy = NULL, snapshot_time = NULL,
+  resource_type = NULL, start = NULL, expiry = NULL,
+  permissions = "rl", ip = NULL, protocol = NULL, policy = NULL,
+  snapshot_time = NULL,
   auth_api_version = getOption("azure_storage_api_version"), ...)
 }
 \arguments{
