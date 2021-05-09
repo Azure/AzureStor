@@ -1,5 +1,6 @@
 # AzureStor 3.4.1.9000
 
+- Add support for generating a service SAS. There is a new S3 generic `get_service_sas` with methods for `az_storage` and `storage_endpoint` objects, and a similar R6 method for `az_storage` objects. See `?sas` for more information.
 - Fix `storage_save_rds` and `storage_load_rds` to handle compression correctly. In particular, `storage_load_rds` should now correctly load files saved with `saveRDS` (#83).
 - Fix a bug that caused `list_blobs` to fail when leases were present.
 - Use a raw connection instead of a raw vector when calling `readr::read_delim` and `read_csv2`. This works around an issue introduced in readr 1.4.0 (#85, #86).
