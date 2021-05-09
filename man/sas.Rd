@@ -142,11 +142,8 @@ get_account_sas("mystorage", "access_key", services="f", resource_types="o")
 endp <- storage_endpoint("https://mystorage.blob.core.windows.net", key="access_key")
 get_account_sas(endp, permissions="rwcd")
 
-# service SAS for a container with read-only permissions
-get_service_sas(bl, "containername")
-
-# service SAS for a container, allowing listing of blobs
-get_service_sas(bl, "containername", permissions="rl")
+# service SAS for a container
+get_service_sas(endp, "containername")
 
 # read/write service SAS for a blob
 get_service_sas(endp, "containername/blobname", permissions="rw")
