@@ -58,6 +58,22 @@ test_that("Service SAS works 1",
 })
 
 
+test_that("Service SAS works 2",
+{
+    contname <- make_name()
+
+    bsas <- get_service_sas(bl0, resource=contname, permissions="rcwl", resource_type="c")
+    bl <- stor$get_blob_endpoint(key=NULL, sas=bsas)
+    expect_silent(cont <- create_storage_container(bl0, contname))
+    expect_silent(storage_upload(cont, "../resources/iris.csv"))
+
+    fsas <- get_service_sas(fl0, resource=contname, permissions="rcwl", resource_type="s")
+    fl <- stor$get_file_endpoint(key=NULL, sas=fsas)
+    expect_silent(share <- create_storage_container(fl0, contname))
+    expect_silent(storage_upload(share, "../resources/iris.csv"))
+})
+
+
 teardown({
     bl <- stor$get_blob_endpoint()
     blconts <- list_storage_containers(bl)
