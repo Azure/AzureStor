@@ -19,9 +19,6 @@ sub <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$get_subscr
 stor <- sub$get_resource_group(rgname)$get_storage_account(storname)
 options(azure_storage_progress_bar=FALSE)
 
-dates <- c(Sys.Date() - 1, Sys.Date() + 5)
-token <- AzureRMR::get_azure_token("https://storage.azure.com", tenant, app=app, password=password)
-
 bl0 <- stor$get_blob_endpoint()
 fl0 <- stor$get_file_endpoint()
 
