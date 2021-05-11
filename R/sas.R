@@ -255,7 +255,7 @@ get_user_delegation_sas.default <- function(account, key, resource, start=NULL, 
         "",
         "",
         "",
-        "Application/octet-stream",
+        "",
         sep="\n"
     )
     sig <- sign_sha256(sig_str, key$Value)
@@ -274,7 +274,6 @@ get_user_delegation_sas.default <- function(account, key, resource, start=NULL, 
         ske=key$SignedExpiry,
         sks=key$SignedService,
         skv=key$SignedVersion,
-        rsct="Application/octet-stream",
         sig=sig
     )
     parts <- parts[!sapply(parts, is_empty)]
