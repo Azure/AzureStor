@@ -106,10 +106,10 @@ get_service_sas(account, ...)
 \item{policy}{For a service SAS, optionally the name of a stored access policy to correlate the SAS with. Revoking the policy will also invalidate the SAS.}
 }
 \description{
-The simplest way for a user to access files and data in a storage account is to give them the account's access key. This gives them full control of the account, and so may be a security risk. An alternative is to provide the user with a \emph{shared access signature} (SAS), which limits access to specific resources and only for a set length of time. AzureStor supports generating two kinds of SAS: account and user delegation, with the latter applying only to blob and ADLS2 storage.
+The simplest way for a user to access files and data in a storage account is to give them the account's access key. This gives them full control of the account, and so may be a security risk. An alternative is to provide the user with a \emph{shared access signature} (SAS), which limits access to specific resources and only for a set length of time. There are three kinds of SAS: account, service and user delegation.
 }
 \details{
-Listed here are S3 generics and methods to obtain a SAS for accessing storage; in addition, the \code{\link{az_storage}} resource class has R6 methods for \code{get_account_sas}, \code{get_user_delegation_key} and \code{revoke_user_delegation_keys} which simply call the corresponding S3 method.
+Listed here are S3 generics and methods to obtain a SAS for accessing storage; in addition, the \code{\link{az_storage}} resource class has R6 methods for \code{get_account_sas}, \code{get_service_sas}, \code{get_user_delegation_key} and \code{revoke_user_delegation_keys} which simply call the corresponding S3 method.
 
 Note that you don't need to worry about these methods if you have been \emph{given} a SAS, and only want to use it to access a storage account.
 
