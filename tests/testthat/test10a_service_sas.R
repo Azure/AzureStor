@@ -1,4 +1,4 @@
-context("Account and user SAS")
+context("Service SAS")
 
 tenant <- Sys.getenv("AZ_TEST_TENANT_ID")
 app <- Sys.getenv("AZ_TEST_APP_ID")

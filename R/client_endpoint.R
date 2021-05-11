@@ -74,7 +74,7 @@ storage_endpoint <- function(endpoint, key=NULL, token=NULL, sas=NULL, api_versi
     if(missing(api_version))
     {
         api_version <- if(type == "adls")
-            getOption("azure_adls_api_version")
+            getOption("azure_storage_api_version")
         else getOption("azure_storage_api_version")
     }
 
@@ -112,7 +112,7 @@ file_endpoint <- function(endpoint, key=NULL, token=NULL, sas=NULL,
 #' @rdname storage_endpoint
 #' @export
 adls_endpoint <- function(endpoint, key=NULL, token=NULL, sas=NULL,
-                          api_version=getOption("azure_adls_api_version"))
+                          api_version=getOption("azure_storage_api_version"))
 {
     if(!is_endpoint_url(endpoint, "adls"))
         warning("Not a recognised ADLS Gen2 endpoint", call.=FALSE)

@@ -107,7 +107,7 @@ list_adls_filesystems <- function(endpoint, ...)
 #' @rdname adls_filesystem
 #' @export
 list_adls_filesystems.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
-                                            api_version=getOption("azure_adls_api_version"),
+                                            api_version=getOption("azure_storage_api_version"),
                                             ...)
 {
     do.call(list_adls_filesystems, generate_endpoint_container(endpoint, key, token, sas, api_version))
@@ -152,7 +152,7 @@ create_adls_filesystem <- function(endpoint, ...)
 #' @rdname adls_filesystem
 #' @export
 create_adls_filesystem.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
-                                             api_version=getOption("azure_adls_api_version"),
+                                             api_version=getOption("azure_storage_api_version"),
                                              ...)
 {
     endp <- generate_endpoint_container(endpoint, key, token, sas, api_version)
@@ -187,7 +187,7 @@ delete_adls_filesystem <- function(endpoint, ...)
 #' @rdname adls_filesystem
 #' @export
 delete_adls_filesystem.character <- function(endpoint, key=NULL, token=NULL, sas=NULL,
-                                             api_version=getOption("azure_adls_api_version"),
+                                             api_version=getOption("azure_storage_api_version"),
                                              ...)
 {
     endp <- generate_endpoint_container(endpoint, key, token, sas, api_version)
