@@ -370,7 +370,6 @@ get_service_sas.default <- function(account, resource, key, service, start=NULL,
         "",
         sep="\n"
     )
-    xx <<- sig_str
     sig <- sign_sha256(sig_str, key)
 
     parts <- list(
