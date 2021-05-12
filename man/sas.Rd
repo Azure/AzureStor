@@ -95,7 +95,7 @@ get_service_sas(account, ...)
 
 \item{key_start, key_expiry}{For \code{get_user_delegation_key}, the start and end dates for the user delegation key.}
 
-\item{resource}{For \code{get_user_delegation_sas} and \code{get_service_sas}, the resource for which the SAS is valid. For a user delegation SAS, this can be either the name of a blob container or an individual blob; if the latter, it should include the container as well (\code{containername/blobname}). A service SAS is similar but can also be used with file shares and files.}
+\item{resource}{For \code{get_user_delegation_sas} and \code{get_service_sas}, the resource for which the SAS is valid. Both types of SAS allow this to be either a blob container, a directory or an individual blob; the resource should be specified in the form \verb{containername[/dirname[/blobname]]}. A service SAS can also be used with file shares and files, in which case the resource should be of the form \verb{sharename[/path-to-filename]}.}
 
 \item{resource_type}{For a service or user delegation SAS, the type of resource for which the SAS is valid. For blob storage, the default value is "b" meaning a single blob. For file storage, the default value is "f" meaning a single file. Other possible values include "bs" (a blob snapshot), "c" (a blob container), "d" (a directory in a blob container), or "s" (a file share). Note however that a user delegation SAS only supports blob storage.}
 
@@ -146,6 +146,9 @@ get_account_sas(endp, permissions="rwcd")
 
 # service SAS for a container
 get_service_sas(endp, "containername")
+
+# service SAS for a directory
+get_service_sas(endp, "containername/dirname")
 
 # read/write service SAS for a blob
 get_service_sas(endp, "containername/blobname", permissions="rw")

@@ -9,7 +9,7 @@
 #' @param account An object representing a storage account. Depending on the generic, this can be one of the following: an Azure resource object (of class `az_storage`); a client storage endpoint (of class `storage_endpoint`); a _blob_ storage endpoint (of class `blob_endpoint`); or a string with the name of the account.
 #' @param key For `get_account_sas`, the _account_ key, which controls full access to the storage account. For `get_user_delegation_sas`, a _user delegation_ key, as obtained from `get_user_delegation_key`.
 #' @param token For `get_user_delegation_key`, an AAD token from which to obtain user details. The token must have `https://storage.azure.com` as its audience.
-#' @param resource For `get_user_delegation_sas` and `get_service_sas`, the resource for which the SAS is valid. For a user delegation SAS, this can be either the name of a blob container or an individual blob; if the latter, it should include the container as well (`containername/blobname`). A service SAS is similar but can also be used with file shares and files.
+#' @param resource For `get_user_delegation_sas` and `get_service_sas`, the resource for which the SAS is valid. Both types of SAS allow this to be either a blob container, a directory or an individual blob; the resource should be specified in the form `containername[/dirname[/blobname]]`. A service SAS can also be used with file shares and files, in which case the resource should be of the form `sharename[/path-to-filename]`.
 #' @param start,expiry The start and end dates for the account or user delegation SAS. These should be `Date` or `POSIXct` values, or strings coercible to such. If not supplied, the default is to generate start and expiry values for a period of 8 hours, starting from 15 minutes before the current time.
 #' @param key_start,key_expiry For `get_user_delegation_key`, the start and end dates for the user delegation key.
 #' @param services For `get_account_sas`, the storage service(s) for which the SAS is valid. Defaults to `bqtf`, meaning blob (including ADLS2), queue, table and file storage.
@@ -65,6 +65,9 @@
 #'
 #' # service SAS for a container
 #' get_service_sas(endp, "containername")
+#'
+#' # service SAS for a directory
+#' get_service_sas(endp, "containername/dirname")
 #'
 #' # read/write service SAS for a blob
 #' get_service_sas(endp, "containername/blobname", permissions="rw")
