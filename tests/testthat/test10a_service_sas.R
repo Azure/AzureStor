@@ -30,11 +30,13 @@ test_that("Service SAS works 0",
     bsas <- get_service_sas(storname, contname, key, service="blob", permissions="rcwl", resource_type="c")
     bl <- stor$get_blob_endpoint(key=NULL, sas=bsas)
     expect_silent(cont <- create_storage_container(bl0, contname))
+    cont <- storage_container(bl, contname)
     expect_silent(storage_upload(cont, "../resources/iris.csv"))
 
     fsas <- get_service_sas(storname, contname, key, service="file", permissions="rcwl", resource_type="s")
     fl <- stor$get_file_endpoint(key=NULL, sas=fsas)
-    expect_silent(share <- create_storage_container(fl0, contname))
+    expect_silent(create_storage_container(fl0, contname))
+    share <- storage_container(fl, contname)
     expect_silent(storage_upload(share, "../resources/iris.csv"))
 })
 
@@ -46,11 +48,13 @@ test_that("Service SAS works 1",
     bsas <- stor$get_service_sas(resource=contname, service="blob", permissions="rcwl", resource_type="c")
     bl <- stor$get_blob_endpoint(key=NULL, sas=bsas)
     expect_silent(cont <- create_storage_container(bl0, contname))
+    cont <- storage_container(bl, contname)
     expect_silent(storage_upload(cont, "../resources/iris.csv"))
 
     fsas <- stor$get_service_sas(resource=contname, service="file", permissions="rcwl", resource_type="s")
     fl <- stor$get_file_endpoint(key=NULL, sas=fsas)
-    expect_silent(share <- create_storage_container(fl0, contname))
+    expect_silent(create_storage_container(fl0, contname))
+    share <- storage_container(fl, contname)
     expect_silent(storage_upload(share, "../resources/iris.csv"))
 })
 
@@ -61,13 +65,30 @@ test_that("Service SAS works 2",
 
     bsas <- get_service_sas(bl0, resource=contname, permissions="rcwl", resource_type="c")
     bl <- stor$get_blob_endpoint(key=NULL, sas=bsas)
-    expect_silent(cont <- create_storage_container(bl0, contname))
+    expect_silent(create_storage_container(bl0, contname))
+    cont <- storage_container(bl, contname)
     expect_silent(storage_upload(cont, "../resources/iris.csv"))
 
     fsas <- get_service_sas(fl0, resource=contname, permissions="rcwl", resource_type="s")
     fl <- stor$get_file_endpoint(key=NULL, sas=fsas)
-    expect_silent(share <- create_storage_container(fl0, contname))
+    expect_silent(create_storage_container(fl0, contname))
+    share <- storage_container(fl, contname)
     expect_silent(storage_upload(share, "../resources/iris.csv"))
+})
+
+
+test_that("Service SAS works with dir resource",
+{
+    contname <- make_name()
+    dirname <- make_name()
+
+    bsas <- get_service_sas(bl0, resource=file.path(contname, dirname), permissions="rcwl", resource_type="d",
+                            directory_depth=1)
+    bl <- stor$get_blob_endpoint(key=NULL, sas=bsas)
+    expect_silent(cont <- create_storage_container(bl0, contname))
+    expect_silent(create_storage_dir(cont, dirname))
+    cont <- storage_container(bl, contname)
+    expect_silent(storage_upload(cont, "../resources/iris.csv", file.path(dirname, "iris.csv")))
 })
 
 

@@ -14,7 +14,9 @@
 #' @param key_start,key_expiry For `get_user_delegation_key`, the start and end dates for the user delegation key.
 #' @param services For `get_account_sas`, the storage service(s) for which the SAS is valid. Defaults to `bqtf`, meaning blob (including ADLS2), queue, table and file storage.
 #' @param permissions The permissions that the SAS grants. The default value of `rl` (read and list) essentially means read-only access.
-#' @param resource_types For an account or user delegation SAS, the resource types for which the SAS is valid. For `get_account_sas` the default is `sco` meaning service, container and object. For `get_user_delegation_sas` the default is `c` meaning container-level access (including blobs within the container).
+#' @param resource_types For an account SAS, the resource types for which the SAS is valid. For `get_account_sas` the default is `sco` meaning service, container and object. For `get_user_delegation_sas` the default is `c` meaning container-level access (including blobs within the container). Other possible values include "b" (a single blob) or "d" (a directory).
+#' @param resource_type For a service or user delegation SAS, the type of resource for which the SAS is valid. For blob storage, the default value is "b" meaning a single blob. For file storage, the default value is "f" meaning a single file. Other possible values include "bs" (a blob snapshot), "c" (a blob container), "d" (a directory in a blob container), or "s" (a file share). Note however that a user delegation SAS only supports blob storage.
+#' @param directory_depth For a service or user delegation SAS, the depth of the directory resource, starting at 0 for the root. This is required if `resource_type="d"` and the account has a hierarchical namespace enabled.
 #' @param ip The IP address(es) or IP address range(s) for which the SAS is valid. The default is not to restrict access by IP.
 #' @param protocol The protocol required to use the SAS. Possible values are `https` meaning HTTPS-only, or `https,http` meaning HTTP is also allowed. Note that the storage account itself may require HTTPS, regardless of what the SAS allows.
 #' @param snapshot_time For a user delegation or service SAS, the blob snapshot for which the SAS is valid. Only required if `resource_type[s]="bs"`.
@@ -226,7 +228,8 @@ get_user_delegation_sas.blob_endpoint <- function(account, key, ...)
 #' @rdname sas
 #' @export
 get_user_delegation_sas.default <- function(account, key, resource, start=NULL, expiry=NULL, permissions="rl",
-                                            resource_types="c", ip=NULL, protocol=NULL, snapshot_time=NULL,
+                                            resource_type="c", ip=NULL, protocol=NULL, snapshot_time=NULL,
+                                            directory_depth=NULL,
                                             auth_api_version=getOption("azure_storage_api_version"), ...)
 {
     stopifnot(inherits(key, "user_delegation_key"))
@@ -249,7 +252,7 @@ get_user_delegation_sas.default <- function(account, key, resource, start=NULL, 
         ip,
         protocol,
         auth_api_version,
-        resource_types,
+        resource_type,
         snapshot_time,
         "",
         "",
@@ -262,7 +265,7 @@ get_user_delegation_sas.default <- function(account, key, resource, start=NULL, 
 
     parts <- list(
         sv=auth_api_version,
-        sr=resource_types,
+        sr=resource_type,
         st=dates$start,
         se=dates$expiry,
         sp=permissions,
@@ -274,6 +277,7 @@ get_user_delegation_sas.default <- function(account, key, resource, start=NULL, 
         ske=key$SignedExpiry,
         sks=key$SignedService,
         skv=key$SignedVersion,
+        sdd=as.character(directory_depth),
         sig=sig
     )
     parts <- parts[!sapply(parts, is_empty)]
@@ -315,23 +319,42 @@ get_service_sas.storage_endpoint <- function(account, resource, key=account$key,
 
 
 #' @param service For a service SAS, the storage service for which the SAS is valid: either "blob" or "file". Currently AzureStor does not support creating a service SAS for queue or table storage.
-#' @param resource_type For a service SAS, the type of resource for which the SAS is valid. For blob storage, the default value is "b" meaning a single blob. For file storage, the default value is "f" meaning a single file. Other possible values include "bs" (a blob snapshot), "c" (a blob container), or "s" (a file share).
+#' @param directory_depth For a service SAS, the depth of the directory, starting at 0 for the root. This is required if `resource_type="d"` and the account has a hierarchical namespace enabled.
 #' @param policy For a service SAS, optionally the name of a stored access policy to correlate the SAS with. Revoking the policy will also invalidate the SAS.
 #' @rdname sas
 #' @export
 get_service_sas.default <- function(account, resource, key, service, start=NULL, expiry=NULL, permissions="rl",
                                     resource_type=NULL, ip=NULL, protocol=NULL, policy=NULL, snapshot_time=NULL,
-                                    auth_api_version=getOption("azure_storage_api_version"), ...)
+                                    directory_depth=NULL, auth_api_version=getOption("azure_storage_api_version"), ...)
 {
     if(!(service %in% c("blob", "file")))
         stop("Generating a service SAS currently only supported for blob and file storage", call.=FALSE)
 
     dates <- make_sas_dates(start, expiry)
     if(is.null(resource_type))
-        resource_type <- if(service == "blob") "b" else "f"
+        resource_type <- if(service == "blob") "c" else "s"
     resource <- file.path("", service, account, resource)  # canonicalized resource starts with /
 
-    sig_str <- paste(
+    sig_str <- if(service == "blob")
+        paste(
+            permissions,
+            dates$start,
+            dates$expiry,
+            resource,
+            policy,
+            ip,
+            protocol,
+            auth_api_version,
+            resource_type,
+            snapshot_time,
+            "",  # rscc, rscd, rsce, rscl, rsct not yet implemented
+            "",
+            "",
+            "",
+            "",
+            sep="\n"
+        )
+    else paste(
         permissions,
         dates$start,
         dates$expiry,
@@ -340,8 +363,6 @@ get_service_sas.default <- function(account, resource, key, service, start=NULL,
         ip,
         protocol,
         auth_api_version,
-        resource_type,
-        snapshot_time,
         "",  # rscc, rscd, rsce, rscl, rsct not yet implemented
         "",
         "",
@@ -349,6 +370,7 @@ get_service_sas.default <- function(account, resource, key, service, start=NULL,
         "",
         sep="\n"
     )
+    xx <<- sig_str
     sig <- sign_sha256(sig_str, key)
 
     parts <- list(
@@ -360,7 +382,7 @@ get_service_sas.default <- function(account, resource, key, service, start=NULL,
         sip=ip,
         spr=protocol,
         si=policy,
-        # sdd=directory_depth,
+        sdd=as.character(directory_depth),
         sig=sig
     )
     parts <- parts[!sapply(parts, is_empty)]
