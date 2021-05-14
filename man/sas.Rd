@@ -52,9 +52,9 @@ get_user_delegation_sas(account, ...)
 \method{get_user_delegation_sas}{blob_endpoint}(account, key, ...)
 
 \method{get_user_delegation_sas}{default}(account, key, resource,
-  start = NULL, expiry = NULL, permissions = "rl",
-  resource_types = "c", ip = NULL, protocol = NULL,
-  snapshot_time = NULL,
+  start = NULL, expiry = NULL, permissions = "rl", resource_type = "c",
+  ip = NULL, protocol = NULL, snapshot_time = NULL,
+  directory_depth = NULL,
   auth_api_version = getOption("azure_storage_api_version"), ...)
 
 get_service_sas(account, ...)
@@ -67,7 +67,7 @@ get_service_sas(account, ...)
 \method{get_service_sas}{default}(account, resource, key, service,
   start = NULL, expiry = NULL, permissions = "rl",
   resource_type = NULL, ip = NULL, protocol = NULL, policy = NULL,
-  snapshot_time = NULL,
+  snapshot_time = NULL, directory_depth = NULL,
   auth_api_version = getOption("azure_storage_api_version"), ...)
 }
 \arguments{
@@ -83,7 +83,7 @@ get_service_sas(account, ...)
 
 \item{permissions}{The permissions that the SAS grants. The default value of \code{rl} (read and list) essentially means read-only access.}
 
-\item{resource_types}{For an account or user delegation SAS, the resource types for which the SAS is valid. For \code{get_account_sas} the default is \code{sco} meaning service, container and object. For \code{get_user_delegation_sas} the default is \code{c} meaning container-level access (including blobs within the container).}
+\item{resource_types}{For an account SAS, the resource types for which the SAS is valid. For \code{get_account_sas} the default is \code{sco} meaning service, container and object. For \code{get_user_delegation_sas} the default is \code{c} meaning container-level access (including blobs within the container). Other possible values include "b" (a single blob) or "d" (a directory).}
 
 \item{ip}{The IP address(es) or IP address range(s) for which the SAS is valid. The default is not to restrict access by IP.}
 
@@ -95,21 +95,23 @@ get_service_sas(account, ...)
 
 \item{key_start, key_expiry}{For \code{get_user_delegation_key}, the start and end dates for the user delegation key.}
 
-\item{resource}{For \code{get_user_delegation_sas} and \code{get_service_sas}, the resource for which the SAS is valid. For a user delegation SAS, this can be either the name of a blob container or an individual blob; if the latter, it should include the container as well (\code{containername/blobname}). A service SAS is similar but can also be used with file shares and files.}
+\item{resource}{For \code{get_user_delegation_sas} and \code{get_service_sas}, the resource for which the SAS is valid. Both types of SAS allow this to be either a blob container, a directory or an individual blob; the resource should be specified in the form \verb{containername[/dirname[/blobname]]}. A service SAS can also be used with file shares and files, in which case the resource should be of the form \verb{sharename[/path-to-filename]}.}
+
+\item{resource_type}{For a service or user delegation SAS, the type of resource for which the SAS is valid. For blob storage, the default value is "b" meaning a single blob. For file storage, the default value is "f" meaning a single file. Other possible values include "bs" (a blob snapshot), "c" (a blob container), "d" (a directory in a blob container), or "s" (a file share). Note however that a user delegation SAS only supports blob storage.}
 
 \item{snapshot_time}{For a user delegation or service SAS, the blob snapshot for which the SAS is valid. Only required if \code{resource_type[s]="bs"}.}
 
-\item{service}{For a service SAS, the storage service for which the SAS is valid: either "blob" or "file". Currently AzureStor does not support creating a service SAS for queue or table storage.}
+\item{directory_depth}{For a service SAS, the depth of the directory, starting at 0 for the root. This is required if \code{resource_type="d"} and the account has a hierarchical namespace enabled.}
 
-\item{resource_type}{For a service SAS, the type of resource for which the SAS is valid. For blob storage, the default value is "b" meaning a single blob. For file storage, the default value is "f" meaning a single file. Other possible values include "bs" (a blob snapshot), "c" (a blob container), or "s" (a file share).}
+\item{service}{For a service SAS, the storage service for which the SAS is valid: either "blob" or "file". Currently AzureStor does not support creating a service SAS for queue or table storage.}
 
 \item{policy}{For a service SAS, optionally the name of a stored access policy to correlate the SAS with. Revoking the policy will also invalidate the SAS.}
 }
 \description{
-The simplest way for a user to access files and data in a storage account is to give them the account's access key. This gives them full control of the account, and so may be a security risk. An alternative is to provide the user with a \emph{shared access signature} (SAS), which limits access to specific resources and only for a set length of time. AzureStor supports generating two kinds of SAS: account and user delegation, with the latter applying only to blob and ADLS2 storage.
+The simplest way for a user to access files and data in a storage account is to give them the account's access key. This gives them full control of the account, and so may be a security risk. An alternative is to provide the user with a \emph{shared access signature} (SAS), which limits access to specific resources and only for a set length of time. There are three kinds of SAS: account, service and user delegation.
 }
 \details{
-Listed here are S3 generics and methods to obtain a SAS for accessing storage; in addition, the \code{\link{az_storage}} resource class has R6 methods for \code{get_account_sas}, \code{get_user_delegation_key} and \code{revoke_user_delegation_keys} which simply call the corresponding S3 method.
+Listed here are S3 generics and methods to obtain a SAS for accessing storage; in addition, the \code{\link{az_storage}} resource class has R6 methods for \code{get_account_sas}, \code{get_service_sas}, \code{get_user_delegation_key} and \code{revoke_user_delegation_keys} which simply call the corresponding S3 method.
 
 Note that you don't need to worry about these methods if you have been \emph{given} a SAS, and only want to use it to access a storage account.
 
@@ -144,6 +146,9 @@ get_account_sas(endp, permissions="rwcd")
 
 # service SAS for a container
 get_service_sas(endp, "containername")
+
+# service SAS for a directory
+get_service_sas(endp, "containername/dirname")
 
 # read/write service SAS for a blob
 get_service_sas(endp, "containername/blobname", permissions="rw")

@@ -114,6 +114,28 @@ test_that("User delegation SAS works 2",
 })
 
 
+test_that("User delegation SAS works with dir resource",
+{
+    contname <- make_name()
+    dirname <- make_name()
+    bl0 <- stor$get_blob_endpoint(key=NULL, token=token)
+    expect_silent(cont <- create_storage_container(bl0, contname))
+    expect_silent(create_storage_dir(cont, dirname))
+    ukey <- get_user_delegation_key(bl0, key_start=dates[1], key_expiry=dates[2])
+
+    usas <- get_user_delegation_sas(storname, ukey, resource=file.path(contname, dirname), directory_depth=1,
+                                    start=dates[1], expiry=dates[2], permissions="rcwl", resource_type="d")
+    expect_type(usas, "character")
+
+    Sys.sleep(30)
+
+    bl <- stor$get_blob_endpoint(key=NULL, sas=usas)
+    cont <- storage_container(bl, contname)
+    expect_silent(list_storage_files(cont, dirname))
+    expect_silent(storage_upload(cont, "../resources/iris.csv", file.path(dirname, "iris.csv")))
+})
+
+
 teardown({
     stor$revoke_user_delegation_keys()
     bl <- stor$get_blob_endpoint()

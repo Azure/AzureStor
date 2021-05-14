@@ -21,7 +21,7 @@ file_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
   api_version = getOption("azure_storage_api_version"))
 
 adls_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
-  api_version = getOption("azure_adls_api_version"))
+  api_version = getOption("azure_storage_api_version"))
 
 \method{print}{storage_endpoint}(x, ...)
 

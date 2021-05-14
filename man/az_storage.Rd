@@ -46,7 +46,7 @@ To create a user delegation SAS, you must first create a user delegation \emph{k
 }
 
 Once you have a user delegation key, you can use it to obtain a user delegation sas. The \code{get_user_delegation_sas()} method has the following signature:\preformatted{get_user_delegation_sas(key, resource, start=NULL, expiry=NULL, permissions="rl",
-                        resource_types="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
+                        resource_type="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
 }
 
 (Note that the \code{key} argument for this method is the user delegation key, \emph{not} the account key.)

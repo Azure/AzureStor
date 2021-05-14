@@ -47,7 +47,7 @@
 #'
 #' ```
 #' get_user_delegation_sas(key, resource, start=NULL, expiry=NULL, permissions="rl",
-#'                         resource_types="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
+#'                         resource_type="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
 #' ```
 #'
 #' (Note that the `key` argument for this method is the user delegation key, _not_ the account key.)
@@ -126,10 +126,10 @@ public=list(
     },
 
     get_user_delegation_sas=function(key, resource, start=NULL, expiry=NULL, permissions="rl",
-                                     resource_types="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
+                                     resource_type="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
     {
         get_user_delegation_sas(self, key=key, resource=resource, start=start, expiry=expiry, permissions=permissions,
-                                resource_types=resource_types, ip=ip, protocol=protocol, snapshot_time=snapshot_time)
+                                resource_type=resource_type, ip=ip, protocol=protocol, snapshot_time=snapshot_time)
     },
 
     get_service_sas=function(key=self$list_keys()[1], resource, service, start=NULL, expiry=NULL, permissions="r",
