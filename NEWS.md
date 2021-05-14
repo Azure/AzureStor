@@ -4,7 +4,7 @@
 - Fix `storage_save_rds` and `storage_load_rds` to handle compression correctly. In particular, `storage_load_rds` should now correctly load files saved with `saveRDS` (#83).
 - Fix a bug that caused `list_blobs` to fail when leases were present.
 - Use a raw connection instead of a raw vector when calling `readr::read_delim` and `read_csv2`. This works around an issue introduced in readr 1.4.0 (#85, #86).
-- Update client API version to "2020-04-08".
+- Update client API version to "2020-04-08". In particular, this allows specifying `resource_type="d"` when creating a service or user delegation SAS for blob storage.
 
 # AzureStor 3.4.1
 
