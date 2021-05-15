@@ -5,6 +5,8 @@
 - Fix a bug that caused `list_blobs` to fail when leases were present.
 - Use a raw connection instead of a raw vector when calling `readr::read_delim` and `read_csv2`. This works around an issue introduced in readr 1.4.0 (#85, #86).
 - Update client API version to "2020-04-08". In particular, this allows specifying `resource_type="d"` when creating a service or user delegation SAS for blob storage.
+- Add an optional `service` argument to `storage_endpoint`, to specify the service in question: blob, file, ADLS2, queue or table. This allows use of the generic endpoint function with URLs that don't fit the usual pattern where the service is part of the hostname, eg custom domain names, IP addresses, etc.
+  - For the same, reason, remove the warning about an unrecognised endpoint URL from `blob_endpoint`, `file_endpoint` and `adls_endpoint`.
 
 # AzureStor 3.4.1
 
