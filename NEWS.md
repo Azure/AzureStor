@@ -1,3 +1,7 @@
+# AzureStor 3.5.0.9000
+
+- Fix for changed behaviour in readr 2.0.0, where `readr::read_delim` now automatically closes an input connection (#95).
+
 # AzureStor 3.5.0
 
 - Add support for generating a service SAS. There is a new S3 generic `get_service_sas` with methods for `az_storage` and `storage_endpoint` objects, and a similar R6 method for `az_storage` objects. See `?sas` for more information.

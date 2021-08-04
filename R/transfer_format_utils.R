@@ -187,7 +187,7 @@ storage_read_delim <- function(container, file, delim="\t", ...)
 storage_read_delim_readr <- function(container, file, delim="\t", ...)
 {
     con <- rawConnection(raw(0), "r+")
-    on.exit(close(con))
+    on.exit(try(close(con), silent=TRUE))
     storage_download(container, file, con)
     readr::read_delim(con, delim=delim, ...)
 }
@@ -237,7 +237,7 @@ storage_read_csv2 <- function(container, file, ...)
 storage_read_csv2_readr <- function(container, file, ...)
 {
     con <- rawConnection(raw(0), "r+")
-    on.exit(close(con))
+    on.exit(try(close(con), silent=TRUE))
     storage_download(container, file, con)
     readr::read_csv2(con, ...)
 }
