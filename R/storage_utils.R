@@ -170,7 +170,7 @@ storage_error_message <- function(response, for_httr=TRUE)
 parse_storage_url <- function(url)
 {
     url <- httr::parse_url(url)
-    endpoint <- paste0(url$scheme, "://", url$host, "/")
+    endpoint <- paste0(url$scheme, "://", url$hostname, "/")
     store <- sub("/.*$", "", url$path)
     path <- if(url$path == store) "" else sub("^[^/]+/", "", url$path)
     c(endpoint, store, path)
