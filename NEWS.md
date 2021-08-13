@@ -1,4 +1,4 @@
-# AzureStor 3.5.0.9000
+# AzureStor 3.5.1
 
 - Fix for changed behaviour in readr 2.0.0, where `readr::read_delim` now automatically closes an input connection (#95).
 - Change `.onLoad` to keep any currently set global options when AzureStor is loaded, rather than resetting them (#96).
