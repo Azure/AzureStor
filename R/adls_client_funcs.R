@@ -337,7 +337,7 @@ list_adls_files <- function(filesystem, dir="/", info=c("all", "name"),
         if(!is.null(dfchunk$contentLength))
             dfchunk$contentLength <- as.numeric(dfchunk$contentLength)
         if(!is.null(dfchunk$lastModified))
-            dfchunk$lastModified <- as_datetime(dfchunk$lastModified)
+            dfchunk$lastModified <- as_datetime_internal(dfchunk$lastModified)
         names(dfchunk)[c(2, 3)] <- c("size", "isdir")
 
         if(all(dfchunk$permissions == ""))

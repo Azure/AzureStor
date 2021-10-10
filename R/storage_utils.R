@@ -232,9 +232,9 @@ retry_transfer.response <- function(res)
 }
 
 
-as_datetime <- function(x, format="%a, %d %b %Y %H:%M:%S", tz="GMT")
+as_datetime_internal <- function(x, tz = "GMT")
 {
-    as.POSIXct(x, format=format, tz=tz)
+    lubridate::dmy_hms(x, tz = tz)
 }
 
 
