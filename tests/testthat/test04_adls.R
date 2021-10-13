@@ -42,6 +42,8 @@ test_that("ADLSgen2 client interface works",
     expect_identical(fs, lst[["newfs1"]])
 
     expect_true(is_empty(list_adls_files(fs, "/", info="name")))
+    expect_is(list_adls_files(fs, "/"), "data.frame")
+    expect_true(nrow(list_adls_files(fs, "/", info="all")) == 0)
     orig_file <- "../resources/iris.csv"
     new_file <- file.path(tempdir(), "iris.csv")
     upload_adls_file(fs, orig_file, "iris.csv", blocksize=1000)

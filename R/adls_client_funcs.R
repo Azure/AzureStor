@@ -317,6 +317,9 @@ list_adls_files <- function(filesystem, dir="/", info=c("all", "name"),
         httr::stop_for_status(res, storage_error_message(res))
         dfchunk <- httr::content(res, simplifyVector=TRUE)$paths
 
+        if(length(dfchunk) == 0)
+            break
+
         # normalise output
         if(is.null(dfchunk$isDirectory))
             dfchunk$isDirectory <- FALSE

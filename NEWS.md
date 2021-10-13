@@ -1,3 +1,7 @@
+# AzureStor 3.5.1.9000
+
+- Fix a bug when listing files in an empty ADLS filesystem (#100).
+
 # AzureStor 3.5.1
 
 - Fix for changed behaviour in readr 2.0.0, where `readr::read_delim` now automatically closes an input connection (#95).

@@ -1,6 +1,6 @@
 Package: AzureStor
 Title: Storage Management in 'Azure'
-Version: 3.5.1
+Version: 3.5.1.9000
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi73@gmail.com", role = c("aut", "cre")),
     person("Microsoft", role="cph")
