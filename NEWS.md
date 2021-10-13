@@ -1,5 +1,6 @@
 # AzureStor 3.5.1.9000
 
+- Add support for recursive deleting of subdirectories in file storage.
 - Fix a bug when listing files in an empty ADLS filesystem (#100).
 
 # AzureStor 3.5.1

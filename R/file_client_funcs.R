@@ -412,7 +412,17 @@ delete_azure_dir <- function(share, dir, recursive=FALSE, confirm=TRUE)
         return(invisible(NULL))
 
     if(recursive)
-        stop("Recursive deleting of subdirectory contents not yet supported", call.=FALSE)
+    {
+        conts <- list_azure_files(share, dir, recursive=TRUE)
+        for(i in rev(seq_len(nrow(conts))))
+        {
+            # delete all files and dirs
+            # assumption is that files will be listed after their parent dir
+            if(conts$isdir[i])
+                delete_azure_dir(share, conts$name[i], recursive=FALSE, confirm=FALSE)
+            else delete_azure_file(share, conts$name[i], confirm=FALSE)
+        }
+    }
 
     invisible(do_container_op(share, dir, options=list(restype="directory"), http_verb="DELETE"))
 }
