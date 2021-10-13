@@ -544,7 +544,11 @@ delete_blob_dir <- function(container, dir, recursive=FALSE, confirm=TRUE)
         return(invisible(NULL))
 
     if(recursive)
-        stop("Recursive deleting of subdirectory contents not yet supported", call.=FALSE)
+    {
+        conts <- list_blobs(container, dir, recursive=TRUE, info="name")
+        for(n in conts)
+            delete_blob(container, n, confirm=FALSE)
+    }
 
     parent <- dirname(dir)
     if(parent == ".")
