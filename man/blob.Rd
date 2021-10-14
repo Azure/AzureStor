@@ -56,7 +56,7 @@ multicopy_url_to_blob(container, src, dest, lease = NULL, async = FALSE,
 
 \item{prefix}{For \code{list_blobs}, an alternative way to specify the directory.}
 
-\item{recursive}{For the multiupload/download functions, whether to recursively transfer files in subdirectories. For \code{list_blobs}, whether to include the contents of any subdirectories in the listing. For \code{delete_blob_dir}, whether to recursively delete subdirectory contents as well (not yet supported).}
+\item{recursive}{For the multiupload/download functions, whether to recursively transfer files in subdirectories. For \code{list_blobs}, whether to include the contents of any subdirectories in the listing. For \code{delete_blob_dir}, whether to recursively delete subdirectory contents as well.}
 
 \item{src, dest}{The source and destination files for uploading and downloading. See 'Details' below.}
 
@@ -122,7 +122,7 @@ Blob storage does not have true directories, instead using filenames containing 
 \itemize{
 \item The \code{isdir} column in the data frame output of \code{list_blobs} is a best guess as to whether an object represents a file or directory, and may not always be correct. Currently, \code{list_blobs} assumes that any object with a file size of zero is a directory.
 \item Zero-length files can cause problems for the blob storage service as a whole (not just AzureStor). Try to avoid uploading such files.
-\item \code{create_blob_dir} and \code{delete_blob_dir} function as expected only for accounts with hierarchical namespaces enabled. When this feature is disabled, directories do not exist as objects in their own right: to create a directory, simply upload a blob to that directory. To delete a directory, delete all the blobs within it; as far as the blob storage service is concerned, the directory then no longer exists.
+\item \code{create_blob_dir} and \code{delete_blob_dir} are guaranteed to function as expected only for accounts with hierarchical namespaces enabled. When this feature is disabled, directories do not exist as objects in their own right: to create a directory, simply upload a blob to that directory. To delete a directory, delete all the blobs within it; as far as the blob storage service is concerned, the directory then no longer exists.
 \item Similarly, the output of \code{list_blobs(recursive=TRUE)} can vary based on whether the storage account has hierarchical namespaces enabled.
 }
 }

@@ -208,7 +208,7 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #' @param info Whether to return names only, or all information in a directory listing.
 #' @param src,dest The source and destination files for uploading and downloading. See 'Details' below.
 #' @param confirm Whether to ask for confirmation on deleting a file or directory.
-#' @param recursive For the multiupload/download functions, whether to recursively transfer files in subdirectories. For `list_azure_dir`, whether to include the contents of any subdirectories in the listing. For `create_azure_dir`, whether to recursively create each component of a nested directory path. For `delete_azure_dir`, whether to delete a subdirectory's contents first (not yet supported). Note that in all cases this can be slow, so try to use a non-recursive solution if possible.
+#' @param recursive For the multiupload/download functions, whether to recursively transfer files in subdirectories. For `list_azure_dir`, whether to include the contents of any subdirectories in the listing. For `create_azure_dir`, whether to recursively create each component of a nested directory path. For `delete_azure_dir`, whether to delete a subdirectory's contents first. Note that in all cases this can be slow, so try to use a non-recursive solution if possible.
 #' @param create_dir For the uploading functions, whether to create the destination directory if it doesn't exist. Again for the file storage API this can be slow, hence is optional.
 #' @param blocksize The number of bytes to upload/download per HTTP(S) request.
 #' @param overwrite When downloading, whether to overwrite an existing destination file.
@@ -405,7 +405,7 @@ create_azure_dir <- function(share, dir, recursive=FALSE)
 #' @export
 delete_azure_dir <- function(share, dir, recursive=FALSE, confirm=TRUE)
 {
-    if(dir %in% c("/", "."))
+    if(dir %in% c("/", ".") && !recursive)
         return(invisible(NULL))
 
     if(!delete_confirmed(confirm, paste0(share$endpoint$url, share$name, "/", dir), "directory"))

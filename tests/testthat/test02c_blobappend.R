@@ -12,7 +12,7 @@ rgname <- Sys.getenv("AZ_TEST_STORAGE_RG")
 storname <- Sys.getenv("AZ_TEST_STORAGE_NOHNS")
 
 if(rgname == "" || storname == "")
-    skip("Blob/ADLS interop tests skipped: resource names not set")
+    skip("Append blob tests skipped: resource names not set")
 
 sub <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$get_subscription(subscription)
 stor <- sub$get_resource_group(rgname)$get_storage_account(storname)
