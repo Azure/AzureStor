@@ -236,7 +236,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param use_azcopy Whether to use the AzCopy utility from Microsoft to do the transfer, rather than doing it in R.
 #' @param max_concurrent_transfers For `multiupload_blob` and `multidownload_blob`, the maximum number of concurrent file transfers. Each concurrent file transfer requires a separate R process, so limit this if you are low on memory.
 #' @param prefix For `list_blobs`, an alternative way to specify the directory.
-#' @param recursive For the multiupload/download functions, whether to recursively transfer files in subdirectories. For `list_blobs`, whether to include the contents of any subdirectories in the listing. For `delete_blob_dir`, whether to recursively delete subdirectory contents as well (not yet supported).
+#' @param recursive For the multiupload/download functions, whether to recursively transfer files in subdirectories. For `list_blobs`, whether to include the contents of any subdirectories in the listing. For `delete_blob_dir`, whether to recursively delete subdirectory contents as well.
 #' @param put_md5 For uploading, whether to compute the MD5 hash of the blob(s). This will be stored as part of the blob's properties. Only used for block blobs.
 #' @param check_md5 For downloading, whether to verify the MD5 hash of the downloaded blob(s). This requires that the blob's `Content-MD5` property is set. If this is TRUE and the `Content-MD5` property is missing, a warning is generated.
 #'
@@ -263,7 +263,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #'
 #' - The `isdir` column in the data frame output of `list_blobs` is a best guess as to whether an object represents a file or directory, and may not always be correct. Currently, `list_blobs` assumes that any object with a file size of zero is a directory.
 #' - Zero-length files can cause problems for the blob storage service as a whole (not just AzureStor). Try to avoid uploading such files.
-#' - `create_blob_dir` and `delete_blob_dir` function as expected only for accounts with hierarchical namespaces enabled. When this feature is disabled, directories do not exist as objects in their own right: to create a directory, simply upload a blob to that directory. To delete a directory, delete all the blobs within it; as far as the blob storage service is concerned, the directory then no longer exists.
+#' - `create_blob_dir` and `delete_blob_dir` are guaranteed to function as expected only for accounts with hierarchical namespaces enabled. When this feature is disabled, directories do not exist as objects in their own right: to create a directory, simply upload a blob to that directory. To delete a directory, delete all the blobs within it; as far as the blob storage service is concerned, the directory then no longer exists.
 #' - Similarly, the output of `list_blobs(recursive=TRUE)` can vary based on whether the storage account has hierarchical namespaces enabled.
 #'
 #' @return
@@ -537,24 +537,21 @@ create_blob_dir <- function(container, dir)
 #' @export
 delete_blob_dir <- function(container, dir, recursive=FALSE, confirm=TRUE)
 {
-    if(dir %in% c("/", "."))
+    if(dir %in% c("/", ".") && !recursive)
         return(invisible(NULL))
 
     if(!delete_confirmed(confirm, paste0(container$endpoint$url, container$name, "/", dir), "directory"))
         return(invisible(NULL))
 
     if(recursive)
-        stop("Recursive deleting of subdirectory contents not yet supported", call.=FALSE)
-
-    parent <- dirname(dir)
-    if(parent == ".")
-        parent <- "/"
-    lst <- list_blobs(container, parent, recursive=FALSE)
-    whichrow <- which(lst$name == paste0(dir, "/"))
-    if(is_empty(whichrow) || !lst$isdir[whichrow])
-        stop("Not a directory", call.=FALSE)
-
-    delete_blob(container, dir, confirm=FALSE)
+    {
+        # delete everything under this directory
+        conts <- list_blobs(container, dir, recursive=TRUE, info="name")
+        for(n in rev(conts))
+            delete_blob(container, n, confirm=FALSE)
+    }
+    if(blob_exists(container, dir))
+        delete_blob(container, dir, confirm=FALSE)
 }
 
 #' @rdname blob
