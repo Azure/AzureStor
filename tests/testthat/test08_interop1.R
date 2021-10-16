@@ -66,9 +66,6 @@ test_that("Blob vector multitransfer works",
     contname <- paste0(sample(letters, 10, TRUE), collapse="")
     cont <- create_blob_container(bl, contname)
 
-    # test that extra args passed to nodes: append blobs not (yet) supported on HNS accts
-    expect_error(multiupload_blob(cont, file.path(srcdir, srcs), paste0(srcs, "_bad"), type="AppendBlob"))
-
     multiupload_blob(cont, file.path(srcdir, srcs), srcs)
     multidownload_blob(cont, srcs, file.path(destdir, srcs))
 

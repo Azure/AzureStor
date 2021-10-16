@@ -15,7 +15,7 @@ sign_request <- function(endpoint, ...)
 sign_request.default <- function(endpoint, verb, url, headers, api, ...)
 {
     host_url <- httr::parse_url(endpoint$url)
-    acct_name <- if(host_url$path == "") sub("\\..+$", "", host_url$host) else host_url$path
+    acct_name <- if(host_url$path == "") sub("\\..+$", "", host_url$hostname) else host_url$path
 
     resource <- paste0("/", acct_name, "/", url$path) # don't use file.path because it strips trailing / on Windows
     # sanity check

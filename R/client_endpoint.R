@@ -7,6 +7,7 @@
 #' @param token An Azure Active Directory (AAD) authentication token. This can be either a string, or an object of class AzureToken created by [AzureRMR::get_azure_token]. The latter is the recommended way of doing it, as it allows for automatic refreshing of expired tokens.
 #' @param sas A shared access signature (SAS) for the account.
 #' @param api_version The storage API version to use when interacting with the host. Defaults to `"2019-07-07"`.
+#' @param service For `storage_endpoint`, the service endpoint type: either "blob", "file", "adls", "queue" or "table". If this is missing, it is inferred from the endpoint hostname.
 #' @param x For the print method, a storage endpoint object.
 #' @param ... For the print method, further arguments passed to lower-level functions.
 #'
@@ -62,24 +63,22 @@
 #' }
 #' @aliases endpoint blob_endpoint file_endpoint queue_endpoint table_endpoint
 #' @export
-storage_endpoint <- function(endpoint, key=NULL, token=NULL, sas=NULL, api_version)
+storage_endpoint <- function(endpoint, key=NULL, token=NULL, sas=NULL, api_version, service)
 {
-    type <- sapply(c("blob", "file", "queue", "table", "adls"),
-                   function(x) is_endpoint_url(endpoint, x))
-    if(!any(type))
-        stop("Unknown endpoint type", call.=FALSE)
-    type <- names(type)[type]
-
-    # handle api version wart
-    if(missing(api_version))
+    if(missing(service))
     {
-        api_version <- if(type == "adls")
-            getOption("azure_adls_api_version")
-        else getOption("azure_storage_api_version")
+        service <- sapply(c("blob", "file", "queue", "table", "adls"),
+                       function(x) is_endpoint_url(endpoint, x))
+        if(!any(service))
+            stop("Unknown endpoint service", call.=FALSE)
+        service <- names(service)[service]
     }
 
+    if(missing(api_version))
+        api_version <- getOption("azure_storage_api_version")
+
     obj <- list(url=endpoint, key=key, token=token, sas=sas, api_version=api_version)
-    class(obj) <- c(paste0(type, "_endpoint"), "storage_endpoint")
+    class(obj) <- c(paste0(service, "_endpoint"), "storage_endpoint")
     obj
 }
 
@@ -88,9 +87,6 @@ storage_endpoint <- function(endpoint, key=NULL, token=NULL, sas=NULL, api_versi
 blob_endpoint <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                           api_version=getOption("azure_storage_api_version"))
 {
-    if(!is_endpoint_url(endpoint, "blob"))
-        warning("Not a recognised blob endpoint", call.=FALSE)
-
     obj <- list(url=endpoint, key=key, token=token, sas=sas, api_version=api_version)
     class(obj) <- c("blob_endpoint", "storage_endpoint")
     obj
@@ -101,9 +97,6 @@ blob_endpoint <- function(endpoint, key=NULL, token=NULL, sas=NULL,
 file_endpoint <- function(endpoint, key=NULL, token=NULL, sas=NULL,
                           api_version=getOption("azure_storage_api_version"))
 {
-    if(!is_endpoint_url(endpoint, "file"))
-        warning("Not a recognised file endpoint", call.=FALSE)
-
     obj <- list(url=endpoint, key=key, token=token, sas=sas, api_version=api_version)
     class(obj) <- c("file_endpoint", "storage_endpoint")
     obj
@@ -112,11 +105,8 @@ file_endpoint <- function(endpoint, key=NULL, token=NULL, sas=NULL,
 #' @rdname storage_endpoint
 #' @export
 adls_endpoint <- function(endpoint, key=NULL, token=NULL, sas=NULL,
-                          api_version=getOption("azure_adls_api_version"))
+                          api_version=getOption("azure_storage_api_version"))
 {
-    if(!is_endpoint_url(endpoint, "adls"))
-        warning("Not a recognised ADLS Gen2 endpoint", call.=FALSE)
-
     obj <- list(url=endpoint, key=key, token=token, sas=sas, api_version=api_version)
     class(obj) <- c("adls_endpoint", "storage_endpoint")
     obj

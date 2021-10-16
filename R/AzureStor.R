@@ -9,10 +9,15 @@ globalVariables(c("self", "pool"), "AzureStor")
 
 .onLoad <- function(libname, pkgname)
 {
-    options(azure_storage_api_version="2019-07-07")
-    options(azure_adls_api_version="2019-07-07")
-    options(azure_storage_progress_bar=TRUE)
-    options(azure_storage_retries=10)
+    set_option <- function(name, value)
+    {
+        if(is.null(getOption(name)))
+            options(structure(list(value), names=name))
+    }
+
+    set_option("azure_storage_api_version", "2020-04-08")
+    set_option("azure_storage_progress_bar", TRUE)
+    set_option("azure_storage_retries", 10)
 
     # all methods extending classes in external package must be run from .onLoad
     add_methods()

@@ -46,7 +46,7 @@ azure_file_exists(share, file)
 
 \item{prefix}{For \code{list_azure_files}, filters the result to return only files and directories whose name begins with this prefix.}
 
-\item{recursive}{For the multiupload/download functions, whether to recursively transfer files in subdirectories. For \code{list_azure_dir}, whether to include the contents of any subdirectories in the listing. For \code{create_azure_dir}, whether to recursively create each component of a nested directory path. For \code{delete_azure_dir}, whether to delete a subdirectory's contents first (not yet supported). Note that in all cases this can be slow, so try to use a non-recursive solution if possible.}
+\item{recursive}{For the multiupload/download functions, whether to recursively transfer files in subdirectories. For \code{list_azure_dir}, whether to include the contents of any subdirectories in the listing. For \code{create_azure_dir}, whether to recursively create each component of a nested directory path. For \code{delete_azure_dir}, whether to delete a subdirectory's contents first. Note that in all cases this can be slow, so try to use a non-recursive solution if possible.}
 
 \item{src, dest}{The source and destination files for uploading and downloading. See 'Details' below.}
 

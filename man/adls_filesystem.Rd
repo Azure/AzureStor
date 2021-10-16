@@ -31,7 +31,7 @@ list_adls_filesystems(endpoint, ...)
 
 \method{list_adls_filesystems}{character}(endpoint, key = NULL,
   token = NULL, sas = NULL,
-  api_version = getOption("azure_adls_api_version"), ...)
+  api_version = getOption("azure_storage_api_version"), ...)
 
 \method{list_adls_filesystems}{adls_endpoint}(endpoint, ...)
 
@@ -39,7 +39,7 @@ create_adls_filesystem(endpoint, ...)
 
 \method{create_adls_filesystem}{character}(endpoint, key = NULL,
   token = NULL, sas = NULL,
-  api_version = getOption("azure_adls_api_version"), ...)
+  api_version = getOption("azure_storage_api_version"), ...)
 
 \method{create_adls_filesystem}{adls_filesystem}(endpoint, ...)
 
@@ -49,7 +49,7 @@ delete_adls_filesystem(endpoint, ...)
 
 \method{delete_adls_filesystem}{character}(endpoint, key = NULL,
   token = NULL, sas = NULL,
-  api_version = getOption("azure_adls_api_version"), ...)
+  api_version = getOption("azure_storage_api_version"), ...)
 
 \method{delete_adls_filesystem}{adls_filesystem}(endpoint, ...)
 

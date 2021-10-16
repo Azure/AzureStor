@@ -12,7 +12,8 @@
 \alias{print.adls_endpoint}
 \title{Create a storage endpoint object}
 \usage{
-storage_endpoint(endpoint, key = NULL, token = NULL, sas = NULL, api_version)
+storage_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
+  api_version, service)
 
 blob_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
   api_version = getOption("azure_storage_api_version"))
@@ -21,7 +22,7 @@ file_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
   api_version = getOption("azure_storage_api_version"))
 
 adls_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
-  api_version = getOption("azure_adls_api_version"))
+  api_version = getOption("azure_storage_api_version"))
 
 \method{print}{storage_endpoint}(x, ...)
 
@@ -37,6 +38,8 @@ adls_endpoint(endpoint, key = NULL, token = NULL, sas = NULL,
 \item{sas}{A shared access signature (SAS) for the account.}
 
 \item{api_version}{The storage API version to use when interacting with the host. Defaults to \code{"2019-07-07"}.}
+
+\item{service}{For \code{storage_endpoint}, the service endpoint type: either "blob", "file", "adls", "queue" or "table". If this is missing, it is inferred from the endpoint hostname.}
 
 \item{x}{For the print method, a storage endpoint object.}
 

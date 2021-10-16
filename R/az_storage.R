@@ -21,11 +21,20 @@
 #' @section Creating a shared access signature:
 #' Note that you don't need to worry about this section if you have been _given_ a SAS, and only want to use it to access storage.
 #'
-#' AzureStor supports generating two kinds of SAS: account and user delegation, with the latter applying only to blob and ADLS2 storage. To create an account SAS, call the `get_account_sas()` method. This has the following signature:
+#' AzureStor supports generating three kinds of SAS: account, service and user delegation. An account SAS can be used with any type of storage. A service SAS can be used with blob and file storage, whle a user delegation SAS can be used with blob and ADLS2 storage.
+#'
+#' To create an account SAS, call the `get_account_sas()` method. This has the following signature:
 #'
 #' ```
 #' get_account_sas(key=self$list_keys()[1], start=NULL, expiry=NULL, services="bqtf", permissions="rl",
 #'                 resource_types="sco", ip=NULL, protocol=NULL)
+#' ```
+#'
+#' To create a service SAS, call the `get_service_sas()` method, which has the following signature:
+#'
+#' ```
+#' get_service_sas(key=self$list_keys()[1], resource, service, start=NULL, expiry=NULL, permissions="r",
+#'                 resource_type=NULL, ip=NULL, protocol=NULL, policy=NULL, snapshot_time=NULL)
 #' ```
 #'
 #' To create a user delegation SAS, you must first create a user delegation _key_. This takes the place of the account's access key in generating the SAS. The `get_user_delegation_key()` method has the following signature:
@@ -38,8 +47,10 @@
 #'
 #' ```
 #' get_user_delegation_sas(key, resource, start=NULL, expiry=NULL, permissions="rl",
-#'                         resource_types="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
+#'                         resource_type="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
 #' ```
+#'
+#' (Note that the `key` argument for this method is the user delegation key, _not_ the account key.)
 #'
 #' To invalidate all user delegation keys, as well as the SAS's generated with them, call the `revoke_user_delegation_keys()` method. This has the following signature:
 #'
@@ -60,11 +71,14 @@
 #'
 #' @seealso
 #' [blob_endpoint], [file_endpoint],
-#' [create_storage_account], [get_storage_account], [delete_storage_account], [Date], [POSIXt],
+#' [create_storage_account], [get_storage_account], [delete_storage_account], [Date], [POSIXt]
+#'
 #' [Azure Storage Provider API reference](https://docs.microsoft.com/en-us/rest/api/storagerp/),
-#' [Azure Storage Services API reference](https://docs.microsoft.com/en-us/rest/api/storageservices/),
+#' [Azure Storage Services API reference](https://docs.microsoft.com/en-us/rest/api/storageservices/)
+#'
 #' [Create an account SAS](https://docs.microsoft.com/en-us/rest/api/storageservices/create-account-sas),
-#' [Create a user delegation SAS](https://docs.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas)
+#' [Create a user delegation SAS](https://docs.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas),
+#' [Create a service SAS](https://docs.microsoft.com/en-us/rest/api/storageservices/create-service-sas)
 #'
 #' @examples
 #' \dontrun{
@@ -112,10 +126,18 @@ public=list(
     },
 
     get_user_delegation_sas=function(key, resource, start=NULL, expiry=NULL, permissions="rl",
-                                     resource_types="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
+                                     resource_type="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
     {
         get_user_delegation_sas(self, key=key, resource=resource, start=start, expiry=expiry, permissions=permissions,
-                                resource_types=resource_types, ip=ip, protocol=protocol, snapshot_time=snapshot_time)
+                                resource_type=resource_type, ip=ip, protocol=protocol, snapshot_time=snapshot_time)
+    },
+
+    get_service_sas=function(key=self$list_keys()[1], resource, service, start=NULL, expiry=NULL, permissions="r",
+                             resource_type=NULL, ip=NULL, protocol=NULL, policy=NULL, snapshot_time=NULL)
+    {
+        get_service_sas(self, key=key, resource=resource, service=service, start=start, expiry=expiry,
+                        permissions=permissions, resource_type=resource_type, ip=ip, protocol=protocol, policy=policy,
+                        snapshot_time=snapshot_time)
     },
 
     get_blob_endpoint=function(key=self$list_keys()[1], sas=NULL, token=NULL)

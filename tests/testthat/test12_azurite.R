@@ -9,8 +9,13 @@ opts <- options(azure_storage_progress_bar=FALSE)
 
 test_that("Blob storage methods work",
 {
-    expect_warning(endp <- blob_endpoint("http://127.0.0.1:10000/account1", key="key1"))
+    endp <- blob_endpoint("http://127.0.0.1:10000/account1", key="key1")
     expect_is(endp, "blob_endpoint")
+
+    expect_error(storage_endpoint("http://127.0.0.1:10000/account1", key="key1"))
+
+    endp2 <- storage_endpoint("http://127.0.0.1:10000/account1", key="key1", service="blob")
+    expect_is(endp2, "blob_endpoint")
 
     expect_is(list_blob_containers(endp), "list")
     cont <- create_blob_container(endp, "container1")

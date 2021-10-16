@@ -32,16 +32,24 @@ Initializing a new object of this class can either retrieve an existing storage 
 
 Note that you don't need to worry about this section if you have been \emph{given} a SAS, and only want to use it to access storage.
 
-AzureStor supports generating two kinds of SAS: account and user delegation, with the latter applying only to blob and ADLS2 storage. To create an account SAS, call the \code{get_account_sas()} method. This has the following signature:\preformatted{get_account_sas(key=self$list_keys()[1], start=NULL, expiry=NULL, services="bqtf", permissions="rl",
+AzureStor supports generating three kinds of SAS: account, service and user delegation. An account SAS can be used with any type of storage. A service SAS can be used with blob and file storage, whle a user delegation SAS can be used with blob and ADLS2 storage.
+
+To create an account SAS, call the \code{get_account_sas()} method. This has the following signature:\preformatted{get_account_sas(key=self$list_keys()[1], start=NULL, expiry=NULL, services="bqtf", permissions="rl",
                 resource_types="sco", ip=NULL, protocol=NULL)
+}
+
+To create a service SAS, call the \code{get_service_sas()} method, which has the following signature:\preformatted{get_service_sas(key=self$list_keys()[1], resource, service, start=NULL, expiry=NULL, permissions="r",
+                resource_type=NULL, ip=NULL, protocol=NULL, policy=NULL, snapshot_time=NULL)
 }
 
 To create a user delegation SAS, you must first create a user delegation \emph{key}. This takes the place of the account's access key in generating the SAS. The \code{get_user_delegation_key()} method has the following signature:\preformatted{get_user_delegation_key(token=self$token, key_start=NULL, key_expiry=NULL)
 }
 
 Once you have a user delegation key, you can use it to obtain a user delegation sas. The \code{get_user_delegation_sas()} method has the following signature:\preformatted{get_user_delegation_sas(key, resource, start=NULL, expiry=NULL, permissions="rl",
-                        resource_types="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
+                        resource_type="c", ip=NULL, protocol=NULL, snapshot_time=NULL)
 }
+
+(Note that the \code{key} argument for this method is the user delegation key, \emph{not} the account key.)
 
 To invalidate all user delegation keys, as well as the SAS's generated with them, call the \code{revoke_user_delegation_keys()} method. This has the following signature:\preformatted{revoke_user_delegation_keys()
 }
@@ -80,9 +88,12 @@ stor$get_file_endpoint()
 }
 \seealso{
 \link{blob_endpoint}, \link{file_endpoint},
-\link{create_storage_account}, \link{get_storage_account}, \link{delete_storage_account}, \link{Date}, \link{POSIXt},
+\link{create_storage_account}, \link{get_storage_account}, \link{delete_storage_account}, \link{Date}, \link{POSIXt}
+
 \href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference},
-\href{https://docs.microsoft.com/en-us/rest/api/storageservices/}{Azure Storage Services API reference},
+\href{https://docs.microsoft.com/en-us/rest/api/storageservices/}{Azure Storage Services API reference}
+
 \href{https://docs.microsoft.com/en-us/rest/api/storageservices/create-account-sas}{Create an account SAS},
-\href{https://docs.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas}{Create a user delegation SAS}
+\href{https://docs.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas}{Create a user delegation SAS},
+\href{https://docs.microsoft.com/en-us/rest/api/storageservices/create-service-sas}{Create a service SAS}
 }
