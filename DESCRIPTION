@@ -19,6 +19,7 @@ Imports:
     mime,
     openssl,
     xml2,
+    vctrs,
     AzureRMR (>= 2.3.0)
 Suggests:
     AzureAuth,
