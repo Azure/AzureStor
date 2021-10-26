@@ -38,6 +38,9 @@ test_that("Recursive deletion works for non-HNS account",
     delete_blob_dir(cont, "dir1", recursive=TRUE, confirm=FALSE)
     expect_false(blob_exists(cont, "dir1"))
     expect_true(blob_exists(cont, "iris.csv"))
+
+    delete_blob_dir(cont, "/", recursive=TRUE, confirm=FALSE)
+    expect_false(blob_exists(cont, "iris.csv"))
 })
 
 
@@ -54,6 +57,9 @@ test_that("Recursive deletion works for HNS account",
     delete_blob_dir(cont, "dir1", recursive=TRUE, confirm=FALSE)
     expect_false(blob_exists(cont, "dir1"))
     expect_true(blob_exists(cont, "iris.csv"))
+
+    delete_blob_dir(cont, "/", recursive=TRUE, confirm=FALSE)
+    expect_false(blob_exists(cont, "iris.csv"))
 })
 
 

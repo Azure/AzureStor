@@ -424,6 +424,8 @@ delete_azure_dir <- function(share, dir, recursive=FALSE, confirm=TRUE)
         }
     }
 
+    if(dir == "/")
+        return(invisible(NULL))
     invisible(do_container_op(share, dir, options=list(restype="directory"), http_verb="DELETE"))
 }
 
