@@ -39,7 +39,7 @@ test_that("ADLS vector multitransfer works",
     multiupload_adls_file(cont, file.path(srcdir, srcs), srcs)
     multidownload_adls_file(cont, srcs, file.path(destdir, srcs))
 
-    expect_identical(AzureRMR::pool_size(), 2L)
+    expect_identical(AzureRMR::pool_size(), 10L)
     expect_true(files_identical(file.path(srcdir, srcs), file.path(destdir, srcs)))
 
     # vector src needs vector dest

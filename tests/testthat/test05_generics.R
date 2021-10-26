@@ -85,7 +85,7 @@ test_that("Blob dispatch works, no HNS",
 
     # delete the objects
     expect_silent(delete_storage_file(cont, filename, confirm=FALSE))
-    expect_error(delete_storage_dir(cont, dirname, confirm=FALSE)) # deleting object also deletes dir
+    expect_silent(delete_storage_dir(cont, dirname, confirm=FALSE))
     expect_silent(delete_storage_container(cont, confirm=FALSE))
 })
 
