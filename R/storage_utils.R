@@ -58,10 +58,10 @@ call_storage_endpoint <- function(endpoint, path, options=list(), headers=list()
     url <- httr::parse_url(endpoint$url)
     # fix doubled-up /'s which can result from file.path snafus etc
     url$path <- gsub("/{2,}", "/", url_encode(file.path(url$path, path)))
+    options$timeout <- timeout
     if(!is_empty(options))
         url$query <- options[order(names(options))] # must be sorted for access key signing
 
-    options$timeout <- timeout
     headers$`x-ms-version` <- endpoint$api_version
     retries <- as.numeric(getOption("azure_storage_retries"))
     r <- 0
