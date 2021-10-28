@@ -37,6 +37,9 @@ test_that("Recursive directory deletion works",
     delete_azure_dir(cont, "dir1", recursive=TRUE, confirm=FALSE)
     expect_false(azure_file_exists(cont, "dir1"))
     expect_true(azure_file_exists(cont, "iris.csv"))
+
+    delete_azure_dir(cont, "/", recursive=TRUE, confirm=FALSE)
+    expect_false(azure_file_exists(cont, "iris.csv"))
 })
 
 

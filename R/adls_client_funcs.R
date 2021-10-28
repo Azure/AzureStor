@@ -450,6 +450,19 @@ delete_adls_dir <- function(filesystem, dir, recursive=FALSE, confirm=TRUE)
     if(!delete_confirmed(confirm, paste0(filesystem$endpoint$url, filesystem$name, "/", dir), "directory"))
         return(invisible(NULL))
 
+    # special-case handling of deletion of root dir
+    if(dir == "/" && recursive)
+    {
+        lst <- list_adls_files(filesystem, "/", info="all")
+        for(i in seq_len(nrow(lst)))
+        {
+            if(lst$isdir[i])
+                delete_adls_dir(filesystem, lst$name[i], recursive=TRUE, confirm=FALSE)
+            else delete_adls_file(filesystem, lst$name[i], confirm=FALSE)
+        }
+        return(invisible(NULL))
+    }
+
     opts <- list(recursive=tolower(as.character(recursive)))
     invisible(do_container_op(filesystem, dir, options=opts, http_verb="DELETE"))
 }

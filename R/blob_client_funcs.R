@@ -513,7 +513,7 @@ delete_blob_dir <- function(container, dir, recursive=FALSE, confirm=TRUE)
         for(n in rev(conts))
             delete_blob(container, n, confirm=FALSE)
     }
-    if(blob_exists(container, dir))
+    if(dir != "/" && blob_exists(container, dir))
         delete_blob(container, dir, confirm=FALSE)
 }
 

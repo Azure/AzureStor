@@ -69,7 +69,7 @@ test_that("Blob vector multitransfer works",
     multiupload_blob(cont, file.path(srcdir, srcs), srcs)
     multidownload_blob(cont, srcs, file.path(destdir, srcs))
 
-    expect_identical(AzureRMR::pool_size(), 2L)
+    expect_identical(AzureRMR::pool_size(), 10L)
     expect_true(files_identical(file.path(srcdir, srcs), file.path(destdir, srcs)))
 
     # vector src needs vector dest
