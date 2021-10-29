@@ -1,8 +1,9 @@
-# AzureStor 3.5.1.9000
+# AzureStor 3.5.2
 
 - Use the vctrs package to parse paged output from the REST API. This should resolve many issues with `list_blobs` in particular.
 - Add support for recursive deleting of non-empty subdirectories in blob and file storage.
 - Fix a bug when listing files in an empty ADLS filesystem (#100).
+- Fix passing a timeout parameter to the REST API (#105).
 
 # AzureStor 3.5.1
 
