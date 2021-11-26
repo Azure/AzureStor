@@ -42,10 +42,11 @@ delete_blob_dir(container, dir, recursive = FALSE, confirm = TRUE)
 
 blob_exists(container, blob)
 
-copy_url_to_blob(container, src, dest, lease = NULL, async = FALSE)
+copy_url_to_blob(container, src, dest, lease = NULL, async = FALSE,
+  auth_header = NULL)
 
 multicopy_url_to_blob(container, src, dest, lease = NULL, async = FALSE,
-  max_concurrent_transfers = 10)
+  max_concurrent_transfers = 10, auth_header = NULL)
 }
 \arguments{
 \item{container}{A blob container object.}
@@ -83,6 +84,8 @@ multicopy_url_to_blob(container, src, dest, lease = NULL, async = FALSE,
 \item{confirm}{Whether to ask for confirmation on deleting a blob.}
 
 \item{async}{For \code{copy_url_to_blob} and \code{multicopy_url_to_blob}, whether the copy operation should be asynchronous (proceed in the background).}
+
+\item{auth_header}{For \code{copy_url_to_blob} and \code{multicopy_url_to_blob}, an optional \code{Authorization} HTTP header to send to the source. This allows copying files that are not publicly available or otherwise have access restrictions.}
 }
 \value{
 For \code{list_blobs}, details on the blobs in the container. For \code{download_blob}, if \code{dest=NULL}, the contents of the downloaded blob as a raw vector. For \code{blob_exists} a flag whether the blob exists.
