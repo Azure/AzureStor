@@ -77,7 +77,11 @@ multicopy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE,
     init_pool(max_concurrent_transfers)
 
     pool_export("container", envir=environment())
-    pool_map(function(s, d, lease, async) AzureStor::copy_url_to_blob(container, s, d, lease=lease, async=async),
-             src, dest, MoreArgs=list(lease=lease, async=async, auth_header=auth_header))
+    pool_map(
+        function(s, d, lease, async)
+            AzureStor::copy_url_to_blob(container, s, d, lease=lease, async=async, auth_header=auth_header),
+        src, dest,
+        MoreArgs=list(lease=lease, async=async, auth_header=auth_header)
+    )
     invisible(NULL)
 }
