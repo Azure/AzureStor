@@ -31,11 +31,12 @@ multicopy_url_to_storage.blob_container <- function(container, src, dest, ...)
 }
 
 #' @param async For `copy_url_to_blob` and `multicopy_url_to_blob`, whether the copy operation should be asynchronous (proceed in the background).
+#' @param auth_header For `copy_url_to_blob` and `multicopy_url_to_blob`, an optional `Authorization` HTTP header to send to the source. This allows copying files that are not publicly available or otherwise have access restrictions.
 #' @details
 #' `copy_url_to_blob` transfers the contents of the file at the specified HTTP\[S\] URL directly to blob storage, without requiring a temporary local copy to be made. `multicopy_url_to_blob` does the same, for multiple URLs at once. These functions have a current file size limit of 256MB.
 #' @rdname blob
 #' @export
-copy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE)
+copy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE, auth_header=NULL)
 {
     if(!is_url(src))
         stop("Source must be a HTTP[S] url", call.=FALSE)
@@ -44,6 +45,8 @@ copy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE)
         `x-ms-copy-source`=src,
         `x-ms-requires-sync`=!async
     )
+    if(!is.null(auth_header))
+        headers[["x-ms-copy-source-authorization"]] <- auth_header
     if(!is.null(lease))
         headers[["x-ms-lease-id"]] <- as.character(lease)
 
@@ -54,7 +57,8 @@ copy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE)
 
 #' @rdname blob
 #' @export
-multicopy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE, max_concurrent_transfers=10)
+multicopy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE, max_concurrent_transfers=10,
+                                  auth_header=NULL)
 {
     if(missing(dest))
         dest <- basename(src)
@@ -74,7 +78,11 @@ multicopy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE,
     init_pool(max_concurrent_transfers)
 
     pool_export("container", envir=environment())
-    pool_map(function(s, d, lease, async) AzureStor::copy_url_to_blob(container, s, d, lease=lease, async=async),
-             src, dest, MoreArgs=list(lease=lease, async=async))
+    pool_map(
+        function(s, d, lease, async, auth_header)
+            AzureStor::copy_url_to_blob(container, s, d, lease=lease, async=async, auth_header=auth_header),
+        src, dest,
+        MoreArgs=list(lease=lease, async=async, auth_header=auth_header)
+    )
     invisible(NULL)
 }
