@@ -43,9 +43,10 @@ copy_url_to_blob <- function(container, src, dest, lease=NULL, async=FALSE, auth
 
     headers <- list(
         `x-ms-copy-source`=src,
-        `x-ms-requires-sync`=!async,
-        `x-ms-copy-source-authorization`=auth_header
+        `x-ms-requires-sync`=!async
     )
+    if(!is.null(auth_header))
+        headers[["x-ms-copy-source-authorization"]] <- auth_header
     if(!is.null(lease))
         headers[["x-ms-lease-id"]] <- as.character(lease)
 
