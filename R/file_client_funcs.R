@@ -440,3 +440,10 @@ azure_file_exists <- function(share, file)
     httr::stop_for_status(res, storage_error_message(res))
     return(TRUE)
 }
+
+
+azure_dir_exists <- function(share, dir)
+{
+    lst <- try(list_azure_files(share, dir, info="name"), silent=TRUE)
+    !inherits(lst, "try-error")
+}

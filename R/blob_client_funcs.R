@@ -529,3 +529,8 @@ blob_exists <- function(container, blob)
     return(TRUE)
 }
 
+
+blob_dir_exists <- function(container, dir)
+{
+    length(list_blobs(container, dir, info="name")) > 0
+}

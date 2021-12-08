@@ -478,3 +478,18 @@ adls_file_exists <- function(filesystem, file)
     httr::stop_for_status(res, storage_error_message(res))
     return(TRUE)
 }
+
+
+adls_dir_exists <- function(filesystem, dir)
+{
+    file_exists <- adls_file_exists(filesystem, dir)
+    if(file_exists)   # make sure it actually is a directory
+    {
+        lst <- list_adls_files(filesystem, dir, info="all")
+
+        nrow(lst) == 0 ||                            # empty dir
+        nrow(lst) > 1 ||                             # dir with multiple files
+        grepl(paste0("^", dir, "/.+"), lst$name[1])  # dir with 1 file: path appended at front
+    }
+    else FALSE
+}
