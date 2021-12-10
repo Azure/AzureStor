@@ -532,5 +532,25 @@ blob_exists <- function(container, blob)
 
 blob_dir_exists <- function(container, dir)
 {
-    length(list_blobs(container, dir, info="name")) > 0
+    if(dir == "/")
+        return(TRUE)
+
+    # multiple steps required to handle HNS-enabled and disabled accounts:
+    # 1. get blob properties
+    #   - if no error, return (size == 0)
+    #   - error can be because dir does not exist, OR HNS disabled
+    # 2. get dir listing
+    #   - call API directly to avoid retrieving entire list
+    #   - return (list is not empty)
+    props <- try(get_storage_properties(container, dir), silent=TRUE)
+    if(!inherits(props, "try-error"))
+        return(props[["content-length"]] == 0)
+
+    # ensure last char is always '/', to get list of blobs in a subdir
+    if(substr(dir, nchar(dir), nchar(dir)) != "/")
+        dir <- paste0(dir, "/")
+
+    opts <- list(comp="list", restype="container", maxresults=1, delimiter="/", prefix=dir)
+    res <- do_container_op(container, options=opts)
+    !is_empty(res$Blobs)
 }
