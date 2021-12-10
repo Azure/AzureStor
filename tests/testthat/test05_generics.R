@@ -49,6 +49,10 @@ test_that("Blob dispatch works, HNS",
     expect_false(storage_file_exists(cont, "nonexistent"))
     expect_true(storage_file_exists(cont, filename))
 
+    # dir existence
+    expect_false(storage_dir_exists(cont, "filename"))
+    expect_true(storage_dir_exists(cont, "/"))
+
     # delete the objects
     expect_silent(delete_storage_file(cont, filename, confirm=FALSE))
     expect_silent(delete_storage_dir(cont, dirname, confirm=FALSE))
@@ -82,6 +86,10 @@ test_that("Blob dispatch works, no HNS",
     # file existence
     expect_false(storage_file_exists(cont, "nonexistent"))
     expect_true(storage_file_exists(cont, filename))
+
+    # dir existence
+    expect_false(storage_dir_exists(cont, "filename"))
+    expect_true(storage_dir_exists(cont, "/"))
 
     # delete the objects
     expect_silent(delete_storage_file(cont, filename, confirm=FALSE))
@@ -117,6 +125,10 @@ test_that("File dispatch works",
     expect_false(storage_file_exists(cont, "nonexistent"))
     expect_true(storage_file_exists(cont, file.path(dirname, filename)))
 
+    # dir existence
+    expect_false(storage_dir_exists(cont, "filename"))
+    expect_true(storage_dir_exists(cont, "/"))
+
     # delete the objects
     expect_silent(delete_storage_file(cont, file.path(dirname, filename), confirm=FALSE))
     expect_silent(delete_storage_dir(cont, dirname, confirm=FALSE))
@@ -150,6 +162,10 @@ test_that("ADLSgen2 dispatch works",
     # file existence
     expect_false(storage_file_exists(cont, "nonexistent"))
     expect_true(storage_file_exists(cont, file.path(dirname, filename)))
+
+    # dir existence
+    expect_false(storage_dir_exists(cont, "filename"))
+    expect_true(storage_dir_exists(cont, "/"))
 
     # delete the objects
     expect_silent(delete_storage_file(cont, file.path(dirname, filename), confirm=FALSE))

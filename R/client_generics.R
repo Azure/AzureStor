@@ -22,6 +22,8 @@
 #' - `create_storage_dir` dispatches to `create_azure_dir` or `create_adls_dir`; throws an error if passed a blob container
 #' - `delete_storage_dir` dispatches to `delete_azure_dir` or `delete_adls_dir`; throws an error if passed a blob container
 #' - `delete_storage_file` dispatches to `delete_blob`, `delete_azure_file` or `delete_adls_file`
+#' - `storage_file_exists` dispatches to `blob_exists`, `azure_file_exists` or `adls_file_exists`
+#' - `storage_dir_exists` dispatches to `blob_dir_exists`, `azure_dir_exists` or `adls_dir_exists`
 #'
 #' @seealso
 #' [storage_endpoint], [blob_container], [file_share], [adls_filesystem]
@@ -303,3 +305,26 @@ azure_file_exists(container, file, ...)
 #' @export
 storage_file_exists.adls_filesystem <- function(container, file, ...)
 adls_file_exists(container, file, ...)
+
+
+# check dir existence
+
+#' @rdname generics
+#' @export
+storage_dir_exists <- function(container, dir, ...)
+UseMethod("storage_dir_exists")
+
+#' @rdname generics
+#' @export
+storage_dir_exists.blob_container <- function(container, dir, ...)
+blob_dir_exists(container, dir, ...)
+
+#' @rdname generics
+#' @export
+storage_dir_exists.file_share <- function(container, dir, ...)
+azure_dir_exists(container, dir, ...)
+
+#' @rdname generics
+#' @export
+storage_dir_exists.adls_filesystem <- function(container, dir, ...)
+adls_dir_exists(container, dir, ...)
