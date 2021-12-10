@@ -444,6 +444,11 @@ azure_file_exists <- function(share, file)
 
 azure_dir_exists <- function(share, dir)
 {
-    lst <- try(list_azure_files(share, dir, info="name"), silent=TRUE)
-    !inherits(lst, "try-error")
+    if(dir == "/")
+        return(TRUE)
+
+    # attempt to get directory properties
+    options <- list(restype="directory")
+    res <- do_container_op(share, dir, options=options, http_verb="HEAD", http_status_handler="pass")
+    httr::status_code(res) < 300
 }
