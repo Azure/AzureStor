@@ -18,7 +18,7 @@ sub <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$get_subscr
 stor <- sub$get_resource_group(rgname)$get_storage_account(storname)
 fl <- stor$get_file_endpoint()
 
-options(azure_storage_progress_bar=FALSE)
+opts <- options(azure_storage_progress_bar=FALSE)
 
 
 test_that("Recursive directory deletion works",
@@ -45,6 +45,7 @@ test_that("Recursive directory deletion works",
 
 teardown(
 {
+    options(opts)
     conts <- list_file_shares(fl)
     lapply(conts, delete_file_share, confirm=FALSE)
 })

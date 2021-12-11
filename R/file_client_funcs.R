@@ -227,6 +227,8 @@ delete_file_share.file_endpoint <- function(endpoint, name, confirm=TRUE, ...)
 #'
 #' `upload_azure_file` and `download_azure_file` can display a progress bar to track the file transfer. You can control whether to display this with `options(azure_storage_progress_bar=TRUE|FALSE)`; the default is TRUE.
 #'
+#' `azure_file_exists` and `azure_dir_exists` test for the existence of a file and directory, respectively.
+#'
 #' @section AzCopy:
 #' `upload_azure_file` and `download_azure_file` have the ability to use the AzCopy commandline utility to transfer files, instead of native R code. This can be useful if you want to take advantage of AzCopy's logging and recovery features; it may also be faster in the case of transferring a very large number of small files. To enable this, set the `use_azcopy` argument to TRUE.
 #'
@@ -439,4 +441,17 @@ azure_file_exists <- function(share, file)
 
     httr::stop_for_status(res, storage_error_message(res))
     return(TRUE)
+}
+
+#' @rdname file
+#' @export
+azure_dir_exists <- function(share, dir)
+{
+    if(dir == "/")
+        return(TRUE)
+
+    # attempt to get directory properties
+    options <- list(restype="directory")
+    res <- do_container_op(share, dir, options=options, http_verb="HEAD", http_status_handler="pass")
+    httr::status_code(res) < 300
 }

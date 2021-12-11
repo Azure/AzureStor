@@ -44,6 +44,10 @@
 \alias{storage_file_exists.blob_container}
 \alias{storage_file_exists.file_share}
 \alias{storage_file_exists.adls_filesystem}
+\alias{storage_dir_exists}
+\alias{storage_dir_exists.blob_container}
+\alias{storage_dir_exists.file_share}
+\alias{storage_dir_exists.adls_filesystem}
 \title{Storage client generics}
 \usage{
 storage_container(endpoint, ...)
@@ -130,6 +134,14 @@ storage_file_exists(container, file, ...)
 \method{storage_file_exists}{file_share}(container, file, ...)
 
 \method{storage_file_exists}{adls_filesystem}(container, file, ...)
+
+storage_dir_exists(container, dir, ...)
+
+\method{storage_dir_exists}{blob_container}(container, dir, ...)
+
+\method{storage_dir_exists}{file_share}(container, dir, ...)
+
+\method{storage_dir_exists}{adls_filesystem}(container, dir, ...)
 }
 \arguments{
 \item{endpoint}{A storage endpoint object, or for the character methods, a string giving the full URL to the container.}
@@ -166,6 +178,8 @@ Storage object management methods:
 \item \code{create_storage_dir} dispatches to \code{create_azure_dir} or \code{create_adls_dir}; throws an error if passed a blob container
 \item \code{delete_storage_dir} dispatches to \code{delete_azure_dir} or \code{delete_adls_dir}; throws an error if passed a blob container
 \item \code{delete_storage_file} dispatches to \code{delete_blob}, \code{delete_azure_file} or \code{delete_adls_file}
+\item \code{storage_file_exists} dispatches to \code{blob_exists}, \code{azure_file_exists} or \code{adls_file_exists}
+\item \code{storage_dir_exists} dispatches to \code{blob_dir_exists}, \code{azure_dir_exists} or \code{adls_dir_exists}
 }
 }
 \examples{

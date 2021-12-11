@@ -224,7 +224,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #'
 #' @param container A blob container object.
 #' @param blob A string naming a blob.
-#' @param dir For `list_blobs`, A string naming the directory. Note that blob storage does not support real directories; this argument simply filters the result to return only blobs whose names start with the given value.
+#' @param dir For `list_blobs`, a string naming the directory. Note that blob storage does not support real directories; this argument simply filters the result to return only blobs whose names start with the given value.
 #' @param src,dest The source and destination files for uploading and downloading. See 'Details' below.
 #' @param info For `list_blobs`, level of detail about each blob to return: a vector of names only; the name, size, blob type, and whether this blob represents a directory; or all information.
 #' @param confirm Whether to ask for confirmation on deleting a blob.
@@ -251,6 +251,8 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #'
 #' `multiupload_blob` can upload files either as all block blobs or all append blobs, but not a mix of both.
 #'
+#' `blob_exists` and `blob_dir_exists` test for the existence of a blob and directory, respectively.
+#'
 #' @section AzCopy:
 #' `upload_blob` and `download_blob` have the ability to use the AzCopy commandline utility to transfer files, instead of native R code. This can be useful if you want to take advantage of AzCopy's logging and recovery features; it may also be faster in the case of transferring a very large number of small files. To enable this, set the `use_azcopy` argument to TRUE.
 #'
@@ -265,6 +267,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' - Zero-length files can cause problems for the blob storage service as a whole (not just AzureStor). Try to avoid uploading such files.
 #' - `create_blob_dir` and `delete_blob_dir` are guaranteed to function as expected only for accounts with hierarchical namespaces enabled. When this feature is disabled, directories do not exist as objects in their own right: to create a directory, simply upload a blob to that directory. To delete a directory, delete all the blobs within it; as far as the blob storage service is concerned, the directory then no longer exists.
 #' - Similarly, the output of `list_blobs(recursive=TRUE)` can vary based on whether the storage account has hierarchical namespaces enabled.
+#' - `blob_exists` will return FALSE for a directory when the storage account does not have hierarchical namespaces enabled.
 #'
 #' @return
 #' For `list_blobs`, details on the blobs in the container. For `download_blob`, if `dest=NULL`, the contents of the downloaded blob as a raw vector. For `blob_exists` a flag whether the blob exists.
@@ -529,3 +532,29 @@ blob_exists <- function(container, blob)
     return(TRUE)
 }
 
+#' @rdname blob
+#' @export
+blob_dir_exists <- function(container, dir)
+{
+    if(dir == "/")
+        return(TRUE)
+
+    # multiple steps required to handle HNS-enabled and disabled accounts:
+    # 1. get blob properties
+    #   - if no error, return (size == 0)
+    #   - error can be because dir does not exist, OR HNS disabled
+    # 2. get dir listing
+    #   - call API directly to avoid retrieving entire list
+    #   - return (list is not empty)
+    props <- try(get_storage_properties(container, dir), silent=TRUE)
+    if(!inherits(props, "try-error"))
+        return(props[["content-length"]] == 0)
+
+    # ensure last char is always '/', to get list of blobs in a subdir
+    if(substr(dir, nchar(dir), nchar(dir)) != "/")
+        dir <- paste0(dir, "/")
+
+    opts <- list(comp="list", restype="container", maxresults=1, delimiter="/", prefix=dir)
+    res <- do_container_op(container, options=opts)
+    !is_empty(res$Blobs)
+}

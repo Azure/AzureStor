@@ -10,6 +10,7 @@
 \alias{create_adls_dir}
 \alias{delete_adls_dir}
 \alias{adls_file_exists}
+\alias{adls_dir_exists}
 \title{Operations on an Azure Data Lake Storage Gen2 filesystem}
 \usage{
 list_adls_files(filesystem, dir = "/", info = c("all", "name"),
@@ -36,6 +37,8 @@ create_adls_dir(filesystem, dir)
 delete_adls_dir(filesystem, dir, recursive = FALSE, confirm = TRUE)
 
 adls_file_exists(filesystem, file)
+
+adls_dir_exists(filesystem, dir)
 }
 \arguments{
 \item{filesystem}{An ADLSgen2 filesystem object.}
@@ -84,6 +87,8 @@ Upload, download, or delete a file; list files in a directory; create or delete 
 }
 
 \code{upload_adls_file} and \code{download_adls_file} can display a progress bar to track the file transfer. You can control whether to display this with \code{options(azure_storage_progress_bar=TRUE|FALSE)}; the default is TRUE.
+
+\code{adls_file_exists} and \code{adls_dir_exists} test for the existence of a file and directory, respectively.
 }
 \section{AzCopy}{
 

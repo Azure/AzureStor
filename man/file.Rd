@@ -10,6 +10,7 @@
 \alias{create_azure_dir}
 \alias{delete_azure_dir}
 \alias{azure_file_exists}
+\alias{azure_dir_exists}
 \title{Operations on a file share}
 \usage{
 list_azure_files(share, dir = "/", info = c("all", "name"),
@@ -36,6 +37,8 @@ create_azure_dir(share, dir, recursive = FALSE)
 delete_azure_dir(share, dir, recursive = FALSE, confirm = TRUE)
 
 azure_file_exists(share, file)
+
+azure_dir_exists(share, dir)
 }
 \arguments{
 \item{share}{A file share object.}
@@ -86,6 +89,8 @@ Upload, download, or delete a file; list files in a directory; create or delete 
 }
 
 \code{upload_azure_file} and \code{download_azure_file} can display a progress bar to track the file transfer. You can control whether to display this with \code{options(azure_storage_progress_bar=TRUE|FALSE)}; the default is TRUE.
+
+\code{azure_file_exists} and \code{azure_dir_exists} test for the existence of a file and directory, respectively.
 }
 \section{AzCopy}{
 
