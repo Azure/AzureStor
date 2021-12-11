@@ -11,7 +11,7 @@
 #' ```
 #' create_storage_account(name, location, kind = "StorageV2", replication = "Standard_LRS",
 #'                        access_tier = "hot"), https_only = TRUE,
-#'                        hierarchical_namespace_enabled = FALSE, properties = list(), ...)
+#'                        hierarchical_namespace_enabled = TRUE, properties = list(), ...)
 #' ```
 #' @section Arguments:
 #' - `name`: The name of the storage account.
@@ -32,9 +32,7 @@
 #' - queue storage
 #' - Azure Data Lake Storage Gen2
 #'
-#' Accounts created with `kind = "BlobStorage"` can only host blob storage, while those with `kind = "FileStorage"` can only host file storage. Accounts with `kind = "StorageV2"` can host all types of storage. Currently, AzureStor provides an R interface to ADLSgen2, blob and file storage.
-#'
-#' Currently (as of October 2019), if hierarchical namespaces are enabled, the blob API for the account is disabled. The blob endpoint is still accessible, but blob operations on the endpoint will fail. Full interoperability between blobs and ADLSgen2 is planned for later in 2019.
+#' Accounts created with `kind = "BlobStorage"` can only host blob storage, while those with `kind = "FileStorage"` can only host file storage. Accounts with `kind = "StorageV2"` can host all types of storage. AzureStor provides an R interface to ADLSgen2, blob and file storage, while the AzureQstor and AzureTableStor packages provide interfaces to queue and table storage respectively.
 #'
 #' @section Value:
 #' An object of class `az_storage` representing the created storage account.
@@ -155,7 +153,7 @@ add_methods <- function()
     AzureRMR::az_resource_group$set("public", "create_storage_account", overwrite=TRUE,
     function(name, location=self$location,
              kind="StorageV2", replication="Standard_LRS",
-             access_tier="hot", https_only=TRUE, hierarchical_namespace_enabled=FALSE,
+             access_tier="hot", https_only=TRUE, hierarchical_namespace_enabled=TRUE,
              properties=list(), ...)
     {
         properties <- modifyList(properties,

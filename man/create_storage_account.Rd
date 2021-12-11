@@ -9,7 +9,7 @@ Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} cl
 \section{Usage}{
 \preformatted{create_storage_account(name, location, kind = "StorageV2", replication = "Standard_LRS",
                        access_tier = "hot"), https_only = TRUE,
-                       hierarchical_namespace_enabled = FALSE, properties = list(), ...)
+                       hierarchical_namespace_enabled = TRUE, properties = list(), ...)
 }
 }
 
@@ -39,9 +39,7 @@ This method deploys a new storage account resource, with parameters given by the
 \item Azure Data Lake Storage Gen2
 }
 
-Accounts created with \code{kind = "BlobStorage"} can only host blob storage, while those with \code{kind = "FileStorage"} can only host file storage. Accounts with \code{kind = "StorageV2"} can host all types of storage. Currently, AzureStor provides an R interface to ADLSgen2, blob and file storage.
-
-Currently (as of October 2019), if hierarchical namespaces are enabled, the blob API for the account is disabled. The blob endpoint is still accessible, but blob operations on the endpoint will fail. Full interoperability between blobs and ADLSgen2 is planned for later in 2019.
+Accounts created with \code{kind = "BlobStorage"} can only host blob storage, while those with \code{kind = "FileStorage"} can only host file storage. Accounts with \code{kind = "StorageV2"} can host all types of storage. AzureStor provides an R interface to ADLSgen2, blob and file storage, while the AzureQstor and AzureTableStor packages provide interfaces to queue and table storage respectively.
 }
 
 \section{Value}{

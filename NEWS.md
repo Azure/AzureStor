@@ -2,6 +2,7 @@
 
 - Add a `storage_dir_exists` generic to check for existence of a directory. This dispatches to the service-specific methods `blob_dir_exists`, `azure_dir_exists` and `adls_dir_exists`.
 - Add an `auth_header` argument to `copy_url_to_blob` and `multicopy_url_to_blob` (and by extension, `copy_url_to_storage` and `multicopy_url_to_storage`) to pass an `Authorization` HTTP header to the source. This allows copying files that are not publicly available or otherwise have access restrictions.
+- New storage accounts created with the `AzureRMR::az_resource_group$create_storage_account` method now have hierarchical namespaces enabled by default.
 - Update client API version to "2020-10-02".
 
 # AzureStor 3.5.2
