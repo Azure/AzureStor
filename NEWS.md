@@ -1,4 +1,4 @@
-# AzureStor 3.5.2.9000
+# AzureStor 3.6.0
 
 - Add a `storage_dir_exists` generic to check for existence of a directory. This dispatches to the service-specific methods `blob_dir_exists`, `azure_dir_exists` and `adls_dir_exists`.
 - Add an `auth_header` argument to `copy_url_to_blob` and `multicopy_url_to_blob` (and by extension, `copy_url_to_storage` and `multicopy_url_to_storage`) to pass an `Authorization` HTTP header to the source. This allows copying files that are not publicly available or otherwise have access restrictions.
