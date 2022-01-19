@@ -114,7 +114,7 @@ validate_token <- function(token)
 add_sas <- function(sas, url)
 {
     full_url <- httr::build_url(url)
-    paste0(full_url, if(is.null(url$query)) "?" else "&", sub("^\\?", "", sas))
+    httr::parse_url(paste0(full_url, if(is.null(url$query)) "?" else "&", sub("^\\?", "", sas)))
 }
 
 
