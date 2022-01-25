@@ -38,9 +38,9 @@
 #' @export
 do_container_op <- function(container, operation="", options=list(), headers=list(), http_verb="GET", ...)
 {
-    operation <- if(substr(operation, 1, 1) != "/")
+    operation <- if(nchar(operation) > 0)
         paste0(container$name, "/", operation)
-    else paste0(container$name, operation)
+    else container$name
 
     call_storage_endpoint(container$endpoint, operation, options=options, headers=headers, http_verb=http_verb, ...)
 }
