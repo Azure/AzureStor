@@ -38,7 +38,7 @@
 #' @export
 do_container_op <- function(container, operation="", options=list(), headers=list(), http_verb="GET", ...)
 {
-    operation <- if(substr(operation, 1, 1) != "/")
+    operation <- if(nchar(operation) > 0 && substr(operation, 1, 1) != "/")
         paste0(container$name, "/", operation)
     else paste0(container$name, operation)
 
@@ -57,7 +57,7 @@ call_storage_endpoint <- function(endpoint, path, options=list(), headers=list()
     http_verb <- match.arg(http_verb)
     url <- httr::parse_url(endpoint$url)
     # fix doubled-up /'s which can result from file.path snafus etc
-    url$path <- gsub("/{2,}", "/", url_encode(file.path(url$path, path)))
+    url$path <- gsub("/{2,}", "/", url_encode(paste0(url$path, "/", path)))
     options$timeout <- timeout
     if(!is_empty(options))
         url$query <- options[order(names(options))] # must be sorted for access key signing

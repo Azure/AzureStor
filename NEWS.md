@@ -1,6 +1,7 @@
 # AzureStor 3.6.0.9000
 
 - Fix an issue when authenticating with a SAS and the connection is retried.
+- Fix a bug in listing storage files under ADLSgen2 introduced in the previous version (#109).
 
 # AzureStor 3.6.0
 
