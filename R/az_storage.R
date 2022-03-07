@@ -133,11 +133,11 @@ public=list(
     },
 
     get_service_sas=function(key=self$list_keys()[1], resource, service, start=NULL, expiry=NULL, permissions="r",
-                             resource_type=NULL, ip=NULL, protocol=NULL, policy=NULL, snapshot_time=NULL)
+                             resource_type=NULL, ip=NULL, protocol=NULL, policy=NULL, snapshot_time=NULL, directory_depth=NULL)
     {
         get_service_sas(self, key=key, resource=resource, service=service, start=start, expiry=expiry,
                         permissions=permissions, resource_type=resource_type, ip=ip, protocol=protocol, policy=policy,
-                        snapshot_time=snapshot_time)
+                        snapshot_time=snapshot_time, directory_depth=directory_depth)
     },
 
     get_blob_endpoint=function(key=self$list_keys()[1], sas=NULL, token=NULL)

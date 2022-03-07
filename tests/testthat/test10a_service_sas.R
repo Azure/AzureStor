@@ -92,6 +92,21 @@ test_that("Service SAS works with dir resource",
 })
 
 
+test_that("Service SAS from class method works with dir resource (#114)",
+{
+    contname <- make_name()
+    dirname <- make_name()
+
+    bsas <- stor$get_service_sas(resource=file.path(contname, dirname), service="blob",
+                                 permissions="rcwl", resource_type="d", directory_depth=1)
+    bl <- stor$get_blob_endpoint(key=NULL, sas=bsas)
+    expect_silent(cont <- create_storage_container(bl0, contname))
+    expect_silent(create_storage_dir(cont, dirname))
+    cont <- storage_container(bl, contname)
+    expect_silent(storage_upload(cont, "../resources/iris.csv", file.path(dirname, "iris.csv")))
+})
+
+
 teardown({
     bl <- stor$get_blob_endpoint()
     blconts <- list_storage_containers(bl)
