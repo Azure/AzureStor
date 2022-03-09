@@ -240,7 +240,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param put_md5 For uploading, whether to compute the MD5 hash of the blob(s). This will be stored as part of the blob's properties. Only used for block blobs.
 #' @param check_md5 For downloading, whether to verify the MD5 hash of the downloaded blob(s). This requires that the blob's `Content-MD5` property is set. If this is TRUE and the `Content-MD5` property is missing, a warning is generated.
 #' @param snapshot For `delete_blob`, optionally specify a particular snapshot to delete. If omitted, delete the blob itself (and any associated snapshots). See 'Snapshots' below.
-#' @param snapshots_only For `delete_blob`, whether to delete only the snapshot history of the blob. See 'Snapshots' below.
+#' @param snapshots_only For `delete_blob`, whether to delete only the snapshot history of the blob, rather than the blob itself. See 'Snapshots' below.
 #'
 #' @details
 #' `upload_blob` and `download_blob` are the workhorse file transfer functions for blobs. They each take as inputs a _single_ filename as the source for uploading/downloading, and a single filename as the destination. Alternatively, for uploading, `src` can be a [textConnection] or [rawConnection] object; and for downloading, `dest` can be NULL or a `rawConnection` object. If `dest` is NULL, the downloaded data is returned as a raw vector, and if a raw connection, it will be placed into the connection. See the examples below.
@@ -277,6 +277,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #'
 #' - To delete a particular snapshot (but not the underlying blob), set the `snapshot` argument to the datetime of the snapshot. This should be a string, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ".
 #' - To delete _all_ snapshots while retaining the blob, set `snapshots_only` to TRUE. Note that if a blob has no snapshots, setting `snapshots_only=TRUE` will result in a 404 error.
+#'- `delete_blob_dir` will delete _all_ blobs and snapshots in the affected directories.
 #'
 #' The snapshotting feature is only available for storage accounts that do _not_ have hierarchical namespaces enabled.
 #'

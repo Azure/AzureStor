@@ -144,6 +144,7 @@ A blob can have \emph{snapshots}, which hold the contents of the blob at a given
 \itemize{
 \item To delete a particular snapshot (but not the underlying blob), set the \code{snapshot} argument to the datetime of the snapshot. This should be a string, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ".
 \item To delete \emph{all} snapshots while retaining the blob, set \code{snapshots_only} to TRUE. Note that if a blob has no snapshots, setting \code{snapshots_only=TRUE} will result in a 404 error.
+\item \code{delete_blob_dir} will delete \emph{all} blobs and snapshots in the affected directories.
 }
 
 The snapshotting feature is only available for storage accounts that do \emph{not} have hierarchical namespaces enabled.
