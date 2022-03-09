@@ -1,3 +1,7 @@
+# AzureStor 3.6.1.9000
+
+- Add missing `directory_depth` argument for the `az_storage$get_service_sas` method (#114)
+
 # AzureStor 3.6.1
 
 - Fix an issue when authenticating with a SAS and the connection is retried.
