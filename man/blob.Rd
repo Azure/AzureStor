@@ -29,14 +29,13 @@ multiupload_blob(container, src, dest, recursive = FALSE,
 
 download_blob(container, src, dest = basename(src), blocksize = 2^24,
   overwrite = FALSE, lease = NULL, check_md5 = FALSE,
-  use_azcopy = FALSE)
+  use_azcopy = FALSE, snapshot = NULL)
 
 multidownload_blob(container, src, dest, recursive = FALSE,
   blocksize = 2^24, overwrite = FALSE, lease = NULL, check_md5 = FALSE,
   use_azcopy = FALSE, max_concurrent_transfers = 10)
 
-delete_blob(container, blob, confirm = TRUE, snapshot = NULL,
-  snapshots_only = FALSE)
+delete_blob(container, blob, confirm = TRUE)
 
 create_blob_dir(container, dir)
 
@@ -87,10 +86,6 @@ multicopy_url_to_blob(container, src, dest, lease = NULL, async = FALSE,
 
 \item{confirm}{Whether to ask for confirmation on deleting a blob.}
 
-\item{snapshot}{For \code{delete_blob}, optionally specify a particular snapshot to delete. If omitted, delete the blob itself (and any associated snapshots). See 'Snapshots' below.}
-
-\item{snapshots_only}{For \code{delete_blob}, whether to delete only the snapshot history of the blob. See 'Snapshots' below.}
-
 \item{async}{For \code{copy_url_to_blob} and \code{multicopy_url_to_blob}, whether the copy operation should be asynchronous (proceed in the background).}
 
 \item{auth_header}{For \code{copy_url_to_blob} and \code{multicopy_url_to_blob}, an optional \code{Authorization} HTTP header to send to the source. This allows copying files that are not publicly available or otherwise have access restrictions.}
@@ -115,6 +110,8 @@ Upload, download, or delete a blob; list blobs in a container; create or delete 
 \code{multiupload_blob} can upload files either as all block blobs or all append blobs, but not a mix of both.
 
 \code{blob_exists} and \code{blob_dir_exists} test for the existence of a blob and directory, respectively.
+
+\code{delete_blob} deletes a blob, and \code{delete_blob_dir} deletes all blobs in a directory (possibly recursively). This will also delete any snapshots for the blob(s) involved.
 \subsection{AzCopy}{
 
 \code{upload_blob} and \code{download_blob} have the ability to use the AzCopy commandline utility to transfer files, instead of native R code. This can be useful if you want to take advantage of AzCopy's logging and recovery features; it may also be faster in the case of transferring a very large number of small files. To enable this, set the \code{use_azcopy} argument to TRUE.
@@ -136,18 +133,6 @@ Blob storage does not have true directories, instead using filenames containing 
 \item Similarly, the output of \code{list_blobs(recursive=TRUE)} can vary based on whether the storage account has hierarchical namespaces enabled.
 \item \code{blob_exists} will return FALSE for a directory when the storage account does not have hierarchical namespaces enabled.
 }
-}
-
-\subsection{Snapshots}{
-
-A blob can have \emph{snapshots}, which hold the contents of the blob at a given point in time. Currently support for snapshots in AzureStor is limited to allowing you to delete blobs with snapshots. Full support is planned for a later version of the package.
-\itemize{
-\item To delete a particular snapshot (but not the underlying blob), set the \code{snapshot} argument to the datetime of the snapshot. This should be a string, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ".
-\item To delete \emph{all} snapshots while retaining the blob, set \code{snapshots_only} to TRUE. Note that if a blob has no snapshots, setting \code{snapshots_only=TRUE} will result in a 404 error.
-\item \code{delete_blob_dir} will delete \emph{all} blobs and snapshots in the affected directories.
-}
-
-The snapshotting feature is only available for storage accounts that do \emph{not} have hierarchical namespaces enabled.
 }
 
 \code{copy_url_to_blob} transfers the contents of the file at the specified HTTP[S] URL directly to blob storage, without requiring a temporary local copy to be made. \code{multicopy_url_to_blob} does the same, for multiple URLs at once. These functions have a current file size limit of 256MB.
@@ -204,7 +189,7 @@ copy_url_to_blob(cont,
 }
 }
 \seealso{
-\link{blob_container}, \link{az_storage}, \link{storage_download}, \link{call_azcopy}
+\link{blob_container}, \link{az_storage}, \link{storage_download}, \link{call_azcopy}, \link{list_blob_snapshots}
 
 \href{https://github.com/Azure/azure-storage-azcopy}{AzCopy version 10 on GitHub}
 \href{https://docs.microsoft.com/en-us/rest/api/storageservices/understanding-block-blobs--append-blobs--and-page-blobs}{Guide to the different blob types}

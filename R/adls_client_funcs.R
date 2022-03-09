@@ -242,7 +242,7 @@ delete_adls_filesystem.adls_endpoint <- function(endpoint, name, confirm=TRUE, .
 #'
 #' `adls_file_exists` and `adls_dir_exists` test for the existence of a file and directory, respectively.
 #'
-#' @section AzCopy:
+#' ## AzCopy
 #' `upload_azure_file` and `download_azure_file` have the ability to use the AzCopy commandline utility to transfer files, instead of native R code. This can be useful if you want to take advantage of AzCopy's logging and recovery features; it may also be faster in the case of transferring a very large number of small files. To enable this, set the `use_azcopy` argument to TRUE.
 #'
 #' Note that AzCopy only supports SAS and AAD (OAuth) token as authentication methods. AzCopy also expects a single filename or wildcard spec as its source/destination argument, not a vector of filenames or a connection.

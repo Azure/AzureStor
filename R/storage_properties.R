@@ -42,14 +42,17 @@ get_storage_properties <- function(object, ...)
 
 #' @rdname properties
 #' @export
-get_storage_properties.blob_container <- function(object, blob, ...)
+get_storage_properties.blob_container <- function(object, blob, snapshot=NULL, ...)
 {
     # properties for container
     if(missing(blob))
         return(do_container_op(object, options=list(restype="container"), http_verb="HEAD"))
 
     # properties for blob
-    do_container_op(object, blob, http_verb="HEAD")
+    opts <- if(is.null(snapshot))
+        list()
+    else list(snapshot=snapshot)
+    do_container_op(object, blob, options=opts, http_verb="HEAD")
 }
 
 

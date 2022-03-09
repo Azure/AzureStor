@@ -239,8 +239,6 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param recursive For the multiupload/download functions, whether to recursively transfer files in subdirectories. For `list_blobs`, whether to include the contents of any subdirectories in the listing. For `delete_blob_dir`, whether to recursively delete subdirectory contents as well.
 #' @param put_md5 For uploading, whether to compute the MD5 hash of the blob(s). This will be stored as part of the blob's properties. Only used for block blobs.
 #' @param check_md5 For downloading, whether to verify the MD5 hash of the downloaded blob(s). This requires that the blob's `Content-MD5` property is set. If this is TRUE and the `Content-MD5` property is missing, a warning is generated.
-#' @param snapshot For `delete_blob`, optionally specify a particular snapshot to delete. If omitted, delete the blob itself (and any associated snapshots). See 'Snapshots' below.
-#' @param snapshots_only For `delete_blob`, whether to delete only the snapshot history of the blob, rather than the blob itself. See 'Snapshots' below.
 #'
 #' @details
 #' `upload_blob` and `download_blob` are the workhorse file transfer functions for blobs. They each take as inputs a _single_ filename as the source for uploading/downloading, and a single filename as the destination. Alternatively, for uploading, `src` can be a [textConnection] or [rawConnection] object; and for downloading, `dest` can be NULL or a `rawConnection` object. If `dest` is NULL, the downloaded data is returned as a raw vector, and if a raw connection, it will be placed into the connection. See the examples below.
@@ -254,6 +252,8 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' `multiupload_blob` can upload files either as all block blobs or all append blobs, but not a mix of both.
 #'
 #' `blob_exists` and `blob_dir_exists` test for the existence of a blob and directory, respectively.
+#'
+#' `delete_blob` deletes a blob, and `delete_blob_dir` deletes all blobs in a directory (possibly recursively). This will also delete any snapshots for the blob(s) involved.
 #'
 #' ## AzCopy
 #' `upload_blob` and `download_blob` have the ability to use the AzCopy commandline utility to transfer files, instead of native R code. This can be useful if you want to take advantage of AzCopy's logging and recovery features; it may also be faster in the case of transferring a very large number of small files. To enable this, set the `use_azcopy` argument to TRUE.
@@ -271,21 +271,11 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' - Similarly, the output of `list_blobs(recursive=TRUE)` can vary based on whether the storage account has hierarchical namespaces enabled.
 #' - `blob_exists` will return FALSE for a directory when the storage account does not have hierarchical namespaces enabled.
 #'
-#' ## Snapshots
-#'
-#' A blob can have _snapshots_, which hold the contents of the blob at a given point in time. Currently support for snapshots in AzureStor is limited to allowing you to delete blobs with snapshots. Full support is planned for a later version of the package.
-#'
-#' - To delete a particular snapshot (but not the underlying blob), set the `snapshot` argument to the datetime of the snapshot. This should be a string, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ".
-#' - To delete _all_ snapshots while retaining the blob, set `snapshots_only` to TRUE. Note that if a blob has no snapshots, setting `snapshots_only=TRUE` will result in a 404 error.
-#'- `delete_blob_dir` will delete _all_ blobs and snapshots in the affected directories.
-#'
-#' The snapshotting feature is only available for storage accounts that do _not_ have hierarchical namespaces enabled.
-#'
 #' @return
 #' For `list_blobs`, details on the blobs in the container. For `download_blob`, if `dest=NULL`, the contents of the downloaded blob as a raw vector. For `blob_exists` a flag whether the blob exists.
 #'
 #' @seealso
-#' [blob_container], [az_storage], [storage_download], [call_azcopy]
+#' [blob_container], [az_storage], [storage_download], [call_azcopy], [list_blob_snapshots]
 #'
 #' [AzCopy version 10 on GitHub](https://github.com/Azure/azure-storage-azcopy)
 #' [Guide to the different blob types](https://docs.microsoft.com/en-us/rest/api/storageservices/understanding-block-blobs--append-blobs--and-page-blobs)
@@ -464,12 +454,12 @@ multiupload_blob <- function(container, src, dest, recursive=FALSE, type=c("Bloc
 #' @rdname blob
 #' @export
 download_blob <- function(container, src, dest=basename(src), blocksize=2^24, overwrite=FALSE, lease=NULL,
-                          check_md5=FALSE, use_azcopy=FALSE)
+                          check_md5=FALSE, use_azcopy=FALSE, snapshot=NULL)
 {
     if(use_azcopy)
         azcopy_download(container, src, dest, overwrite=overwrite, lease=lease, check_md5=check_md5)
     else download_blob_internal(container, src, dest, blocksize=blocksize, overwrite=overwrite, lease=lease,
-                                check_md5=check_md5)
+                                check_md5=check_md5, snapshot=snapshot)
 }
 
 #' @rdname blob
@@ -488,19 +478,13 @@ multidownload_blob <- function(container, src, dest, recursive=FALSE, blocksize=
 
 #' @rdname blob
 #' @export
-delete_blob <- function(container, blob, confirm=TRUE, snapshot=NULL, snapshots_only=FALSE)
+delete_blob <- function(container, blob, confirm=TRUE)
 {
     if(!delete_confirmed(confirm, paste0(container$endpoint$url, container$name, "/", blob), "blob"))
         return(invisible(NULL))
 
-    # snapshot format: 2022-03-09T05:49:45.4252749Z
-    opts <- list(snapshot=snapshot)
-
-    hdrs <- if(isTRUE(snapshots_only))
-        list(`x-ms-delete-snapshots`="only")
-    else list(`x-ms-delete-snapshots`="include")
-
-    invisible(do_container_op(container, blob, options=opts, headers=hdrs, http_verb="DELETE"))
+    hdrs <- list(`x-ms-delete-snapshots`="include")
+    invisible(do_container_op(container, blob, headers=hdrs, http_verb="DELETE"))
 }
 
 #' @rdname blob

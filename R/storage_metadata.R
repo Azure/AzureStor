@@ -47,14 +47,19 @@ get_storage_metadata <- function(object, ...)
 
 #' @rdname metadata
 #' @export
-get_storage_metadata.blob_container <- function(object, blob, ...)
+get_storage_metadata.blob_container <- function(object, blob, snapshot=NULL, ...)
 {
     if(missing(blob))
     {
         options <- list(restype="container", comp="metadata")
         blob <- ""
     }
-    else options <- list(comp="metadata")
+    else
+    {
+        options <- list(comp="metadata")
+        if(!is.null(snapshot))
+            options$snapshot <- snapshot
+    }
 
     res <- do_container_op(object, blob, options=options, http_verb="HEAD")
     get_classic_metadata_headers(res)
