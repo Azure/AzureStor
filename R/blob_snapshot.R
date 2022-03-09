@@ -4,7 +4,8 @@
 #' @param blob The path/name of a blob.
 #' @param ... For `create_blob_snapshot`, an optional list of name-value pairs that will be treated as the metadata for the snapshot. If no metadata is supplied, the metadata for the base blob is copied to the snapshot.
 #' @param snapshot For `delete_blob_snapshot`, the specific snapshot to delete. This should be a datetime string, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ". To delete _all_ snapshots for the blob, set this to `"all"`.
-#' @details
+#' @param confirm Whether to ask for confirmation on deleting a blob's snapshots.
+#'#' @details
 #' Blobs can have _snapshots_ associated with them, which are the contents and optional metadata for the blob at a given point in time. A snapshot is identified by the date and time on which it was created.
 #'
 #' `create_blob_snapshot` creates a new snapshot, `list_blob_snapshots` lists all the snapshots, and `delete_blob_snapshot` deletes a given snapshot or all snapshots for a blob.
@@ -73,7 +74,7 @@ list_blob_snapshots <- function(container, blob)
 #' @export
 delete_blob_snapshot <- function(container, blob, snapshot, confirm=TRUE)
 {
-    if(!delete_confirmed(confirm, paste0(container$endpoint$url, container$name, "/", blob), "blob snapshot"))
+    if(!delete_confirmed(confirm, snapshot, "blob snapshot"))
         return(invisible(NULL))
 
     hdrs <- opts <- list()

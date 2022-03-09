@@ -20,6 +20,14 @@ delete_blob_snapshot(container, blob, snapshot, confirm = TRUE)
 \item{...}{For \code{create_blob_snapshot}, an optional list of name-value pairs that will be treated as the metadata for the snapshot. If no metadata is supplied, the metadata for the base blob is copied to the snapshot.}
 
 \item{snapshot}{For \code{delete_blob_snapshot}, the specific snapshot to delete. This should be a datetime string, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ". To delete \emph{all} snapshots for the blob, set this to \code{"all"}.}
+
+\item{confirm}{Whether to ask for confirmation on deleting a blob's snapshots.
+#' @details
+Blobs can have \emph{snapshots} associated with them, which are the contents and optional metadata for the blob at a given point in time. A snapshot is identified by the date and time on which it was created.
+
+\code{create_blob_snapshot} creates a new snapshot, \code{list_blob_snapshots} lists all the snapshots, and \code{delete_blob_snapshot} deletes a given snapshot or all snapshots for a blob.
+
+Note that snapshots are only supported if the storage account does NOT have hierarchical namespaces enabled.}
 }
 \value{
 For \code{create_blob_snapshot}, the datetime string that identifies the snapshot.
@@ -28,13 +36,6 @@ For \code{list_blob_snapshots} a vector of such strings, or NULL if the blob has
 }
 \description{
 Create, list and delete blob snapshots
-}
-\details{
-Blobs can have \emph{snapshots} associated with them, which are the contents and optional metadata for the blob at a given point in time. A snapshot is identified by the date and time on which it was created.
-
-\code{create_blob_snapshot} creates a new snapshot, \code{list_blob_snapshots} lists all the snapshots, and \code{delete_blob_snapshot} deletes a given snapshot or all snapshots for a blob.
-
-Note that snapshots are only supported if the storage account does NOT have hierarchical namespaces enabled.
 }
 \examples{
 \dontrun{
