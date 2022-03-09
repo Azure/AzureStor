@@ -476,12 +476,18 @@ multidownload_blob <- function(container, src, dest, recursive=FALSE, blocksize=
 
 #' @rdname blob
 #' @export
-delete_blob <- function(container, blob, confirm=TRUE)
+delete_blob <- function(container, blob, confirm=TRUE, snapshot=NULL, snapshots_only=FALSE)
 {
     if(!delete_confirmed(confirm, paste0(container$endpoint$url, container$name, "/", blob), "blob"))
         return(invisible(NULL))
 
-    invisible(do_container_op(container, blob, http_verb="DELETE"))
+    opts <- list(snapshot=snapshot)
+
+    hdrs <- if(isTRUE(snapshots_only))
+        list(`x-ms-delete_snapshots`="only")
+    else list(`x-ms-delete_snapshots`="include")
+
+    invisible(do_container_op(container, blob, options=opts, headers=hdrs, http_verb="DELETE"))
 }
 
 #' @rdname blob
