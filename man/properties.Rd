@@ -28,6 +28,8 @@ get_adls_file_status(filesystem, file)
 
 \item{blob, file}{Optionally the name of an individual blob, file or directory within a container.}
 
+\item{snapshot}{For the blob method of \code{get_storage_properties}, an optional snapshot identifier. This should be a datetime string, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ". Ignored if \code{blob} is omitted.}
+
 \item{isdir}{For the file share method, whether the \code{file} argument is a file or directory. If omitted, \code{get_storage_properties} will auto-detect the type; however this can be slow, so supply this argument if possible.}
 
 \item{filesystem}{An ADLS filesystem.}
@@ -63,4 +65,6 @@ get_adls_file_status(fs, "newdir/iris.csv")
 \link{blob_container}, \link{file_share}, \link{adls_filesystem}
 
 \link{get_storage_metadata} for getting and setting \emph{user-defined} properties (metadata)
+
+\link{list_blob_snapshots} to obtain the snapshots for a blob
 }

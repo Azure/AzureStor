@@ -34,6 +34,8 @@ set_storage_metadata(object, ...)
 
 \item{blob, file}{Optionally the name of an individual blob, file or directory within a container.}
 
+\item{snapshot}{For the blob method of \code{get_storage_metadata}, an optional snapshot identifier. This should be a datetime string, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ". Ignored if \code{blob} is omitted.}
+
 \item{isdir}{For the file share method, whether the \code{file} argument is a file or directory. If omitted, \code{get_storage_metadata} will auto-detect the type; however this can be slow, so supply this argument if possible.}
 
 \item{keep_existing}{For the metadata setters, whether to retain existing metadata information.}

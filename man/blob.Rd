@@ -82,6 +82,8 @@ multicopy_url_to_blob(container, src, dest, lease = NULL, async = FALSE,
 
 \item{check_md5}{For downloading, whether to verify the MD5 hash of the downloaded blob(s). This requires that the blob's \code{Content-MD5} property is set. If this is TRUE and the \code{Content-MD5} property is missing, a warning is generated.}
 
+\item{snapshot}{For \code{download_blob}, an optional snapshot identifier. This should be a datetime string, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ". If omitted, download the base blob.}
+
 \item{blob}{A string naming a blob.}
 
 \item{confirm}{Whether to ask for confirmation on deleting a blob.}

@@ -3,6 +3,7 @@
 #' @param object A blob container, file share or ADLS filesystem object.
 #' @param blob,file Optionally the name of an individual blob, file or directory within a container.
 #' @param isdir For the file share method, whether the `file` argument is a file or directory. If omitted, `get_storage_metadata` will auto-detect the type; however this can be slow, so supply this argument if possible.
+#' @param snapshot For the blob method of `get_storage_metadata`, an optional snapshot identifier. This should be a datetime string, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ". Ignored if `blob` is omitted.
 #' @param ... For the metadata setters, name-value pairs to set as metadata for a blob or file.
 #' @param keep_existing For the metadata setters, whether to retain existing metadata information.
 #' @details
