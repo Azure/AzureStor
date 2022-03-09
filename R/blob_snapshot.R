@@ -5,6 +5,7 @@ create_snapshot <- function(container, blob)
     res$`x-ms-snapshot`
 }
 
+
 list_snapshots <- function(container, blob)
 {
     opts <- list(comp="list", restype="container", include="snapshots", prefix=as.character(blob))
@@ -22,3 +23,15 @@ list_snapshots <- function(container, blob)
 }
 
 
+delete_snapshot <- function(container, blob, snapshot, confirm=TRUE)
+{
+    if(!delete_confirmed(confirm, paste0(container$endpoint$url, container$name, "/", blob), "blob snapshot"))
+        return(invisible(NULL))
+
+    hdrs <- opts <- list()
+    if(snapshot == "all")
+        hdrs <- list(`x-ms-delete-snapshots`="only")
+    else opts <- list(snapshot=snapshot)
+
+    invisible(do_container_op(container, blob, options=opts, headers=hdrs, http_verb="DELETE"))
+}
