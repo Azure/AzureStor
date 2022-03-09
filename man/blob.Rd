@@ -35,7 +35,8 @@ multidownload_blob(container, src, dest, recursive = FALSE,
   blocksize = 2^24, overwrite = FALSE, lease = NULL, check_md5 = FALSE,
   use_azcopy = FALSE, max_concurrent_transfers = 10)
 
-delete_blob(container, blob, confirm = TRUE)
+delete_blob(container, blob, confirm = TRUE, snapshot = NULL,
+  snapshots_only = FALSE)
 
 create_blob_dir(container, dir)
 
@@ -86,6 +87,10 @@ multicopy_url_to_blob(container, src, dest, lease = NULL, async = FALSE,
 
 \item{confirm}{Whether to ask for confirmation on deleting a blob.}
 
+\item{snapshot}{For \code{delete_blob}, optionally specify a particular snapshot to delete. If omitted, delete the blob itself (and any associated snapshots). See 'Snapshots' below.}
+
+\item{snapshots_only}{For \code{delete_blob}, whether to delete only the snapshot history of the blob. See 'Snapshots' below.}
+
 \item{async}{For \code{copy_url_to_blob} and \code{multicopy_url_to_blob}, whether the copy operation should be asynchronous (proceed in the background).}
 
 \item{auth_header}{For \code{copy_url_to_blob} and \code{multicopy_url_to_blob}, an optional \code{Authorization} HTTP header to send to the source. This allows copying files that are not publicly available or otherwise have access restrictions.}
@@ -110,10 +115,7 @@ Upload, download, or delete a blob; list blobs in a container; create or delete 
 \code{multiupload_blob} can upload files either as all block blobs or all append blobs, but not a mix of both.
 
 \code{blob_exists} and \code{blob_dir_exists} test for the existence of a blob and directory, respectively.
-
-\code{copy_url_to_blob} transfers the contents of the file at the specified HTTP[S] URL directly to blob storage, without requiring a temporary local copy to be made. \code{multicopy_url_to_blob} does the same, for multiple URLs at once. These functions have a current file size limit of 256MB.
-}
-\section{AzCopy}{
+\subsection{AzCopy}{
 
 \code{upload_blob} and \code{download_blob} have the ability to use the AzCopy commandline utility to transfer files, instead of native R code. This can be useful if you want to take advantage of AzCopy's logging and recovery features; it may also be faster in the case of transferring a very large number of small files. To enable this, set the \code{use_azcopy} argument to TRUE.
 
@@ -124,7 +126,7 @@ The following points should be noted about AzCopy:
 }
 }
 
-\section{Directories}{
+\subsection{Directories}{
 
 Blob storage does not have true directories, instead using filenames containing a separator character (typically '/') to mimic a directory structure. This has some consequences:
 \itemize{
@@ -136,6 +138,19 @@ Blob storage does not have true directories, instead using filenames containing 
 }
 }
 
+\subsection{Snapshots}{
+
+A blob can have \emph{snapshots}, which hold the contents of the blob at a given point in time. Currently support for snapshots in AzureStor is limited to allowing you to delete blobs with snapshots. Full support is planned for a later version of the package.
+\itemize{
+\item To delete a particular snapshot (but not the underlying blob), set the \code{snapshot} argument to the datetime of the snapshot. This should be a string, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ".
+\item To delete \emph{all} snapshots while retaining the blob, set \code{snapshots_only} to TRUE. Note that if a blob has no snapshots, setting \code{snapshots_only=TRUE} will result in a 404 error.
+}
+
+The snapshotting feature is only available for storage accounts that do \emph{not} have hierarchical namespaces enabled.
+}
+
+\code{copy_url_to_blob} transfers the contents of the file at the specified HTTP[S] URL directly to blob storage, without requiring a temporary local copy to be made. \code{multicopy_url_to_blob} does the same, for multiple URLs at once. These functions have a current file size limit of 256MB.
+}
 \examples{
 \dontrun{
 
