@@ -67,6 +67,8 @@ test_that("Blob snapshotting works",
 
     delete_blob_snapshot(cont, "file1", sn1, confirm=FALSE)
     expect_identical(length(list_blob_snapshots(cont, "file1")), 1L)
+
+    expect_silent(delete_blob(cont, "file1", confirm=FALSE))
 })
 
 
