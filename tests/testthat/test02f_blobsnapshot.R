@@ -34,7 +34,7 @@ test_that("Blob snapshotting works",
     set_storage_metadata(cont, "file1", tag1="value1")
     expect_identical(get_storage_metadata(cont, "file1"), list(tag1="value1"))
 
-    sn1 <- create_blob_snapshot(cont, "file1")
+    sn1 <- create_storage_snapshot(cont, "file1")
     expect_type(sn1, "character")
     expect_identical(get_storage_metadata(cont, "file1", snapshot=sn1), list(tag1="value1"))
 
@@ -44,11 +44,11 @@ test_that("Blob snapshotting works",
 
     upload_blob(cont, src2, "file1")
 
-    sn2 <- create_blob_snapshot(cont, "file1", tag2="value2")
+    sn2 <- create_storage_snapshot(cont, "file1", tag2="value2")
     expect_type(sn2, "character")
     expect_identical(get_storage_metadata(cont, "file1", snapshot=sn2), list(tag2="value2"))
 
-    sns <- list_blob_snapshots(cont, "file1")
+    sns <- list_storage_snapshots(cont, "file1")
     expect_identical(length(sns), 2L)
     expect_identical(sns[1], sn1)
     expect_identical(sns[2], sn2)
@@ -65,8 +65,8 @@ test_that("Blob snapshotting works",
     download_blob(cont, "file1", dest2, snapshot=sn2)
     expect_true(files_identical(src2, dest2))
 
-    delete_blob_snapshot(cont, "file1", sn1, confirm=FALSE)
-    expect_identical(length(list_blob_snapshots(cont, "file1")), 1L)
+    delete_storage_snapshot(cont, "file1", sn1, confirm=FALSE)
+    expect_identical(length(list_storage_snapshots(cont, "file1")), 1L)
 
     expect_silent(delete_blob(cont, "file1", confirm=FALSE))
 })

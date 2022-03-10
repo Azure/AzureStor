@@ -1,7 +1,7 @@
 # AzureStor 3.6.1.9000
 
 - Add support for blob snapshots:
-  - New functions `create_blob_snapshot`, `list_blob_snapshots` and `delete_blob_snapshots` to manage snapshots
+  - New generics `create_storage_snapshot`, `list_storage_snapshots` and `delete_storage_snapshots` to manage snapshots. These currently only have methods for blob containers.
   - Argument `snapshot` added to `download_blob`, `get_storage_properties` and `get_storage_metadata` to work with specific snapshots
 - Add missing `directory_depth` argument for the `az_storage$get_service_sas` method (#114)
 

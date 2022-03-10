@@ -48,6 +48,12 @@
 \alias{storage_dir_exists.blob_container}
 \alias{storage_dir_exists.file_share}
 \alias{storage_dir_exists.adls_filesystem}
+\alias{create_storage_snapshot}
+\alias{create_storage_snapshot.blob_container}
+\alias{list_storage_snapshots}
+\alias{list_storage_snapshots.blob_container}
+\alias{delete_storage_snapshot}
+\alias{delete_storage_snapshot.blob_container}
 \title{Storage client generics}
 \usage{
 storage_container(endpoint, ...)
@@ -142,6 +148,18 @@ storage_dir_exists(container, dir, ...)
 \method{storage_dir_exists}{file_share}(container, dir, ...)
 
 \method{storage_dir_exists}{adls_filesystem}(container, dir, ...)
+
+create_storage_snapshot(container, file, ...)
+
+\method{create_storage_snapshot}{blob_container}(container, file, ...)
+
+list_storage_snapshots(container, ...)
+
+\method{list_storage_snapshots}{blob_container}(container, ...)
+
+delete_storage_snapshot(container, file, ...)
+
+\method{delete_storage_snapshot}{blob_container}(container, file, ...)
 }
 \arguments{
 \item{endpoint}{A storage endpoint object, or for the character methods, a string giving the full URL to the container.}
@@ -175,11 +193,14 @@ Storage container management methods:
 Storage object management methods:
 \itemize{
 \item \code{list_storage_files} dispatches to \code{list_blobs}, \code{list_azure_files} or \code{list_adls_files}
-\item \code{create_storage_dir} dispatches to \code{create_azure_dir} or \code{create_adls_dir}; throws an error if passed a blob container
-\item \code{delete_storage_dir} dispatches to \code{delete_azure_dir} or \code{delete_adls_dir}; throws an error if passed a blob container
+\item \code{create_storage_dir} dispatches to \code{create_blob_dir}, \code{create_azure_dir} or \code{create_adls_dir}
+\item \code{delete_storage_dir} dispatches to \code{delete_blob_dir}, \code{delete_azure_dir} or \code{delete_adls_dir}
 \item \code{delete_storage_file} dispatches to \code{delete_blob}, \code{delete_azure_file} or \code{delete_adls_file}
 \item \code{storage_file_exists} dispatches to \code{blob_exists}, \code{azure_file_exists} or \code{adls_file_exists}
 \item \code{storage_dir_exists} dispatches to \code{blob_dir_exists}, \code{azure_dir_exists} or \code{adls_dir_exists}
+\item \code{create_storage_snapshot} dispatches to \code{create_blob_snapshot}
+\item \code{list_storage_snapshots} dispatches to \code{list_blob_snapshots}
+\item \code{delete_storage_snapshot} dispatches to \code{delete_blob_snapshot}
 }
 }
 \examples{
