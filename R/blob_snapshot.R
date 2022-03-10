@@ -43,8 +43,9 @@ create_blob_snapshot <- function(container, blob, ...)
 {
     opts <- list(comp="snapshot")
     meta <- list(...)
-    if(!is_empty(meta))
-        hdrs <- set_classic_metadata_headers(meta)
+    hdrs <- if(!is_empty(meta))
+        set_classic_metadata_headers(meta)
+    else list()
 
     res <- do_container_op(container, blob, options=opts, headers=hdrs, http_verb="PUT", return_headers=TRUE)
     res$`x-ms-snapshot`
