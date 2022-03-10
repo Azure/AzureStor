@@ -239,6 +239,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param recursive For the multiupload/download functions, whether to recursively transfer files in subdirectories. For `list_blobs`, whether to include the contents of any subdirectories in the listing. For `delete_blob_dir`, whether to recursively delete subdirectory contents as well.
 #' @param put_md5 For uploading, whether to compute the MD5 hash of the blob(s). This will be stored as part of the blob's properties. Only used for block blobs.
 #' @param check_md5 For downloading, whether to verify the MD5 hash of the downloaded blob(s). This requires that the blob's `Content-MD5` property is set. If this is TRUE and the `Content-MD5` property is missing, a warning is generated.
+#' @param snapshot For `download_blob`, an optional snapshot identifier. This should be a datetime string, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ". If omitted, download the base blob.
 #'
 #' @details
 #' `upload_blob` and `download_blob` are the workhorse file transfer functions for blobs. They each take as inputs a _single_ filename as the source for uploading/downloading, and a single filename as the destination. Alternatively, for uploading, `src` can be a [textConnection] or [rawConnection] object; and for downloading, `dest` can be NULL or a `rawConnection` object. If `dest` is NULL, the downloaded data is returned as a raw vector, and if a raw connection, it will be placed into the connection. See the examples below.
@@ -253,14 +254,16 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #'
 #' `blob_exists` and `blob_dir_exists` test for the existence of a blob and directory, respectively.
 #'
-#' @section AzCopy:
+#' `delete_blob` deletes a blob, and `delete_blob_dir` deletes all blobs in a directory (possibly recursively). This will also delete any snapshots for the blob(s) involved.
+#'
+#' ## AzCopy
 #' `upload_blob` and `download_blob` have the ability to use the AzCopy commandline utility to transfer files, instead of native R code. This can be useful if you want to take advantage of AzCopy's logging and recovery features; it may also be faster in the case of transferring a very large number of small files. To enable this, set the `use_azcopy` argument to TRUE.
 #'
 #' The following points should be noted about AzCopy:
 #' - It only supports SAS and AAD (OAuth) token as authentication methods. AzCopy also expects a single filename or wildcard spec as its source/destination argument, not a vector of filenames or a connection.
 #' - Currently, it does _not_ support appending data to existing blobs.
 #'
-#' @section Directories:
+#' ## Directories
 #' Blob storage does not have true directories, instead using filenames containing a separator character (typically '/') to mimic a directory structure. This has some consequences:
 #'
 #' - The `isdir` column in the data frame output of `list_blobs` is a best guess as to whether an object represents a file or directory, and may not always be correct. Currently, `list_blobs` assumes that any object with a file size of zero is a directory.
@@ -273,7 +276,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' For `list_blobs`, details on the blobs in the container. For `download_blob`, if `dest=NULL`, the contents of the downloaded blob as a raw vector. For `blob_exists` a flag whether the blob exists.
 #'
 #' @seealso
-#' [blob_container], [az_storage], [storage_download], [call_azcopy]
+#' [blob_container], [az_storage], [storage_download], [call_azcopy], [list_blob_snapshots]
 #'
 #' [AzCopy version 10 on GitHub](https://github.com/Azure/azure-storage-azcopy)
 #' [Guide to the different blob types](https://docs.microsoft.com/en-us/rest/api/storageservices/understanding-block-blobs--append-blobs--and-page-blobs)
@@ -452,12 +455,12 @@ multiupload_blob <- function(container, src, dest, recursive=FALSE, type=c("Bloc
 #' @rdname blob
 #' @export
 download_blob <- function(container, src, dest=basename(src), blocksize=2^24, overwrite=FALSE, lease=NULL,
-                          check_md5=FALSE, use_azcopy=FALSE)
+                          check_md5=FALSE, use_azcopy=FALSE, snapshot=NULL)
 {
     if(use_azcopy)
         azcopy_download(container, src, dest, overwrite=overwrite, lease=lease, check_md5=check_md5)
     else download_blob_internal(container, src, dest, blocksize=blocksize, overwrite=overwrite, lease=lease,
-                                check_md5=check_md5)
+                                check_md5=check_md5, snapshot=snapshot)
 }
 
 #' @rdname blob
@@ -481,7 +484,8 @@ delete_blob <- function(container, blob, confirm=TRUE)
     if(!delete_confirmed(confirm, paste0(container$endpoint$url, container$name, "/", blob), "blob"))
         return(invisible(NULL))
 
-    invisible(do_container_op(container, blob, http_verb="DELETE"))
+    hdrs <- list(`x-ms-delete-snapshots`="include")
+    invisible(do_container_op(container, blob, headers=hdrs, http_verb="DELETE"))
 }
 
 #' @rdname blob
