@@ -4,7 +4,7 @@
 #' @param filesystem An ADLS filesystem.
 #' @param blob,file Optionally the name of an individual blob, file or directory within a container.
 #' @param isdir For the file share method, whether the `file` argument is a file or directory. If omitted, `get_storage_properties` will auto-detect the type; however this can be slow, so supply this argument if possible.
-#' @param snapshot For the blob method of `get_storage_properties`, an optional snapshot identifier. This should be a datetime string, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ". Ignored if `blob` is omitted.
+#' @param snapshot,version For the blob method of `get_storage_properties`, optional snapshot and version identifiers. These should be datetime strings, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ". Ignored if `blob` is omitted.
 #' @param ... For compatibility with the generic.
 #' @return
 #' `get_storage_properties` returns a list describing the object properties. If the `blob` or `file` argument is present for the container methods, the properties will be for the blob/file specified. If this argument is omitted, the properties will be for the container itself.
@@ -45,16 +45,19 @@ get_storage_properties <- function(object, ...)
 
 #' @rdname properties
 #' @export
-get_storage_properties.blob_container <- function(object, blob, snapshot=NULL, ...)
+get_storage_properties.blob_container <- function(object, blob, snapshot=NULL, version=NULL, ...)
 {
     # properties for container
     if(missing(blob))
         return(do_container_op(object, options=list(restype="container"), http_verb="HEAD"))
 
     # properties for blob
-    opts <- if(is.null(snapshot))
-        list()
-    else list(snapshot=snapshot)
+    opts <- list()
+    if(!is.null(snapshot))
+        opts$snapshot <- snapshot
+    if(!is.null(version))
+        opts$versionid <- version
+
     do_container_op(object, blob, options=opts, http_verb="HEAD")
 }
 

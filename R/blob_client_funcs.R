@@ -239,7 +239,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' @param recursive For the multiupload/download functions, whether to recursively transfer files in subdirectories. For `list_blobs`, whether to include the contents of any subdirectories in the listing. For `delete_blob_dir`, whether to recursively delete subdirectory contents as well.
 #' @param put_md5 For uploading, whether to compute the MD5 hash of the blob(s). This will be stored as part of the blob's properties. Only used for block blobs.
 #' @param check_md5 For downloading, whether to verify the MD5 hash of the downloaded blob(s). This requires that the blob's `Content-MD5` property is set. If this is TRUE and the `Content-MD5` property is missing, a warning is generated.
-#' @param snapshot For `download_blob`, an optional snapshot identifier. This should be a datetime string, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ". If omitted, download the base blob.
+#' @param snapshot,version For `download_blob`, optional snapshot and version identifiers. These should be datetime strings, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ". If omitted, download the base blob.
 #'
 #' @details
 #' `upload_blob` and `download_blob` are the workhorse file transfer functions for blobs. They each take as inputs a _single_ filename as the source for uploading/downloading, and a single filename as the destination. Alternatively, for uploading, `src` can be a [textConnection] or [rawConnection] object; and for downloading, `dest` can be NULL or a `rawConnection` object. If `dest` is NULL, the downloaded data is returned as a raw vector, and if a raw connection, it will be placed into the connection. See the examples below.
@@ -455,12 +455,12 @@ multiupload_blob <- function(container, src, dest, recursive=FALSE, type=c("Bloc
 #' @rdname blob
 #' @export
 download_blob <- function(container, src, dest=basename(src), blocksize=2^24, overwrite=FALSE, lease=NULL,
-                          check_md5=FALSE, use_azcopy=FALSE, snapshot=NULL)
+                          check_md5=FALSE, use_azcopy=FALSE, snapshot=NULL, version=NULL)
 {
     if(use_azcopy)
         azcopy_download(container, src, dest, overwrite=overwrite, lease=lease, check_md5=check_md5)
     else download_blob_internal(container, src, dest, blocksize=blocksize, overwrite=overwrite, lease=lease,
-                                check_md5=check_md5, snapshot=snapshot)
+                                check_md5=check_md5, snapshot=snapshot, version=NULL)
 }
 
 #' @rdname blob

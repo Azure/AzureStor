@@ -14,21 +14,23 @@ upload_blob_internal <- function(container, src, dest, type, blocksize, lease=NU
 
 
 download_blob_internal <- function(container, src, dest, blocksize=2^24, overwrite=FALSE, lease=NULL,
-                                   check_md5=FALSE, snapshot=NULL)
+                                   check_md5=FALSE, snapshot=NULL, version=NULL)
 {
     headers <- list()
     if(!is.null(lease))
         headers[["x-ms-lease-id"]] <- as.character(lease)
 
-    opts <- if(is.null(snapshot))
-        list()
-    else list(snapshot=snapshot)
+    opts <- list()
+    if(!is.null(snapshot))
+        opts$snapshot <- snapshot
+    if(!is.null(version))
+        opts$versionid <- version
 
     dest <- init_download_dest(dest, overwrite)
     on.exit(dispose_download_dest(dest))
 
     # get file size (for progress bar) and MD5 hash
-    props <- get_storage_properties(container, src, snapshot=snapshot)
+    props <- get_storage_properties(container, src, snapshot=snapshot, version=version)
     size <- as.numeric(props[["content-length"]])
     src_md5 <- props[["content-md5"]]
 
