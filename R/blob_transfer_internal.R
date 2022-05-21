@@ -16,7 +16,6 @@ upload_blob_internal <- function(container, src, dest, type, blocksize, lease=NU
 download_blob_internal <- function(container, src, dest, blocksize=2^24, overwrite=FALSE, lease=NULL,
                                    check_md5=FALSE, snapshot=NULL, version=NULL)
 {
-    print(version)
     headers <- list()
     if(!is.null(lease))
         headers[["x-ms-lease-id"]] <- as.character(lease)

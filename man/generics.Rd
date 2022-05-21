@@ -54,6 +54,10 @@
 \alias{list_storage_snapshots.blob_container}
 \alias{delete_storage_snapshot}
 \alias{delete_storage_snapshot.blob_container}
+\alias{list_storage_versions}
+\alias{list_storage_versions.blob_container}
+\alias{delete_storage_version}
+\alias{delete_storage_version.blob_container}
 \title{Storage client generics}
 \usage{
 storage_container(endpoint, ...)
@@ -160,6 +164,14 @@ list_storage_snapshots(container, ...)
 delete_storage_snapshot(container, file, ...)
 
 \method{delete_storage_snapshot}{blob_container}(container, file, ...)
+
+list_storage_versions(container, ...)
+
+\method{list_storage_versions}{blob_container}(container, ...)
+
+delete_storage_version(container, file, ...)
+
+\method{delete_storage_version}{blob_container}(container, file, ...)
 }
 \arguments{
 \item{endpoint}{A storage endpoint object, or for the character methods, a string giving the full URL to the container.}
@@ -201,6 +213,8 @@ Storage object management methods:
 \item \code{create_storage_snapshot} dispatches to \code{create_blob_snapshot}
 \item \code{list_storage_snapshots} dispatches to \code{list_blob_snapshots}
 \item \code{delete_storage_snapshot} dispatches to \code{delete_blob_snapshot}
+\item \code{list_storage_versions} dispatches to \code{list_blob_versions}
+\item \code{delete_storage_version} dispatches to \code{delete_blob_version}
 }
 }
 \examples{

@@ -35,5 +35,6 @@ Versions are different to \link[=list_blob_snapshot]{snapshots}:
 \itemize{
 \item A new snapshot has to be explicitly created via \code{create_blob_snapshot}. A new blob version is automatically created whenever the base blob is modified (and hence there is no \code{create_blob_version} function).
 \item Deleting the base blob will also delete all snapshots for that blob, while blob versions will be retained (but will typically be inaccessible).
+\item Snapshots are only available for storage accounts with hierarchical namespaces disabled, while versioning can be used with any storage account.
 }
 }

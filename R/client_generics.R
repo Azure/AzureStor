@@ -27,6 +27,8 @@
 #' - `create_storage_snapshot` dispatches to `create_blob_snapshot`
 #' - `list_storage_snapshots` dispatches to `list_blob_snapshots`
 #' - `delete_storage_snapshot` dispatches to `delete_blob_snapshot`
+#' - `list_storage_versions` dispatches to `list_blob_versions`
+#' - `delete_storage_version` dispatches to `delete_blob_version`
 #'
 #' @seealso
 #' [storage_endpoint], [blob_container], [file_share], [adls_filesystem]
@@ -364,3 +366,28 @@ UseMethod("delete_storage_snapshot")
 #' @export
 delete_storage_snapshot.blob_container <- function(container, file, ...)
 delete_blob_snapshot(container, file, ...)
+
+
+# versions
+
+#' @rdname generics
+#' @export
+list_storage_versions <- function(container, ...)
+UseMethod("list_storage_versions")
+
+#' @rdname generics
+#' @export
+list_storage_versions.blob_container <- function(container, ...)
+list_blob_versions(container, ...)
+
+#' @rdname generics
+#' @export
+delete_storage_version <- function(container, file, ...)
+UseMethod("delete_storage_version")
+
+#' @rdname generics
+#' @export
+delete_storage_version.blob_container <- function(container, file, ...)
+delete_blob_version(container, file, ...)
+
+
