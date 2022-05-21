@@ -43,11 +43,6 @@ test_that("Blob versioning works",
     dest1 <- tempfile()
     download_blob(cont, "file1", dest1, version=v[1])
     expect_true(files_identical(src1, dest1))
-
-    writeLines(v, "vers")
-    file.copy(src1, "src1")
-    file.copy(src2, "src2")
-    file.copy(dest1, "dest1")
 })
 
 
