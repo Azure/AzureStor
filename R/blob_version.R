@@ -11,7 +11,7 @@
 #'
 #' When you create a new blob, a single version exists, and that version is the current version. When you modify an existing blob, the current version becomes a previous version. A new version is created to capture the updated state, and that new version is the current version. When you delete a blob, the current version of the blob becomes a previous version, and there is no longer a current version. Any previous versions of the blob persist.
 #'
-#' Versions are different to [snapshots][list_blob_snapshot]:
+#' Versions are different to [snapshots][list_blob_snapshots]:
 #' - A new snapshot has to be explicitly created via `create_blob_snapshot`. A new blob version is automatically created whenever the base blob is modified (and hence there is no `create_blob_version` function).
 #' - Deleting the base blob will also delete all snapshots for that blob, while blob versions will be retained (but will typically be inaccessible).
 #' - Snapshots are only available for storage accounts with hierarchical namespaces disabled, while versioning can be used with any storage account.

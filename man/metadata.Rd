@@ -13,7 +13,7 @@
 \usage{
 get_storage_metadata(object, ...)
 
-\method{get_storage_metadata}{blob_container}(object, blob, snapshot = NULL, ...)
+\method{get_storage_metadata}{blob_container}(object, blob, snapshot = NULL, version = NULL, ...)
 
 \method{get_storage_metadata}{file_share}(object, file, isdir, ...)
 

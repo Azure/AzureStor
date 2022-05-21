@@ -48,7 +48,7 @@ get_storage_metadata <- function(object, ...)
 
 #' @rdname metadata
 #' @export
-get_storage_metadata.blob_container <- function(object, blob, snapshot=NULL, ...)
+get_storage_metadata.blob_container <- function(object, blob, snapshot=NULL, version=NULL, ...)
 {
     if(missing(blob))
     {
@@ -60,6 +60,8 @@ get_storage_metadata.blob_container <- function(object, blob, snapshot=NULL, ...
         options <- list(comp="metadata")
         if(!is.null(snapshot))
             options$snapshot <- snapshot
+        if(!is.null(version))
+            options$versionid <- version
     }
 
     res <- do_container_op(object, blob, options=options, http_verb="HEAD")
