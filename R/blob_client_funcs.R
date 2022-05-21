@@ -460,7 +460,7 @@ download_blob <- function(container, src, dest=basename(src), blocksize=2^24, ov
     if(use_azcopy)
         azcopy_download(container, src, dest, overwrite=overwrite, lease=lease, check_md5=check_md5)
     else download_blob_internal(container, src, dest, blocksize=blocksize, overwrite=overwrite, lease=lease,
-                                check_md5=check_md5, snapshot=snapshot, version=NULL)
+                                check_md5=check_md5, snapshot=snapshot, version=version)
 }
 
 #' @rdname blob
