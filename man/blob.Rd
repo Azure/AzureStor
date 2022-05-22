@@ -29,7 +29,7 @@ multiupload_blob(container, src, dest, recursive = FALSE,
 
 download_blob(container, src, dest = basename(src), blocksize = 2^24,
   overwrite = FALSE, lease = NULL, check_md5 = FALSE,
-  use_azcopy = FALSE, snapshot = NULL)
+  use_azcopy = FALSE, snapshot = NULL, version = NULL)
 
 multidownload_blob(container, src, dest, recursive = FALSE,
   blocksize = 2^24, overwrite = FALSE, lease = NULL, check_md5 = FALSE,
@@ -82,7 +82,7 @@ multicopy_url_to_blob(container, src, dest, lease = NULL, async = FALSE,
 
 \item{check_md5}{For downloading, whether to verify the MD5 hash of the downloaded blob(s). This requires that the blob's \code{Content-MD5} property is set. If this is TRUE and the \code{Content-MD5} property is missing, a warning is generated.}
 
-\item{snapshot}{For \code{download_blob}, an optional snapshot identifier. This should be a datetime string, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ". If omitted, download the base blob.}
+\item{snapshot, version}{For \code{download_blob}, optional snapshot and version identifiers. These should be datetime strings, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ". If omitted, download the base blob.}
 
 \item{blob}{A string naming a blob.}
 
@@ -191,7 +191,7 @@ copy_url_to_blob(cont,
 }
 }
 \seealso{
-\link{blob_container}, \link{az_storage}, \link{storage_download}, \link{call_azcopy}, \link{list_blob_snapshots}
+\link{blob_container}, \link{az_storage}, \link{storage_download}, \link{call_azcopy}, \link{list_blob_snapshots}, \link{list_blob_versions}
 
 \href{https://github.com/Azure/azure-storage-azcopy}{AzCopy version 10 on GitHub}
 \href{https://docs.microsoft.com/en-us/rest/api/storageservices/understanding-block-blobs--append-blobs--and-page-blobs}{Guide to the different blob types}

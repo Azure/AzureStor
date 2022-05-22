@@ -13,7 +13,7 @@
 \usage{
 get_storage_metadata(object, ...)
 
-\method{get_storage_metadata}{blob_container}(object, blob, snapshot = NULL, ...)
+\method{get_storage_metadata}{blob_container}(object, blob, snapshot = NULL, version = NULL, ...)
 
 \method{get_storage_metadata}{file_share}(object, file, isdir, ...)
 
@@ -34,7 +34,7 @@ set_storage_metadata(object, ...)
 
 \item{blob, file}{Optionally the name of an individual blob, file or directory within a container.}
 
-\item{snapshot}{For the blob method of \code{get_storage_metadata}, an optional snapshot identifier. This should be a datetime string, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ". Ignored if \code{blob} is omitted.}
+\item{snapshot, version}{For the blob method of \code{get_storage_metadata}, optional snapshot and version identifiers. These should be datetime strings, in the format "yyyy-mm-ddTHH:MM:SS.SSSSSSSZ". Ignored if \code{blob} is omitted.}
 
 \item{isdir}{For the file share method, whether the \code{file} argument is a file or directory. If omitted, \code{get_storage_metadata} will auto-detect the type; however this can be slow, so supply this argument if possible.}
 
