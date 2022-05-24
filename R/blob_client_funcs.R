@@ -484,8 +484,16 @@ delete_blob <- function(container, blob, confirm=TRUE)
     if(!delete_confirmed(confirm, paste0(container$endpoint$url, container$name, "/", blob), "blob"))
         return(invisible(NULL))
 
+    # deleting zero-length blobs (directories) will fail if the x-ms-delete-snapshots header is present
+    # and this is a HNS-enabled account:
+    # since there is no way to detect whether the account is HNS, and getting the blob size requires
+    # an extra API call, we try deleting with and without the header present
     hdrs <- list(`x-ms-delete-snapshots`="include")
-    invisible(do_container_op(container, blob, headers=hdrs, http_verb="DELETE"))
+    res <- try(do_container_op(container, blob, headers=hdrs, http_verb="DELETE"), silent=TRUE)
+    if(inherits(res, "try-error"))
+        res <- do_container_op(container, blob, headers=NULL, http_verb="DELETE")
+
+    invisible(res)
 }
 
 #' @rdname blob
