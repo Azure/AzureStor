@@ -15,7 +15,7 @@ globalVariables(c("self", "pool"), "AzureStor")
             options(structure(list(value), names=name))
     }
 
-    set_option("azure_storage_api_version", "2020-10-02")
+    set_option("azure_storage_api_version", "2021-06-08")
     set_option("azure_storage_progress_bar", TRUE)
     set_option("azure_storage_retries", 10)
 
