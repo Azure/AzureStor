@@ -10,7 +10,14 @@ azcopy_auth <- function(endpoint)
     env <- character(0)
     obj <- list(login=FALSE)
 
-    if(!is.null(endpoint$key))
+    if (Sys.getenv("AZCOPY_AUTO_LOGIN_TYPE") == "SPN")
+    {
+        env["AZCOPY_AUTO_LOGIN_TYPE"] <- "SPN"
+        env["AZCOPY_SPA_CLIENT_SECRET"] <- Sys.getenv("AZCOPY_SPA_CLIENT_SECRET")
+        env["AZCOPY_SPA_APPLICATION_ID"] <-  Sys.getenv("AZCOPY_SPA_APPLICATION_ID")
+        env["AZCOPY_TENANT_ID"] <- Sys.getenv("AZCOPY_TENANT_ID")
+    }
+    else if(!is.null(endpoint$key))
     {
         stop("AzCopy does not support authentication with a shared key", call.=FALSE)
         # env["ACCOUNT_NAME"] <- sub("\\..*$", "", httr::parse_url(endpoint$url)$hostname)
