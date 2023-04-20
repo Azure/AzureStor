@@ -257,7 +257,8 @@ get_user_delegation_sas.default <- function(account, key, resource, start=NULL, 
         auth_api_version,
         resource_type,
         snapshot_time,
-        "",
+        "",  # ses not yet implemented
+        "",  # rscc, rscd, rsce, rscl, rsct not yet implemented
         "",
         "",
         "",
@@ -350,6 +351,7 @@ get_service_sas.default <- function(account, resource, key, service, start=NULL,
             auth_api_version,
             resource_type,
             snapshot_time,
+            "",  # ses not yet implemented
             "",  # rscc, rscd, rsce, rscl, rsct not yet implemented
             "",
             "",
