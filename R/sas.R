@@ -366,6 +366,7 @@ get_service_sas.default <- function(account, resource, key, service, start=NULL,
         ip,
         protocol,
         auth_api_version,
+        "",  # ses not yet implemented
         "",  # rscc, rscd, rsce, rscl, rsct not yet implemented
         "",
         "",
