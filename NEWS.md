@@ -1,3 +1,7 @@
+# AzureStor 3.7.1
+
+- Update documentation links for CRAN
+
 # AzureStor 3.7.0
 
 - Add support for blob snapshots and versions:
