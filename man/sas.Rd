@@ -177,10 +177,10 @@ get_user_delegation_sas(endp, userkey, resource="mycontainer/myfile",
 \link{blob_endpoint}, \link{file_endpoint},
 \link{Date}, \link{POSIXt}
 
-\href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference},
-\href{https://docs.microsoft.com/en-us/rest/api/storageservices/}{Azure Storage Services API reference}
+\href{https://learn.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference},
+\href{https://learn.microsoft.com/en-us/rest/api/storageservices/}{Azure Storage Services API reference}
 
-\href{https://docs.microsoft.com/en-us/rest/api/storageservices/create-account-sas}{Create an account SAS},
-\href{https://docs.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas}{Create a user delegation SAS},
-\href{https://docs.microsoft.com/en-us/rest/api/storageservices/create-service-sas}{Create a service SAS}
+\href{https://learn.microsoft.com/en-us/rest/api/storageservices/create-account-sas}{Create an account SAS},
+\href{https://learn.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas}{Create a user delegation SAS},
+\href{https://learn.microsoft.com/en-us/rest/api/storageservices/create-service-sas}{Create a service SAS}
 }

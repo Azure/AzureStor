@@ -42,5 +42,5 @@ rg$delete_storage_account("mystorage")
 }
 \seealso{
 \link{create_storage_account}, \link{get_storage_account}, \link{az_storage},
-\href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference}
+\href{https://learn.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference}
 }

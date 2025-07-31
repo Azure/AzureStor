@@ -73,12 +73,12 @@
 #' [blob_endpoint], [file_endpoint],
 #' [create_storage_account], [get_storage_account], [delete_storage_account], [Date], [POSIXt]
 #'
-#' [Azure Storage Provider API reference](https://docs.microsoft.com/en-us/rest/api/storagerp/),
-#' [Azure Storage Services API reference](https://docs.microsoft.com/en-us/rest/api/storageservices/)
+#' [Azure Storage Provider API reference](https://learn.microsoft.com/en-us/rest/api/storagerp/),
+#' [Azure Storage Services API reference](https://learn.microsoft.com/en-us/rest/api/storageservices/)
 #'
-#' [Create an account SAS](https://docs.microsoft.com/en-us/rest/api/storageservices/create-account-sas),
-#' [Create a user delegation SAS](https://docs.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas),
-#' [Create a service SAS](https://docs.microsoft.com/en-us/rest/api/storageservices/create-service-sas)
+#' [Create an account SAS](https://learn.microsoft.com/en-us/rest/api/storageservices/create-account-sas),
+#' [Create a user delegation SAS](https://learn.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas),
+#' [Create a service SAS](https://learn.microsoft.com/en-us/rest/api/storageservices/create-service-sas)
 #'
 #' @examples
 #' \dontrun{

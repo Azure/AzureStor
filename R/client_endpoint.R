@@ -17,7 +17,7 @@
 #' If multiple authentication objects are supplied, they are used in this order of priority: first an access key, then an AAD token, then a SAS. If no authentication objects are supplied, only public (anonymous) access to the endpoint is possible.
 #'
 #' @section Storage emulators:
-#' AzureStor supports connecting to the [Azure SDK](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator) and [Azurite](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azurite) emulators for blob and queue storage. To connect, pass the full URL of the endpoint, including the account name, to the `blob_endpoint` and `queue_endpoint` methods (the latter from the AzureQstor package). The warning about an unrecognised endpoint can be ignored. See the linked pages, and the examples below, for details on how to authenticate with the emulator.
+#' AzureStor supports connecting to the [Azure SDK](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-emulator) and [Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite) emulators for blob and queue storage. To connect, pass the full URL of the endpoint, including the account name, to the `blob_endpoint` and `queue_endpoint` methods (the latter from the AzureQstor package). The warning about an unrecognised endpoint can be ignored. See the linked pages, and the examples below, for details on how to authenticate with the emulator.
 #'
 #' Note that the Azure SDK emulator is no longer being actively developed; it's recommended to use Azurite for development work.
 #'

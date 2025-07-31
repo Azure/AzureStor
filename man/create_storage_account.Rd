@@ -70,7 +70,7 @@ rg$create_storage_account("myblobstorage",
 \seealso{
 \link{get_storage_account}, \link{delete_storage_account}, \link{az_storage}
 
-\href{https://docs.microsoft.com/en-us/azure/storage/}{Azure Storage documentation},
-\href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference},
-\href{https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-namespace}{Azure Data Lake Storage hierarchical namespaces}
+\href{https://learn.microsoft.com/en-us/azure/storage/}{Azure Storage documentation},
+\href{https://learn.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference},
+\href{https://learn.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-namespace}{Azure Data Lake Storage hierarchical namespaces}
 }
