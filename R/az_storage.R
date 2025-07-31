@@ -16,7 +16,7 @@
 #' - `regen_key(key)`: Regenerates (creates a new value for) an access key. The argument `key` can be 1 or 2.
 #'
 #' @section Initialization:
-#' Initializing a new object of this class can either retrieve an existing storage account, or create a account on the host. Generally, the best way to initialize an object is via the `get_storage_account`, `create_storage_account` or `list_storage_accounts` methods of the [az_resource_group] class, which handle the details automatically.
+#' Initializing a new object of this class can either retrieve an existing storage account, or create a account on the host. Generally, the best way to initialize an object is via the `get_storage_account`, `create_storage_account` or `list_storage_accounts` methods of the [AzureRMR::az_resource_group] class, which handle the details automatically.
 #'
 #' @section Creating a shared access signature:
 #' Note that you don't need to worry about this section if you have been _given_ a SAS, and only want to use it to access storage.

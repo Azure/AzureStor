@@ -25,7 +25,8 @@
 \usage{
 get_account_sas(account, ...)
 
-\method{get_account_sas}{az_storage}(account, key = account$list_keys()[1], ...)
+\method{get_account_sas}{az_storage}(account, key = account$list_keys()[1],
+  ...)
 
 \method{get_account_sas}{storage_endpoint}(account, key = account$key, ...)
 
@@ -36,7 +37,8 @@ get_account_sas(account, ...)
 
 get_user_delegation_key(account, ...)
 
-\method{get_user_delegation_key}{az_resource}(account, token = account$token, ...)
+\method{get_user_delegation_key}{az_resource}(account, token = account$token,
+  ...)
 
 \method{get_user_delegation_key}{blob_endpoint}(account,
   token = account$token, key_start = NULL, key_expiry = NULL, ...)
@@ -62,7 +64,8 @@ get_service_sas(account, ...)
 \method{get_service_sas}{az_storage}(account, resource, service = c("blob",
   "file"), key = account$list_keys()[1], ...)
 
-\method{get_service_sas}{storage_endpoint}(account, resource, key = account$key, ...)
+\method{get_service_sas}{storage_endpoint}(account, resource,
+  key = account$key, ...)
 
 \method{get_service_sas}{default}(account, resource, key, service,
   start = NULL, expiry = NULL, permissions = "rl",

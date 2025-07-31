@@ -11,7 +11,8 @@
 \usage{
 get_storage_properties(object, ...)
 
-\method{get_storage_properties}{blob_container}(object, blob, snapshot = NULL, version = NULL, ...)
+\method{get_storage_properties}{blob_container}(object, blob,
+  snapshot = NULL, version = NULL, ...)
 
 \method{get_storage_properties}{file_share}(object, file, isdir, ...)
 

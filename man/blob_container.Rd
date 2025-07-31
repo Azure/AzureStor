@@ -54,7 +54,8 @@ delete_blob_container(endpoint, ...)
 
 \method{delete_blob_container}{blob_container}(endpoint, ...)
 
-\method{delete_blob_container}{blob_endpoint}(endpoint, name, confirm = TRUE, lease = NULL, ...)
+\method{delete_blob_container}{blob_endpoint}(endpoint, name, confirm = TRUE,
+  lease = NULL, ...)
 }
 \arguments{
 \item{endpoint}{Either a blob endpoint object as created by \link{storage_endpoint}, or a character string giving the URL of the endpoint.}

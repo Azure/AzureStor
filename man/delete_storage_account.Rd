@@ -7,8 +7,10 @@
 Method for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} class.
 }
 \section{Usage}{
-\preformatted{delete_storage_account(name, confirm=TRUE, wait=FALSE)
-}
+
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{delete_storage_account(name, confirm=TRUE, wait=FALSE)
+}\if{html}{\out{</div>}}
 }
 
 \section{Arguments}{
