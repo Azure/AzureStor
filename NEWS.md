@@ -1,6 +1,7 @@
 # AzureStor 3.7.1
 
 - Update documentation links for CRAN
+- Fix a bug that caused a generated SAS to be invalid (thanks to Peter Solymos, #134)
 
 # AzureStor 3.7.0
 
