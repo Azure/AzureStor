@@ -194,5 +194,5 @@ copy_url_to_blob(cont,
 \link{blob_container}, \link{az_storage}, \link{storage_download}, \link{call_azcopy}, \link{list_blob_snapshots}, \link{list_blob_versions}
 
 \href{https://github.com/Azure/azure-storage-azcopy}{AzCopy version 10 on GitHub}
-\href{https://docs.microsoft.com/en-us/rest/api/storageservices/understanding-block-blobs--append-blobs--and-page-blobs}{Guide to the different blob types}
+\href{https://learn.microsoft.com/en-us/rest/api/storageservices/understanding-block-blobs--append-blobs--and-page-blobs}{Guide to the different blob types}
 }

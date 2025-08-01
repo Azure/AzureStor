@@ -60,7 +60,7 @@ If multiple authentication objects are supplied, they are used in this order of 
 }
 \section{Storage emulators}{
 
-AzureStor supports connecting to the \href{https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator}{Azure SDK} and \href{https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azurite}{Azurite} emulators for blob and queue storage. To connect, pass the full URL of the endpoint, including the account name, to the \code{blob_endpoint} and \code{queue_endpoint} methods (the latter from the AzureQstor package). The warning about an unrecognised endpoint can be ignored. See the linked pages, and the examples below, for details on how to authenticate with the emulator.
+AzureStor supports connecting to the \href{https://learn.microsoft.com/en-us/azure/storage/common/storage-use-emulator}{Azure SDK} and \href{https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite}{Azurite} emulators for blob and queue storage. To connect, pass the full URL of the endpoint, including the account name, to the \code{blob_endpoint} and \code{queue_endpoint} methods (the latter from the AzureQstor package). The warning about an unrecognised endpoint can be ignored. See the linked pages, and the examples below, for details on how to authenticate with the emulator.
 
 Note that the Azure SDK emulator is no longer being actively developed; it's recommended to use Azurite for development work.
 }

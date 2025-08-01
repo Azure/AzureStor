@@ -279,7 +279,7 @@ delete_blob_container.blob_endpoint <- function(endpoint, name, confirm=TRUE, le
 #' [blob_container], [az_storage], [storage_download], [call_azcopy], [list_blob_snapshots], [list_blob_versions]
 #'
 #' [AzCopy version 10 on GitHub](https://github.com/Azure/azure-storage-azcopy)
-#' [Guide to the different blob types](https://docs.microsoft.com/en-us/rest/api/storageservices/understanding-block-blobs--append-blobs--and-page-blobs)
+#' [Guide to the different blob types](https://learn.microsoft.com/en-us/rest/api/storageservices/understanding-block-blobs--append-blobs--and-page-blobs)
 #'
 #' @examples
 #' \dontrun{

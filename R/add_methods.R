@@ -40,9 +40,9 @@
 #' @seealso
 #' [get_storage_account], [delete_storage_account], [az_storage]
 #'
-#' [Azure Storage documentation](https://docs.microsoft.com/en-us/azure/storage/),
-#' [Azure Storage Provider API reference](https://docs.microsoft.com/en-us/rest/api/storagerp/),
-#' [Azure Data Lake Storage hierarchical namespaces](https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-namespace)
+#' [Azure Storage documentation](https://learn.microsoft.com/en-us/azure/storage/),
+#' [Azure Storage Provider API reference](https://learn.microsoft.com/en-us/rest/api/storagerp/),
+#' [Azure Data Lake Storage hierarchical namespaces](https://learn.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-namespace)
 #'
 #' @examples
 #' \dontrun{
@@ -90,7 +90,7 @@ NULL
 #'
 #' @seealso
 #' [create_storage_account], [delete_storage_account], [az_storage],
-#' [Azure Storage Provider API reference](https://docs.microsoft.com/en-us/rest/api/storagerp/)
+#' [Azure Storage Provider API reference](https://learn.microsoft.com/en-us/rest/api/storagerp/)
 #'
 #' @examples
 #' \dontrun{
@@ -129,7 +129,7 @@ NULL
 #'
 #' @seealso
 #' [create_storage_account], [get_storage_account], [az_storage],
-#' [Azure Storage Provider API reference](https://docs.microsoft.com/en-us/rest/api/storagerp/)
+#' [Azure Storage Provider API reference](https://learn.microsoft.com/en-us/rest/api/storagerp/)
 #'
 #' @examples
 #' \dontrun{

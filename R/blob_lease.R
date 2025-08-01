@@ -17,8 +17,8 @@
 #'
 #' @seealso
 #' [blob_container],
-#' [Leasing a blob](https://docs.microsoft.com/en-us/rest/api/storageservices/lease-blob),
-#' [Leasing a container](https://docs.microsoft.com/en-us/rest/api/storageservices/lease-container)
+#' [Leasing a blob](https://learn.microsoft.com/en-us/rest/api/storageservices/lease-blob),
+#' [Leasing a container](https://learn.microsoft.com/en-us/rest/api/storageservices/lease-container)
 #'
 #' @rdname lease
 #' @export

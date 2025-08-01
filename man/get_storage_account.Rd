@@ -8,9 +8,11 @@
 Methods for the \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} and \link[AzureRMR:az_subscription]{AzureRMR::az_subscription} classes.
 }
 \section{Usage}{
-\preformatted{get_storage_account(name)
+
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{get_storage_account(name)
 list_storage_accounts()
-}
+}\if{html}{\out{</div>}}
 }
 
 \section{Arguments}{
@@ -47,5 +49,5 @@ rg$get_storage_account("mystorage")
 }
 \seealso{
 \link{create_storage_account}, \link{delete_storage_account}, \link{az_storage},
-\href{https://docs.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference}
+\href{https://learn.microsoft.com/en-us/rest/api/storagerp/}{Azure Storage Provider API reference}
 }
