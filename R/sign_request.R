@@ -12,6 +12,7 @@ sign_request <- function(endpoint, ...)
 }
 
 
+#' @exportS3Method
 sign_request.default <- function(endpoint, verb, url, headers, api, ...)
 {
     host_url <- httr::parse_url(endpoint$url)

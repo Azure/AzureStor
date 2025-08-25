@@ -4,7 +4,7 @@
 ![Downloads](https://cranlogs.r-pkg.org/badges/AzureStor)
 ![R-CMD-check](https://github.com/Azure/AzureStor/workflows/R-CMD-check/badge.svg)
 
-This package implements both an admin- and client-side interface to [Azure Storage Services](https://docs.microsoft.com/en-us/rest/api/storageservices/). The admin interface uses R6 classes and extends the framework provided by [AzureRMR](https://github.com/Azure/AzureRMR). The client interface provides several S3 methods for efficiently managing storage and performing file transfers.
+This package implements both an admin- and client-side interface to [Azure Storage Services](https://learn.microsoft.com/en-us/rest/api/storageservices/). The admin interface uses R6 classes and extends the framework provided by [AzureRMR](https://github.com/Azure/AzureRMR). The client interface provides several S3 methods for efficiently managing storage and performing file transfers.
 
 The primary repo for this package is at https://github.com/Azure/AzureStor; please submit issues and PRs there. It is also mirrored at the Cloudyr org at https://github.com/cloudyr/AzureStor. You can install the development version of the package with `devtools::install_github("Azure/AzureStor")`.
 
@@ -162,7 +162,7 @@ storage_upload(cont, src="logfile2.csv", dest="logfile.csv", type="AppendBlob", 
 
 ### Interface to AzCopy
 
-AzureStor includes an interface to [AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10), Microsoft's high-performance commandline utility for copying files to and from storage. To take advantage of this, simply include the argument `use_azcopy=TRUE` on any upload or download function. AzureStor will then call AzCopy to perform the file transfer, rather than using its own internal code. In addition, a `call_azcopy` function is provided to let you use AzCopy for any task.
+AzureStor includes an interface to [AzCopy](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10), Microsoft's high-performance commandline utility for copying files to and from storage. To take advantage of this, simply include the argument `use_azcopy=TRUE` on any upload or download function. AzureStor will then call AzCopy to perform the file transfer, rather than using its own internal code. In addition, a `call_azcopy` function is provided to let you use AzCopy for any task.
 
 ```r
 # use azcopy to download

@@ -4,6 +4,7 @@ normalize_src <- function(src, put_md5=FALSE)
 }
 
 
+#' @exportS3Method
 normalize_src.character <- function(src, put_md5=FALSE)
 {
     content_type <- mime::guess_type(src)
@@ -19,6 +20,7 @@ normalize_src.character <- function(src, put_md5=FALSE)
 }
 
 
+#' @exportS3Method
 normalize_src.textConnection <- function(src, put_md5=FALSE)
 {
     # convert to raw connection
@@ -33,6 +35,7 @@ normalize_src.textConnection <- function(src, put_md5=FALSE)
 }
 
 
+#' @exportS3Method
 normalize_src.rawConnection <- function(src, put_md5=FALSE)
 {
     content_type <- "application/octet-stream"

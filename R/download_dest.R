@@ -4,6 +4,7 @@ init_download_dest <- function(dest, overwrite)
 }
 
 
+#' @exportS3Method
 init_download_dest.character <- function(dest, overwrite)
 {
     if(!overwrite && file.exists(dest))
@@ -15,12 +16,14 @@ init_download_dest.character <- function(dest, overwrite)
 }
 
 
+#' @exportS3Method
 init_download_dest.rawConnection <- function(dest, overwrite)
 {
     structure(dest, class=c("conn_dest", class(dest)))
 }
 
 
+#' @exportS3Method
 init_download_dest.NULL <- function(dest, overwrite)
 {
     con <- rawConnection(raw(0), "w+b")
@@ -34,18 +37,21 @@ dispose_download_dest <- function(dest)
 }
 
 
+#' @exportS3Method
 dispose_download_dest.file_dest <- function(dest)
 {
     close(dest)
 }
 
 
+#' @exportS3Method
 dispose_download_dest.conn_dest <- function(dest)
 {
     seek(dest, 0)
 }
 
 
+#' @exportS3Method
 dispose_download_dest.null_dest <- function(dest)
 {
     close(dest)

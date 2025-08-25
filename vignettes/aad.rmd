@@ -83,7 +83,7 @@ The process is as follows:
 
 Creating the app registration is much the same as before, except that you don't need to set a redirect URI or enable public client flows. Instead you give the app a **client secret**, which is much the same as a password (and should similarly be kept secure). In the Portal, you can set this in the "Certificates and Secrets" pane for your app registration.
 
-It's also possible to authenticate with a **client certificate (public key)**, but this is more complex and we won't go into it here. For more details, see the [Azure Active Directory documentation](https://docs.microsoft.com/en-au/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow) and the [AzureAuth intro vignette](https://cran.r-project.org/package=AzureAuth/vignettes/token.html).
+It's also possible to authenticate with a **client certificate (public key)**, but this is more complex and we won't go into it here. For more details, see the [Azure Active Directory documentation](https://learn.microsoft.com/en-au/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow) and the [AzureAuth intro vignette](https://cran.r-project.org/package=AzureAuth/vignettes/token.html).
 
 ### Give the app's service principal a role assignment in the storage account
 

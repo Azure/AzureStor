@@ -12,3 +12,4 @@ drat.sh
 ^__blobstorage__
 ^__queuestorage__
 ^\.github$
+^SECURITY\.md$

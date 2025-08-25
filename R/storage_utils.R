@@ -219,12 +219,14 @@ retry_transfer <- function(res)
     UseMethod("retry_transfer")
 }
 
+#' @exportS3Method
 retry_transfer.error <- function(res)
 {
     grepl("curl", deparse(res$call[[1]]), fixed=TRUE) &&
         !grepl("Could not resolve host", res$message, fixed=TRUE)
 }
 
+#' @exportS3Method
 retry_transfer.response <- function(res)
 {
     httr::status_code(res) == 400L &&
