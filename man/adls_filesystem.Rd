@@ -53,7 +53,8 @@ delete_adls_filesystem(endpoint, ...)
 
 \method{delete_adls_filesystem}{adls_filesystem}(endpoint, ...)
 
-\method{delete_adls_filesystem}{adls_endpoint}(endpoint, name, confirm = TRUE, ...)
+\method{delete_adls_filesystem}{adls_endpoint}(endpoint, name,
+  confirm = TRUE, ...)
 }
 \arguments{
 \item{endpoint}{Either an ADLSgen2 endpoint object as created by \link{storage_endpoint} or \link{adls_endpoint}, or a character string giving the URL of the endpoint.}

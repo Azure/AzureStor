@@ -57,7 +57,7 @@ call_azcopy("copy",
 \seealso{
 \link[processx:run]{processx::run}, \link{download_blob}, \link{download_azure_file}, \link{download_adls_file}
 
-\href{https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10}{AzCopy page on Microsoft Docs}
+\href{https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10}{AzCopy page on Microsoft Docs}
 
 \href{https://github.com/Azure/azure-storage-azcopy}{AzCopy GitHub repo}
 }

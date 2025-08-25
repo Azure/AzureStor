@@ -50,7 +50,8 @@ delete_file_share(endpoint, ...)
 
 \method{delete_file_share}{file_share}(endpoint, ...)
 
-\method{delete_file_share}{file_endpoint}(endpoint, name, confirm = TRUE, ...)
+\method{delete_file_share}{file_endpoint}(endpoint, name, confirm = TRUE,
+  ...)
 }
 \arguments{
 \item{endpoint}{Either a file endpoint object as created by \link{storage_endpoint}, or a character string giving the URL of the endpoint.}

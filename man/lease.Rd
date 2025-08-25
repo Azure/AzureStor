@@ -42,6 +42,6 @@ Leasing is a way to prevent a blob or container from being accidentally deleted.
 }
 \seealso{
 \link{blob_container},
-\href{https://docs.microsoft.com/en-us/rest/api/storageservices/lease-blob}{Leasing a blob},
-\href{https://docs.microsoft.com/en-us/rest/api/storageservices/lease-container}{Leasing a container}
+\href{https://learn.microsoft.com/en-us/rest/api/storageservices/lease-blob}{Leasing a blob},
+\href{https://learn.microsoft.com/en-us/rest/api/storageservices/lease-container}{Leasing a container}
 }
