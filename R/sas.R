@@ -47,20 +47,23 @@
 #' [Create a service SAS](https://learn.microsoft.com/en-us/rest/api/storageservices/create-service-sas)
 #'
 #' @examples
+#' # Azure account keys are base64-encoded; use a dummy key for these examples.
+#' key <- openssl::base64_encode(charToRaw("example-key"))
+#'
 #' # account SAS valid for 7 days
-#' get_account_sas("mystorage", "access_key", start=Sys.Date(), expiry=Sys.Date() + 7)
+#' get_account_sas("mystorage", key, start=Sys.Date(), expiry=Sys.Date() + 7)
 #'
 #' # SAS with read/write/create/delete permissions
-#' get_account_sas("mystorage", "access_key", permissions="rwcd")
+#' get_account_sas("mystorage", key, permissions="rwcd")
 #'
 #' # SAS limited to blob (+ADLS2) and file storage
-#' get_account_sas("mystorage", "access_key", services="bf")
+#' get_account_sas("mystorage", key, services="bf")
 #'
 #' # SAS for file storage, allows access to files only (not shares)
-#' get_account_sas("mystorage", "access_key", services="f", resource_types="o")
+#' get_account_sas("mystorage", key, services="f", resource_types="o")
 #'
 #' # getting the key from an endpoint object
-#' endp <- storage_endpoint("https://mystorage.blob.core.windows.net", key="access_key")
+#' endp <- storage_endpoint("https://mystorage.blob.core.windows.net", key=key)
 #' get_account_sas(endp, permissions="rwcd")
 #'
 #' # service SAS for a container
