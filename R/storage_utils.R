@@ -272,7 +272,12 @@ render_xml <- function(lst)
 
 sign_sha256 <- function(string, key)
 {
-    openssl::base64_encode(openssl::sha256(charToRaw(string), openssl::base64_decode(key)))
+    # throw error on all invalid keys (consistent with behaviour in openssl 2.5.0)
+    key_decoded <- try(openssl::base64_decode(key))
+    if(inherits(key_decoded, "try-error") || length(key_decoded) == 0)
+        stop("Invalid storage account key, must be Base64 encoded", call.=FALSE)
+
+    openssl::base64_encode(openssl::sha256(charToRaw(string), key_decoded))
 }
 
 

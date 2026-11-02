@@ -1,3 +1,7 @@
+# AzureStor 3.7.2
+
+- SAS generation will now always fail with a storage account key that is invalid Base64-encoded, rather than generating a bad SAS. Also fixes #147.
+
 # AzureStor 3.7.1
 
 - Update documentation links for CRAN
