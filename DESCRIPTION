@@ -1,6 +1,6 @@
 Package: AzureStor
 Title: Storage Management in 'Azure'
-Version: 3.7.1
+Version: 3.7.2
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi73@gmail.com", role = c("aut", "cre")),
     person("Microsoft", role="cph")
@@ -31,4 +31,4 @@ Suggests:
     processx,
     uuid
 Roxygen: list(markdown=TRUE, r6=FALSE, old_usage=TRUE)
-RoxygenNote: 7.3.2
+Config/roxygen2/version: 8.1.0

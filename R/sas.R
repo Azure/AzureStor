@@ -47,6 +47,8 @@
 #' [Create a service SAS](https://learn.microsoft.com/en-us/rest/api/storageservices/create-service-sas)
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # account SAS valid for 7 days
 #' get_account_sas("mystorage", "access_key", start=Sys.Date(), expiry=Sys.Date() + 7)
 #'
@@ -71,8 +73,6 @@
 #'
 #' # read/write service SAS for a blob
 #' get_service_sas(endp, "containername/blobname", permissions="rw")
-#'
-#' \dontrun{
 #'
 #' # user delegation key valid for 24 hours
 #' token <- AzureRMR::get_azure_token("https://storage.azure.com", "mytenant", "app_id")
