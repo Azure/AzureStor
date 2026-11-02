@@ -236,7 +236,9 @@ export(upload_azure_file)
 export(upload_blob)
 export(upload_to_url)
 import(AzureRMR)
-importFrom(utils,URLencode)
-importFrom(utils,glob2rx)
-importFrom(utils,modifyList)
-importFrom(utils,packageVersion)
+importFrom(utils,
+  URLencode,
+  glob2rx,
+  modifyList,
+  packageVersion
+)

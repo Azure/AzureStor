@@ -131,6 +131,8 @@ To invalidate all user delegation keys, as well as the SAS's generated with them
 See the examples and Microsoft Docs pages below for how to specify arguments like the services, permissions, and resource types. Also, while not explicitly mentioned in the documentation, ADLSgen2 storage can use any SAS that is valid for blob storage.
 }
 \examples{
+\dontrun{
+
 # account SAS valid for 7 days
 get_account_sas("mystorage", "access_key", start=Sys.Date(), expiry=Sys.Date() + 7)
 
@@ -155,8 +157,6 @@ get_service_sas(endp, "containername/dirname")
 
 # read/write service SAS for a blob
 get_service_sas(endp, "containername/blobname", permissions="rw")
-
-\dontrun{
 
 # user delegation key valid for 24 hours
 token <- AzureRMR::get_azure_token("https://storage.azure.com", "mytenant", "app_id")
